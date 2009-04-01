@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer class="com.collabnet.ccf.preferences.CcfPreferenceInitializer"/>
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="com.collabnet.ccf.preferences.CcfPreferencePage"
+            id="com.collabnet.ccf.preferences"
+            name="CollabNet Connector Framework"/>
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            name="CollabNet"
+            id="com.collabnet.desktop">
+      </category>
+      <view
+            name="CCF Explorer"
+            icon="icons/ccfExplorer.gif"
+            category="com.collabnet.desktop"
+            class="com.collabnet.ccf.views.CcfExplorerView"
+            id="com.collabnet.ccf.views.CcfExplorerView">
+      </view>
+      <view
+            name="Hospital"
+            icon="icons/hospitalView.gif"
+            category="com.collabnet.desktop"
+            class="com.collabnet.ccf.views.HospitalView"
+            id="com.collabnet.ccf.views.HospitalView">
+      </view>      
+   </extension>
+   
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="com.collabnet.ccf.PerspectiveFactory"
+            icon="icons/ccfPerspective.gif"
+            id="com.collabnet.ccf.perspective"
+            name="CollabNet Connector Framework"/>
+   </extension>   
+   
+   <extension
+         point="org.eclipse.ui.popupMenus">                    
+      <objectContribution
+            objectClass="com.collabnet.ccf.model.Hospital"
+            id="com.collabnet.ccf.model.Hospital">
+         <action
+               label="Clear"
+               class="com.collabnet.ccf.actions.ClearHospitalAction"
+               id="com.collabnet.ccf.actions.ClearHospitalAction">
+         </action>              
+         <action
+               label="Replay"
+               class="com.collabnet.ccf.actions.ReplayHospitalAction"
+               id="com.collabnet.ccf.actions.ReplayHospitalAction">
+         </action> 
+         <action
+               label="Examine Payload"
+               class="com.collabnet.ccf.actions.ExaminePayloadAction"
+               id="com.collabnet.ccf.actions.ExaminePayloadAction">
+         </action>                          
+      </objectContribution>                   
+   </extension>   
+
+</plugin>
