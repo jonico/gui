@@ -182,6 +182,7 @@ public class HospitalPreferencePage extends PreferencePage implements IWorkbench
 				needsRefresh = true;
 				upButton.setEnabled(isUpButtonEnabled());
 				downButton.setEnabled(isDownButtonEnabled());
+				refreshSelectedColumns();
 			}			
 		});
 		
@@ -205,6 +206,7 @@ public class HospitalPreferencePage extends PreferencePage implements IWorkbench
 				needsRefresh = true;
 				upButton.setEnabled(isUpButtonEnabled());
 				downButton.setEnabled(isDownButtonEnabled());
+				refreshSelectedColumns();
 			}			
 		});
 		
@@ -254,6 +256,14 @@ public class HospitalPreferencePage extends PreferencePage implements IWorkbench
 		iter = selectedColumns.iterator();
 		while (iter.hasNext()) {
 			selectedColumnsList.add(iter.next());
+		}
+	}
+	
+	private void refreshSelectedColumns() {
+		selectedColumns = new ArrayList<String>();
+		String[] selectedItems = selectedColumnsList.getItems();
+		for (int i = 0; i < selectedItems.length; i++) {
+			selectedColumns.add(selectedItems[i]);
 		}
 	}
 	

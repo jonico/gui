@@ -1,6 +1,7 @@
 package com.collabnet.ccf.views;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.jface.action.Action;
@@ -62,6 +63,73 @@ public class HospitalView extends ViewPart {
 	private static boolean filtering;
 	private static boolean filtersActive = true;
 	
+	private static List<String> selectedColumns;
+	private static List<String> allColumns;
+	private static String[] columnHeaders = {
+		"ID",
+		"Timestamp",
+		"Exception Class",
+		"Exception Message",
+		"Cause Exception Class",
+		"Cause Exception Message",
+		"Stack Trace",
+		"Adaptor Name",
+		"Originating Component",
+		"Data Type",
+		"Data",
+		"Fixed",
+		"Reprocessed",
+		"Source System ID",
+		"Source Repository ID",
+		"Target System ID",
+		"Target Repository ID",
+		"Source System Kind",
+		"Source Repository Kind",
+		"Target System Kind",
+		"Target Repository Kind",
+		"Source Artifact ID",
+		"Target Artifact ID",
+		"Error Code",
+		"Source Last Modified",
+		"Target Last Modified",
+		"Source Artifact Version",
+		"Target Artifact Version",
+		"Artifact Type",
+		"Generic Artifact"
+	};
+	private static int[] columnWidths = {
+		50,
+		75,
+		100,
+		200,
+		200,
+		200,
+		200,
+		200,
+		200,
+		200,
+		200,
+		50,
+		50,
+		200,
+		100,
+		200,
+		100,
+		100,
+		100,
+		100,
+		100,
+		100,
+		100,
+		100,
+		100,
+		100,
+		100,
+		100,
+		100,
+		300
+	};
+	
 	public static final String ID = "com.collabnet.ccf.views.HospitalView";
 	
 	public HospitalView() {
@@ -75,6 +143,8 @@ public class HospitalView extends ViewPart {
 			filtersActive = settings.getBoolean("hospitalFilters.active");
 			getPreviousFilters();
 		}
+		
+		setSelectedColumns();
 		
 		GridLayout layout = new GridLayout();
 		layout.numColumns = 1;
@@ -161,189 +231,22 @@ public class HospitalView extends ViewPart {
 		
 		SelectionListener headerListener = getColumnListener();
 
-		TableColumn col;
-		
-		col = new TableColumn(table, SWT.NONE);
-		col.setResizable(true);
-		col.setText("ID");
-		col.addSelectionListener(headerListener);
-		setColumnWidth(layout, disposeListener, col, 50);
-		
-		col = new TableColumn(table, SWT.NONE);
-		col.setResizable(true);
-		col.setText("Timestamp");
-		col.addSelectionListener(headerListener);
-		setColumnWidth(layout, disposeListener, col, 75);
-		
-		col = new TableColumn(table, SWT.NONE);
-		col.setResizable(true);
-		col.setText("Exception Class");
-		col.addSelectionListener(headerListener);
-		setColumnWidth(layout, disposeListener, col, 100);
-		
-		col = new TableColumn(table, SWT.NONE);
-		col.setResizable(true);
-		col.setText("Exception Message");
-		col.addSelectionListener(headerListener);
-		setColumnWidth(layout, disposeListener, col, 200);
-		
-		col = new TableColumn(table, SWT.NONE);
-		col.setResizable(true);
-		col.setText("Cause Exception Class");
-		col.addSelectionListener(headerListener);
-		setColumnWidth(layout, disposeListener, col, 200);
-		
-		col = new TableColumn(table, SWT.NONE);
-		col.setResizable(true);
-		col.setText("Cause Exception Message");
-		col.addSelectionListener(headerListener);
-		setColumnWidth(layout, disposeListener, col, 200);
-		
-		col = new TableColumn(table, SWT.NONE);
-		col.setResizable(true);
-		col.setText("Stack Trace");
-		col.addSelectionListener(headerListener);
-		setColumnWidth(layout, disposeListener, col, 200);
-		
-		col = new TableColumn(table, SWT.NONE);
-		col.setResizable(true);
-		col.setText("Adaptor Name");
-		col.addSelectionListener(headerListener);
-		setColumnWidth(layout, disposeListener, col, 200);
-		
-		col = new TableColumn(table, SWT.NONE);
-		col.setResizable(true);
-		col.setText("Originating Component");
-		col.addSelectionListener(headerListener);
-		setColumnWidth(layout, disposeListener, col, 200);
-		
-		col = new TableColumn(table, SWT.NONE);
-		col.setResizable(true);
-		col.setText("Data Type");
-		col.addSelectionListener(headerListener);
-		setColumnWidth(layout, disposeListener, col, 200);
-		
-		col = new TableColumn(table, SWT.NONE);
-		col.setResizable(true);
-		col.setText("Data");
-		col.addSelectionListener(headerListener);
-		setColumnWidth(layout, disposeListener, col, 200);
-		
-		col = new TableColumn(table, SWT.NONE);
-		col.setResizable(true);
-		col.setText("Fixed");
-		col.addSelectionListener(headerListener);
-		setColumnWidth(layout, disposeListener, col, 50);
-		
-		col = new TableColumn(table, SWT.NONE);
-		col.setResizable(true);
-		col.setText("Reprocessed");
-		col.addSelectionListener(headerListener);
-		setColumnWidth(layout, disposeListener, col, 50);
-		
-		col = new TableColumn(table, SWT.NONE);
-		col.setResizable(true);
-		col.setText("Source System ID");
-		col.addSelectionListener(headerListener);
-		setColumnWidth(layout, disposeListener, col, 200);
-		
-		col = new TableColumn(table, SWT.NONE);
-		col.setResizable(true);
-		col.setText("Source Repository ID");
-		col.addSelectionListener(headerListener);
-		setColumnWidth(layout, disposeListener, col, 100);
-		
-		col = new TableColumn(table, SWT.NONE);
-		col.setResizable(true);
-		col.setText("Target System ID");
-		col.addSelectionListener(headerListener);
-		setColumnWidth(layout, disposeListener, col, 200);
-		
-		col = new TableColumn(table, SWT.NONE);
-		col.setResizable(true);
-		col.setText("Target Repository ID");
-		col.addSelectionListener(headerListener);
-		setColumnWidth(layout, disposeListener, col, 100);
-		
-		col = new TableColumn(table, SWT.NONE);
-		col.setResizable(true);
-		col.setText("Source System Kind");
-		col.addSelectionListener(headerListener);
-		setColumnWidth(layout, disposeListener, col, 100);
-		
-		col = new TableColumn(table, SWT.NONE);
-		col.setResizable(true);
-		col.setText("Source Repository Kind");
-		col.addSelectionListener(headerListener);
-		setColumnWidth(layout, disposeListener, col, 100);
-		
-		col = new TableColumn(table, SWT.NONE);
-		col.setResizable(true);
-		col.setText("Target System Kind");
-		col.addSelectionListener(headerListener);
-		setColumnWidth(layout, disposeListener, col, 100);
-		
-		col = new TableColumn(table, SWT.NONE);
-		col.setResizable(true);
-		col.setText("Target Repository Kind");
-		col.addSelectionListener(headerListener);
-		setColumnWidth(layout, disposeListener, col, 100);	
-		
-		col = new TableColumn(table, SWT.NONE);
-		col.setResizable(true);
-		col.setText("Source Artifact ID");
-		col.addSelectionListener(headerListener);
-		setColumnWidth(layout, disposeListener, col, 100);
-		
-		col = new TableColumn(table, SWT.NONE);
-		col.setResizable(true);
-		col.setText("Target Artifact ID");
-		col.addSelectionListener(headerListener);
-		setColumnWidth(layout, disposeListener, col, 100);
-		
-		col = new TableColumn(table, SWT.NONE);
-		col.setResizable(true);
-		col.setText("Error Code");
-		col.addSelectionListener(headerListener);
-		setColumnWidth(layout, disposeListener, col, 100);
-		
-		col = new TableColumn(table, SWT.NONE);
-		col.setResizable(true);
-		col.setText("Source Last Modified");
-		col.addSelectionListener(headerListener);
-		setColumnWidth(layout, disposeListener, col, 100);
-		
-		col = new TableColumn(table, SWT.NONE);
-		col.setResizable(true);
-		col.setText("Target Last Modified");
-		col.addSelectionListener(headerListener);
-		setColumnWidth(layout, disposeListener, col, 100);
-		
-		col = new TableColumn(table, SWT.NONE);
-		col.setResizable(true);
-		col.setText("Source Artifact Version");
-		col.addSelectionListener(headerListener);
-		setColumnWidth(layout, disposeListener, col, 100);
-		
-		col = new TableColumn(table, SWT.NONE);
-		col.setResizable(true);
-		col.setText("Target Artifact Version");
-		col.addSelectionListener(headerListener);
-		setColumnWidth(layout, disposeListener, col, 100);
-		
-		col = new TableColumn(table, SWT.NONE);
-		col.setResizable(true);
-		col.setText("Artifact Type");
-		col.addSelectionListener(headerListener);
-		setColumnWidth(layout, disposeListener, col, 100);
-		
-		col = new TableColumn(table, SWT.NONE);
-		col.setResizable(true);
-		col.setText("Generic Artifact");
-		col.addSelectionListener(headerListener);
-		setColumnWidth(layout, disposeListener, col, 300);
+		Iterator<String> iter = selectedColumns.iterator();
+		while (iter.hasNext()) {
+			String columnName = iter.next();
+			createColumn(columnName, table, headerListener, disposeListener, layout);
+		}
 	}
 	
+	private void createColumn(String columnName, Table table, SelectionListener headerListener, DisposeListener disposeListener, TableLayout layout) {
+		int index = allColumns.indexOf(columnName);
+		TableColumn col = new TableColumn(table, SWT.NONE);
+		col.setResizable(true);
+		col.setText(columnHeaders[index]);
+		col.addSelectionListener(headerListener);
+		setColumnWidth(layout, disposeListener, col, columnWidths[index]);
+	}
+
 	private SelectionListener getColumnListener() {
 		return new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
@@ -458,6 +361,20 @@ public class HospitalView extends ViewPart {
 		}
 	}
 	
+	public static void setSelectedColumns() {
+		selectedColumns = new ArrayList<String>();
+		String columns = Activator.getDefault().getPreferenceStore().getString(Activator.PREFERENCES_HOSPITAL_COLUMNS);
+		String[] columnArray = columns.split("\\,");
+		for (int i = 0; i < columnArray.length; i++) {
+			selectedColumns.add(columnArray[i]);
+		}
+		allColumns = new ArrayList<String>();
+		String[] allColumnArray = CcfDataProvider.HOSPITAL_COLUMNS.split("\\,");
+		for (int i = 0; i < allColumnArray.length; i++) {
+			allColumns.add(allColumnArray[i]);
+		}
+	}
+	
 	class HospitalLabelProvider implements ITableLabelProvider {
 
 		public Image getColumnImage(Object element, int columnIndex) {
@@ -470,8 +387,10 @@ public class HospitalView extends ViewPart {
 		}
 
 		public String getColumnText(Object element, int columnIndex) {
+			String columnName = selectedColumns.get(columnIndex);
+			int index = allColumns.indexOf(columnName);			
 			Patient patient = (Patient)element;
-			switch (columnIndex) {
+			switch (index) {
 			case 0:
 				if (patient.getId() == 0) return "";
 				else return Integer.toString(patient.getId());
