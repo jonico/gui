@@ -9,7 +9,7 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.actions.ActionDelegate;
 
-import com.collabnet.ccf.model.Hospital;
+import com.collabnet.ccf.model.Patient;
 
 public class ReplayHospitalAction extends ActionDelegate {
 	private IStructuredSelection fSelection;
@@ -31,9 +31,9 @@ public class ReplayHospitalAction extends ActionDelegate {
 		Iterator iter = fSelection.iterator();
 		while (iter.hasNext()) {
 			Object object = iter.next();
-			if (object instanceof Hospital) {
-				Hospital hospital = (Hospital)object;
-				if (!hospital.getOriginatingComponent().endsWith("EntityService") && !hospital.getOriginatingComponent().endsWith("Write"))
+			if (object instanceof Patient) {
+				Patient patient = (Patient)object;
+				if (!patient.getOriginatingComponent().endsWith("EntityService") && !patient.getOriginatingComponent().endsWith("Write"))
 					return false;
 			}
 		}

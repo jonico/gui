@@ -10,6 +10,8 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
+import com.collabnet.ccf.db.CcfDataProvider;
+
 /**
  * The activator class controls the plug-in life cycle
  */
@@ -39,6 +41,7 @@ public class Activator extends AbstractUIPlugin {
 	public static final String PREFERENCES_DATABASE_USER = "pref_db_user";
 	public static final String PREFERENCES_DATABASE_PASSWORD = "pref_db_password";
 	public static final String PREFERENCES_AUTOCONNECT = "pref_autoconnect";
+	public static final String PREFERENCES_HOSPITAL_COLUMNS = "hospital_columns";
 	
 	// Default database
 	public static final String DATABASE_DEFAULT_DESCRIPTION = "Default";
@@ -47,6 +50,7 @@ public class Activator extends AbstractUIPlugin {
 	public static final String DATABASE_DEFAULT_USER = "sa";
 	public static final String DATABASE_DEFAULT_PASSWORD = "";
 	public static final boolean DEFAULT_AUTOCONNECT = false;
+	public static final String DEFAULT_HOSPITAL_COLUMNS = CcfDataProvider.HOSPITAL_COLUMNS;
 	
 	// The shared instance
 	private static Activator plugin;

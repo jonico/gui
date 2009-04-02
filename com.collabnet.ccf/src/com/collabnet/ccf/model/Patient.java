@@ -8,7 +8,7 @@ import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.properties.PropertyDescriptor;
 
-public class Hospital implements IPropertySource {
+public class Patient implements IPropertySource {
 	private int id;
 	private String timeStamp;
 	private String exceptionClassName;

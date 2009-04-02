@@ -16,7 +16,9 @@ import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnPixelData;
 import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.ILabelProviderListener;
+import org.eclipse.jface.viewers.IOpenListener;
 import org.eclipse.jface.viewers.ITableLabelProvider;
+import org.eclipse.jface.viewers.OpenEvent;
 import org.eclipse.jface.viewers.TableLayout;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.SWT;
@@ -40,17 +42,19 @@ import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.eclipse.ui.part.ViewPart;
 
 import com.collabnet.ccf.Activator;
+import com.collabnet.ccf.actions.ExaminePayloadAction;
 import com.collabnet.ccf.db.CcfDataProvider;
 import com.collabnet.ccf.db.Filter;
 import com.collabnet.ccf.dialogs.HospitalFilterDialog;
-import com.collabnet.ccf.model.Hospital;
+import com.collabnet.ccf.model.Patient;
 import com.collabnet.ccf.preferences.CcfPreferencePage;
+import com.collabnet.ccf.preferences.HospitalPreferencePage;
 
 public class HospitalView extends ViewPart {
 	private TableViewer tableViewer;
 	private IDialogSettings settings = Activator.getDefault().getDialogSettings();
 	private CcfDataProvider dataProvider = new CcfDataProvider();
-	private Hospital[] hospitals;
+	private Patient[] patients;
 	private boolean hospitalLoaded;
 	
 	private static HospitalView view;
@@ -87,7 +91,7 @@ public class HospitalView extends ViewPart {
 		getSite().setSelectionProvider(tableViewer);
 		
 		if (Activator.getDefault().getPreferenceStore().getBoolean(Activator.PREFERENCES_AUTOCONNECT)) {
-			getHospitals();
+			getPatients();
 		} else {
 			setContentDescription("Click Refresh to load Hospital");			
 		}
@@ -103,7 +107,7 @@ public class HospitalView extends ViewPart {
 	}
 	
 	public void refresh() {
-		getHospitals();
+		getPatients();
 	}
 	
 	public boolean isHospitalLoaded() {
@@ -136,6 +140,14 @@ public class HospitalView extends ViewPart {
 
 		tableViewer.setContentProvider(new ArrayContentProvider());
 		tableViewer.setLabelProvider(new HospitalLabelProvider());
+		
+		tableViewer.addOpenListener(new IOpenListener() {
+			public void open(OpenEvent evt) {
+				ExaminePayloadAction action = new ExaminePayloadAction();
+				action.selectionChanged(null, tableViewer.getSelection());
+				action.run(null);
+			}			
+		});
 		
 		return tableViewer;
 	}
@@ -382,21 +394,21 @@ public class HospitalView extends ViewPart {
 		manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));		
 	}
 	
-	private void getHospitals() {
+	private void getPatients() {
 		BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
 			public void run() {
 				if (contentDescription == null) setContentDescription("");
 				else setContentDescription(contentDescription);
 				try {
-					if (filtering) hospitals = dataProvider.getHospitals(filters);
-					else hospitals = dataProvider.getHospitals(null);
+					if (filtering) patients = dataProvider.getPatients(filters);
+					else patients = dataProvider.getPatients(null);
 					hospitalLoaded = true;
 				} catch (Exception e) {
 					setContentDescription("Could not connect to database.  See error log.");
-					hospitals = new Hospital[0];
+					patients = new Patient[0];
 					Activator.handleError("Could not connect to database", e);
 				}
-				tableViewer.setInput(hospitals);
+				tableViewer.setInput(patients);
 				tableViewer.refresh();
 			}			
 		});
@@ -451,106 +463,106 @@ public class HospitalView extends ViewPart {
 
 		public Image getColumnImage(Object element, int columnIndex) {
 			if (columnIndex == 0) {
-				Hospital hospital = (Hospital)element;
-				if (hospital.isFixed()) return Activator.getImage(Activator.IMAGE_HOSPITAL_ENTRY_FIXED);
+				Patient patient = (Patient)element;
+				if (patient.isFixed()) return Activator.getImage(Activator.IMAGE_HOSPITAL_ENTRY_FIXED);
 				else return Activator.getImage(Activator.IMAGE_HOSPITAL_ENTRY);
 			}
 			return null;
 		}
 
 		public String getColumnText(Object element, int columnIndex) {
-			Hospital hospital = (Hospital)element;
+			Patient patient = (Patient)element;
 			switch (columnIndex) {
 			case 0:
-				if (hospital.getId() == 0) return "";
-				else return Integer.toString(hospital.getId());
+				if (patient.getId() == 0) return "";
+				else return Integer.toString(patient.getId());
 			case 1:
-				if (hospital.getTimeStamp() == null) return "";
-				else return hospital.getTimeStamp();		
+				if (patient.getTimeStamp() == null) return "";
+				else return patient.getTimeStamp();		
 			case 2:
-				if (hospital.getExceptionClassName() == null) return "";
-				else return hospital.getExceptionClassName();
+				if (patient.getExceptionClassName() == null) return "";
+				else return patient.getExceptionClassName();
 			case 3:
-				if (hospital.getExceptionMessage() == null) return "";
-				else return hospital.getExceptionMessage();	
+				if (patient.getExceptionMessage() == null) return "";
+				else return patient.getExceptionMessage();	
 			case 4:
-				if (hospital.getCauseExceptionClassName() == null) return "";
-				else return hospital.getCauseExceptionClassName();
+				if (patient.getCauseExceptionClassName() == null) return "";
+				else return patient.getCauseExceptionClassName();
 			case 5:
-				if (hospital.getCauseExceptionMessage() == null) return "";
-				else return hospital.getCauseExceptionMessage();
+				if (patient.getCauseExceptionMessage() == null) return "";
+				else return patient.getCauseExceptionMessage();
 			case 6:
-				if (hospital.getStackTrace() == null) return "";
-				else return hospital.getStackTrace();	
+				if (patient.getStackTrace() == null) return "";
+				else return patient.getStackTrace();	
 			case 7:
-				if (hospital.getAdaptorName() == null) return "";
-				else return hospital.getAdaptorName();	
+				if (patient.getAdaptorName() == null) return "";
+				else return patient.getAdaptorName();	
 			case 8:
-				if (hospital.getOriginatingComponent() == null) return "";
-				else return hospital.getOriginatingComponent();	
+				if (patient.getOriginatingComponent() == null) return "";
+				else return patient.getOriginatingComponent();	
 			case 9:
-				if (hospital.getDataType() == null) return "";
-				else return hospital.getDataType();	
+				if (patient.getDataType() == null) return "";
+				else return patient.getDataType();	
 			case 10:
-				if (hospital.getData() == null) return "";
-				else return hospital.getData();	
+				if (patient.getData() == null) return "";
+				else return patient.getData();	
 			case 11:
-				if (hospital.isFixed()) return "true";
+				if (patient.isFixed()) return "true";
 				else return "";	
 			case 12:
-				if (hospital.isReprocessed()) return "true";
+				if (patient.isReprocessed()) return "true";
 				else return "";	
 			case 13:
-				if (hospital.getSourceSystemId() == null) return "";
-				else return hospital.getSourceSystemId();	
+				if (patient.getSourceSystemId() == null) return "";
+				else return patient.getSourceSystemId();	
 			case 14:
-				if (hospital.getSourceRepositoryId() == null) return "";
-				else return hospital.getSourceRepositoryId();
+				if (patient.getSourceRepositoryId() == null) return "";
+				else return patient.getSourceRepositoryId();
 			case 15:
-				if (hospital.getTargetSystemId() == null) return "";
-				else return hospital.getTargetSystemId();	
+				if (patient.getTargetSystemId() == null) return "";
+				else return patient.getTargetSystemId();	
 			case 16:
-				if (hospital.getTargetRepositoryId() == null) return "";
-				else return hospital.getSourceRepositoryId();	
+				if (patient.getTargetRepositoryId() == null) return "";
+				else return patient.getSourceRepositoryId();	
 			case 17:
-				if (hospital.getSourceSystemKind() == null) return "";
-				else return hospital.getSourceSystemKind();
+				if (patient.getSourceSystemKind() == null) return "";
+				else return patient.getSourceSystemKind();
 			case 18:
-				if (hospital.getSourceRepositoryKind() == null) return "";
-				else return hospital.getSourceRepositoryKind();	
+				if (patient.getSourceRepositoryKind() == null) return "";
+				else return patient.getSourceRepositoryKind();	
 			case 19:
-				if (hospital.getTargetSystemKind() == null) return "";
-				else return hospital.getTargetSystemKind();
+				if (patient.getTargetSystemKind() == null) return "";
+				else return patient.getTargetSystemKind();
 			case 20:
-				if (hospital.getTargetRepositoryKind() == null) return "";
-				else return hospital.getTargetRepositoryKind();	
+				if (patient.getTargetRepositoryKind() == null) return "";
+				else return patient.getTargetRepositoryKind();	
 			case 21:
-				if (hospital.getSourceArtifactId() == null) return "";
-				else return hospital.getSourceArtifactId();	
+				if (patient.getSourceArtifactId() == null) return "";
+				else return patient.getSourceArtifactId();	
 			case 22:
-				if (hospital.getTargetArtifactId() == null) return "";
-				else return hospital.getTargetArtifactId();	
+				if (patient.getTargetArtifactId() == null) return "";
+				else return patient.getTargetArtifactId();	
 			case 23:
-				if (hospital.getErrorCode() == null) return "";
-				else return hospital.getErrorCode();
+				if (patient.getErrorCode() == null) return "";
+				else return patient.getErrorCode();
 			case 24:
-				if (hospital.getSourceLastModificationTime() == null) return "";
-				else return hospital.getSourceLastModificationTime().toString();
+				if (patient.getSourceLastModificationTime() == null) return "";
+				else return patient.getSourceLastModificationTime().toString();
 			case 25:
-				if (hospital.getTargetLastModificationTime() == null) return "";
-				else return hospital.getTargetLastModificationTime().toString();
+				if (patient.getTargetLastModificationTime() == null) return "";
+				else return patient.getTargetLastModificationTime().toString();
 			case 26:
-				if (hospital.getSourceArtifactVersion() == null) return "";
-				else return hospital.getSourceArtifactVersion();
+				if (patient.getSourceArtifactVersion() == null) return "";
+				else return patient.getSourceArtifactVersion();
 			case 27:
-				if (hospital.getTargetArtifactVersion() == null) return "";
-				else return hospital.getTargetArtifactVersion();	
+				if (patient.getTargetArtifactVersion() == null) return "";
+				else return patient.getTargetArtifactVersion();	
 			case 28:
-				if (hospital.getArtifactType() == null) return "";
-				else return hospital.getArtifactType();	
+				if (patient.getArtifactType() == null) return "";
+				else return patient.getArtifactType();	
 			case 29:
-				if (hospital.getGenericArtifact() == null) return "";
-				else return hospital.getGenericArtifact();					
+				if (patient.getGenericArtifact() == null) return "";
+				else return patient.getGenericArtifact();					
 			default:
 				break;
 			}
@@ -579,7 +591,7 @@ public class HospitalView extends ViewPart {
 			setToolTipText("Refresh View");
 		}
 		public void run() {
-			getHospitals();
+			getPatients();
 		}
 	}
 	
@@ -595,7 +607,7 @@ public class HospitalView extends ViewPart {
 				filtering = dialog.isFiltering();
 				filtersActive = dialog.filtersActive();
 				setFilters(dialog.getFilters(), filtering);
-				getHospitals();
+				getPatients();
 			}
 		}
 	}
@@ -606,7 +618,8 @@ public class HospitalView extends ViewPart {
 			setText("Columns...");
 		}
 		public void run() {
-			MessageDialog.openInformation(Display.getDefault().getActiveShell(), "Arrange Columns", "Not yet implemented.");
+			PreferenceDialog pref = PreferencesUtil.createPreferenceDialogOn(Display.getDefault().getActiveShell(), HospitalPreferencePage.ID, null, null);
+			if (pref != null) pref.open();		
 		}
 	}
 	

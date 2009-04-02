@@ -16,7 +16,7 @@ import org.eclipse.ui.actions.ActionDelegate;
 import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.editors.StringInput;
 import com.collabnet.ccf.editors.StringStorage;
-import com.collabnet.ccf.model.Hospital;
+import com.collabnet.ccf.model.Patient;
 
 public class ExaminePayloadAction extends ActionDelegate {
 	private IStructuredSelection fSelection;
@@ -26,10 +26,10 @@ public class ExaminePayloadAction extends ActionDelegate {
 		Iterator iter = fSelection.iterator();
 		while (iter.hasNext()) {
 			Object object = iter.next();
-			if (object instanceof Hospital) {
+			if (object instanceof Patient) {
 				IWorkbenchPage page = Activator.getDefault().getWorkbench().getActiveWorkbenchWindow().getActivePage();
-				Hospital hospital = (Hospital)object;
-				IStorage storage = new StringStorage(hospital.getGenericArtifact(), hospital.getTimeStamp());
+				Patient patient = (Patient)object;
+				IStorage storage = new StringStorage(patient.getGenericArtifact(), patient.getTimeStamp());
 				IStorageEditorInput input = new StringInput(storage);
 				IEditorRegistry registry = Activator.getDefault().getWorkbench().getEditorRegistry();
 				IEditorDescriptor descriptor = registry.getDefaultEditor("file.xml");

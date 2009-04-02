@@ -9,7 +9,7 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.actions.ActionDelegate;
 
-import com.collabnet.ccf.model.Hospital;
+import com.collabnet.ccf.model.Patient;
 
 public class ClearHospitalAction extends ActionDelegate {
 	private IStructuredSelection fSelection;
@@ -31,9 +31,9 @@ public class ClearHospitalAction extends ActionDelegate {
 		Iterator iter = fSelection.iterator();
 		while (iter.hasNext()) {
 			Object object = iter.next();
-			if (object instanceof Hospital) {
-				Hospital hospital = (Hospital)object;
-				if (hospital.isFixed()) return false;
+			if (object instanceof Patient) {
+				Patient patient = (Patient)object;
+				if (patient.isFixed()) return false;
 			}
 		}
 		return true;

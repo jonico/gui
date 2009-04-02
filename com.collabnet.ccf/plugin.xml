@@ -13,6 +13,11 @@
             class="com.collabnet.ccf.preferences.CcfPreferencePage"
             id="com.collabnet.ccf.preferences"
             name="CollabNet Connector Framework"/>
+      <page
+            class="com.collabnet.ccf.preferences.HospitalPreferencePage"
+            id="com.collabnet.ccf.preferences.hospital"
+            category="com.collabnet.ccf.preferences"
+            name="Hospital"/>            
    </extension>
 
    <extension
@@ -49,8 +54,8 @@
    <extension
          point="org.eclipse.ui.popupMenus">                    
       <objectContribution
-            objectClass="com.collabnet.ccf.model.Hospital"
-            id="com.collabnet.ccf.model.Hospital">
+            objectClass="com.collabnet.ccf.model.Patient"
+            id="com.collabnet.ccf.model.Patient">
          <action
                label="Clear"
                class="com.collabnet.ccf.actions.ClearHospitalAction"
