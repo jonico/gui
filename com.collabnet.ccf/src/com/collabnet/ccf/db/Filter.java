@@ -14,6 +14,11 @@ public class Filter {
 	public final static int FILTER_TYPE_GREATER_THAN_OR_EQUAL_TO = 5;
 	public final static int FILTER_TYPE_LIKE = 6;
 	
+	public final static String HOSPITAL_FILTERS_SET = "hospitalFilters.set";
+	public final static String HOSPITAL_FILTERS_ACTIVE = "hospitalFilters.active";
+	public final static String HOSPITAL_FILTER_VALUE = "hospitalFilter.value.";
+	public final static String HOSPITAL_FILTER_TYPE = "hospitalFilter.type.";
+	
 	public Filter(String columnName, String value, boolean stringValue, int filterType) {
 		this.columnName = columnName;
 		this.filterType = filterType;
@@ -77,7 +82,11 @@ public class Filter {
 			break;
 		}
 		if (stringValue) expression.append("'");
+		if (filterType == FILTER_TYPE_LIKE && !(value.startsWith("%")))
+			expression.append("%");
 		expression.append(value);
+		if (filterType == FILTER_TYPE_LIKE && !(value.endsWith("%")))
+			expression.append("%");		
 		if (stringValue) expression.append("'");
 		return expression.toString();
 	}

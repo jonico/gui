@@ -1,5 +1,8 @@
 package com.collabnet.ccf.views;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
@@ -31,6 +34,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.eclipse.ui.part.ViewPart;
@@ -38,6 +42,7 @@ import org.eclipse.ui.part.ViewPart;
 import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.db.CcfDataProvider;
 import com.collabnet.ccf.db.Filter;
+import com.collabnet.ccf.dialogs.HospitalFilterDialog;
 import com.collabnet.ccf.model.Hospital;
 import com.collabnet.ccf.preferences.CcfPreferencePage;
 
@@ -51,6 +56,8 @@ public class HospitalView extends ViewPart {
 	private static HospitalView view;
 	private static String contentDescription;
 	private static Filter[]	filters;
+	private static boolean filtering;
+	private static boolean filtersActive = true;
 	
 	public static final String ID = "com.collabnet.ccf.views.HospitalView";
 	
@@ -61,6 +68,11 @@ public class HospitalView extends ViewPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
+		if (settings.getBoolean("hospitalFilters.set")) {
+			filtersActive = settings.getBoolean("hospitalFilters.active");
+			getPreviousFilters();
+		}
+		
 		GridLayout layout = new GridLayout();
 		layout.numColumns = 1;
 		layout.marginWidth = 0;
@@ -72,8 +84,13 @@ public class HospitalView extends ViewPart {
 		createMenus();
 		createToolbar();
 		
-		setContentDescription("Click Refresh to load Hospital");
 		getSite().setSelectionProvider(tableViewer);
+		
+		if (Activator.getDefault().getPreferenceStore().getBoolean(Activator.PREFERENCES_AUTOCONNECT)) {
+			getHospitals();
+		} else {
+			setContentDescription("Click Refresh to load Hospital");			
+		}
 	}
 
 	@Override
@@ -97,9 +114,11 @@ public class HospitalView extends ViewPart {
 		return view;
 	}
 	
-	public static void setFilters(Filter[] filters, String contentDescription) {
+	public static void setFilters(Filter[] filters, boolean filtering) {
 		HospitalView.filters = filters;
-		HospitalView.contentDescription = contentDescription;
+		HospitalView.filtering = filtering;
+		if (filtering) contentDescription = "(Filters Active)";
+		else contentDescription = "";
 	}
 	
 	private TableViewer createTable(Composite parent) {
@@ -353,6 +372,10 @@ public class HospitalView extends ViewPart {
 		Menu menu = menuMgr.createContextMenu(tableViewer.getControl());
 		tableViewer.getControl().setMenu(menu);		
 		getSite().registerContextMenu(menuMgr, tableViewer);
+		
+		IActionBars actionBars = getViewSite().getActionBars();
+		IMenuManager actionBarsMenu = actionBars.getMenuManager();
+		actionBarsMenu.add(new ArrangeColumnsAction());
 	}
 	
 	private void fillContextMenu(IMenuManager manager) {
@@ -365,7 +388,8 @@ public class HospitalView extends ViewPart {
 				if (contentDescription == null) setContentDescription("");
 				else setContentDescription(contentDescription);
 				try {
-					hospitals = dataProvider.getHospitals(filters);
+					if (filtering) hospitals = dataProvider.getHospitals(filters);
+					else hospitals = dataProvider.getHospitals(null);
 					hospitalLoaded = true;
 				} catch (Exception e) {
 					setContentDescription("Could not connect to database.  See error log.");
@@ -376,6 +400,51 @@ public class HospitalView extends ViewPart {
 				tableViewer.refresh();
 			}			
 		});
+	}
+	
+	private void getPreviousFilters() {
+		List<Filter> filterList = new ArrayList<Filter>();
+		updateFilterList(filterList, CcfDataProvider.HOSPITAL_TIMESTAMP, true);
+		updateFilterList(filterList, CcfDataProvider.HOSPITAL_EXCEPTION_CLASS_NAME, true);
+		updateFilterList(filterList, CcfDataProvider.HOSPITAL_EXCEPTION_MESSAGE, true);
+		updateFilterList(filterList, CcfDataProvider.HOSPITAL_CAUSE_EXCEPTION_CLASS_NAME, true);
+		updateFilterList(filterList, CcfDataProvider.HOSPITAL_CAUSE_EXCEPTION_MESSAGE, true);		
+		updateFilterList(filterList, CcfDataProvider.HOSPITAL_STACK_TRACE, true);	
+		updateFilterList(filterList, CcfDataProvider.HOSPITAL_ADAPTOR_NAME, true);
+		updateFilterList(filterList, CcfDataProvider.HOSPITAL_ORIGINATING_COMPONENT, true);
+		updateFilterList(filterList, CcfDataProvider.HOSPITAL_DATA_TYPE, true);
+		updateFilterList(filterList, CcfDataProvider.HOSPITAL_DATA, true);
+		updateFilterList(filterList, CcfDataProvider.HOSPITAL_FIXED, false);
+		updateFilterList(filterList, CcfDataProvider.HOSPITAL_REPROCESSED, false);
+		updateFilterList(filterList, CcfDataProvider.HOSPITAL_SOURCE_SYSTEM_ID, true);
+		updateFilterList(filterList, CcfDataProvider.HOSPITAL_SOURCE_REPOSITORY_ID, true);
+		updateFilterList(filterList, CcfDataProvider.HOSPITAL_TARGET_SYSTEM_ID, true);
+		updateFilterList(filterList, CcfDataProvider.HOSPITAL_TARGET_REPOSITORY_ID, true);	
+		updateFilterList(filterList, CcfDataProvider.HOSPITAL_SOURCE_SYSTEM_KIND, true);
+		updateFilterList(filterList, CcfDataProvider.HOSPITAL_SOURCE_REPOSITORY_KIND, true);
+		updateFilterList(filterList, CcfDataProvider.HOSPITAL_TARGET_SYSTEM_KIND, true);
+		updateFilterList(filterList, CcfDataProvider.HOSPITAL_TARGET_REPOSITORY_KIND, true);
+		updateFilterList(filterList, CcfDataProvider.HOSPITAL_SOURCE_ARTIFACT_ID, true);
+		updateFilterList(filterList, CcfDataProvider.HOSPITAL_TARGET_ARTIFACT_ID, true);
+		updateFilterList(filterList, CcfDataProvider.HOSPITAL_ERROR_CODE, true);
+		updateFilterList(filterList, CcfDataProvider.HOSPITAL_SOURCE_ARTIFACT_VERSION, true);
+		updateFilterList(filterList, CcfDataProvider.HOSPITAL_TARGET_ARTIFACT_VERSION, true);
+		updateFilterList(filterList, CcfDataProvider.HOSPITAL_ARTIFACT_TYPE, true);
+		updateFilterList(filterList, CcfDataProvider.HOSPITAL_GENERIC_ARTIFACT, true);
+		if (filterList.size() > 0) {
+			filters = new Filter[filterList.size()];
+			filterList.toArray(filters);
+			filtering = filtersActive;
+			setFilters(filters, filtering);
+		}
+	}
+	
+	private void updateFilterList(List<Filter> filterList, String columnName, boolean stringValue) {
+		String filterValue = settings.get(Filter.HOSPITAL_FILTER_VALUE + columnName);
+		if (filterValue != null && filterValue.length() > 0) {
+			Filter filter = new Filter(columnName, filterValue, stringValue, settings.getInt(Filter.HOSPITAL_FILTER_TYPE + columnName));
+			filterList.add(filter);			
+		}
 	}
 	
 	class HospitalLabelProvider implements ITableLabelProvider {
@@ -521,7 +590,23 @@ public class HospitalView extends ViewPart {
 			setToolTipText("Filters...");
 		}
 		public void run() {
-			MessageDialog.openInformation(Display.getDefault().getActiveShell(), "Filters", "Not yet implemented.");
+			HospitalFilterDialog dialog = new HospitalFilterDialog(Display.getDefault().getActiveShell(), filters, filtersActive);
+			if (dialog.open() == HospitalFilterDialog.OK) {
+				filtering = dialog.isFiltering();
+				filtersActive = dialog.filtersActive();
+				setFilters(dialog.getFilters(), filtering);
+				getHospitals();
+			}
+		}
+	}
+	
+	class ArrangeColumnsAction extends Action {
+		public ArrangeColumnsAction() {
+			super();
+			setText("Columns...");
+		}
+		public void run() {
+			MessageDialog.openInformation(Display.getDefault().getActiveShell(), "Arrange Columns", "Not yet implemented.");
 		}
 	}
 	

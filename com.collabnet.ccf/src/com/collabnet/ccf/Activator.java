@@ -38,6 +38,7 @@ public class Activator extends AbstractUIPlugin {
 	public static final String PREFERENCES_DATABASE_URL = "pref_db_url";
 	public static final String PREFERENCES_DATABASE_USER = "pref_db_user";
 	public static final String PREFERENCES_DATABASE_PASSWORD = "pref_db_password";
+	public static final String PREFERENCES_AUTOCONNECT = "pref_autoconnect";
 	
 	// Default database
 	public static final String DATABASE_DEFAULT_DESCRIPTION = "Default";
@@ -45,6 +46,7 @@ public class Activator extends AbstractUIPlugin {
 	public static final String DATABASE_DEFAULT_URL = "jdbc:hsqldb:hsql://localhost/xdb";
 	public static final String DATABASE_DEFAULT_USER = "sa";
 	public static final String DATABASE_DEFAULT_PASSWORD = "";
+	public static final boolean DEFAULT_AUTOCONNECT = false;
 	
 	// The shared instance
 	private static Activator plugin;

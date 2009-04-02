@@ -30,6 +30,7 @@ public class CcfPreferencePage extends PreferencePage implements IWorkbenchPrefe
 	private Text driverText;
 	private Text userText;
 	private Text passwordText;
+	private Button autoConnectButton;
 	
 	private IPreferenceStore store = Activator.getDefault().getPreferenceStore();
 	
@@ -100,6 +101,12 @@ public class CcfPreferencePage extends PreferencePage implements IWorkbenchPrefe
 		passwordText.setLayoutData(gd);
 		passwordText.setEchoChar('*');
 		
+		autoConnectButton = new Button(databaseGroup, SWT.CHECK);
+		autoConnectButton.setText("Connect on startup");
+		gd = new GridData();
+		gd.horizontalSpan = 2;
+		autoConnectButton.setLayoutData(gd);
+		
 		Button testButton = new Button(databaseGroup, SWT.PUSH);
 		testButton.setText("Test Connection");
 		gd = new GridData();
@@ -134,6 +141,7 @@ public class CcfPreferencePage extends PreferencePage implements IWorkbenchPrefe
 		store.setValue(Activator.PREFERENCES_DATABASE_DRIVER, driverText.getText().trim());
 		store.setValue(Activator.PREFERENCES_DATABASE_USER, userText.getText().trim());
 		store.setValue(Activator.PREFERENCES_DATABASE_PASSWORD, passwordText.getText().trim());
+		store.setValue(Activator.PREFERENCES_AUTOCONNECT, autoConnectButton.getSelection());
 		if (needsRefresh && HospitalView.getView() != null && HospitalView.getView().isHospitalLoaded()) {
 			HospitalView.getView().refresh();
 		}
@@ -146,6 +154,7 @@ public class CcfPreferencePage extends PreferencePage implements IWorkbenchPrefe
 		driverText.setText(Activator.DATABASE_DEFAULT_DRIVER);
 		userText.setText(Activator.DATABASE_DEFAULT_USER);
 		passwordText.setText(Activator.DATABASE_DEFAULT_PASSWORD);
+		autoConnectButton.setSelection(Activator.DEFAULT_AUTOCONNECT);
 		super.performDefaults();
 	}
 
@@ -159,6 +168,7 @@ public class CcfPreferencePage extends PreferencePage implements IWorkbenchPrefe
 		driverText.setText(store.getString(Activator.PREFERENCES_DATABASE_DRIVER));
 		userText.setText(store.getString(Activator.PREFERENCES_DATABASE_USER));
 		passwordText.setText(store.getString(Activator.PREFERENCES_DATABASE_PASSWORD));
+		autoConnectButton.setSelection(store.getBoolean(Activator.PREFERENCES_AUTOCONNECT));
 	}
 
 }
