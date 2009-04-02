@@ -22,6 +22,7 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 
 import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.db.CcfDataProvider;
+import com.collabnet.ccf.views.HospitalView;
 
 public class HospitalPreferencePage extends PreferencePage implements IWorkbenchPreferencePage {
 	private IPreferenceStore store = Activator.getDefault().getPreferenceStore();
@@ -145,7 +146,7 @@ public class HospitalPreferencePage extends PreferencePage implements IWorkbench
 		gd.widthHint = 200;
 		gd.heightHint = 300;
 		selectedColumnsList.setLayoutData(gd);	
-		
+
 		selectedColumnsList.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent evt) {
 				removeButton.setEnabled(selectedColumnsList.getSelectionCount() > 0);
@@ -217,7 +218,7 @@ public class HospitalPreferencePage extends PreferencePage implements IWorkbench
 
 	public void init(IWorkbench workbench) {
 	}
-	
+
 	public boolean performOk() {
 		String[] selectedItems = selectedColumnsList.getItems();
 		StringBuffer selectedColumns = new StringBuffer();
@@ -226,10 +227,16 @@ public class HospitalPreferencePage extends PreferencePage implements IWorkbench
 			selectedColumns.append(selectedItems[i]);
 		}
 		store.setValue(Activator.PREFERENCES_HOSPITAL_COLUMNS, selectedColumns.toString());
+		
+		if (needsRefresh && HospitalView.getView() != null) {
+			HospitalView.getView().refreshTableLayout();
+		}
+		
 		return super.performOk();
 	}
 	
 	protected void performDefaults() {
+		needsRefresh = true;
 		selectedColumns = null;
 		initializeValues(CcfDataProvider.HOSPITAL_COLUMNS.split("\\,"));
 		super.performDefaults();

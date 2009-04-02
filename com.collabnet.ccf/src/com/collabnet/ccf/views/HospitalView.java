@@ -32,6 +32,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Table;
@@ -51,6 +52,7 @@ import com.collabnet.ccf.preferences.CcfPreferencePage;
 import com.collabnet.ccf.preferences.HospitalPreferencePage;
 
 public class HospitalView extends ViewPart {
+	private Composite parentComposite;
 	private TableViewer tableViewer;
 	private IDialogSettings settings = Activator.getDefault().getDialogSettings();
 	private CcfDataProvider dataProvider = new CcfDataProvider();
@@ -139,12 +141,12 @@ public class HospitalView extends ViewPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
+		parentComposite = parent;
+		
 		if (settings.getBoolean("hospitalFilters.set")) {
 			filtersActive = settings.getBoolean("hospitalFilters.active");
 			getPreviousFilters();
 		}
-		
-		setSelectedColumns();
 		
 		GridLayout layout = new GridLayout();
 		layout.numColumns = 1;
@@ -152,17 +154,39 @@ public class HospitalView extends ViewPart {
 		layout.marginHeight = 0;
 		parent.setLayout(layout);
 		
-		tableViewer = createTable(parent);
-		
-		createMenus();
-		createToolbar();
-		
-		getSite().setSelectionProvider(tableViewer);
-		
+		createControls();
+
 		if (Activator.getDefault().getPreferenceStore().getBoolean(Activator.PREFERENCES_AUTOCONNECT)) {
 			getPatients();
 		} else {
 			setContentDescription("Click Refresh to load Hospital");			
+		}
+	}
+	
+	private void createControls() {
+		setSelectedColumns();
+		
+		// If tableViewer has already been created, we are refreshing because
+		// column preferences have been changed.
+		boolean recreatingTable = tableViewer != null;
+		if (recreatingTable) {
+			Control[] controls = parentComposite.getChildren();
+			for (int i = 0; i < controls.length; i++) {
+				controls[i].dispose();
+			}
+		}
+		
+		tableViewer = createTable(parentComposite);
+		
+		createMenus(recreatingTable);
+		if (!recreatingTable) createToolbar();
+		
+		getSite().setSelectionProvider(tableViewer);	
+		
+		if (recreatingTable && patients != null) {
+			tableViewer.setInput(patients);
+			parentComposite.layout();
+			parentComposite.redraw();
 		}
 	}
 
@@ -177,6 +201,10 @@ public class HospitalView extends ViewPart {
 	
 	public void refresh() {
 		getPatients();
+	}
+	
+	public void refreshTableLayout() {
+		createControls();
 	}
 	
 	public boolean isHospitalLoaded() {
@@ -275,7 +303,7 @@ public class HospitalView extends ViewPart {
 		toolbarManager.add(new ConnectionAction());
 	}
 	
-	private void createMenus() {
+	private void createMenus(boolean recreatingTable) {
 		MenuManager menuMgr = new MenuManager("#HospitalViewPopupMenu"); //$NON-NLS-1$
 		menuMgr.setRemoveAllWhenShown(true);
 		menuMgr.addMenuListener(new IMenuListener() {
@@ -287,9 +315,11 @@ public class HospitalView extends ViewPart {
 		tableViewer.getControl().setMenu(menu);		
 		getSite().registerContextMenu(menuMgr, tableViewer);
 		
-		IActionBars actionBars = getViewSite().getActionBars();
-		IMenuManager actionBarsMenu = actionBars.getMenuManager();
-		actionBarsMenu.add(new ArrangeColumnsAction());
+		if (!recreatingTable) {
+			IActionBars actionBars = getViewSite().getActionBars();
+			IMenuManager actionBarsMenu = actionBars.getMenuManager();
+			actionBarsMenu.add(new ArrangeColumnsAction());
+		}
 	}
 	
 	private void fillContextMenu(IMenuManager manager) {
