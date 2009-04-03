@@ -1,22 +1,38 @@
 package com.collabnet.ccf.actions;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Iterator;
 
-import org.eclipse.core.resources.IStorage;
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileStore;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.swt.custom.BusyIndicator;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorDescriptor;
+import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorRegistry;
-import org.eclipse.ui.IStorageEditorInput;
+import org.eclipse.ui.IPartListener2;
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.actions.ActionDelegate;
 
 import com.collabnet.ccf.Activator;
-import com.collabnet.ccf.editors.StringInput;
-import com.collabnet.ccf.editors.StringStorage;
+import com.collabnet.ccf.db.CcfDataProvider;
+import com.collabnet.ccf.db.Filter;
+import com.collabnet.ccf.db.Update;
+import com.collabnet.ccf.editors.ExternalFileEditorInput;
 import com.collabnet.ccf.model.Patient;
+import com.collabnet.ccf.views.HospitalView;
 
 public class ExaminePayloadAction extends ActionDelegate {
 	private IStructuredSelection fSelection;
@@ -28,22 +44,72 @@ public class ExaminePayloadAction extends ActionDelegate {
 			Object object = iter.next();
 			if (object instanceof Patient) {
 				IWorkbenchPage page = Activator.getDefault().getWorkbench().getActiveWorkbenchWindow().getActivePage();
-				Patient patient = (Patient)object;
-				IStorage storage = new StringStorage(patient.getGenericArtifact(), patient.getId() + " Payload");
-				IStorageEditorInput input = new StringInput(storage);
-				IEditorRegistry registry = Activator.getDefault().getWorkbench().getEditorRegistry();
-				IEditorDescriptor descriptor = registry.getDefaultEditor("file.xml");
-				String id;
-				if (descriptor == null) {
-					id = "org.eclipse.ui.DefaultTextEditor"; //$NON-NLS-1$
-				} else {
-					id = descriptor.getId();
-				}
+				final Patient patient = (Patient)object;				
 				try {
-					page.openEditor(input, id);
-				} catch (PartInitException e) {
-					Activator.handleError("Examine Hospital Payload", e);
-					break;
+					final File tempFile = File.createTempFile("Payload" + patient.getId(), ".xml");
+					BufferedWriter out = new BufferedWriter(new FileWriter(tempFile));
+					out.write(patient.getGenericArtifact());
+					out.close();
+					IFileStore fileStore =  EFS.getLocalFileSystem().getStore(new Path(tempFile.getAbsolutePath()));
+					final IEditorInput input = new ExternalFileEditorInput(fileStore, patient.getId() + " Payload");
+					IEditorRegistry registry = Activator.getDefault().getWorkbench().getEditorRegistry();
+					IEditorDescriptor descriptor = registry.getDefaultEditor("file.xml");
+					
+					String id;
+					if (descriptor == null) {
+						id = "org.eclipse.ui.DefaultTextEditor"; //$NON-NLS-1$
+					} else {
+						id = descriptor.getId();
+					}
+					try {
+						final IEditorPart editorPart = page.openEditor(input, id);
+						IPartListener2 closeListener = new IPartListener2() {
+							
+							public void partClosed(IWorkbenchPartReference partRef) {
+								if (partRef.getPart(false) == editorPart) {
+									try {
+										final String updatedPayload = readFileAsString(tempFile.getAbsolutePath());
+										BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
+											public void run() {
+												Filter filter = new Filter(CcfDataProvider.HOSPITAL_ID, Integer.toString(patient.getId()), false);
+												Filter[] filters = { filter };
+												Update update = new Update(CcfDataProvider.HOSPITAL_GENERIC_ARTIFACT, updatedPayload);
+												Update[] updates = { update };
+												CcfDataProvider dataProvider = new CcfDataProvider();
+												try {
+													dataProvider.updatePatients(updates, filters);
+													if (HospitalView.getView() != null) {
+														HospitalView.getView().refresh();
+													}
+												} catch (Exception e) {
+													Activator.handleError(e);
+												}
+											}					
+										});
+									} catch (IOException e) {
+										Activator.handleError(e);
+									}
+								}
+							}							
+							
+							public void partActivated(IWorkbenchPartReference partRef) {}
+							public void partBroughtToTop(IWorkbenchPartReference partRef) {}
+							public void partDeactivated(IWorkbenchPartReference partRef) {}
+							public void partHidden(IWorkbenchPartReference partRef) {}
+							public void partInputChanged(IWorkbenchPartReference partRef) {}
+							public void partOpened(IWorkbenchPartReference partRef) {}
+							public void partVisible(IWorkbenchPartReference partRef) {}
+							
+						};
+						page.addPartListener(closeListener);
+					} catch (PartInitException e) {
+						Activator.handleError("Examine Hospital Payload", e);
+						break;
+					}					
+					
+					tempFile.deleteOnExit();
+				} catch (IOException e) {
+					Activator.handleError(e);
 				}
 			}
 		}
@@ -53,6 +119,20 @@ public class ExaminePayloadAction extends ActionDelegate {
 		if (sel instanceof IStructuredSelection) {
 			fSelection= (IStructuredSelection) sel;
 		}
-	}	
+	}
+	
+    private static String readFileAsString(String filePath)
+    throws java.io.IOException{
+        StringBuffer fileData = new StringBuffer(1000);
+        BufferedReader reader = new BufferedReader(
+                new FileReader(filePath));
+        char[] buf = new char[1024];
+        int numRead=0;
+        while((numRead=reader.read(buf)) != -1){
+            fileData.append(buf, 0, numRead);
+        }
+        reader.close();
+        return fileData.toString();
+    }
 	
 }

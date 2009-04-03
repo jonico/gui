@@ -72,7 +72,7 @@
                id="com.collabnet.ccf.actions.HospitalStackTraceAction">
          </action>                   
          <action
-               label="Examine Payload"
+               label="Examine/Edit Payload"
                class="com.collabnet.ccf.actions.ExaminePayloadAction"
                id="com.collabnet.ccf.actions.ExaminePayloadAction">
          </action>                          
