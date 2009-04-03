@@ -29,7 +29,7 @@ public class ExaminePayloadAction extends ActionDelegate {
 			if (object instanceof Patient) {
 				IWorkbenchPage page = Activator.getDefault().getWorkbench().getActiveWorkbenchWindow().getActivePage();
 				Patient patient = (Patient)object;
-				IStorage storage = new StringStorage(patient.getGenericArtifact(), patient.getTimeStamp());
+				IStorage storage = new StringStorage(patient.getGenericArtifact(), patient.getId() + " Payload");
 				IStorageEditorInput input = new StringInput(storage);
 				IEditorRegistry registry = Activator.getDefault().getWorkbench().getEditorRegistry();
 				IEditorDescriptor descriptor = registry.getDefaultEditor("file.xml");

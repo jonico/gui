@@ -27,7 +27,7 @@ public class HospitalStackTraceAction extends ActionDelegate {
 			if (object instanceof Patient) {
 				IWorkbenchPage page = Activator.getDefault().getWorkbench().getActiveWorkbenchWindow().getActivePage();
 				Patient patient = (Patient)object;
-				IStorage storage = new StringStorage(patient.getStackTrace(), patient.getTimeStamp());
+				IStorage storage = new StringStorage(patient.getStackTrace(), patient.getId() + " Stack Trace");
 				IStorageEditorInput input = new StringInput(storage);
 				try {
 					page.openEditor(input, "org.eclipse.ui.DefaultTextEditor");
