@@ -79,7 +79,8 @@ public class CcfDataProvider {
 	                                              HOSPITAL_ARTIFACT_TYPE + "," +
 	                                              HOSPITAL_GENERIC_ARTIFACT;
 	
-	private final static String SQL = "SELECT * FROM HOSPITAL";
+	private final static String SQL_HOSPITAL_SELECT = "SELECT * FROM HOSPITAL";
+	private final static String SQL_HOSPITAL_UPDATE = "UPDATE HOSPITAL";
 
 	public Patient[] getPatients(Filter[] filters) throws SQLException, ClassNotFoundException {
 		Connection connection = null;
@@ -89,7 +90,7 @@ public class CcfDataProvider {
 		try {
 			connection = getConnection();
 			stmt = connection.createStatement();
-			rs = stmt.executeQuery(Filter.getQuery(SQL, filters));
+			rs = stmt.executeQuery(Filter.getQuery(SQL_HOSPITAL_SELECT, filters));
 			patients = getPatients(rs);
 		}
 		catch (SQLException e) {
@@ -130,6 +131,48 @@ public class CcfDataProvider {
 	        }			
 		}
 		return patients;
+	}
+	
+	public int updatePatients(Update[] updates, Filter[] filters) throws SQLException, ClassNotFoundException {
+		Connection connection = null;
+		Statement stmt = null;
+		int rowsUpdated = 0;
+		try {
+			connection = getConnection();
+			stmt = connection.createStatement();
+			String updateStatement = Update.getUpdate(SQL_HOSPITAL_UPDATE, updates);
+			updateStatement = Filter.getQuery(updateStatement, filters);
+			rowsUpdated = stmt.executeUpdate(updateStatement);
+		}
+		catch (SQLException e) {
+			Activator.handleError(e);
+			throw e;
+		}
+		catch (ClassNotFoundException e) {
+			Activator.handleError(e);
+			throw e;
+		}
+		finally {
+	        try
+	        {
+	            if (stmt != null)
+	                stmt.close();
+	        }
+	        catch (Exception e)
+	        {
+	        	 Activator.handleError("Could not close Statement" ,e);
+	        }
+	        try
+	        {
+	            if (connection  != null)
+	                connection.close();
+	        }
+	        catch (SQLException e)
+	        {
+	        	 Activator.handleError("Could not close Connection" ,e);
+	        }			
+		}
+		return rowsUpdated;
 	}
 
 	private Connection getConnection() throws ClassNotFoundException, SQLException {
