@@ -149,7 +149,7 @@ public class HospitalPreferencePage extends PreferencePage implements IWorkbench
 
 		selectedColumnsList.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent evt) {
-				removeButton.setEnabled(selectedColumnsList.getSelectionCount() > 0);
+				removeButton.setEnabled(selectedColumnsList.getSelectionCount() > 0 && selectedColumnsList.getSelectionCount() < selectedColumnsList.getItemCount());
 				upButton.setEnabled(isUpButtonEnabled());
 				downButton.setEnabled(isDownButtonEnabled());
 			}			
