@@ -1,5 +1,6 @@
 package com.collabnet.ccf.views;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -21,6 +22,8 @@ import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.OpenEvent;
 import org.eclipse.jface.viewers.TableLayout;
 import org.eclipse.jface.viewers.TableViewer;
+import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerSorter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.events.DisposeEvent;
@@ -67,6 +70,7 @@ public class HospitalView extends ViewPart {
 	
 	private static List<String> selectedColumns;
 	private static List<String> allColumns;
+	private static List<String> columnHeaderList;
 	private static String[] columnHeaders = {
 		"ID",
 		"Timestamp",
@@ -99,6 +103,12 @@ public class HospitalView extends ViewPart {
 		"Artifact Type",
 		"Generic Artifact"
 	};
+	static {
+		columnHeaderList = new ArrayList<String>();
+		for (int i = 0; i < columnHeaders.length; i++) {
+			columnHeaderList.add(columnHeaders[i]);
+		}
+	}
 	private static int[] columnWidths = {
 		50,
 		75,
@@ -143,8 +153,8 @@ public class HospitalView extends ViewPart {
 	public void createPartControl(Composite parent) {
 		parentComposite = parent;
 		
-		if (settings.getBoolean("hospitalFilters.set")) {
-			filtersActive = settings.getBoolean("hospitalFilters.active");
+		if (settings.getBoolean(Filter.HOSPITAL_FILTERS_SET)) {
+			filtersActive = settings.getBoolean(Filter.HOSPITAL_FILTERS_ACTIVE);
 			getPreviousFilters();
 		}
 		
@@ -238,6 +248,28 @@ public class HospitalView extends ViewPart {
 		tableViewer.setContentProvider(new ArrayContentProvider());
 		tableViewer.setLabelProvider(new HospitalLabelProvider());
 		
+		int sortIndex = 0;
+		boolean sortReversed = false;
+		String sortColumn = settings.get("HospitalView.sortColumn");
+		if (sortColumn != null) {
+			int index = columnHeaderList.indexOf(sortColumn);
+			if (index != -1) {
+				String columnName = allColumns.get(index);
+				int nameIndex = selectedColumns.indexOf(columnName);
+				if (nameIndex != -1) {
+					sortIndex = nameIndex;
+					sortReversed = settings.getBoolean("HospitalView.sortReversed");					
+				}
+			}
+		}
+		
+		HospitalSorter sorter = new HospitalSorter(sortIndex);
+		sorter.setReversed(sortReversed);
+		tableViewer.setSorter(sorter);
+		if (sortReversed) table.setSortDirection(SWT.DOWN);
+		else table.setSortDirection(SWT.UP);
+		table.setSortColumn(table.getColumn(sortIndex));
+		
 		tableViewer.addOpenListener(new IOpenListener() {
 			public void open(OpenEvent evt) {
 				ExaminePayloadAction action = new ExaminePayloadAction();
@@ -273,6 +305,8 @@ public class HospitalView extends ViewPart {
 		col.setText(columnHeaders[index]);
 		col.addSelectionListener(headerListener);
 		setColumnWidth(layout, disposeListener, col, columnWidths[index]);
+		
+		if (columnName.equals("ID")) table.setSortColumn(col);
 	}
 
 	private SelectionListener getColumnListener() {
@@ -285,7 +319,22 @@ public class HospitalView extends ViewPart {
 	}
 	
 	private void setSortColumn(TableViewer tableViewer, int column) {
-		
+		HospitalSorter oldSorter = (HospitalSorter)tableViewer.getSorter();
+		if (oldSorter != null && column == oldSorter.getColumnNumber()) {
+			oldSorter.setReversed(!oldSorter.isReversed());
+			if (oldSorter.isReversed()) tableViewer.getTable().setSortDirection(SWT.DOWN);
+			else tableViewer.getTable().setSortDirection(SWT.UP);	
+			tableViewer.refresh();
+		} else {
+			HospitalSorter newSorter = new HospitalSorter(column);
+			tableViewer.setSorter(newSorter);
+			tableViewer.getTable().setSortDirection(SWT.UP);
+		}
+		tableViewer.getTable().setSortColumn(tableViewer.getTable().getColumn(column));
+		String columnName = tableViewer.getTable().getColumn(column).getText();
+		HospitalSorter sorter = (HospitalSorter)tableViewer.getSorter();
+		settings.put("HospitalView.sortColumn", columnName);
+		settings.put("HospitalView.sortReversed", sorter.isReversed());
 	}
 	
 	private void setColumnWidth(TableLayout layout,
@@ -528,6 +577,192 @@ public class HospitalView extends ViewPart {
 		}
 
 		public void removeListener(ILabelProviderListener listener) {		
+		}
+		
+	}
+	
+	class HospitalSorter extends ViewerSorter {
+		private boolean reversed = false;
+		private int columnNumber;
+		private int index;
+		
+		public HospitalSorter(int columnNumber) {
+			this.columnNumber = columnNumber;
+			String columnName = selectedColumns.get(columnNumber);
+			index = allColumns.indexOf(columnName);			
+		}
+		
+		public void setReversed(boolean reversed) {
+			this.reversed = reversed;
+		}
+		
+		public int getColumnNumber() {
+			return columnNumber;
+		}
+		
+		public boolean isReversed() {
+			return reversed;
+		}
+
+		@Override
+		public int compare(Viewer viewer, Object e1, Object e2) {
+			if (e1 == null || e2 == null) return super.compare(viewer, e1, e2);
+			
+			Patient p1 = (Patient)e1;
+			Patient p2 = (Patient)e2;
+			int result = 0;
+			
+			result = compareColumnValue(p1, p2);
+			if (result == 0) {
+				if (p1.getId() > p2.getId()) result = 1;
+				else if (p2.getId() > p1.getId()) result = -1;
+			}
+			
+			if (reversed)
+				result = -result;
+			return result;
+		}
+		
+		private int compareColumnValue(Patient p1, Patient p2) {
+			String value1 = null;
+			String value2 = null;
+			switch (index) {
+			case 0:
+				if (p1.getId() > p2.getId()) return 1;
+				else if (p2.getId() > p1.getId()) return -1;
+				else return 0;
+			case 1:
+				if (p1.getId() > p2.getId()) return 1;
+				else if (p2.getId() > p1.getId()) return -1;
+				else return 0;
+			case 2:
+				value1 = p1.getExceptionClassName();
+				value2 = p2.getExceptionClassName();
+				break;
+			case 3:
+				value1 = p1.getExceptionMessage();
+				value2 = p2.getExceptionMessage();
+				break;			
+			case 4:
+				value1 = p1.getCauseExceptionClassName();
+				value2 = p2.getCauseExceptionClassName();
+				break;		
+			case 5:
+				value1 = p1.getCauseExceptionMessage();
+				value2 = p2.getCauseExceptionMessage();
+				break;
+			case 6:
+				value1 = p1.getStackTrace();
+				value2 = p2.getStackTrace();
+				break;
+			case 7:
+				value1 = p1.getAdaptorName();
+				value2 = p2.getAdaptorName();
+				break;
+			case 8:
+				value1 = p1.getOriginatingComponent();
+				value2 = p2.getOriginatingComponent();
+				break;
+			case 9:
+				value1 = p1.getDataType();
+				value2 = p2.getDataType();
+				break;
+			case 10:
+				value1 = p1.getData();
+				value2 = p2.getData();
+				break;
+			case 11:
+				if (p1.isFixed()) value1 = "true";
+				else value1 = "";
+				if (p2.isFixed()) value2 = "true";
+				else value2 = "";
+				break;
+			case 12:
+				if (p1.isReprocessed()) value1 = "true";
+				else value1 = "";
+				if (p2.isReprocessed()) value2 = "true";
+				else value2 = "";
+				break;
+			case 13:
+				value1 = p1.getSourceSystemId();
+				value2 = p2.getSourceSystemId();
+				break;
+			case 14:
+				value1 = p1.getSourceRepositoryId();
+				value2 = p2.getSourceRepositoryId();
+				break;
+			case 15:
+				value1 = p1.getTargetSystemId();
+				value2 = p2.getTargetSystemId();
+				break;
+			case 16:
+				value1 = p1.getTargetRepositoryId();
+				value2 = p2.getTargetRepositoryId();
+				break;
+			case 17:
+				value1 = p1.getSourceSystemKind();
+				value2 = p2.getSourceSystemKind();
+				break;
+			case 18:
+				value1 = p1.getSourceRepositoryKind();
+				value2 = p2.getSourceRepositoryKind();
+				break;
+			case 19:
+				value1 = p1.getTargetSystemKind();
+				value2 = p2.getTargetSystemKind();
+				break;
+			case 20:
+				value1 = p1.getTargetRepositoryKind();
+				value2 = p2.getTargetRepositoryKind();
+				break;	
+			case 21:
+				value1 = p1.getSourceArtifactId();
+				value2 = p2.getSourceArtifactId();
+				break;
+			case 22:
+				value1 = p1.getTargetArtifactId();
+				value2 = p2.getTargetArtifactId();
+				break;
+			case 23:
+				value1 = p1.getErrorCode();
+				value2 = p2.getErrorCode();
+				break;
+			case 24:
+				Timestamp ts1 = p1.getSourceLastModificationTime();
+				Timestamp ts2 = p2.getSourceLastModificationTime();
+				if (ts1 == null && ts2 == null) return 0;
+				else if (ts1 == null) return -1;
+				else if (ts2 == null) return 1;
+				else return ts1.compareTo(ts2);
+			case 25:
+				ts1 = p1.getTargetLastModificationTime();
+				ts2 = p2.getTargetLastModificationTime();
+				if (ts1 == null && ts2 == null) return 0;
+				else if (ts1 == null) return -1;
+				else if (ts2 == null) return 1;
+				else return ts1.compareTo(ts2);
+			case 26:
+				value1 = p1.getSourceArtifactVersion();
+				value2 = p2.getSourceArtifactVersion();
+				break;
+			case 27:
+				value1 = p1.getTargetArtifactVersion();
+				value2 = p2.getTargetArtifactVersion();
+				break;
+			case 28:
+				value1 = p1.getArtifactType();
+				value2 = p2.getArtifactType();
+				break;
+			case 29:
+				value1 = p1.getGenericArtifact();
+				value2 = p2.getGenericArtifact();
+				break;
+			default:
+				break;
+			}
+			if (value1 == null) value1 = "";
+			if (value2 == null) value2 = "";
+			return value1.compareTo(value2);
 		}
 		
 	}
