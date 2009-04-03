@@ -67,6 +67,11 @@
                id="com.collabnet.ccf.actions.ReplayHospitalAction">
          </action> 
          <action
+               label="Stack Trace"
+               class="com.collabnet.ccf.actions.HospitalStackTraceAction"
+               id="com.collabnet.ccf.actions.HospitalStackTraceAction">
+         </action>                   
+         <action
                label="Examine Payload"
                class="com.collabnet.ccf.actions.ExaminePayloadAction"
                id="com.collabnet.ccf.actions.ExaminePayloadAction">
