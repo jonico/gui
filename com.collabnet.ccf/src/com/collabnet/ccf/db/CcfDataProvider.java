@@ -79,6 +79,8 @@ public class CcfDataProvider {
 	                                              HOSPITAL_ARTIFACT_TYPE + "," +
 	                                              HOSPITAL_GENERIC_ARTIFACT;
 	
+	public final static String HOSPITAL_REPLAY = "replay";
+	
 	private final static String SQL_HOSPITAL_SELECT = "SELECT * FROM HOSPITAL";
 	private final static String SQL_HOSPITAL_UPDATE = "UPDATE HOSPITAL";
 
