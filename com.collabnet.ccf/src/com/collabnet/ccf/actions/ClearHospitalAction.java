@@ -20,13 +20,28 @@ import com.collabnet.ccf.views.HospitalView;
 public class ClearHospitalAction extends ActionDelegate {
 	private IStructuredSelection fSelection;
 	private boolean patientsUpdated;
+	
+	private boolean undo = false;
+
+	public void setUndo(boolean undo) {
+		this.undo = undo;
+	}
 
 	@SuppressWarnings("unchecked")
 	public void run(IAction action) {
-		if (!MessageDialog.openConfirm(Display.getDefault().getActiveShell(), "Clear Hospital", "Clear the selected hospital items?")) return;
+		String clearUnclear;
+		String updateValue;
+		if (undo) {
+			clearUnclear = "Unclear";
+			updateValue = "false";
+		} else {
+			clearUnclear = "Clear";
+			updateValue = "true";
+		}
+		if (!MessageDialog.openConfirm(Display.getDefault().getActiveShell(), clearUnclear + " Hospital", clearUnclear + " the selected hospital items?")) return;
 		patientsUpdated = false;
 		final CcfDataProvider dataProvider = new CcfDataProvider();
-		Update update = new Update(CcfDataProvider.HOSPITAL_FIXED, "true", false);
+		Update update = new Update(CcfDataProvider.HOSPITAL_FIXED, updateValue, false);
 		final Update[] updates = { update };
 		BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
 			public void run() {
@@ -68,7 +83,7 @@ public class ClearHospitalAction extends ActionDelegate {
 			Object object = iter.next();
 			if (object instanceof Patient) {
 				Patient patient = (Patient)object;
-				if (patient.isFixed()) return false;
+				if (patient.isFixed() != undo) return false;
 			}
 		}
 		return true;

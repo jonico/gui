@@ -57,6 +57,11 @@
             objectClass="com.collabnet.ccf.model.Patient"
             id="com.collabnet.ccf.model.Patient">
          <action
+               label="Unclear"
+               class="com.collabnet.ccf.actions.UnclearHospitalAction"
+               id="com.collabnet.ccf.actions.UnclearHospitalAction">
+         </action>                       
+         <action
                label="Clear"
                class="com.collabnet.ccf.actions.ClearHospitalAction"
                id="com.collabnet.ccf.actions.ClearHospitalAction">
