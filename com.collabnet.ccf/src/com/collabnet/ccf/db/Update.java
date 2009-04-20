@@ -18,7 +18,7 @@ public class Update {
 	public String toString() {
 		StringBuffer expression = new StringBuffer(columnName + " = ");
 		if (stringValue) expression.append("'");
-		expression.append(value);
+		expression.append(singleToDouble(value));
 		if (stringValue) expression.append("'");
 		return expression.toString();
 	}
@@ -33,6 +33,21 @@ public class Update {
 			}
 		}
 		return updateStatement.toString();
+	}
+	
+	private static String singleToDouble(String text) {
+		boolean done = false;
+		int start = 0;
+		while (!done) {
+			int apos = text.indexOf("'", start);
+			if (apos != -1) {
+				text = text.substring(0, apos) + "''" + text.substring(apos + 1);
+				start = apos + 2;
+			} else {
+				done = true;
+			}
+		}
+		return text;
 	}
 	
 }
