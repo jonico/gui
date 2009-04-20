@@ -48,6 +48,15 @@ public class CcfDataProvider {
 	public final static String HOSPITAL_ARTIFACT_TYPE = "ARTIFACT_TYPE";
 	public final static String HOSPITAL_GENERIC_ARTIFACT = "GENERIC_ARTIFACT";
 	
+	public final static String DEFAULT_HOSPITAL_COLUMNS = HOSPITAL_TIMESTAMP + "," +
+	HOSPITAL_ADAPTOR_NAME + "," +
+	HOSPITAL_ORIGINATING_COMPONENT + "," +
+	HOSPITAL_SOURCE_ARTIFACT_ID + "," +
+	HOSPITAL_TARGET_ARTIFACT_ID + "," +
+	HOSPITAL_ERROR_CODE + "," +
+	HOSPITAL_EXCEPTION_MESSAGE + "," +
+	HOSPITAL_CAUSE_EXCEPTION_MESSAGE;
+	
 	public final static String HOSPITAL_COLUMNS = HOSPITAL_ID + "," +
 	                                              HOSPITAL_TIMESTAMP + "," +
 	                                              HOSPITAL_EXCEPTION_CLASS_NAME + "," +

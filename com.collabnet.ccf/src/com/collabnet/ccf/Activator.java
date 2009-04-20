@@ -50,7 +50,7 @@ public class Activator extends AbstractUIPlugin {
 	public static final String DATABASE_DEFAULT_USER = "sa";
 	public static final String DATABASE_DEFAULT_PASSWORD = "";
 	public static final boolean DEFAULT_AUTOCONNECT = false;
-	public static final String DEFAULT_HOSPITAL_COLUMNS = CcfDataProvider.HOSPITAL_COLUMNS;
+	public static final String DEFAULT_HOSPITAL_COLUMNS = CcfDataProvider.DEFAULT_HOSPITAL_COLUMNS;
 	
 	// The shared instance
 	private static Activator plugin;
