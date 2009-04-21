@@ -1,8 +1,15 @@
 package com.collabnet.ccf;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
 
+import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
@@ -22,7 +29,14 @@ public class Activator extends AbstractUIPlugin {
 	// The plug-in ID
 	public static final String PLUGIN_ID = "com.collabnet.ccf";
 	
+	// Landscape contributor extension point ID
+	public static final String LANDSCAPE_CONTRIBUTORS = "com.collabnet.ccf.landscapeContributors"; //$NON-NLS-1$	
+	
+	private static ILandscapeContributor[] landscapeContributors;
+	
 	// Images
+	public static final String IMAGE_NEW_LANDSCAPE = "new_landscape.gif"; //$NON-NLS-1$
+	public static final String IMAGE_NEW_LANDSCAPE_WIZBAN = "new_landscape_wizban.gif"; //$NON-NLS-1$
 	public static final String IMAGE_REFRESH = "refresh.gif"; //$NON-NLS-1$
 	public static final String IMAGE_FILTERS = "filters.gif"; //$NON-NLS-1$
 	public static final String IMAGE_DATABASE_CONNECTION = "dbConnection.gif"; //$NON-NLS-1$
@@ -54,6 +68,8 @@ public class Activator extends AbstractUIPlugin {
 	
 	// The shared instance
 	private static Activator plugin;
+	
+	private static List<Image> landscapeContributorImages = new ArrayList<Image>();
 
 	/*
 	 * (non-Javadoc)
@@ -61,6 +77,9 @@ public class Activator extends AbstractUIPlugin {
 	 */
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
+		
+		landscapeContributors = getLandscapeContributors();
+	
 		plugin = this;
 	}
 
@@ -70,7 +89,42 @@ public class Activator extends AbstractUIPlugin {
 	 */
 	public void stop(BundleContext context) throws Exception {
 		plugin = null;
+		Iterator<Image> iter = landscapeContributorImages.iterator();
+		while(iter.hasNext()) {
+			Image image = (Image)iter.next();
+			image.dispose();
+		}
 		super.stop(context);
+	}
+
+	// Initialize the landscape contributors by searching the registry for users of the
+	// landscape contributors extension point.	
+	public static ILandscapeContributor[] getLandscapeContributors() throws Exception {
+		if (landscapeContributors == null) {
+			ArrayList<ILandscapeContributor> landscapeContributorList = new ArrayList<ILandscapeContributor>();
+			IExtensionRegistry extensionRegistry = Platform.getExtensionRegistry();
+			IConfigurationElement[] configurationElements = extensionRegistry.getConfigurationElementsFor(LANDSCAPE_CONTRIBUTORS);
+			for (int i = 0; i < configurationElements.length; i++) {
+				IConfigurationElement configurationElement = configurationElements[i];
+				ILandscapeContributor landscapeContributor = (ILandscapeContributor)configurationElement.createExecutableExtension("class"); //$NON-NLS-1$
+				landscapeContributor.setName(configurationElement.getAttribute("name")); //$NON-NLS-1$
+				landscapeContributor.setDescription(configurationElement.getAttribute("description")); //$NON-NLS-1$
+				String imageKey = configurationElement.getAttribute("image"); //$NON-NLS-1$
+				if (imageKey != null) {
+					ImageDescriptor imageDescriptor = imageDescriptorFromPlugin(PLUGIN_ID, "icons/" + imageKey); //$NON-NLS-1$
+					Image image = imageDescriptor.createImage();
+					landscapeContributorImages.add(image);
+					landscapeContributor.setImage(image);
+				}
+				String seq = configurationElement.getAttribute("sequence"); //$NON-NLS-1$
+				if (seq != null) landscapeContributor.setSequence(Integer.parseInt(seq));				
+				landscapeContributorList.add(landscapeContributor);
+			}
+			landscapeContributors = new ILandscapeContributor[landscapeContributorList.size()];
+			landscapeContributorList.toArray(landscapeContributors);	
+			Arrays.sort(landscapeContributors);
+		}
+		return landscapeContributors;
 	}
 
 	/**
@@ -125,6 +179,8 @@ public class Activator extends AbstractUIPlugin {
 		createImageDescriptor(IMAGE_SYSTEM_QC);
 		createImageDescriptor(IMAGE_SYSTEM_OTHER);
 		createImageDescriptor(IMAGE_SYNC_STATUS_ENTRY);
+		createImageDescriptor(IMAGE_NEW_LANDSCAPE);
+		createImageDescriptor(IMAGE_NEW_LANDSCAPE_WIZBAN);
 	}
 	
 	protected void initializeImageRegistry(ImageRegistry reg) {
@@ -139,5 +195,7 @@ public class Activator extends AbstractUIPlugin {
 		reg.put(IMAGE_SYSTEM_QC, getImageDescriptor(IMAGE_SYSTEM_QC));
 		reg.put(IMAGE_SYSTEM_OTHER, getImageDescriptor(IMAGE_SYSTEM_OTHER));
 		reg.put(IMAGE_SYNC_STATUS_ENTRY, getImageDescriptor(IMAGE_SYNC_STATUS_ENTRY));
+		reg.put(IMAGE_NEW_LANDSCAPE, getImageDescriptor(IMAGE_NEW_LANDSCAPE));
+		reg.put(IMAGE_NEW_LANDSCAPE_WIZBAN, getImageDescriptor(IMAGE_NEW_LANDSCAPE_WIZBAN));
 	}
 }
