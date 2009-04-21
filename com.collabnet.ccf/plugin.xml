@@ -57,14 +57,19 @@
             objectClass="com.collabnet.ccf.model.Patient"
             id="com.collabnet.ccf.model.Patient">
          <action
-               label="Unclear"
-               class="com.collabnet.ccf.actions.UnclearHospitalAction"
-               id="com.collabnet.ccf.actions.UnclearHospitalAction">
+               label="Delete"
+               class="com.collabnet.ccf.actions.DeletePatientAction"
+               id="com.collabnet.ccf.actions.DeletePatientAction">
+         </action>                        
+         <action
+               label="Reopen"
+               class="com.collabnet.ccf.actions.ReopenAction"
+               id="com.collabnet.ccf.actions.ReopenAction">
          </action>                       
          <action
-               label="Clear"
-               class="com.collabnet.ccf.actions.ClearHospitalAction"
-               id="com.collabnet.ccf.actions.ClearHospitalAction">
+               label="Mark as Fixed"
+               class="com.collabnet.ccf.actions.MarkFixedAction"
+               id="com.collabnet.ccf.actions.MarkFixedAction">
          </action>              
          <action
                label="Replay"

@@ -92,6 +92,7 @@ public class CcfDataProvider {
 	
 	private final static String SQL_HOSPITAL_SELECT = "SELECT * FROM HOSPITAL";
 	private final static String SQL_HOSPITAL_UPDATE = "UPDATE HOSPITAL";
+	private final static String SQL_HOSPITAL_DELETE = "DELETE FROM HOSPITAL";
 
 	public Patient[] getPatients(Filter[] filters) throws SQLException, ClassNotFoundException {
 		Connection connection = null;
@@ -142,6 +143,45 @@ public class CcfDataProvider {
 	        }			
 		}
 		return patients;
+	}
+	
+	public void deletePatients(Filter[] filters) throws  SQLException, ClassNotFoundException {
+		Connection connection = null;
+		Statement stmt = null;	
+		try {
+			connection = getConnection();
+			stmt = connection.createStatement();
+			String deleteStatement = Filter.getQuery(SQL_HOSPITAL_DELETE, filters);
+			stmt.executeUpdate(deleteStatement);
+		}
+		catch (SQLException e) {
+			Activator.handleError(e);
+			throw e;
+		}
+		catch (ClassNotFoundException e) {
+			Activator.handleError(e);
+			throw e;
+		}
+		finally {
+	        try
+	        {
+	            if (stmt != null)
+	                stmt.close();
+	        }
+	        catch (Exception e)
+	        {
+	        	 Activator.handleError("Could not close Statement" ,e);
+	        }
+	        try
+	        {
+	            if (connection  != null)
+	                connection.close();
+	        }
+	        catch (SQLException e)
+	        {
+	        	 Activator.handleError("Could not close Connection" ,e);
+	        }			
+		}
 	}
 	
 	public int updatePatients(Update[] updates, Filter[] filters) throws SQLException, ClassNotFoundException {

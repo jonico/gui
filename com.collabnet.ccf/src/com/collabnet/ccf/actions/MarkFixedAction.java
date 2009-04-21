@@ -17,7 +17,7 @@ import com.collabnet.ccf.db.Update;
 import com.collabnet.ccf.model.Patient;
 import com.collabnet.ccf.views.HospitalView;
 
-public class ClearHospitalAction extends ActionDelegate {
+public class MarkFixedAction extends ActionDelegate {
 	private IStructuredSelection fSelection;
 	private boolean patientsUpdated;
 	
@@ -29,16 +29,19 @@ public class ClearHospitalAction extends ActionDelegate {
 
 	@SuppressWarnings("unchecked")
 	public void run(IAction action) {
-		String clearUnclear;
+		String title;
 		String updateValue;
+		String message;
 		if (undo) {
-			clearUnclear = "Unclear";
+			title = "Reopen Hospital Items";
+			message = "Reopen the selected hospital items?";
 			updateValue = "false";
 		} else {
-			clearUnclear = "Clear";
+			title = "Mark Hospital Items Fixed";
+			message = "Mark the selected hospital items as fixed?";
 			updateValue = "true";
 		}
-		if (!MessageDialog.openConfirm(Display.getDefault().getActiveShell(), clearUnclear + " Hospital", clearUnclear + " the selected hospital items?")) return;
+		if (!MessageDialog.openConfirm(Display.getDefault().getActiveShell(), title, message)) return;
 		patientsUpdated = false;
 		final CcfDataProvider dataProvider = new CcfDataProvider();
 		Update update = new Update(CcfDataProvider.HOSPITAL_FIXED, updateValue, false);
