@@ -39,10 +39,6 @@ public class ProjectTrackerQCLandscapeContributor implements ILandscapeContribut
 		return image;
 	}
 
-	public boolean addLandscape() {
-		return true;
-	}
-
 	public IWizardPage getNextPage(IWizardPage currentPage) {
 		return null;
 	}
@@ -50,10 +46,22 @@ public class ProjectTrackerQCLandscapeContributor implements ILandscapeContribut
 	public int getSequence() {
 		return sequence;
 	}
+	
+	public String getType1() {
+		return "QC";
+	}
+	
+	public String getType2() {
+		return "PT";
+	}
+	
+	public String getConfigurationFolder() {
+		return propertiesFolderPage.getConfigurationFolder();
+	}
 
 	public IWizardPage[] getWizardPages(boolean initializePages) {
 		if (wizardPages == null || initializePages) {
-			propertiesFolderPage = new NewLandscapeWizardPropertiesFolderPage("propertiesTracker", "Specify the relative location of the properties files", Activator.getDefault().getImageDescriptor(Activator.IMAGE_NEW_LANDSCAPE_WIZBAN));
+			propertiesFolderPage = new NewLandscapeWizardPropertiesFolderPage("propertiesTracker", "Select config.xml", Activator.getDefault().getImageDescriptor(Activator.IMAGE_NEW_LANDSCAPE_WIZBAN), NewLandscapeWizardPropertiesFolderPage.TYPE_PT);
 			WizardPage[] pages = { propertiesFolderPage };
 			wizardPages = pages;
 		}

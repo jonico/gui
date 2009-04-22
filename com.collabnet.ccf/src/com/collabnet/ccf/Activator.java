@@ -11,13 +11,17 @@ import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
+import org.osgi.service.prefs.BackingStoreException;
+import org.osgi.service.prefs.Preferences;
 
 import com.collabnet.ccf.db.CcfDataProvider;
+import com.collabnet.ccf.model.Landscape;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -37,6 +41,9 @@ public class Activator extends AbstractUIPlugin {
 	// Images
 	public static final String IMAGE_NEW_LANDSCAPE = "new_landscape.gif"; //$NON-NLS-1$
 	public static final String IMAGE_NEW_LANDSCAPE_WIZBAN = "new_landscape_wizban.gif"; //$NON-NLS-1$
+	public static final String IMAGE_LANDSCAPE = "landscape.gif"; //$NON-NLS-1$
+	public static final String IMAGE_LANDSCAPE_QC_PT = "landscape_QC_PT.gif"; //$NON-NLS-1$
+	public static final String IMAGE_LANDSCAPE_QC_TF = "landscape_QC_TF.gif"; //$NON-NLS-1$
 	public static final String IMAGE_REFRESH = "refresh.gif"; //$NON-NLS-1$
 	public static final String IMAGE_FILTERS = "filters.gif"; //$NON-NLS-1$
 	public static final String IMAGE_DATABASE_CONNECTION = "dbConnection.gif"; //$NON-NLS-1$
@@ -70,6 +77,8 @@ public class Activator extends AbstractUIPlugin {
 	private static Activator plugin;
 	
 	private static List<Image> landscapeContributorImages = new ArrayList<Image>();
+	
+	public static final String PREF_CCF_LANDSCAPES_NODE = "ccfLandscapes"; //$NON-NLS-1$
 
 	/*
 	 * (non-Javadoc)
@@ -126,6 +135,46 @@ public class Activator extends AbstractUIPlugin {
 		}
 		return landscapeContributors;
 	}
+	
+	public boolean storeLandscape(String description, ILandscapeContributor landscapeContributor) {
+		Preferences prefs = getInstancePreferences().node(PREF_CCF_LANDSCAPES_NODE).node(description); //$NON-NLS-1$
+		prefs.put("type1", landscapeContributor.getType1());
+		prefs.put("type2", landscapeContributor.getType2());
+		prefs.put("configFolder", landscapeContributor.getConfigurationFolder());
+		try {
+			prefs.flush();
+		} catch (BackingStoreException e) {
+			handleError(e);
+			return false;
+		}
+		return true;
+	}
+	
+	public Landscape[] getLandscapes() {
+		List<Landscape> landscapes = new ArrayList<Landscape>();
+		try {
+			String[] childrenNames = getInstancePreferences().node(PREF_CCF_LANDSCAPES_NODE).childrenNames();
+			for (int i = 0; i < childrenNames.length; i++) {
+				Preferences node = getInstancePreferences().node(PREF_CCF_LANDSCAPES_NODE).node(childrenNames[i]); //$NON-NLS-1$
+				Landscape landscape = new Landscape();
+				landscape.setDescription(childrenNames[i]);
+				landscape.setType1(node.get("type1", ""));
+				landscape.setType2(node.get("type2", ""));
+				landscape.setConfigurationFolder(node.get("configFolder", ""));
+				landscapes.add(landscape);
+			}
+			Landscape[] landscapeArray = new Landscape[landscapes.size()];
+			landscapes.toArray(landscapeArray);
+			return landscapeArray;
+		} catch (Exception e) {
+			handleError(e);
+		}
+		return new Landscape[0];
+	}
+	
+	public org.osgi.service.prefs.Preferences getInstancePreferences() {
+		return new InstanceScope().getNode(getBundle().getSymbolicName());
+	}		
 
 	/**
 	 * Returns the shared instance
@@ -167,6 +216,12 @@ public class Activator extends AbstractUIPlugin {
 		return getDefault().getImageRegistry().get(key);
 	}
 	
+	public static Image getImage(Landscape landscape) {
+		Image image = getImage("landscape_" + landscape.getType1() + "_" + landscape.getType2() + ".gif");
+		if (image == null) image = getImage("landscape.gif");
+		return image;
+	}
+	
 	private void initializeImages() {
 		imageDescriptors = new Hashtable<String, ImageDescriptor>(40);
 		createImageDescriptor(IMAGE_REFRESH);
@@ -181,6 +236,9 @@ public class Activator extends AbstractUIPlugin {
 		createImageDescriptor(IMAGE_SYNC_STATUS_ENTRY);
 		createImageDescriptor(IMAGE_NEW_LANDSCAPE);
 		createImageDescriptor(IMAGE_NEW_LANDSCAPE_WIZBAN);
+		createImageDescriptor(IMAGE_LANDSCAPE);
+		createImageDescriptor(IMAGE_LANDSCAPE_QC_PT);
+		createImageDescriptor(IMAGE_LANDSCAPE_QC_TF);
 	}
 	
 	protected void initializeImageRegistry(ImageRegistry reg) {
@@ -197,5 +255,8 @@ public class Activator extends AbstractUIPlugin {
 		reg.put(IMAGE_SYNC_STATUS_ENTRY, getImageDescriptor(IMAGE_SYNC_STATUS_ENTRY));
 		reg.put(IMAGE_NEW_LANDSCAPE, getImageDescriptor(IMAGE_NEW_LANDSCAPE));
 		reg.put(IMAGE_NEW_LANDSCAPE_WIZBAN, getImageDescriptor(IMAGE_NEW_LANDSCAPE_WIZBAN));
+		reg.put(IMAGE_LANDSCAPE, getImageDescriptor(IMAGE_LANDSCAPE));
+		reg.put(IMAGE_LANDSCAPE_QC_PT, getImageDescriptor(IMAGE_LANDSCAPE_QC_PT));
+		reg.put(IMAGE_LANDSCAPE_QC_TF, getImageDescriptor(IMAGE_LANDSCAPE_QC_TF));
 	}
 }

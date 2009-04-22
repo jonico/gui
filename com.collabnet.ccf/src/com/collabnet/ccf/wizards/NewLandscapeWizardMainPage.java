@@ -13,12 +13,14 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
 
 import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.ILandscapeContributor;
 
 public class NewLandscapeWizardMainPage extends WizardPage {
 	private Composite outerContainer;
+	private Text descriptionText;
 	private Group descriptionGroup;
 	private Label descriptionImage;
 	private Label descriptionLabel;
@@ -41,6 +43,18 @@ public class NewLandscapeWizardMainPage extends WizardPage {
 		outerContainer.setLayoutData(
 		new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));
 		
+		Group descriptionGroup = new Group(outerContainer, SWT.NONE);
+		descriptionGroup.setText("Description:");
+		GridLayout descriptionLayout = new GridLayout();
+		descriptionLayout.numColumns = 1;
+		descriptionGroup.setLayout(descriptionLayout);
+		descriptionGroup.setLayoutData(
+		new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));
+		
+		descriptionText = new Text(descriptionGroup, SWT.BORDER);
+		GridData gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
+		descriptionText.setLayoutData(gd);
+		
 		Group landscapeGroup = new Group(outerContainer, SWT.NONE);
 		landscapeGroup.setText("Landscape type:");
 		GridLayout landscapeLayout = new GridLayout();
@@ -53,7 +67,7 @@ public class NewLandscapeWizardMainPage extends WizardPage {
 		
 		createDescriptionArea();
 		
-		setMessage("Specify the type of landscape");
+		setMessage("Specify the type and description of landscape");
 
 		setControl(outerContainer);
 	}
@@ -120,6 +134,13 @@ public class NewLandscapeWizardMainPage extends WizardPage {
 	
 	public ILandscapeContributor getSelectedLandscapeContributor() {
 		return selectedLandscapeContributor;
+	}
+	
+	public String getDescription() {
+		if (descriptionText.getText().trim().length() == 0)
+			return selectedLandscapeContributor.getName();
+		else
+			return descriptionText.getText().trim();
 	}
 
 }

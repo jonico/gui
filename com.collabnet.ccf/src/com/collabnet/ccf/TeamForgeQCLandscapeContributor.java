@@ -39,10 +39,6 @@ public class TeamForgeQCLandscapeContributor implements ILandscapeContributor {
 		return image;
 	}
 
-	public boolean addLandscape() {
-		return true;
-	}
-
 	public IWizardPage getNextPage(IWizardPage currentPage) {
 		return null;
 	}
@@ -50,10 +46,22 @@ public class TeamForgeQCLandscapeContributor implements ILandscapeContributor {
 	public int getSequence() {
 		return sequence;
 	}
+	
+	public String getType1() {
+		return "QC";
+	}
+	
+	public String getType2() {
+		return "TF";
+	}
+	
+	public String getConfigurationFolder() {
+		return propertiesFolderPage.getConfigurationFolder();
+	}
 
 	public IWizardPage[] getWizardPages(boolean initializePages) {
 		if (wizardPages == null || initializePages) {
-			propertiesFolderPage = new NewLandscapeWizardPropertiesFolderPage("propertiesTeamForge", "Specify the relative location of the properties files", Activator.getDefault().getImageDescriptor(Activator.IMAGE_NEW_LANDSCAPE_WIZBAN));
+			propertiesFolderPage = new NewLandscapeWizardPropertiesFolderPage("propertiesTeamForge", "Select config.xml", Activator.getDefault().getImageDescriptor(Activator.IMAGE_NEW_LANDSCAPE_WIZBAN), NewLandscapeWizardPropertiesFolderPage.TYPE_TF);
 			WizardPage[] pages = { propertiesFolderPage };
 			wizardPages = pages;
 		}

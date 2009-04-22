@@ -26,6 +26,10 @@ public interface ILandscapeContributor extends Comparable {
 	
 	public void setImage(Image image);
 	
-	public boolean addLandscape();
+	public String getType1();
+	
+	public String getType2();
+	
+	public String getConfigurationFolder();
 
 }

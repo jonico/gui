@@ -10,7 +10,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.model.WorkbenchContentProvider;
 import org.eclipse.ui.part.ViewPart;
 
+import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.actions.NewLandscapeAction;
+import com.collabnet.ccf.model.Landscape;
 
 public class CcfExplorerView extends ViewPart {
 	private static CcfExplorerView view;
@@ -80,10 +82,12 @@ public class CcfExplorerView extends ViewPart {
 	
 	class LandscapeLabelProvider extends LabelProvider {
 		public Image getImage(Object element) {
+			if (element instanceof Landscape) return Activator.getImage((Landscape)element);
 			return super.getImage(element);
 		}
 		
 		public String getText(Object element) {
+			if (element instanceof Landscape) return ((Landscape) element).getDescription();
 			return super.getText(element);
 		}
 	}
@@ -94,7 +98,8 @@ public class CcfExplorerView extends ViewPart {
 		}
 		
 		public boolean hasChildren(Object element) {
-			return false;
+			if (element instanceof Landscape) return false;
+			return true;
 		}
 		
 		public Object[] getElements(Object inputElement) {
@@ -102,6 +107,9 @@ public class CcfExplorerView extends ViewPart {
 		}
 		
 		public Object[] getChildren(Object parentElement) {
+			if (parentElement instanceof CcfExplorerView) {
+				return Activator.getDefault().getLandscapes();
+			}
 			return new Object[0];
 		}
 	}

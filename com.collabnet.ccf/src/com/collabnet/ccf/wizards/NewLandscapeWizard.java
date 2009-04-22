@@ -1,12 +1,12 @@
 package com.collabnet.ccf.wizards;
 
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.jface.wizard.WizardPage;
 
 import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.ILandscapeContributor;
+import com.collabnet.ccf.views.CcfExplorerView;
 
 public class NewLandscapeWizard extends Wizard {
 	private NewLandscapeWizardMainPage mainPage;
@@ -27,7 +27,7 @@ public class NewLandscapeWizard extends Wizard {
 		}
 		setWindowTitle("New CCF Landscape");
 		
-		mainPage = new NewLandscapeWizardMainPage("main", "Select the type of landscape", Activator.getDefault().getImageDescriptor(Activator.IMAGE_NEW_LANDSCAPE_WIZBAN), landscapeContributors);
+		mainPage = new NewLandscapeWizardMainPage("main", "Describe landscape", Activator.getDefault().getImageDescriptor(Activator.IMAGE_NEW_LANDSCAPE_WIZBAN), landscapeContributors);
 		addPage(mainPage);
 		
 		pages = new WizardPage[landscapeContributors.length][];
@@ -67,8 +67,11 @@ public class NewLandscapeWizard extends Wizard {
 
 	@Override
 	public boolean performFinish() {
-		MessageDialog.openInformation(getShell(), "New Landscape", "Not yet implemented.");
-		return false;
+		boolean landscapeAdded = Activator.getDefault().storeLandscape(mainPage.getDescription(), mainPage.getSelectedLandscapeContributor());
+		if (landscapeAdded && CcfExplorerView.getView() != null) {
+			CcfExplorerView.getView().refresh();
+		}
+		return landscapeAdded;
 	}
 
 }
