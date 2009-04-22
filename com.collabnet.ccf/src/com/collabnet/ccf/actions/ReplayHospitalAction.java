@@ -68,7 +68,7 @@ public class ReplayHospitalAction extends ActionDelegate {
 			Object object = iter.next();
 			if (object instanceof Patient) {
 				Patient patient = (Patient)object;
-				if (!patient.getOriginatingComponent().endsWith("EntityService") && !patient.getOriginatingComponent().endsWith("Write"))
+				if (!patient.getOriginatingComponent().endsWith("Writer"))
 					return false;
 			}
 		}
