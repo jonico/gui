@@ -150,6 +150,20 @@ public class Activator extends AbstractUIPlugin {
 		return true;
 	}
 	
+	public boolean deleteLandscape(Landscape landscape) {
+		Preferences node = landscape.getNode();
+		if (node != null) {
+			try {
+				node.removeNode();
+			} catch (BackingStoreException e) {
+				handleError(e);
+				return false;
+			}
+			return true;
+		}
+		return true;
+	}
+	
 	public Landscape[] getLandscapes() {
 		List<Landscape> landscapes = new ArrayList<Landscape>();
 		try {
@@ -161,6 +175,7 @@ public class Activator extends AbstractUIPlugin {
 				landscape.setType1(node.get("type1", ""));
 				landscape.setType2(node.get("type2", ""));
 				landscape.setConfigurationFolder(node.get("configFolder", ""));
+				landscape.setNode(node);
 				landscapes.add(landscape);
 			}
 			Landscape[] landscapeArray = new Landscape[landscapes.size()];

@@ -6,12 +6,15 @@ import java.util.List;
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.properties.PropertyDescriptor;
+import org.osgi.service.prefs.Preferences;
 
 public class Landscape implements IPropertySource {
 	private String description;
 	private String type1;
 	private String type2;
 	private String configurationFolder;
+	
+	private Preferences node;
 	
 	public static String P_ID_DESCRIPTION = "desc"; //$NON-NLS-1$
 	public static String P_DESCRIPTION = "Description";
@@ -56,6 +59,15 @@ public class Landscape implements IPropertySource {
 	public void setConfigurationFolder(String configurationFolder) {
 		this.configurationFolder = configurationFolder;
 	}
+	
+	public Preferences getNode() {
+		return node;
+	}
+	
+	public void setNode(Preferences node) {
+		this.node = node;
+	}
+
 	
 	public Object getEditableValue() {
 		return description;

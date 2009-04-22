@@ -108,7 +108,18 @@
                class="com.collabnet.ccf.actions.ExaminePayloadAction"
                id="com.collabnet.ccf.actions.ExaminePayloadAction">
          </action>                          
-      </objectContribution>                   
+      </objectContribution>
+      
+      <objectContribution
+            objectClass="com.collabnet.ccf.model.Landscape"
+            id="com.collabnet.ccf.model.Landscape">
+         <action
+               label="Delete landscape"
+               class="com.collabnet.ccf.actions.DeleteLandscapeAction"
+               id="com.collabnet.ccf.actions.DeleteLandscapeAction">
+         </action>                                         
+      </objectContribution>        
+                         
    </extension>   
 
 </plugin>
