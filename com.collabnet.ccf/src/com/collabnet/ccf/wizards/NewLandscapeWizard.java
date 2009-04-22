@@ -67,7 +67,7 @@ public class NewLandscapeWizard extends Wizard {
 
 	@Override
 	public boolean performFinish() {
-		boolean landscapeAdded = Activator.getDefault().storeLandscape(mainPage.getDescription(), mainPage.getSelectedLandscapeContributor());
+		boolean landscapeAdded = Activator.getDefault().storeLandscape(mainPage.getDescription().replaceAll("/", "%slash%"), mainPage.getSelectedLandscapeContributor());
 		if (landscapeAdded && CcfExplorerView.getView() != null) {
 			CcfExplorerView.getView().refresh();
 		}

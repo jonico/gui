@@ -117,7 +117,13 @@
                label="Delete landscape"
                class="com.collabnet.ccf.actions.DeleteLandscapeAction"
                id="com.collabnet.ccf.actions.DeleteLandscapeAction">
-         </action>                                         
+         </action> 
+         <action
+               label="Change landscape..."
+               class="com.collabnet.ccf.actions.ChangeLandscapeAction"
+               enablesFor="1"
+               id="com.collabnet.ccf.actions.ChangeLandscapeAction">
+         </action>                                                      
       </objectContribution>        
                          
    </extension>   

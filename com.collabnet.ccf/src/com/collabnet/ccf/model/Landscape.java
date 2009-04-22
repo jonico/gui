@@ -36,7 +36,7 @@ public class Landscape implements IPropertySource {
 	}		
 
 	public String getDescription() {
-		return description;
+		return description.replaceAll("%slash%", "/");
 	}
 	public void setDescription(String description) {
 		this.description = description;
@@ -81,7 +81,7 @@ public class Landscape implements IPropertySource {
 	}	
 	
 	public Object getPropertyValue(Object id) {
-		if (P_ID_DESCRIPTION.equals(id)) return description;
+		if (P_ID_DESCRIPTION.equals(id)) return getDescription();
 		if (P_ID_TYPE1.equals(id)) return type1;
 		if (P_ID_TYPE2.equals(id)) return type2;
 		if (P_ID_FOLDER.equals(id)) return configurationFolder;

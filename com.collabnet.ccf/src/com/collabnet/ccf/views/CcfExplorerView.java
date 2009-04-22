@@ -1,9 +1,11 @@
 package com.collabnet.ccf.views;
 
+import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.graphics.Image;
@@ -77,6 +79,8 @@ public class CcfExplorerView extends ViewPart {
 	
 	private void createToolbar() {
 		IToolBarManager toolbarManager = getViewSite().getActionBars().getToolBarManager();		
+		toolbarManager.add(new RefreshAction());
+		toolbarManager.add(new Separator());
 		toolbarManager.add(new NewLandscapeAction());
 	}
 
@@ -128,6 +132,17 @@ public class CcfExplorerView extends ViewPart {
 				return Activator.getDefault().getLandscapes();
 			}
 			return new Object[0];
+		}
+	}
+	
+	class RefreshAction extends Action {
+		public RefreshAction() {
+			super();
+			setImageDescriptor(Activator.getDefault().getImageDescriptor(Activator.IMAGE_REFRESH));
+			setToolTipText("Refresh View");
+		}
+		public void run() {
+			treeViewer.refresh();
 		}
 	}
 

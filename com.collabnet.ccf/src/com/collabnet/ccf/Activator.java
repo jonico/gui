@@ -137,17 +137,26 @@ public class Activator extends AbstractUIPlugin {
 	}
 	
 	public boolean storeLandscape(String description, ILandscapeContributor landscapeContributor) {
-		Preferences prefs = getInstancePreferences().node(PREF_CCF_LANDSCAPES_NODE).node(description); //$NON-NLS-1$
-		prefs.put("type1", landscapeContributor.getType1());
-		prefs.put("type2", landscapeContributor.getType2());
-		prefs.put("configFolder", landscapeContributor.getConfigurationFolder());
+		Landscape landscape = new Landscape();
+		landscape.setDescription(description);
+		landscape.setType1(landscapeContributor.getType1());
+		landscape.setType2(landscapeContributor.getType2());
+		landscape.setConfigurationFolder(landscapeContributor.getConfigurationFolder());
+		return storeLandscape(landscape);
+	}
+	
+	public boolean storeLandscape(Landscape landscape) {
+		Preferences prefs = getInstancePreferences().node(PREF_CCF_LANDSCAPES_NODE).node(landscape.getDescription().replaceAll("/", "%slash%")); //$NON-NLS-1$
+		prefs.put("type1", landscape.getType1());
+		prefs.put("type2", landscape.getType2());
+		prefs.put("configFolder", landscape.getConfigurationFolder());
 		try {
 			prefs.flush();
 		} catch (BackingStoreException e) {
 			handleError(e);
 			return false;
 		}
-		return true;
+		return true;		
 	}
 	
 	public boolean deleteLandscape(Landscape landscape) {
@@ -171,7 +180,7 @@ public class Activator extends AbstractUIPlugin {
 			for (int i = 0; i < childrenNames.length; i++) {
 				Preferences node = getInstancePreferences().node(PREF_CCF_LANDSCAPES_NODE).node(childrenNames[i]); //$NON-NLS-1$
 				Landscape landscape = new Landscape();
-				landscape.setDescription(childrenNames[i]);
+				landscape.setDescription(childrenNames[i].replaceAll("%slash%", "/"));
 				landscape.setType1(node.get("type1", ""));
 				landscape.setType2(node.get("type2", ""));
 				landscape.setConfigurationFolder(node.get("configFolder", ""));
