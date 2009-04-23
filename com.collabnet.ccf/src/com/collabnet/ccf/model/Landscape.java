@@ -13,7 +13,7 @@ public class Landscape implements IPropertySource {
 	private String type1;
 	private String type2;
 	private String configurationFolder;
-	
+	private String contributorId;
 	private Preferences node;
 	
 	public static String P_ID_DESCRIPTION = "desc"; //$NON-NLS-1$
@@ -68,6 +68,13 @@ public class Landscape implements IPropertySource {
 		this.node = node;
 	}
 
+	public String getContributorId() {
+		return contributorId;
+	}
+	
+	public void setContributorId(String contributorId) {
+		this.contributorId = contributorId;
+	}
 	
 	public Object getEditableValue() {
 		return description;

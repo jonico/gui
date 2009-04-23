@@ -31,7 +31,7 @@ public class Activator extends AbstractUIPlugin {
 	private Hashtable<String, ImageDescriptor> imageDescriptors;
 
 	// The plug-in ID
-	public static final String PLUGIN_ID = "com.collabnet.ccf";
+	public static final String PLUGIN_ID = "com.collabnet.ccf"; //$NON-NLS-1$
 	
 	// Landscape contributor extension point ID
 	public static final String LANDSCAPE_CONTRIBUTORS = "com.collabnet.ccf.landscapeContributors"; //$NON-NLS-1$	
@@ -56,20 +56,53 @@ public class Activator extends AbstractUIPlugin {
 	public static final String IMAGE_SYNC_STATUS_ENTRY = "sync_status_entry.gif"; //$NON-NLS-1$
 	
 	// Preferences
-	public static final String PREFERENCES_DATABASE_DESCRIPTION = "pref_db_description";
-	public static final String PREFERENCES_DATABASE_DRIVER = "pref_db_driver";
-	public static final String PREFERENCES_DATABASE_URL = "pref_db_url";
-	public static final String PREFERENCES_DATABASE_USER = "pref_db_user";
-	public static final String PREFERENCES_DATABASE_PASSWORD = "pref_db_password";
-	public static final String PREFERENCES_AUTOCONNECT = "pref_autoconnect";
-	public static final String PREFERENCES_HOSPITAL_COLUMNS = "hospital_columns";
+	public static final String PREFERENCES_DATABASE_DESCRIPTION = "pref_db_description"; //$NON-NLS-1$
+	public static final String PREFERENCES_DATABASE_DRIVER = "pref_db_driver"; //$NON-NLS-1$
+	public static final String PREFERENCES_DATABASE_URL = "pref_db_url"; //$NON-NLS-1$
+	public static final String PREFERENCES_DATABASE_USER = "pref_db_user"; //$NON-NLS-1$
+	public static final String PREFERENCES_DATABASE_PASSWORD = "pref_db_password"; //$NON-NLS-1$
+	public static final String PREFERENCES_AUTOCONNECT = "pref_autoconnect"; //$NON-NLS-1$
+	public static final String PREFERENCES_HOSPITAL_COLUMNS = "hospital_columns"; //$NON-NLS-1$
+	
+	// CCF Properties
+	public static final String PROPERTIES_CCF_URL = "ccf.db.url"; //$NON-NLS-1$
+	public static final String PROPERTIES_CCF_DRIVER = "ccf.db.driver"; //$NON-NLS-1$
+	public static final String PROPERTIES_CCF_USER = "ccf.db.username"; //$NON-NLS-1$
+	public static final String PROPERTIES_CCF_PASSWORD = "ccf.db.password"; //$NON-NLS-1$
+	public static final String PROPERTIES_CCF_XSLT_DIRECTORY = "ccf.xsltDir"; //$NON-NLS-1$
+	
+	// QC Properties
+	public static final String PROPERTIES_QC_URL = "qc.system.1.url"; //$NON-NLS-1$
+	public static final String PROPERTIES_QC_USER = "qc.system.1.username"; //$NON-NLS-1$
+	public static final String PROPERTIES_QC_PASSWORD = "qc.system.1.password"; //$NON-NLS-1$
+	public static final String PROPERTIES_QC_RESYNC_USER = "qc.system.1.resync.username"; //$NON-NLS-1$
+	public static final String PROPERTIES_QC_RESYNC_PASSWORD = "qc.system.1.resync.password"; //$NON-NLS-1$
+	public static final String PROPERTIES_QC_ATTACHMENT_SIZE = "qc.max.attachmentsize.per.artifact"; //$NON-NLS-1$
+	
+	// SFEE Properties
+	public static final String PROPERTIES_SFEE_URL = "sfee.server.1.url"; //$NON-NLS-1$
+	public static final String PROPERTIES_SFEE_USER = "sfee.server.1.username"; //$NON-NLS-1$
+	public static final String PROPERTIES_SFEE_PASSWORD = "sfee.server.1.password"; //$NON-NLS-1$
+	public static final String PROPERTIES_SFEE_RESYNC_USER = "sfee.server.1.resync.username"; //$NON-NLS-1$
+	public static final String PROPERTIES_SFEE_RESYNC_PASSWORD = "sfee.server.1.resync.password"; //$NON-NLS-1$
+	public static final String PROPERTIES_SFEE_ATTACHMENT_SIZE = "sfee.max.attachmentsize.per.artifact"; //$NON-NLS-1$
+	
+	// CEE Properties
+	public static final String PROPERTIES_CEE_URL = "cee.server.1.url"; //$NON-NLS-1$
+	public static final String PROPERTIES_CEE_USER = "cee.server.1.username"; //$NON-NLS-1$
+	public static final String PROPERTIES_CEE_DISPLAY_NAME = "cee.server.1.connector.user.displayName"; //$NON-NLS-1$
+	public static final String PROPERTIES_CEE_PASSWORD = "cee.server.1.password"; //$NON-NLS-1$
+	public static final String PROPERTIES_CEE_RESYNC_USER = "cee.server.1.resync.username"; //$NON-NLS-1$
+	public static final String PROPERTIES_CEE_RESYNC_DISPLAY_NAME = "cee.server.1.resync.user.displayName"; //$NON-NLS-1$
+	public static final String PROPERTIES_CEE_RESYNC_PASSWORD = "cee.server.1.resync.password"; //$NON-NLS-1$
+	public static final String PROPERTIES_CEE_ATTACHMENT_SIZE = "cee.max.attachmentsize.per.artifact";	 //$NON-NLS-1$
 	
 	// Default database
-	public static final String DATABASE_DEFAULT_DESCRIPTION = "Default";
-	public static final String DATABASE_DEFAULT_DRIVER = "org.hsqldb.jdbcDriver";
-	public static final String DATABASE_DEFAULT_URL = "jdbc:hsqldb:hsql://localhost/xdb";
-	public static final String DATABASE_DEFAULT_USER = "sa";
-	public static final String DATABASE_DEFAULT_PASSWORD = "";
+	public static final String DATABASE_DEFAULT_DESCRIPTION = "Default"; //$NON-NLS-1$
+	public static final String DATABASE_DEFAULT_DRIVER = "org.hsqldb.jdbcDriver"; //$NON-NLS-1$
+	public static final String DATABASE_DEFAULT_URL = "jdbc:hsqldb:hsql://localhost/xdb"; //$NON-NLS-1$
+	public static final String DATABASE_DEFAULT_USER = "sa"; //$NON-NLS-1$
+	public static final String DATABASE_DEFAULT_PASSWORD = ""; //$NON-NLS-1$
 	public static final boolean DEFAULT_AUTOCONNECT = false;
 	public static final String DEFAULT_HOSPITAL_COLUMNS = CcfDataProvider.DEFAULT_HOSPITAL_COLUMNS;
 	
@@ -116,6 +149,7 @@ public class Activator extends AbstractUIPlugin {
 			for (int i = 0; i < configurationElements.length; i++) {
 				IConfigurationElement configurationElement = configurationElements[i];
 				ILandscapeContributor landscapeContributor = (ILandscapeContributor)configurationElement.createExecutableExtension("class"); //$NON-NLS-1$
+				landscapeContributor.setId(configurationElement.getAttribute("id")); //$NON-NLS-1$
 				landscapeContributor.setName(configurationElement.getAttribute("name")); //$NON-NLS-1$
 				landscapeContributor.setDescription(configurationElement.getAttribute("description")); //$NON-NLS-1$
 				String imageKey = configurationElement.getAttribute("image"); //$NON-NLS-1$
@@ -136,20 +170,34 @@ public class Activator extends AbstractUIPlugin {
 		return landscapeContributors;
 	}
 	
+	public static ILandscapeContributor getLandscapeContributor(Landscape landscape) throws Exception {
+		ILandscapeContributor landscapeContributor = null;
+		landscapeContributors = getLandscapeContributors();
+		for (int i = 0; i < landscapeContributors.length; i++) {
+			if (landscapeContributors[i].getId().equals(landscape.getContributorId())) {
+				landscapeContributor = landscapeContributors[i];
+				break;
+			}
+		}
+		return landscapeContributor;
+	}
+	
 	public boolean storeLandscape(String description, ILandscapeContributor landscapeContributor) {
 		Landscape landscape = new Landscape();
 		landscape.setDescription(description);
 		landscape.setType1(landscapeContributor.getType1());
 		landscape.setType2(landscapeContributor.getType2());
 		landscape.setConfigurationFolder(landscapeContributor.getConfigurationFolder());
+		landscape.setContributorId(landscapeContributor.getId());
 		return storeLandscape(landscape);
 	}
 	
 	public boolean storeLandscape(Landscape landscape) {
-		Preferences prefs = getInstancePreferences().node(PREF_CCF_LANDSCAPES_NODE).node(landscape.getDescription().replaceAll("/", "%slash%")); //$NON-NLS-1$
-		prefs.put("type1", landscape.getType1());
-		prefs.put("type2", landscape.getType2());
-		prefs.put("configFolder", landscape.getConfigurationFolder());
+		Preferences prefs = getInstancePreferences().node(PREF_CCF_LANDSCAPES_NODE).node(landscape.getDescription().replaceAll("/", "%slash%")); //$NON-NLS-1$ //$NON-NLS-2$
+		prefs.put("type1", landscape.getType1()); //$NON-NLS-1$
+		prefs.put("type2", landscape.getType2()); //$NON-NLS-1$
+		prefs.put("configFolder", landscape.getConfigurationFolder()); //$NON-NLS-1$
+		prefs.put("contributorId", landscape.getContributorId()); //$NON-NLS-1$
 		try {
 			prefs.flush();
 		} catch (BackingStoreException e) {
@@ -180,11 +228,12 @@ public class Activator extends AbstractUIPlugin {
 			for (int i = 0; i < childrenNames.length; i++) {
 				Preferences node = getInstancePreferences().node(PREF_CCF_LANDSCAPES_NODE).node(childrenNames[i]); //$NON-NLS-1$
 				Landscape landscape = new Landscape();
-				landscape.setDescription(childrenNames[i].replaceAll("%slash%", "/"));
-				landscape.setType1(node.get("type1", ""));
-				landscape.setType2(node.get("type2", ""));
-				landscape.setConfigurationFolder(node.get("configFolder", ""));
+				landscape.setDescription(childrenNames[i].replaceAll("%slash%", "/")); //$NON-NLS-1$ //$NON-NLS-2$
+				landscape.setType1(node.get("type1", "")); //$NON-NLS-1$ //$NON-NLS-2$
+				landscape.setType2(node.get("type2", "")); //$NON-NLS-1$ //$NON-NLS-2$
+				landscape.setConfigurationFolder(node.get("configFolder", "")); //$NON-NLS-1$ //$NON-NLS-2$
 				landscape.setNode(node);
+				landscape.setContributorId(node.get("contributorId", "")); //$NON-NLS-1$ //$NON-NLS-2$
 				landscapes.add(landscape);
 			}
 			Landscape[] landscapeArray = new Landscape[landscapes.size()];
@@ -241,8 +290,8 @@ public class Activator extends AbstractUIPlugin {
 	}
 	
 	public static Image getImage(Landscape landscape) {
-		Image image = getImage("landscape_" + landscape.getType1() + "_" + landscape.getType2() + ".gif");
-		if (image == null) image = getImage("landscape.gif");
+		Image image = getImage("landscape_" + landscape.getType1() + "_" + landscape.getType2() + ".gif"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		if (image == null) image = getImage("landscape.gif"); //$NON-NLS-1$
 		return image;
 	}
 	

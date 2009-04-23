@@ -6,6 +6,7 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.graphics.Image;
@@ -17,6 +18,7 @@ import org.eclipse.ui.model.WorkbenchContentProvider;
 import org.eclipse.ui.part.ViewPart;
 
 import com.collabnet.ccf.Activator;
+import com.collabnet.ccf.ILandscapeContributor;
 import com.collabnet.ccf.actions.NewLandscapeAction;
 import com.collabnet.ccf.model.Landscape;
 
@@ -74,7 +76,24 @@ public class CcfExplorerView extends ViewPart {
 	}
 	
 	private void fillContextMenu(IMenuManager manager) {
-		
+		IStructuredSelection selection = (IStructuredSelection)treeViewer.getSelection();
+		if (selection.size() == 1 && selection.getFirstElement() instanceof Landscape) {
+			ILandscapeContributor landscapeContributor = null;
+			try {
+				landscapeContributor = Activator.getLandscapeContributor((Landscape)selection.getFirstElement());
+			} catch (Exception e) {
+				Activator.handleError(e);
+			}
+			if (landscapeContributor != null) {
+				Action[] editPropertiesActions = landscapeContributor.getEditPropertiesActions((Landscape)selection.getFirstElement());
+				if (editPropertiesActions != null) {
+					for (int i = 0; i < editPropertiesActions.length; i++) {
+						manager.add(editPropertiesActions[i]);
+					}
+					manager.add(new Separator());
+				}
+			}
+		}
 	}
 	
 	private void createToolbar() {

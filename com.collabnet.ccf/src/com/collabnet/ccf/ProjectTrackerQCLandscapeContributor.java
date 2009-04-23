@@ -1,12 +1,18 @@
 package com.collabnet.ccf;
 
+import org.eclipse.jface.action.Action;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.graphics.Image;
 
+import com.collabnet.ccf.actions.EditCcfPropertiesAction;
+import com.collabnet.ccf.actions.EditCeePropertiesAction;
+import com.collabnet.ccf.actions.EditQcPropertiesAction;
+import com.collabnet.ccf.model.Landscape;
 import com.collabnet.ccf.wizards.NewLandscapeWizardPropertiesFolderPage;
 
 public class ProjectTrackerQCLandscapeContributor implements ILandscapeContributor {
+	private String id;
 	private String name;
 	private String description;
 	private Image image;
@@ -14,6 +20,15 @@ public class ProjectTrackerQCLandscapeContributor implements ILandscapeContribut
 	
 	private NewLandscapeWizardPropertiesFolderPage propertiesFolderPage;
 	private WizardPage[] wizardPages;
+	
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
 	
 	public String getDescription() {
 		return description;
@@ -72,6 +87,14 @@ public class ProjectTrackerQCLandscapeContributor implements ILandscapeContribut
 		this.sequence = sequence;
 	}
 	
+	public Action[] getEditPropertiesActions(Landscape landscape) {
+		Action ccfAction = new EditCcfPropertiesAction(landscape);
+		Action qcAction = new EditQcPropertiesAction(landscape);
+		Action ceeAction = new EditCeePropertiesAction(landscape);
+		Action[] actions = { ccfAction, qcAction, ceeAction };
+		return actions;
+	}
+	
 	public int compareTo(Object compareToObject) {
 		if (!(compareToObject instanceof ILandscapeContributor)) return 0;
 		ILandscapeContributor compareToLandscapeContributor = (ILandscapeContributor)compareToObject;
@@ -79,4 +102,5 @@ public class ProjectTrackerQCLandscapeContributor implements ILandscapeContribut
 		else if (compareToLandscapeContributor.getSequence() > getSequence()) return -1;
 		return getName().compareTo(compareToLandscapeContributor.getName());
 	}
+
 }

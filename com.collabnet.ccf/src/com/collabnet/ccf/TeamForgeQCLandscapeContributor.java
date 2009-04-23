@@ -1,12 +1,18 @@
 package com.collabnet.ccf;
 
+import org.eclipse.jface.action.Action;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.graphics.Image;
 
+import com.collabnet.ccf.actions.EditCcfPropertiesAction;
+import com.collabnet.ccf.actions.EditQcPropertiesAction;
+import com.collabnet.ccf.actions.EditTeamForgePropertiesAction;
+import com.collabnet.ccf.model.Landscape;
 import com.collabnet.ccf.wizards.NewLandscapeWizardPropertiesFolderPage;
 
 public class TeamForgeQCLandscapeContributor implements ILandscapeContributor {
+	private String id;
 	private String name;
 	private String description;
 	private Image image;
@@ -14,6 +20,14 @@ public class TeamForgeQCLandscapeContributor implements ILandscapeContributor {
 	
 	private NewLandscapeWizardPropertiesFolderPage propertiesFolderPage;
 	private WizardPage[] wizardPages;
+	
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
 	
 	public String getDescription() {
 		return description;
@@ -70,6 +84,14 @@ public class TeamForgeQCLandscapeContributor implements ILandscapeContributor {
 
 	public void setSequence(int sequence) {
 		this.sequence = sequence;
+	}
+	
+	public Action[] getEditPropertiesActions(Landscape landscape) {
+		Action ccfAction = new EditCcfPropertiesAction(landscape);
+		Action qcAction = new EditQcPropertiesAction(landscape);
+		Action sfeeAction = new EditTeamForgePropertiesAction(landscape);
+		Action[] actions = { ccfAction, qcAction, sfeeAction };
+		return actions;
 	}
 	
 	public int compareTo(Object compareToObject) {

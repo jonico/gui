@@ -1,10 +1,17 @@
 package com.collabnet.ccf;
 
+import org.eclipse.jface.action.Action;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.swt.graphics.Image;
 
+import com.collabnet.ccf.model.Landscape;
+
 @SuppressWarnings("unchecked")
 public interface ILandscapeContributor extends Comparable {
+	
+	public String getId();
+	
+	public void setId(String id);
 	
 	public String getName();
 	
@@ -31,5 +38,7 @@ public interface ILandscapeContributor extends Comparable {
 	public String getType2();
 	
 	public String getConfigurationFolder();
+	
+	public Action[] getEditPropertiesActions(Landscape landscape);
 
 }
