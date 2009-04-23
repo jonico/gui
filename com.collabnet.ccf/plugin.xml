@@ -28,6 +28,22 @@
          point="org.eclipse.core.runtime.preferences">
       <initializer class="com.collabnet.ccf.preferences.CcfPreferenceInitializer"/>
    </extension>
+   
+   <extension
+         point="org.eclipse.ui.preferenceTransfer">
+       <transfer
+            icon="icons/landscape.gif"
+            name="CCF Landscapes"
+            id="com.collabnet.ccf.preferenceTransfer">
+            <mapping scope="instance">
+                <entry node="com.collabnet.ccf/ccfLandscapes">
+                </entry>
+            </mapping>
+            <description>
+             Export CCF Landscapes
+            </description>
+      </transfer>  
+   </extension> 
 
    <extension
          point="org.eclipse.ui.preferencePages">
