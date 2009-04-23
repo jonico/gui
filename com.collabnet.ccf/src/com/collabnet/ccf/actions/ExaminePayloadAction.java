@@ -44,72 +44,74 @@ public class ExaminePayloadAction extends ActionDelegate {
 			Object object = iter.next();
 			if (object instanceof Patient) {
 				IWorkbenchPage page = Activator.getDefault().getWorkbench().getActiveWorkbenchWindow().getActivePage();
-				final Patient patient = (Patient)object;				
-				try {
-					final File tempFile = File.createTempFile("Payload" + patient.getId(), ".xml");
-					BufferedWriter out = new BufferedWriter(new FileWriter(tempFile));
-					out.write(patient.getGenericArtifact());
-					out.close();
-					IFileStore fileStore =  EFS.getLocalFileSystem().getStore(new Path(tempFile.getAbsolutePath()));
-					final IEditorInput input = new ExternalFileEditorInput(fileStore, patient.getId() + " Payload");
-					IEditorRegistry registry = Activator.getDefault().getWorkbench().getEditorRegistry();
-					IEditorDescriptor descriptor = registry.getDefaultEditor("file.xml");
-					
-					String id;
-					if (descriptor == null) {
-						id = "org.eclipse.ui.DefaultTextEditor"; //$NON-NLS-1$
-					} else {
-						id = descriptor.getId();
-					}
+				final Patient patient = (Patient)object;
+				if (patient.getGenericArtifact() != null && patient.getGenericArtifact().trim().length() > 0) {
 					try {
-						final IEditorPart editorPart = page.openEditor(input, id);
-						IPartListener2 closeListener = new IPartListener2() {
-							
-							public void partClosed(IWorkbenchPartReference partRef) {
-								if (partRef.getPart(false) == editorPart) {
-									try {
-										final String updatedPayload = readFileAsString(tempFile.getAbsolutePath());
-										BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
-											public void run() {
-												Filter filter = new Filter(CcfDataProvider.HOSPITAL_ID, Integer.toString(patient.getId()), false);
-												Filter[] filters = { filter };
-												Update update = new Update(CcfDataProvider.HOSPITAL_GENERIC_ARTIFACT, updatedPayload);
-												Update[] updates = { update };
-												CcfDataProvider dataProvider = new CcfDataProvider();
-												try {
-													dataProvider.updatePatients(updates, filters);
-													if (HospitalView.getView() != null) {
-														HospitalView.getView().refresh();
+						final File tempFile = File.createTempFile("Payload" + patient.getId(), ".xml");
+						BufferedWriter out = new BufferedWriter(new FileWriter(tempFile));
+						out.write(patient.getGenericArtifact());
+						out.close();
+						IFileStore fileStore =  EFS.getLocalFileSystem().getStore(new Path(tempFile.getAbsolutePath()));
+						final IEditorInput input = new ExternalFileEditorInput(fileStore, patient.getId() + " Payload");
+						IEditorRegistry registry = Activator.getDefault().getWorkbench().getEditorRegistry();
+						IEditorDescriptor descriptor = registry.getDefaultEditor("file.xml");
+						
+						String id;
+						if (descriptor == null) {
+							id = "org.eclipse.ui.DefaultTextEditor"; //$NON-NLS-1$
+						} else {
+							id = descriptor.getId();
+						}
+						try {
+							final IEditorPart editorPart = page.openEditor(input, id);
+							IPartListener2 closeListener = new IPartListener2() {
+								
+								public void partClosed(IWorkbenchPartReference partRef) {
+									if (partRef.getPart(false) == editorPart) {
+										try {
+											final String updatedPayload = readFileAsString(tempFile.getAbsolutePath());
+											BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
+												public void run() {
+													Filter filter = new Filter(CcfDataProvider.HOSPITAL_ID, Integer.toString(patient.getId()), false);
+													Filter[] filters = { filter };
+													Update update = new Update(CcfDataProvider.HOSPITAL_GENERIC_ARTIFACT, updatedPayload);
+													Update[] updates = { update };
+													CcfDataProvider dataProvider = new CcfDataProvider();
+													try {
+														dataProvider.updatePatients(updates, filters);
+														if (HospitalView.getView() != null) {
+															HospitalView.getView().refresh();
+														}
+													} catch (Exception e) {
+														Activator.handleError(e);
 													}
-												} catch (Exception e) {
-													Activator.handleError(e);
-												}
-											}					
-										});
-									} catch (IOException e) {
-										Activator.handleError(e);
+												}					
+											});
+										} catch (IOException e) {
+											Activator.handleError(e);
+										}
 									}
-								}
-							}							
-							
-							public void partActivated(IWorkbenchPartReference partRef) {}
-							public void partBroughtToTop(IWorkbenchPartReference partRef) {}
-							public void partDeactivated(IWorkbenchPartReference partRef) {}
-							public void partHidden(IWorkbenchPartReference partRef) {}
-							public void partInputChanged(IWorkbenchPartReference partRef) {}
-							public void partOpened(IWorkbenchPartReference partRef) {}
-							public void partVisible(IWorkbenchPartReference partRef) {}
-							
-						};
-						page.addPartListener(closeListener);
-					} catch (PartInitException e) {
-						Activator.handleError("Examine Hospital Payload", e);
-						break;
-					}					
-					
-					tempFile.deleteOnExit();
-				} catch (IOException e) {
-					Activator.handleError(e);
+								}							
+								
+								public void partActivated(IWorkbenchPartReference partRef) {}
+								public void partBroughtToTop(IWorkbenchPartReference partRef) {}
+								public void partDeactivated(IWorkbenchPartReference partRef) {}
+								public void partHidden(IWorkbenchPartReference partRef) {}
+								public void partInputChanged(IWorkbenchPartReference partRef) {}
+								public void partOpened(IWorkbenchPartReference partRef) {}
+								public void partVisible(IWorkbenchPartReference partRef) {}
+								
+							};
+							page.addPartListener(closeListener);
+						} catch (PartInitException e) {
+							Activator.handleError("Examine Hospital Payload", e);
+							break;
+						}					
+						
+						tempFile.deleteOnExit();
+					} catch (IOException e) {
+						Activator.handleError(e);
+					}
 				}
 			}
 		}
@@ -118,6 +120,7 @@ public class ExaminePayloadAction extends ActionDelegate {
 	public void selectionChanged(IAction action, ISelection sel) {
 		if (sel instanceof IStructuredSelection) {
 			fSelection= (IStructuredSelection) sel;
+			if (action != null) action.setEnabled(isEnabledForSelection());
 		}
 	}
 	
@@ -134,5 +137,20 @@ public class ExaminePayloadAction extends ActionDelegate {
         reader.close();
         return fileData.toString();
     }
+    
+	@SuppressWarnings("unchecked")
+	private boolean isEnabledForSelection() {
+		if (fSelection == null) return false;
+		Iterator iter = fSelection.iterator();
+		while (iter.hasNext()) {
+			Object object = iter.next();
+			if (object instanceof Patient) {
+				Patient patient = (Patient)object;
+				if (patient.getGenericArtifact() == null || patient.getGenericArtifact().trim().length() == 0)
+					return false;
+			}
+		}
+		return true;
+	}	
 	
 }
