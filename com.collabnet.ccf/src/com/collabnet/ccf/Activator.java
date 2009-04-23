@@ -69,7 +69,6 @@ public class Activator extends AbstractUIPlugin {
 	public static final String PROPERTIES_CCF_DRIVER = "ccf.db.driver"; //$NON-NLS-1$
 	public static final String PROPERTIES_CCF_USER = "ccf.db.username"; //$NON-NLS-1$
 	public static final String PROPERTIES_CCF_PASSWORD = "ccf.db.password"; //$NON-NLS-1$
-	public static final String PROPERTIES_CCF_XSLT_DIRECTORY = "ccf.xsltDir"; //$NON-NLS-1$
 	
 	// QC Properties
 	public static final String PROPERTIES_QC_URL = "qc.system.1.url"; //$NON-NLS-1$

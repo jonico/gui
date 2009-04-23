@@ -32,7 +32,6 @@ public class CcfPropertiesDialog extends CcfDialog {
 	private Text driverText;
 	private Text userText;
 	private Text passwordText;
-	private Text xsltDirectoryText;
 	
 	private Button okButton;
 
@@ -94,19 +93,7 @@ public class CcfPropertiesDialog extends CcfDialog {
 				testConnection(false);
 			}			
 		});
-		
-		Group xsltGroup = new Group(composite, SWT.NULL);
-		GridLayout xsltLayout = new GridLayout();
-		xsltLayout.numColumns = 1;
-		xsltGroup.setLayout(xsltLayout);
-		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
-		xsltGroup.setLayoutData(gd);	
-		xsltGroup.setText("XSLT directory:");
-		
-		xsltDirectoryText = new Text(xsltGroup, SWT.BORDER);
-		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
-		xsltDirectoryText.setLayoutData(gd);
-		
+
 		initializeValues();
 		
 		ModifyListener modifyListener = new ModifyListener() {
@@ -117,7 +104,6 @@ public class CcfPropertiesDialog extends CcfDialog {
 		
 		urlText.addModifyListener(modifyListener);
 		driverText.addModifyListener(modifyListener);
-		xsltDirectoryText.addModifyListener(modifyListener);
 		
 		return composite;
 	}
@@ -130,7 +116,6 @@ public class CcfPropertiesDialog extends CcfDialog {
 			properties.setProperty(Activator.PROPERTIES_CCF_DRIVER, driverText.getText().trim());
 			properties.setProperty(Activator.PROPERTIES_CCF_USER, userText.getText().trim());
 			properties.setProperty(Activator.PROPERTIES_CCF_PASSWORD, passwordText.getText().trim());
-			properties.setProperty(Activator.PROPERTIES_CCF_XSLT_DIRECTORY, xsltDirectoryText.getText().trim());
 			FileOutputStream outputStream = new FileOutputStream(propertiesFile);
 			properties.store(outputStream, null);
 			outputStream.close();
@@ -172,14 +157,11 @@ public class CcfPropertiesDialog extends CcfDialog {
 		if (user != null) userText.setText(user);
 		String password = properties.getProperty(Activator.PROPERTIES_CCF_PASSWORD);
 		if (password != null) passwordText.setText(password);
-		String xsltDirectory = properties.getProperty(Activator.PROPERTIES_CCF_XSLT_DIRECTORY);
-		if (xsltDirectory != null) xsltDirectoryText.setText(xsltDirectory);
 	}
 	
 	private boolean canFinish() {
 		return urlText.getText().trim().length() > 0 &&
-		driverText.getText().trim().length() > 0 &&
-		xsltDirectoryText.getText().trim().length() > 0;
+		driverText.getText().trim().length() > 0;
 	}
 
 }
