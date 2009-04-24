@@ -1,12 +1,17 @@
 package com.collabnet.ccf.model;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.properties.PropertyDescriptor;
 import org.osgi.service.prefs.Preferences;
+
+import com.collabnet.ccf.Activator;
 
 public class Landscape implements IPropertySource {
 	private String description;
@@ -16,6 +21,10 @@ public class Landscape implements IPropertySource {
 	private String configurationFolder2;
 	private String contributorId;
 	private Preferences node;
+	
+	public final static String TYPE_QC = "QC";
+	public final static String TYPE_TF = "TF";
+	public final static String TYPE_PT = "PT";
 	
 	public static String P_ID_DESCRIPTION = "desc"; //$NON-NLS-1$
 	public static String P_DESCRIPTION = "Description";
@@ -87,6 +96,76 @@ public class Landscape implements IPropertySource {
 	
 	public void setContributorId(String contributorId) {
 		this.contributorId = contributorId;
+	}
+	
+	public String getId1() {
+		String id = null;
+		if (configurationFolder1 == null) return null;
+		File folder = new File(configurationFolder1);
+		String propertyFile = null;
+		String defaultId = null;
+		if (type1.equals(TYPE_QC)) {
+			propertyFile = "qc.properties";
+			defaultId = "QC";
+		}
+		else if (type1.equals(TYPE_TF)) {
+			propertyFile = "sfee.properties";
+			defaultId = "TeamForge";
+		}
+		else if (type1.equals(TYPE_PT)) {
+			propertyFile = "cee.properties";
+			defaultId = "CEE";
+		}
+		if (propertyFile != null) {
+			File propertiesFile = new File(folder, propertyFile);
+			if (propertiesFile.exists()) {
+				try {
+					FileInputStream inputStream = new FileInputStream(propertiesFile);
+					Properties properties = new Properties();
+					properties.load(inputStream);
+					inputStream.close();
+					id = properties.getProperty(Activator.PROPERTIES_SYSTEM_ID, defaultId);
+				} catch (Exception e) { 
+					Activator.handleError(e);
+				}
+			}
+		}
+		return id;
+	}
+	
+	public String getId2() {
+		String id = null;
+		if (configurationFolder2 == null) return null;
+		File folder = new File(configurationFolder2);
+		String propertyFile = null;
+		String defaultId = null;
+		if (type2.equals(TYPE_QC)) {
+			propertyFile = "qc.properties";
+			defaultId = "QC";
+		}
+		else if (type2.equals(TYPE_TF)) {
+			propertyFile = "sfee.properties";
+			defaultId = "TeamForge";
+		}
+		else if (type2.equals(TYPE_PT)) {
+			propertyFile = "cee.properties";
+			defaultId = "CEE";
+		}
+		if (propertyFile != null) {
+			File propertiesFile = new File(folder, propertyFile);
+			if (propertiesFile.exists()) {
+				try {
+					FileInputStream inputStream = new FileInputStream(propertiesFile);
+					Properties properties = new Properties();
+					properties.load(inputStream);
+					inputStream.close();
+					id = properties.getProperty(Activator.PROPERTIES_SYSTEM_ID, defaultId);
+				} catch (Exception e) { 
+					Activator.handleError(e);
+				}
+			}
+		}
+		return id;
 	}
 	
 	public Object getEditableValue() {

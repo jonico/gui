@@ -9,10 +9,12 @@ import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.model.WorkbenchContentProvider;
 import org.eclipse.ui.part.ViewPart;
@@ -20,11 +22,15 @@ import org.eclipse.ui.part.ViewPart;
 import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.ILandscapeContributor;
 import com.collabnet.ccf.actions.NewLandscapeAction;
+import com.collabnet.ccf.db.CcfDataProvider;
 import com.collabnet.ccf.model.Landscape;
+import com.collabnet.ccf.model.ProjectMappings;
+import com.collabnet.ccf.model.SynchronizationStatus;
 
 public class CcfExplorerView extends ViewPart {
 	private static CcfExplorerView view;
 	private TreeViewer treeViewer;
+	private CcfDataProvider dataProvider;
 	
 	public static final String ID = "com.collabnet.ccf.views.CcfExplorerView";
 
@@ -116,6 +122,11 @@ public class CcfExplorerView extends ViewPart {
 		super.dispose();
 	}
 	
+	public CcfDataProvider getDataProvider() {
+		if (dataProvider == null) dataProvider = new CcfDataProvider();
+		return dataProvider;
+	}
+	
 	public static CcfExplorerView getView() {
 		return view;
 	}
@@ -123,6 +134,8 @@ public class CcfExplorerView extends ViewPart {
 	class LandscapeLabelProvider extends LabelProvider {
 		public Image getImage(Object element) {
 			if (element instanceof Landscape) return Activator.getImage((Landscape)element);
+			if (element instanceof ProjectMappings) return Activator.getImage(Activator.IMAGE_PROJECT_MAPPINGS);
+			if (element instanceof SynchronizationStatus) return Activator.getImage(Activator.IMAGE_SYNC_STATUS_ENTRY);
 			return super.getImage(element);
 		}
 		
@@ -133,12 +146,14 @@ public class CcfExplorerView extends ViewPart {
 	}
 	
 	class LandscapeContentProvider extends WorkbenchContentProvider {
+		private SynchronizationStatus[] synchronizationStatuses;
+		
 		public Object getParent(Object element) {
 			return null;
 		}
 		
 		public boolean hasChildren(Object element) {
-			if (element instanceof Landscape) return false;
+			if (element instanceof SynchronizationStatus) return false;
 			return true;
 		}
 		
@@ -149,6 +164,25 @@ public class CcfExplorerView extends ViewPart {
 		public Object[] getChildren(Object parentElement) {
 			if (parentElement instanceof CcfExplorerView) {
 				return Activator.getDefault().getLandscapes();
+			}
+			if (parentElement instanceof Landscape) {
+				ProjectMappings projectMappings = new ProjectMappings((Landscape)parentElement);
+				Object[] children = { projectMappings };
+				return children;
+			}
+			if (parentElement instanceof ProjectMappings) {
+				final ProjectMappings projectMappings = (ProjectMappings)parentElement;
+				BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
+					public void run() {
+						try {
+							synchronizationStatuses = getDataProvider().getSynchronizationStatuses(projectMappings.getLandscape());
+						} catch (Exception e) {
+							synchronizationStatuses = new SynchronizationStatus[0];
+							Activator.handleError(e);
+						}
+					}					
+				});
+				return synchronizationStatuses;
 			}
 			return new Object[0];
 		}

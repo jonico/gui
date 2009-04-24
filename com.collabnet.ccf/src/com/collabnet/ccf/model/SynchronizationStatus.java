@@ -8,7 +8,7 @@ import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.properties.PropertyDescriptor;
 
-public class SynchronizationStatus implements IPropertySource {
+public class SynchronizationStatus implements IPropertySource, Comparable {
 	private String sourceSystemId;
 	private String sourceRepositoryId;
 	private String targetSystemId;
@@ -178,8 +178,18 @@ public class SynchronizationStatus implements IPropertySource {
 		this.targetSystemEncoding = targetSystemEncoding;
 	}
 	
+	public String toString() {
+		return sourceRepositoryId + " => " + targetRepositoryId;
+	}
+	
+	public int compareTo(Object compareToObject) {
+		if (!(compareToObject instanceof SynchronizationStatus)) return 0;
+		SynchronizationStatus compareToStatus = (SynchronizationStatus)compareToObject;
+		return toString().compareTo(compareToStatus.toString());
+	}
+	
 	public Object getEditableValue() {
-		return sourceSystemId + "/" + sourceRepositoryId + "-" + targetSystemId + "/" + targetRepositoryId;
+		return toString();
 	}
 	public IPropertyDescriptor[] getPropertyDescriptors() {
 		return (IPropertyDescriptor[])getDescriptors().toArray(new IPropertyDescriptor[getDescriptors().size()]);

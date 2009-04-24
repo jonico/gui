@@ -6,11 +6,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 
 import com.collabnet.ccf.Activator;
+import com.collabnet.ccf.model.Landscape;
 import com.collabnet.ccf.model.Patient;
 import com.collabnet.ccf.model.SynchronizationStatus;
 
@@ -60,7 +62,7 @@ public class CcfDataProvider {
 	public final static String SYNCHRONIZATION_STATUS_TARGET_REPOSITORY_KIND = "TARGET_REPOSITORY_KIND";
 	public final static String SYNCHRONIZATION_STATUS_LAST_SOURCE_ARTIFACT_MODIFICATION_DATE = "LAST_SOURCE_ARTIFACT_MODIFICATION_DATE";
 	public final static String SYNCHRONIZATION_STATUS_LAST_SOURCE_ARTIFACT_VERSION = "LAST_SOURCE_ARTIFACT_VERSION";
-	public final static String SYNCHRONIZATION_STATUS_LAST_SOURCE_ARTIFACT_ID = "LAST_SOURCE_ARTIFACT_MODIFICATION_ID";
+	public final static String SYNCHRONIZATION_STATUS_LAST_SOURCE_ARTIFACT_ID = "LAST_SOURCE_ARTIFACT_ID";
 	public final static String SYNCHRONIZATION_STATUS_CONFLICT_RESOLUTION_PRIORITY = "CONFLICT_RESOLUTION_PRIORITY";
 	public final static String SYNCHRONIZATION_STATUS_SOURCE_SYSTEM_TIMEZONE = "SOURCE_SYSTEM_TIMEZONE";
 	public final static String SYNCHRONIZATION_STATUS_TARGET_SYSTEM_TIMEZONE = "TARGET_SYSTEM_TIMEZONE";
@@ -168,7 +170,20 @@ public class CcfDataProvider {
 		return patients;
 	}
 	
-	public SynchronizationStatus[] getSynchronizationStatuses(Filter[] filters) throws SQLException, ClassNotFoundException {
+	public SynchronizationStatus[] getSynchronizationStatuses(Landscape landscape)  throws SQLException, ClassNotFoundException {
+		Filter filter1 = new Filter(SYNCHRONIZATION_STATUS_SOURCE_SYSTEM_ID, landscape.getId1(), true);
+		Filter filter2 = new Filter(SYNCHRONIZATION_STATUS_TARGET_SYSTEM_ID, landscape.getId2(), true);
+		Filter[] orGroup1 = { filter1, filter2 };
+		Filter filter3 = new Filter(SYNCHRONIZATION_STATUS_SOURCE_SYSTEM_ID, landscape.getId2(), true);
+		Filter filter4 = new Filter(SYNCHRONIZATION_STATUS_TARGET_SYSTEM_ID, landscape.getId1(), true);
+		Filter[] orGroup2 = { filter3, filter4 };
+		Filter[][] filters = { orGroup1, orGroup2 };
+		SynchronizationStatus[] statuses = getSynchronizationStatuses(filters);
+		Arrays.sort(statuses);
+		return statuses;
+	}
+	
+	public SynchronizationStatus[] getSynchronizationStatuses(Filter[][] filters) throws SQLException, ClassNotFoundException {
 		Connection connection = null;
 		Statement stmt = null;
 		ResultSet rs = null;
