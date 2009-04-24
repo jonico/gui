@@ -27,6 +27,7 @@ public class SystemPropertiesDialog extends CcfDialog {
 	private int type;
 	
 	private Text urlText;
+	private Text idText;
 	private Text userText;
 	private Text displayNameText;
 	private Text passwordText;
@@ -75,15 +76,25 @@ public class SystemPropertiesDialog extends CcfDialog {
 		
 		Group urlGroup = new Group(composite, SWT.NULL);
 		GridLayout urlLayout = new GridLayout();
-		urlLayout.numColumns = 1;
+		urlLayout.numColumns = 2;
 		urlGroup.setLayout(urlLayout);
 		GridData gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
 		urlGroup.setLayoutData(gd);	
-		urlGroup.setText("URL:");
+		urlGroup.setText("System:");
+		
+		Label urlLabel = new Label(urlGroup, SWT.NONE);
+		urlLabel.setText("URL:");
 		
 		urlText = new Text(urlGroup, SWT.BORDER);
 		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
 		urlText.setLayoutData(gd);
+		
+		Label idLabel = new Label(urlGroup, SWT.NONE);
+		idLabel.setText("ID:");
+		
+		idText = new Text(urlGroup, SWT.BORDER);
+		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
+		idText.setLayoutData(gd);
 		
 		Group credentialsGroup = new Group(composite, SWT.NULL);
 		GridLayout credentialsLayout = new GridLayout();
@@ -166,6 +177,7 @@ public class SystemPropertiesDialog extends CcfDialog {
 		};
 		
 		urlText.addModifyListener(modifyListener);
+		idText.addModifyListener(modifyListener);
 		attachmentSizeText.addModifyListener(modifyListener);
 		
 		return composite;
@@ -174,6 +186,7 @@ public class SystemPropertiesDialog extends CcfDialog {
 	@Override
 	protected void okPressed() {
 		try {
+			properties.setProperty(Activator.PROPERTIES_SYSTEM_ID, idText.getText().trim());
 			switch (type) {
 			case QC:
 				setQcProperties();
@@ -221,6 +234,8 @@ public class SystemPropertiesDialog extends CcfDialog {
 	}
 	
 	private void initializeQcValues() {
+		String id = properties.getProperty(Activator.PROPERTIES_SYSTEM_ID, "QC");
+		idText.setText(id);
 		String url = properties.getProperty(Activator.PROPERTIES_QC_URL);
 		if (url != null) urlText.setText(url);
 		String user = properties.getProperty(Activator.PROPERTIES_QC_USER);
@@ -236,6 +251,8 @@ public class SystemPropertiesDialog extends CcfDialog {
 	}
 	
 	private void initializeTeamForgeValues() {
+		String id = properties.getProperty(Activator.PROPERTIES_SYSTEM_ID, "TeamForge");
+		idText.setText(id);
 		String url = properties.getProperty(Activator.PROPERTIES_SFEE_URL);
 		if (url != null) urlText.setText(url);
 		String user = properties.getProperty(Activator.PROPERTIES_SFEE_USER);
@@ -251,6 +268,8 @@ public class SystemPropertiesDialog extends CcfDialog {
 	}
 	
 	private void initializeCeeValues() {
+		String id = properties.getProperty(Activator.PROPERTIES_SYSTEM_ID, "CEE");
+		idText.setText(id);
 		String url = properties.getProperty(Activator.PROPERTIES_CEE_URL);
 		if (url != null) urlText.setText(url);
 		String user = properties.getProperty(Activator.PROPERTIES_CEE_USER);
@@ -307,7 +326,7 @@ public class SystemPropertiesDialog extends CcfDialog {
     }
 	
 	private boolean canFinish() {
-		if (urlText.getText().trim().length() == 0) return false;
+		if (urlText.getText().trim().length() == 0 || idText.getText().trim().length() == 0) return false;
 		if (attachmentSizeText.getText().trim().length() > 0) {
 			int maxSize = 0;
 			try {
