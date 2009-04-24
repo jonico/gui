@@ -12,6 +12,7 @@ import org.eclipse.jface.preference.IPreferenceStore;
 
 import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.model.Patient;
+import com.collabnet.ccf.model.SynchronizationStatus;
 
 public class CcfDataProvider {	
 	private IPreferenceStore store = Activator.getDefault().getPreferenceStore();
@@ -47,6 +48,24 @@ public class CcfDataProvider {
 	public final static String HOSPITAL_TARGET_ARTIFACT_VERSION = "TARGET_ARTIFACT_VERSION";
 	public final static String HOSPITAL_ARTIFACT_TYPE = "ARTIFACT_TYPE";
 	public final static String HOSPITAL_GENERIC_ARTIFACT = "GENERIC_ARTIFACT";
+	
+	// SYNCHRONIZATION_STATUS Columns
+	public final static String SYNCHRONIZATION_STATUS_SOURCE_SYSTEM_ID = "SOURCE_SYSTEM_ID";
+	public final static String SYNCHRONIZATION_STATUS_SOURCE_REPOSITORY_ID = "SOURCE_REPOSITORY_ID";
+	public final static String SYNCHRONIZATION_STATUS_TARGET_SYSTEM_ID = "TARGET_SYSTEM_ID";
+	public final static String SYNCHRONIZATION_STATUS_TARGET_REPOSITORY_ID = "TARGET_REPOSITORY_ID";
+	public final static String SYNCHRONIZATION_STATUS_SOURCE_SYSTEM_KIND = "SOURCE_SYSTEM_KIND";
+	public final static String SYNCHRONIZATION_STATUS_SOURCE_REPOSITORY_KIND = "SOURCE_REPOSITORY_KIND";
+	public final static String SYNCHRONIZATION_STATUS_TARGET_SYSTEM_KIND = "TARGET_SYSTEM_KIND";
+	public final static String SYNCHRONIZATION_STATUS_TARGET_REPOSITORY_KIND = "TARGET_REPOSITORY_KIND";
+	public final static String SYNCHRONIZATION_STATUS_LAST_SOURCE_ARTIFACT_MODIFICATION_DATE = "LAST_SOURCE_ARTIFACT_MODIFICATION_DATE";
+	public final static String SYNCHRONIZATION_STATUS_LAST_SOURCE_ARTIFACT_VERSION = "LAST_SOURCE_ARTIFACT_VERSION";
+	public final static String SYNCHRONIZATION_STATUS_LAST_SOURCE_ARTIFACT_ID = "LAST_SOURCE_ARTIFACT_MODIFICATION_ID";
+	public final static String SYNCHRONIZATION_STATUS_CONFLICT_RESOLUTION_PRIORITY = "CONFLICT_RESOLUTION_PRIORITY";
+	public final static String SYNCHRONIZATION_STATUS_SOURCE_SYSTEM_TIMEZONE = "SOURCE_SYSTEM_TIMEZONE";
+	public final static String SYNCHRONIZATION_STATUS_TARGET_SYSTEM_TIMEZONE = "TARGET_SYSTEM_TIMEZONE";
+	public final static String SYNCHRONIZATION_STATUS_SOURCE_SYSTEM_ENCODING = "SOURCE_SYSTEM_ENCODING";
+	public final static String SYNCHRONIZATION_STATUS_TARGET_SYSTEM_ENCODING = "TARGET_SYSTEM_ENCODING";
 	
 	public final static String DEFAULT_HOSPITAL_COLUMNS = HOSPITAL_TIMESTAMP + "," +
 	HOSPITAL_ADAPTOR_NAME + "," +
@@ -93,6 +112,10 @@ public class CcfDataProvider {
 	private final static String SQL_HOSPITAL_SELECT = "SELECT * FROM HOSPITAL";
 	private final static String SQL_HOSPITAL_UPDATE = "UPDATE HOSPITAL";
 	private final static String SQL_HOSPITAL_DELETE = "DELETE FROM HOSPITAL";
+	
+	private final static String SQL_SYNCHRONIZATION_STATUS_SELECT = "SELECT * FROM SYNCHRONIZATION_STATUS";
+	private final static String SQL_SYNCHRONIZATION_STATUS_UPDATE = "UPDATE SYNCHRONIZATION_STATUS";
+	private final static String SQL_SYNCHRONIZATION_STATUS_DELETE = "DELETE FROM SYNCHRONIZATION_STATUS";
 
 	public Patient[] getPatients(Filter[] filters) throws SQLException, ClassNotFoundException {
 		Connection connection = null;
@@ -145,13 +168,72 @@ public class CcfDataProvider {
 		return patients;
 	}
 	
+	public SynchronizationStatus[] getSynchronizationStatuses(Filter[] filters) throws SQLException, ClassNotFoundException {
+		Connection connection = null;
+		Statement stmt = null;
+		ResultSet rs = null;
+		SynchronizationStatus[] statuses = null;
+		try {
+			connection = getConnection();
+			stmt = connection.createStatement();
+			rs = stmt.executeQuery(Filter.getQuery(SQL_SYNCHRONIZATION_STATUS_SELECT, filters));
+			statuses = getSynchronizationStatuses(rs);
+		}
+		catch (SQLException e) {
+			Activator.handleError(e);
+			throw e;
+		}
+		catch (ClassNotFoundException e) {
+			Activator.handleError(e);
+			throw e;
+		}
+		finally {
+	        try
+	        {
+	            if (rs != null)
+	                rs.close();
+	        }
+	        catch (Exception e)
+	        {
+	            Activator.handleError("Could not close ResultSet" ,e);
+	        }
+	        try
+	        {
+	            if (stmt != null)
+	                stmt.close();
+	        }
+	        catch (Exception e)
+	        {
+	        	 Activator.handleError("Could not close Statement" ,e);
+	        }
+	        try
+	        {
+	            if (connection  != null)
+	                connection.close();
+	        }
+	        catch (SQLException e)
+	        {
+	        	 Activator.handleError("Could not close Connection" ,e);
+	        }			
+		}
+		return statuses;
+	}
+	
 	public void deletePatients(Filter[] filters) throws  SQLException, ClassNotFoundException {
+		delete(SQL_HOSPITAL_DELETE, filters);
+	}
+	
+	public void deleteSynchronizationStatuses(Filter[] filters) throws  SQLException, ClassNotFoundException {
+		delete(SQL_SYNCHRONIZATION_STATUS_DELETE, filters);
+	}
+	
+	private void delete(String sql, Filter[] filters) throws  SQLException, ClassNotFoundException {
 		Connection connection = null;
 		Statement stmt = null;	
 		try {
 			connection = getConnection();
 			stmt = connection.createStatement();
-			String deleteStatement = Filter.getQuery(SQL_HOSPITAL_DELETE, filters);
+			String deleteStatement = Filter.getQuery(sql, filters);
 			stmt.executeUpdate(deleteStatement);
 		}
 		catch (SQLException e) {
@@ -185,13 +267,21 @@ public class CcfDataProvider {
 	}
 	
 	public int updatePatients(Update[] updates, Filter[] filters) throws SQLException, ClassNotFoundException {
+		return update(SQL_HOSPITAL_UPDATE, updates, filters);
+	}
+	
+	public int updateSynchronizationStatuses(Update[] updates, Filter[] filters) throws SQLException, ClassNotFoundException {
+		return update(SQL_SYNCHRONIZATION_STATUS_UPDATE, updates, filters);
+	}
+	
+	private int update(String sql, Update[] updates, Filter[] filters) throws SQLException, ClassNotFoundException {
 		Connection connection = null;
 		Statement stmt = null;
 		int rowsUpdated = 0;
 		try {
 			connection = getConnection();
 			stmt = connection.createStatement();
-			String updateStatement = Update.getUpdate(SQL_HOSPITAL_UPDATE, updates);
+			String updateStatement = Update.getUpdate(sql, updates);
 			updateStatement = Filter.getQuery(updateStatement, filters);
 			rowsUpdated = stmt.executeUpdate(updateStatement);
 		}
@@ -270,6 +360,33 @@ public class CcfDataProvider {
 		Patient[] patientArray = new Patient[patients.size()];
 		patients.toArray(patientArray);
 		return patientArray;
+	}
+	
+	private SynchronizationStatus[] getSynchronizationStatuses(ResultSet rs) throws SQLException {
+		List<SynchronizationStatus> synchonizationStatuses = new ArrayList<SynchronizationStatus>();
+		while (rs.next()) {
+			SynchronizationStatus status = new SynchronizationStatus();
+			status.setSourceSystemId(rs.getString(SYNCHRONIZATION_STATUS_SOURCE_SYSTEM_ID));
+			status.setSourceRepositoryId(rs.getString(SYNCHRONIZATION_STATUS_SOURCE_REPOSITORY_ID));
+			status.setTargetSystemId(rs.getString(SYNCHRONIZATION_STATUS_TARGET_SYSTEM_ID));
+			status.setTargetRepositoryId(rs.getString(SYNCHRONIZATION_STATUS_TARGET_REPOSITORY_ID));
+			status.setSourceSystemKind(rs.getString(SYNCHRONIZATION_STATUS_SOURCE_SYSTEM_KIND));
+			status.setSourceRepositoryKind(rs.getString(SYNCHRONIZATION_STATUS_SOURCE_REPOSITORY_KIND));
+			status.setTargetSystemKind(rs.getString(SYNCHRONIZATION_STATUS_TARGET_SYSTEM_KIND));
+			status.setTargetRepositoryKind(rs.getString(SYNCHRONIZATION_STATUS_TARGET_REPOSITORY_KIND));
+			status.setSourceLastModificationTime(rs.getTimestamp(SYNCHRONIZATION_STATUS_LAST_SOURCE_ARTIFACT_MODIFICATION_DATE));
+			status.setSourceLastArtifactVersion(rs.getString(SYNCHRONIZATION_STATUS_LAST_SOURCE_ARTIFACT_VERSION));
+			status.setSourceLastArtifactId(rs.getString(SYNCHRONIZATION_STATUS_LAST_SOURCE_ARTIFACT_ID));
+			status.setConflictResolutionPriority(rs.getString(SYNCHRONIZATION_STATUS_CONFLICT_RESOLUTION_PRIORITY));
+			status.setSourceSystemTimezone(rs.getString(SYNCHRONIZATION_STATUS_SOURCE_SYSTEM_TIMEZONE));
+			status.setSourceSystemEncoding(rs.getString(SYNCHRONIZATION_STATUS_SOURCE_SYSTEM_ENCODING));
+			status.setTargetSystemTimezone(rs.getString(SYNCHRONIZATION_STATUS_TARGET_SYSTEM_TIMEZONE));
+			status.setTargetSystemEncoding(rs.getString(SYNCHRONIZATION_STATUS_TARGET_SYSTEM_ENCODING));			
+			synchonizationStatuses.add(status);
+		}
+		SynchronizationStatus[] statusArray = new SynchronizationStatus[synchonizationStatuses.size()];
+		synchonizationStatuses.toArray(statusArray);
+		return statusArray;
 	}
 
 }
