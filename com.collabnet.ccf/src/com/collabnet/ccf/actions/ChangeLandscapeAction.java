@@ -7,10 +7,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.actions.ActionDelegate;
-import org.osgi.service.prefs.BackingStoreException;
-import org.osgi.service.prefs.Preferences;
 
-import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.dialogs.ChangeLandscapeDialog;
 import com.collabnet.ccf.model.Landscape;
 import com.collabnet.ccf.views.CcfExplorerView;

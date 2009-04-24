@@ -140,7 +140,47 @@
                enablesFor="1"
                id="com.collabnet.ccf.actions.ChangeLandscapeAction">
          </action>                                                      
-      </objectContribution>        
+      </objectContribution>
+      
+      <objectContribution
+            objectClass="com.collabnet.ccf.model.ProjectMappings"
+            id="com.collabnet.ccf.model.ProjectMappings">
+         <action
+               label="Add project mapping..."
+               class="com.collabnet.ccf.actions.AddSynchronizationStatusAction"
+               id="com.collabnet.ccf.actions.AddSynchronizationStatusAction">
+         </action>                                              
+      </objectContribution> 
+      
+      <objectContribution
+            objectClass="com.collabnet.ccf.model.SynchronizationStatus"
+            id="com.collabnet.ccf.model.SynchronizationStatus">  
+         <action
+               label="Show Hospital"
+               class="com.collabnet.ccf.actions.HospitalAction"
+               menubarPath="group.a"
+               icon="icons/hospitalView.gif"
+               id="com.collabnet.ccf.actions.HospitalAction">
+         </action>                    
+         <action
+               label="Reset synchronization status"
+               class="com.collabnet.ccf.actions.ResetSynchronizationStatusAction"
+               menubarPath="group.b"
+               id="com.collabnet.ccf.actions.ResetSynchronizationStatusAction">
+         </action>
+         <action
+               label="Pause synchronization"
+               class="com.collabnet.ccf.actions.PauseSynchronizationStatusAction"
+               menubarPath="group.b"
+               id="com.collabnet.ccf.actions.PauseSynchronizationStatusAction">
+         </action> 
+         <action
+               label="Delete project mapping"
+               class="com.collabnet.ccf.actions.DeleteSynchronizationStatusAction"
+               menubarPath="group.c"
+               id="com.collabnet.ccf.actions.DeleteSynchronizationStatusAction">
+         </action>                                                                               
+      </objectContribution>                         
                          
    </extension>   
 
