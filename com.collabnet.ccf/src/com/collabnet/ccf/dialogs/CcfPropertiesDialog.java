@@ -25,7 +25,8 @@ import org.eclipse.swt.widgets.Text;
 import com.collabnet.ccf.Activator;
 
 public class CcfPropertiesDialog extends CcfDialog {
-	private File propertiesFile;
+	private File propertiesFile1;
+	private File propertiesFile2;
 	private Properties properties;
 	
 	private Text urlText;
@@ -35,9 +36,10 @@ public class CcfPropertiesDialog extends CcfDialog {
 	
 	private Button okButton;
 
-	public CcfPropertiesDialog(Shell shell, File propertiesFile, Properties properties) {
+	public CcfPropertiesDialog(Shell shell, File propertiesFile1, File propertiesFile2, Properties properties) {
 		super(shell, "CcfPropertiesDialog"); //$NON-NLS-1$
-		this.propertiesFile = propertiesFile;
+		this.propertiesFile1 = propertiesFile1;
+		this.propertiesFile2 = propertiesFile2;
 		this.properties = properties;
 	}
 	
@@ -116,9 +118,16 @@ public class CcfPropertiesDialog extends CcfDialog {
 			properties.setProperty(Activator.PROPERTIES_CCF_DRIVER, driverText.getText().trim());
 			properties.setProperty(Activator.PROPERTIES_CCF_USER, userText.getText().trim());
 			properties.setProperty(Activator.PROPERTIES_CCF_PASSWORD, passwordText.getText().trim());
-			FileOutputStream outputStream = new FileOutputStream(propertiesFile);
-			properties.store(outputStream, null);
-			outputStream.close();
+			if (propertiesFile1 != null) {
+				FileOutputStream outputStream = new FileOutputStream(propertiesFile1);
+				properties.store(outputStream, null);
+				outputStream.close();
+			}
+			if (propertiesFile2 != null) {
+				FileOutputStream outputStream = new FileOutputStream(propertiesFile2);
+				properties.store(outputStream, null);
+				outputStream.close();
+			}
 		} catch (Exception e) {
 			Activator.handleError(e);
 			return;

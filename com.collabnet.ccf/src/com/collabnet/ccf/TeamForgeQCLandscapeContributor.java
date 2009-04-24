@@ -69,13 +69,17 @@ public class TeamForgeQCLandscapeContributor implements ILandscapeContributor {
 		return "TF";
 	}
 	
-	public String getConfigurationFolder() {
-		return propertiesFolderPage.getConfigurationFolder();
+	public String getConfigurationFolder1() {
+		return propertiesFolderPage.getConfigurationFolder1();
+	}
+	
+	public String getConfigurationFolder2() {
+		return propertiesFolderPage.getConfigurationFolder2();
 	}
 
 	public IWizardPage[] getWizardPages(boolean initializePages) {
 		if (wizardPages == null || initializePages) {
-			propertiesFolderPage = new NewLandscapeWizardPropertiesFolderPage("propertiesTeamForge", "Select config.xml", Activator.getDefault().getImageDescriptor(Activator.IMAGE_NEW_LANDSCAPE_WIZBAN), NewLandscapeWizardPropertiesFolderPage.TYPE_TF);
+			propertiesFolderPage = new NewLandscapeWizardPropertiesFolderPage("propertiesTeamForge", "Select configuration files", Activator.getDefault().getImageDescriptor(Activator.IMAGE_NEW_LANDSCAPE_WIZBAN), NewLandscapeWizardPropertiesFolderPage.TYPE_TF);
 			WizardPage[] pages = { propertiesFolderPage };
 			wizardPages = pages;
 		}

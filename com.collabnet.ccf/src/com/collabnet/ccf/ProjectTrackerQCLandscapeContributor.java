@@ -70,13 +70,17 @@ public class ProjectTrackerQCLandscapeContributor implements ILandscapeContribut
 		return "PT";
 	}
 	
-	public String getConfigurationFolder() {
-		return propertiesFolderPage.getConfigurationFolder();
+	public String getConfigurationFolder1() {
+		return propertiesFolderPage.getConfigurationFolder1();
+	}
+	
+	public String getConfigurationFolder2() {
+		return propertiesFolderPage.getConfigurationFolder2();
 	}
 
 	public IWizardPage[] getWizardPages(boolean initializePages) {
 		if (wizardPages == null || initializePages) {
-			propertiesFolderPage = new NewLandscapeWizardPropertiesFolderPage("propertiesTracker", "Select config.xml", Activator.getDefault().getImageDescriptor(Activator.IMAGE_NEW_LANDSCAPE_WIZBAN), NewLandscapeWizardPropertiesFolderPage.TYPE_PT);
+			propertiesFolderPage = new NewLandscapeWizardPropertiesFolderPage("propertiesTracker", "Select configuration files", Activator.getDefault().getImageDescriptor(Activator.IMAGE_NEW_LANDSCAPE_WIZBAN), NewLandscapeWizardPropertiesFolderPage.TYPE_PT);
 			WizardPage[] pages = { propertiesFolderPage };
 			wizardPages = pages;
 		}

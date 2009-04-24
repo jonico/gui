@@ -37,7 +37,9 @@ public interface ILandscapeContributor extends Comparable {
 	
 	public String getType2();
 	
-	public String getConfigurationFolder();
+	public String getConfigurationFolder1();
+	
+	public String getConfigurationFolder2();
 	
 	public Action[] getEditPropertiesActions(Landscape landscape);
 

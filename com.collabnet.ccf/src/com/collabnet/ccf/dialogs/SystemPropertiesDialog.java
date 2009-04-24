@@ -21,7 +21,8 @@ import org.eclipse.swt.widgets.Text;
 import com.collabnet.ccf.Activator;
 
 public class SystemPropertiesDialog extends CcfDialog {
-	private File propertiesFile;
+	private File propertiesFile1;
+	private File propertiesFile2;
 	private Properties properties;
 	private int type;
 	
@@ -40,9 +41,10 @@ public class SystemPropertiesDialog extends CcfDialog {
 	public static final int TF = 1;
 	public static final int PT = 2;
 
-	public SystemPropertiesDialog(Shell shell, File propertiesFile, Properties properties, int type) {
+	public SystemPropertiesDialog(Shell shell, File propertiesFile1, File propertiesFile2, Properties properties, int type) {
 		super(shell, "SystemPropertiesDialog"); //$NON-NLS-1$
-		this.propertiesFile = propertiesFile;
+		this.propertiesFile1 = propertiesFile1;
+		this.propertiesFile2 = propertiesFile2;
 		this.properties = properties;
 		this.type = type;
 	}
@@ -185,9 +187,16 @@ public class SystemPropertiesDialog extends CcfDialog {
 			default:
 				break;
 			}
-			FileOutputStream outputStream = new FileOutputStream(propertiesFile);
-			properties.store(outputStream, null);
-			outputStream.close();
+			if (propertiesFile1 != null) {
+				FileOutputStream outputStream = new FileOutputStream(propertiesFile1);
+				properties.store(outputStream, null);
+				outputStream.close();
+			}
+			if (propertiesFile2 != null) {
+				FileOutputStream outputStream = new FileOutputStream(propertiesFile2);
+				properties.store(outputStream, null);
+				outputStream.close();
+			}
 		} catch (Exception e) {
 			Activator.handleError(e);
 			return;

@@ -186,7 +186,8 @@ public class Activator extends AbstractUIPlugin {
 		landscape.setDescription(description);
 		landscape.setType1(landscapeContributor.getType1());
 		landscape.setType2(landscapeContributor.getType2());
-		landscape.setConfigurationFolder(landscapeContributor.getConfigurationFolder());
+		landscape.setConfigurationFolder1(landscapeContributor.getConfigurationFolder1());
+		landscape.setConfigurationFolder2(landscapeContributor.getConfigurationFolder2());
 		landscape.setContributorId(landscapeContributor.getId());
 		return storeLandscape(landscape);
 	}
@@ -195,7 +196,8 @@ public class Activator extends AbstractUIPlugin {
 		Preferences prefs = getInstancePreferences().node(PREF_CCF_LANDSCAPES_NODE).node(landscape.getDescription().replaceAll("/", "%slash%")); //$NON-NLS-1$ //$NON-NLS-2$
 		prefs.put("type1", landscape.getType1()); //$NON-NLS-1$
 		prefs.put("type2", landscape.getType2()); //$NON-NLS-1$
-		prefs.put("configFolder", landscape.getConfigurationFolder()); //$NON-NLS-1$
+		prefs.put("configFolder1", landscape.getConfigurationFolder1()); //$NON-NLS-1$
+		if (landscape.getConfigurationFolder2() != null) prefs.put("configFolder2", landscape.getConfigurationFolder2()); //$NON-NLS-1$
 		prefs.put("contributorId", landscape.getContributorId()); //$NON-NLS-1$
 		try {
 			prefs.flush();
@@ -230,7 +232,8 @@ public class Activator extends AbstractUIPlugin {
 				landscape.setDescription(childrenNames[i].replaceAll("%slash%", "/")); //$NON-NLS-1$ //$NON-NLS-2$
 				landscape.setType1(node.get("type1", "")); //$NON-NLS-1$ //$NON-NLS-2$
 				landscape.setType2(node.get("type2", "")); //$NON-NLS-1$ //$NON-NLS-2$
-				landscape.setConfigurationFolder(node.get("configFolder", "")); //$NON-NLS-1$ //$NON-NLS-2$
+				landscape.setConfigurationFolder1(node.get("configFolder1", "")); //$NON-NLS-1$ //$NON-NLS-2$
+				landscape.setConfigurationFolder2(node.get("configFolder2", "")); //$NON-NLS-1$ //$NON-NLS-2$
 				landscape.setNode(node);
 				landscape.setContributorId(node.get("contributorId", "")); //$NON-NLS-1$ //$NON-NLS-2$
 				landscapes.add(landscape);

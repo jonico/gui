@@ -34,7 +34,21 @@ public class EditTeamForgePropertiesAction extends Action {
 			Properties properties = new Properties();
 			properties.load(inputStream);
 			inputStream.close();
-			SystemPropertiesDialog dialog = new SystemPropertiesDialog(Display.getDefault().getActiveShell(), propertiesFile, properties, SystemPropertiesDialog.TF);
+			
+			File propertiesFile1 = null;
+			File propertiesFile2 = null;
+			
+			if (landscape.getConfigurationFolder1() != null) {
+				folder = new File(landscape.getConfigurationFolder1());
+				propertiesFile1 = new File(folder, "sfee.properties");
+			}
+			
+			if (landscape.getConfigurationFolder2() != null) {
+				folder = new File(landscape.getConfigurationFolder2());
+				propertiesFile2 = new File(folder, "sfee.properties");
+			}			
+			
+			SystemPropertiesDialog dialog = new SystemPropertiesDialog(Display.getDefault().getActiveShell(), propertiesFile1, propertiesFile2, properties, SystemPropertiesDialog.TF);
 			dialog.open();
 		} catch (Exception e) {
 			Activator.handleError(e);
