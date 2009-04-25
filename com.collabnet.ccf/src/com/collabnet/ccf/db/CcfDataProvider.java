@@ -1,5 +1,7 @@
 package com.collabnet.ccf.db;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -8,6 +10,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 
@@ -178,18 +181,18 @@ public class CcfDataProvider {
 		Filter filter4 = new Filter(SYNCHRONIZATION_STATUS_TARGET_SYSTEM_ID, landscape.getId1(), true);
 		Filter[] orGroup2 = { filter3, filter4 };
 		Filter[][] filters = { orGroup1, orGroup2 };
-		SynchronizationStatus[] statuses = getSynchronizationStatuses(filters);
+		SynchronizationStatus[] statuses = getSynchronizationStatuses(landscape, filters);
 		Arrays.sort(statuses);
 		return statuses;
 	}
 	
-	public SynchronizationStatus[] getSynchronizationStatuses(Filter[][] filters) throws SQLException, ClassNotFoundException {
+	public SynchronizationStatus[] getSynchronizationStatuses(Landscape landscape, Filter[][] filters) throws SQLException, ClassNotFoundException {
 		Connection connection = null;
 		Statement stmt = null;
 		ResultSet rs = null;
 		SynchronizationStatus[] statuses = null;
 		try {
-			connection = getConnection();
+			connection = getConnection(landscape);
 			stmt = connection.createStatement();
 			rs = stmt.executeQuery(Filter.getQuery(SQL_SYNCHRONIZATION_STATUS_SELECT, filters));
 			statuses = getSynchronizationStatuses(rs);
@@ -330,11 +333,36 @@ public class CcfDataProvider {
 		}
 		return rowsUpdated;
 	}
+	
+	private Connection getConnection(Landscape landscape) throws ClassNotFoundException, SQLException {
+		Connection connection = null;
+		String configurationFolder = landscape.getConfigurationFolder();
+		File folder = new File(configurationFolder);
+		File propertiesFile = new File(folder, "ccf.properties");
+		try {
+			FileInputStream inputStream = new FileInputStream(propertiesFile);
+			Properties properties = new Properties();
+			properties.load(inputStream);
+			inputStream.close();
+			String url = properties.getProperty(Activator.PROPERTIES_CCF_URL);
+			String driver = properties.getProperty(Activator.PROPERTIES_CCF_DRIVER);
+			String user = properties.getProperty(Activator.PROPERTIES_CCF_USER);
+			String password = properties.getProperty(Activator.PROPERTIES_CCF_PASSWORD);
+			return getConnection(driver, url, user, password);
+		} catch (Exception e) {
+			Activator.handleError(e);
+		}
+		return connection;
+	}
 
 	private Connection getConnection() throws ClassNotFoundException, SQLException {
-		Class.forName(store.getString(Activator.PREFERENCES_DATABASE_DRIVER));
-		return DriverManager.getConnection(store.getString(Activator.PREFERENCES_DATABASE_URL), store.getString(Activator.PREFERENCES_DATABASE_USER), store.getString(Activator.PREFERENCES_DATABASE_PASSWORD));	
+		return getConnection(store.getString(Activator.PREFERENCES_DATABASE_DRIVER), store.getString(Activator.PREFERENCES_DATABASE_URL), store.getString(Activator.PREFERENCES_DATABASE_USER), store.getString(Activator.PREFERENCES_DATABASE_PASSWORD));
 	}
+	
+	private Connection getConnection(String driver, String url, String user, String password) throws ClassNotFoundException, SQLException {
+		Class.forName(driver);
+		return DriverManager.getConnection(url, user, password);	
+	}	
 	
 	private Patient[] getPatients(ResultSet rs) throws SQLException {
 		List<Patient> patients = new ArrayList<Patient>();
