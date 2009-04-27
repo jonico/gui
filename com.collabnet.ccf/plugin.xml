@@ -158,8 +158,16 @@
          <action
                label="Add project mapping..."
                class="com.collabnet.ccf.actions.AddSynchronizationStatusAction"
+               menubarPath="group.a"
                id="com.collabnet.ccf.actions.AddSynchronizationStatusAction">
-         </action>                                              
+         </action> 
+         <action
+               label="Refresh"
+               class="com.collabnet.ccf.actions.RefreshAction"
+               icon="icons/refresh.gif"
+               menubarPath="group.b"
+               id="com.collabnet.ccf.actions.RefreshAction">
+         </action>                                                              
       </objectContribution> 
       
       <objectContribution

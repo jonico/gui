@@ -1,5 +1,7 @@
 package com.collabnet.ccf.views;
 
+import java.util.Iterator;
+
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
@@ -18,7 +20,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.model.WorkbenchContentProvider;
 import org.eclipse.ui.part.ViewPart;
-import org.omg.CORBA._PolicyStub;
 
 import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.ILandscapeContributor;
@@ -120,6 +121,15 @@ public class CcfExplorerView extends ViewPart {
 	
 	public void refresh(Object object) {
 		treeViewer.refresh(object);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void refreshViewerNode() {
+    	IStructuredSelection selection = (IStructuredSelection)treeViewer.getSelection();
+        Iterator iter = selection.iterator();
+        while (iter.hasNext()) {
+        	refresh(iter.next());
+        }
 	}
 	
 	public void dispose() {
