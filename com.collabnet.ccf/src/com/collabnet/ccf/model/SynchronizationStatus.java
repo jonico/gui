@@ -27,6 +27,7 @@ public class SynchronizationStatus implements IPropertySource, Comparable {
 	private String sourceSystemEncoding;
 	private String targetSystemEncoding;
 	private Landscape landscape;
+	private ProjectMappings projectMappings;
 
 	public static String P_ID_SOURCE_SYSTEM_ID = "srcSysId"; //$NON-NLS-1$
 	public static String P_SOURCE_SYSTEM_ID = "Source system ID";
@@ -186,6 +187,17 @@ public class SynchronizationStatus implements IPropertySource, Comparable {
 	
 	public void setLandscape(Landscape landscape) {
 		this.landscape = landscape;
+	}
+	
+	public ProjectMappings getProjectMappings() {
+		return projectMappings;
+	}
+	public void setProjectMappings(ProjectMappings projectMappings) {
+		this.projectMappings = projectMappings;
+	}
+	
+	public boolean isPaused() {
+		return sourceSystemKind.endsWith("_paused");
 	}
 	
 	public String toString() {

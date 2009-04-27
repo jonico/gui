@@ -55,6 +55,7 @@ public class Activator extends AbstractUIPlugin {
 	public static final String IMAGE_SYSTEM_QC = "system_qc.gif"; //$NON-NLS-1$
 	public static final String IMAGE_SYSTEM_OTHER = "system_other.gif"; //$NON-NLS-1$
 	public static final String IMAGE_SYNC_STATUS_ENTRY = "sync_status_entry.gif"; //$NON-NLS-1$
+	public static final String IMAGE_SYNC_STATUS_ENTRY_PAUSED = "sync_status_entry_paused.gif"; //$NON-NLS-1$
 	
 	// Preferences
 	public static final String PREFERENCES_DATABASE_DESCRIPTION = "pref_db_description"; //$NON-NLS-1$
@@ -312,6 +313,7 @@ public class Activator extends AbstractUIPlugin {
 		createImageDescriptor(IMAGE_SYSTEM_QC);
 		createImageDescriptor(IMAGE_SYSTEM_OTHER);
 		createImageDescriptor(IMAGE_SYNC_STATUS_ENTRY);
+		createImageDescriptor(IMAGE_SYNC_STATUS_ENTRY_PAUSED);
 		createImageDescriptor(IMAGE_NEW_LANDSCAPE);
 		createImageDescriptor(IMAGE_NEW_LANDSCAPE_WIZBAN);
 		createImageDescriptor(IMAGE_LANDSCAPE);
@@ -332,6 +334,7 @@ public class Activator extends AbstractUIPlugin {
 		reg.put(IMAGE_SYSTEM_QC, getImageDescriptor(IMAGE_SYSTEM_QC));
 		reg.put(IMAGE_SYSTEM_OTHER, getImageDescriptor(IMAGE_SYSTEM_OTHER));
 		reg.put(IMAGE_SYNC_STATUS_ENTRY, getImageDescriptor(IMAGE_SYNC_STATUS_ENTRY));
+		reg.put(IMAGE_SYNC_STATUS_ENTRY_PAUSED, getImageDescriptor(IMAGE_SYNC_STATUS_ENTRY_PAUSED));
 		reg.put(IMAGE_NEW_LANDSCAPE, getImageDescriptor(IMAGE_NEW_LANDSCAPE));
 		reg.put(IMAGE_NEW_LANDSCAPE_WIZBAN, getImageDescriptor(IMAGE_NEW_LANDSCAPE_WIZBAN));
 		reg.put(IMAGE_LANDSCAPE, getImageDescriptor(IMAGE_LANDSCAPE));

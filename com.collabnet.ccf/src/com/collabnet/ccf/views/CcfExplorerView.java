@@ -18,6 +18,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.model.WorkbenchContentProvider;
 import org.eclipse.ui.part.ViewPart;
+import org.omg.CORBA._PolicyStub;
 
 import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.ILandscapeContributor;
@@ -117,6 +118,10 @@ public class CcfExplorerView extends ViewPart {
 		treeViewer.refresh();
 	}
 	
+	public void refresh(Object object) {
+		treeViewer.refresh(object);
+	}
+	
 	public void dispose() {
 		view = null;
 		super.dispose();
@@ -135,7 +140,12 @@ public class CcfExplorerView extends ViewPart {
 		public Image getImage(Object element) {
 			if (element instanceof Landscape) return Activator.getImage((Landscape)element);
 			if (element instanceof ProjectMappings) return Activator.getImage(Activator.IMAGE_PROJECT_MAPPINGS);
-			if (element instanceof SynchronizationStatus) return Activator.getImage(Activator.IMAGE_SYNC_STATUS_ENTRY);
+			if (element instanceof SynchronizationStatus) {
+				if (((SynchronizationStatus)element).isPaused())
+					return Activator.getImage(Activator.IMAGE_SYNC_STATUS_ENTRY_PAUSED);
+				else
+					return Activator.getImage(Activator.IMAGE_SYNC_STATUS_ENTRY);
+			}
 			return super.getImage(element);
 		}
 		
@@ -175,7 +185,8 @@ public class CcfExplorerView extends ViewPart {
 				BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
 					public void run() {
 						try {
-							synchronizationStatuses = getDataProvider().getSynchronizationStatuses(projectMappings.getLandscape());
+//							synchronizationStatuses = getDataProvider().getSynchronizationStatuses(projectMappings.getLandscape());
+							synchronizationStatuses = getDataProvider().getSynchronizationStatuses(projectMappings);
 						} catch (Exception e) {
 							synchronizationStatuses = new SynchronizationStatus[0];
 							Activator.handleError(e);
