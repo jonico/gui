@@ -13,8 +13,6 @@ import org.eclipse.ui.actions.ActionDelegate;
 
 import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.db.CcfDataProvider;
-import com.collabnet.ccf.db.Filter;
-import com.collabnet.ccf.db.Update;
 import com.collabnet.ccf.model.ProjectMappings;
 import com.collabnet.ccf.model.SynchronizationStatus;
 import com.collabnet.ccf.views.CcfExplorerView;
@@ -32,16 +30,9 @@ public class PauseSynchronizationAction extends ActionDelegate {
 				while (iter.hasNext()) {
 					Object object = iter.next();
 					if (object instanceof SynchronizationStatus) {
-						SynchronizationStatus status = (SynchronizationStatus)object;
-						Filter sourceSystemFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_SOURCE_SYSTEM_ID, status.getSourceSystemId(), true);
-						Filter sourceRepositoryFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_SOURCE_REPOSITORY_ID, status.getSourceRepositoryId(), true);
-						Filter targetSystemFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_TARGET_SYSTEM_ID, status.getTargetSystemId(), true);
-						Filter targetRepositoryFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_TARGET_REPOSITORY_ID, status.getTargetRepositoryId(), true);
-						Filter[] filters = { sourceSystemFilter, sourceRepositoryFilter, targetSystemFilter, targetRepositoryFilter };
-						Update update = new Update(CcfDataProvider.SYNCHRONIZATION_STATUS_SOURCE_SYSTEM_KIND, status.getSourceSystemKind() + "_paused");
-						Update[] updates = { update };						
+						SynchronizationStatus status = (SynchronizationStatus)object;		
 						try {
-							dataProvider.updateSynchronizationStatuses(updates, filters);
+							dataProvider.pauseSynchronization(status);
 							if (!projectMappingsList.contains(status.getProjectMappings())) {
 								projectMappingsList.add(status.getProjectMappings());
 							}

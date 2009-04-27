@@ -35,7 +35,7 @@ public class DeletePatientAction extends ActionDelegate {
 						Filter filter = new Filter(CcfDataProvider.HOSPITAL_ID, Integer.toString(patient.getId()), false);
 						Filter[] filters = { filter };
 						try {
-							dataProvider.deletePatients(filters);
+							dataProvider.deletePatients(patient.getLandscape(), filters);
 							patientsDeleted = true;
 						} catch (Exception e) {
 							Activator.handleError(e);

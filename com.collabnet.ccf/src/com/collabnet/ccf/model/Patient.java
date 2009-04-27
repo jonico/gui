@@ -39,6 +39,7 @@ public class Patient implements IPropertySource {
 	private String targetArtifactVersion;
 	private String artifactType;
 	private String genericArtifact;
+	private Landscape landscape;
 	
 	public static String P_ID_ID = "id"; //$NON-NLS-1$
 	public static String P_ID = "ID";
@@ -315,6 +316,13 @@ public class Patient implements IPropertySource {
 	}
 	public void setGenericArtifact(String genericArtifact) {
 		this.genericArtifact = genericArtifact;
+	}
+	
+	public Landscape getLandscape() {
+		return landscape;
+	}
+	public void setLandscape(Landscape landscape) {
+		this.landscape = landscape;
 	}
 	
 	public Object getEditableValue() {

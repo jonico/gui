@@ -42,7 +42,7 @@ public class DeleteSynchronizationStatusAction extends ActionDelegate {
 						Filter targetRepositoryFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_TARGET_REPOSITORY_ID, status.getTargetRepositoryId(), true);
 						Filter[] filters = { sourceSystemFilter, sourceRepositoryFilter, targetSystemFilter, targetRepositoryFilter };
 						try {
-							dataProvider.deleteSynchronizationStatuses(filters);
+							dataProvider.deleteSynchronizationStatuses(status.getLandscape(), filters);
 							mappingsDeleted = true;
 							if (!projectMappingsList.contains(status.getProjectMappings())) {
 								projectMappingsList.add(status.getProjectMappings());

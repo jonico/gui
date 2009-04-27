@@ -122,6 +122,8 @@ public class CcfDataProvider {
 	private final static String SQL_SYNCHRONIZATION_STATUS_SELECT = "SELECT * FROM SYNCHRONIZATION_STATUS";
 	private final static String SQL_SYNCHRONIZATION_STATUS_UPDATE = "UPDATE SYNCHRONIZATION_STATUS";
 	private final static String SQL_SYNCHRONIZATION_STATUS_DELETE = "DELETE FROM SYNCHRONIZATION_STATUS";
+	
+	private final static String SQL_IDENTITY_MAPPING_DELETE = "DELETE FROM IDENTITY_MAPPING";
 
 	public Patient[] getPatients(Landscape landscape, Filter[] filters) throws SQLException, ClassNotFoundException {
 		Connection connection = null;
@@ -132,7 +134,7 @@ public class CcfDataProvider {
 			connection = getConnection(landscape);
 			stmt = connection.createStatement();
 			rs = stmt.executeQuery(Filter.getQuery(SQL_HOSPITAL_SELECT, filters));
-			patients = getPatients(rs);
+			patients = getPatients(rs, landscape);
 		}
 		catch (SQLException e) {
 			Activator.handleError(e);
@@ -172,10 +174,6 @@ public class CcfDataProvider {
 	        }			
 		}
 		return patients;
-	}
-	
-	public Patient[] getPatients(Filter[] filters) throws SQLException, ClassNotFoundException {
-		return getPatients(null, filters);
 	}
 	
 	public SynchronizationStatus[] getSynchronizationStatuses(ProjectMappings projectMappings)  throws SQLException, ClassNotFoundException {
@@ -243,19 +241,23 @@ public class CcfDataProvider {
 		return statuses;
 	}
 	
-	public void deletePatients(Filter[] filters) throws  SQLException, ClassNotFoundException {
-		delete(SQL_HOSPITAL_DELETE, filters);
+	public void deletePatients(Landscape landscape, Filter[] filters) throws  SQLException, ClassNotFoundException {
+		delete(SQL_HOSPITAL_DELETE, landscape, filters);
 	}
 	
-	public void deleteSynchronizationStatuses(Filter[] filters) throws  SQLException, ClassNotFoundException {
-		delete(SQL_SYNCHRONIZATION_STATUS_DELETE, filters);
+	public void deleteSynchronizationStatuses(Landscape landscape, Filter[] filters) throws  SQLException, ClassNotFoundException {
+		delete(SQL_SYNCHRONIZATION_STATUS_DELETE, landscape, filters);
 	}
 	
-	private void delete(String sql, Filter[] filters) throws  SQLException, ClassNotFoundException {
+	public void deleteIdentityMappings(Landscape landscape, Filter[] filters) throws  SQLException, ClassNotFoundException {
+		delete(SQL_IDENTITY_MAPPING_DELETE, landscape, filters);
+	}
+	
+	private void delete(String sql, Landscape landscape, Filter[] filters) throws  SQLException, ClassNotFoundException {
 		Connection connection = null;
 		Statement stmt = null;	
 		try {
-			connection = getConnection();
+			connection = getConnection(landscape);
 			stmt = connection.createStatement();
 			String deleteStatement = Filter.getQuery(sql, filters);
 			stmt.executeUpdate(deleteStatement);
@@ -290,20 +292,61 @@ public class CcfDataProvider {
 		}
 	}
 	
-	public int updatePatients(Update[] updates, Filter[] filters) throws SQLException, ClassNotFoundException {
-		return update(SQL_HOSPITAL_UPDATE, updates, filters);
+	public int updatePatients(Landscape landscape, Update[] updates, Filter[] filters) throws SQLException, ClassNotFoundException {
+		return update(SQL_HOSPITAL_UPDATE, landscape, updates, filters);
 	}
 	
-	public int updateSynchronizationStatuses(Update[] updates, Filter[] filters) throws SQLException, ClassNotFoundException {
-		return update(SQL_SYNCHRONIZATION_STATUS_UPDATE, updates, filters);
+	public int updateSynchronizationStatuses(Landscape landscape, Update[] updates, Filter[] filters) throws SQLException, ClassNotFoundException {
+		return update(SQL_SYNCHRONIZATION_STATUS_UPDATE, landscape, updates, filters);
 	}
 	
-	private int update(String sql, Update[] updates, Filter[] filters) throws SQLException, ClassNotFoundException {
+	public void pauseSynchronization(SynchronizationStatus status) throws  SQLException, ClassNotFoundException {
+		Filter sourceSystemFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_SOURCE_SYSTEM_ID, status.getSourceSystemId(), true);
+		Filter sourceRepositoryFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_SOURCE_REPOSITORY_ID, status.getSourceRepositoryId(), true);
+		Filter targetSystemFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_TARGET_SYSTEM_ID, status.getTargetSystemId(), true);
+		Filter targetRepositoryFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_TARGET_REPOSITORY_ID, status.getTargetRepositoryId(), true);
+		Filter[] filters = { sourceSystemFilter, sourceRepositoryFilter, targetSystemFilter, targetRepositoryFilter };
+		Update update = new Update(CcfDataProvider.SYNCHRONIZATION_STATUS_SOURCE_SYSTEM_KIND, status.getSourceSystemKind() + "_paused");
+		Update[] updates = { update };	
+		updateSynchronizationStatuses(status.getLandscape(), updates, filters);
+	}
+	
+	public void resumeSynchronization(SynchronizationStatus status) throws  SQLException, ClassNotFoundException {
+		int index = status.getSourceSystemKind().indexOf("_paused");
+		if (index != -1) {
+			Filter sourceSystemFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_SOURCE_SYSTEM_ID, status.getSourceSystemId(), true);
+			Filter sourceRepositoryFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_SOURCE_REPOSITORY_ID, status.getSourceRepositoryId(), true);
+			Filter targetSystemFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_TARGET_SYSTEM_ID, status.getTargetSystemId(), true);
+			Filter targetRepositoryFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_TARGET_REPOSITORY_ID, status.getTargetRepositoryId(), true);
+			Filter[] filters = { sourceSystemFilter, sourceRepositoryFilter, targetSystemFilter, targetRepositoryFilter };			
+			Update update = new Update(CcfDataProvider.SYNCHRONIZATION_STATUS_SOURCE_SYSTEM_KIND, status.getSourceSystemKind().substring(0, index));
+			Update[] updates = { update };	
+			updateSynchronizationStatuses(status.getLandscape(), updates, filters);
+		}
+	}
+	
+	public void resetSynchronizationStatus(SynchronizationStatus status, boolean deleteIdentityMappings) throws  SQLException, ClassNotFoundException {
+		Filter sourceSystemFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_SOURCE_SYSTEM_ID, status.getSourceSystemId(), true);
+		Filter sourceRepositoryFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_SOURCE_REPOSITORY_ID, status.getSourceRepositoryId(), true);
+		Filter targetSystemFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_TARGET_SYSTEM_ID, status.getTargetSystemId(), true);
+		Filter targetRepositoryFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_TARGET_REPOSITORY_ID, status.getTargetRepositoryId(), true);
+		Filter[] filters = { sourceSystemFilter, sourceRepositoryFilter, targetSystemFilter, targetRepositoryFilter };
+		Update dateUpdate = new Update(CcfDataProvider.SYNCHRONIZATION_STATUS_LAST_SOURCE_ARTIFACT_MODIFICATION_DATE, "1999-01-01 00:00:00.0");
+		Update versionUpdate = new Update(CcfDataProvider.SYNCHRONIZATION_STATUS_LAST_SOURCE_ARTIFACT_VERSION, "0");
+		Update idUpdate = new Update(CcfDataProvider.SYNCHRONIZATION_STATUS_LAST_SOURCE_ARTIFACT_ID, "");
+		Update[] updates = { dateUpdate, versionUpdate, idUpdate };
+		updateSynchronizationStatuses(status.getLandscape(), updates, filters);
+		if (deleteIdentityMappings) {
+			deleteIdentityMappings(status.getLandscape(), filters);
+		}
+	}
+	
+	private int update(String sql, Landscape landscape, Update[] updates, Filter[] filters) throws SQLException, ClassNotFoundException {
 		Connection connection = null;
 		Statement stmt = null;
 		int rowsUpdated = 0;
 		try {
-			connection = getConnection();
+			connection = getConnection(landscape);
 			stmt = connection.createStatement();
 			String updateStatement = Update.getUpdate(sql, updates);
 			updateStatement = Filter.getQuery(updateStatement, filters);
@@ -375,7 +418,7 @@ public class CcfDataProvider {
 		return DriverManager.getConnection(url, user, password);	
 	}	
 	
-	private Patient[] getPatients(ResultSet rs) throws SQLException {
+	private Patient[] getPatients(ResultSet rs, Landscape landscape) throws SQLException {
 		List<Patient> patients = new ArrayList<Patient>();
 		while (rs.next()) {
 			Patient patient = new Patient();
@@ -409,6 +452,7 @@ public class CcfDataProvider {
 			patient.setTargetArtifactVersion(rs.getString(HOSPITAL_TARGET_ARTIFACT_VERSION));
 			patient.setArtifactType(rs.getString(HOSPITAL_ARTIFACT_TYPE));
 			patient.setGenericArtifact(rs.getString(HOSPITAL_GENERIC_ARTIFACT));
+			patient.setLandscape(landscape);
 			patients.add(patient);
 		}
 		Patient[] patientArray = new Patient[patients.size()];

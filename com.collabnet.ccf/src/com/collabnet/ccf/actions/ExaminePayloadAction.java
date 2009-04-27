@@ -78,7 +78,7 @@ public class ExaminePayloadAction extends ActionDelegate {
 													Update[] updates = { update };
 													CcfDataProvider dataProvider = new CcfDataProvider();
 													try {
-														dataProvider.updatePatients(updates, filters);
+														dataProvider.updatePatients(patient.getLandscape(), updates, filters);
 														if (HospitalView.getView() != null) {
 															HospitalView.getView().refresh();
 														}

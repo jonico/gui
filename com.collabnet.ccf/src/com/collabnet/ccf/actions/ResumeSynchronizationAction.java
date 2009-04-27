@@ -5,7 +5,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.custom.BusyIndicator;
@@ -14,8 +13,6 @@ import org.eclipse.ui.actions.ActionDelegate;
 
 import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.db.CcfDataProvider;
-import com.collabnet.ccf.db.Filter;
-import com.collabnet.ccf.db.Update;
 import com.collabnet.ccf.model.ProjectMappings;
 import com.collabnet.ccf.model.SynchronizationStatus;
 import com.collabnet.ccf.views.CcfExplorerView;
@@ -33,25 +30,15 @@ public class ResumeSynchronizationAction extends ActionDelegate {
 				while (iter.hasNext()) {
 					Object object = iter.next();
 					if (object instanceof SynchronizationStatus) {
-						SynchronizationStatus status = (SynchronizationStatus)object;
-						Filter sourceSystemFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_SOURCE_SYSTEM_ID, status.getSourceSystemId(), true);
-						Filter sourceRepositoryFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_SOURCE_REPOSITORY_ID, status.getSourceRepositoryId(), true);
-						Filter targetSystemFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_TARGET_SYSTEM_ID, status.getTargetSystemId(), true);
-						Filter targetRepositoryFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_TARGET_REPOSITORY_ID, status.getTargetRepositoryId(), true);
-						Filter[] filters = { sourceSystemFilter, sourceRepositoryFilter, targetSystemFilter, targetRepositoryFilter };
-						int index = status.getSourceSystemKind().indexOf("_paused");
-						if (index != -1) {
-							Update update = new Update(CcfDataProvider.SYNCHRONIZATION_STATUS_SOURCE_SYSTEM_KIND, status.getSourceSystemKind().substring(0, index));
-							Update[] updates = { update };						
-							try {
-								dataProvider.updateSynchronizationStatuses(updates, filters);						
-								if (!projectMappingsList.contains(status.getProjectMappings())) {
-									projectMappingsList.add(status.getProjectMappings());
-								}							
-							} catch (Exception e) {
-								Activator.handleError(e);
-								break;
-							}
+						SynchronizationStatus status = (SynchronizationStatus)object;				
+						try {						
+							dataProvider.resumeSynchronization(status);
+							if (!projectMappingsList.contains(status.getProjectMappings())) {
+								projectMappingsList.add(status.getProjectMappings());
+							}							
+						} catch (Exception e) {
+							Activator.handleError(e);
+							break;
 						}
 					}
 				}

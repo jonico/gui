@@ -56,7 +56,7 @@ public class MarkFixedAction extends ActionDelegate {
 						Filter filter = new Filter(CcfDataProvider.HOSPITAL_ID, Integer.toString(patient.getId()), false);
 						Filter[] filters = { filter };
 						try {
-							dataProvider.updatePatients(updates, filters);
+							dataProvider.updatePatients(patient.getLandscape(), updates, filters);
 							patientsUpdated = true;
 						} catch (Exception e) {
 							Activator.handleError(e);
