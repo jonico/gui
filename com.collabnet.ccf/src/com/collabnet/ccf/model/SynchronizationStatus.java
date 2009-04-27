@@ -8,6 +8,7 @@ import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.properties.PropertyDescriptor;
 
+@SuppressWarnings("unchecked")
 public class SynchronizationStatus implements IPropertySource, Comparable {
 	private String sourceSystemId;
 	private String sourceRepositoryId;
@@ -25,7 +26,8 @@ public class SynchronizationStatus implements IPropertySource, Comparable {
 	private String targetSystemTimezone;
 	private String sourceSystemEncoding;
 	private String targetSystemEncoding;
-	
+	private Landscape landscape;
+
 	public static String P_ID_SOURCE_SYSTEM_ID = "srcSysId"; //$NON-NLS-1$
 	public static String P_SOURCE_SYSTEM_ID = "Source system ID";
 	public static String P_ID_SOURCE_REPOSITORY_ID = "srcRepoId"; //$NON-NLS-1$
@@ -176,6 +178,14 @@ public class SynchronizationStatus implements IPropertySource, Comparable {
 	}
 	public void setTargetSystemEncoding(String targetSystemEncoding) {
 		this.targetSystemEncoding = targetSystemEncoding;
+	}
+	
+	public Landscape getLandscape() {
+		return landscape;
+	}
+	
+	public void setLandscape(Landscape landscape) {
+		this.landscape = landscape;
 	}
 	
 	public String toString() {

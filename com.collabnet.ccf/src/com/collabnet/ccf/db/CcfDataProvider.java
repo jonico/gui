@@ -122,13 +122,13 @@ public class CcfDataProvider {
 	private final static String SQL_SYNCHRONIZATION_STATUS_UPDATE = "UPDATE SYNCHRONIZATION_STATUS";
 	private final static String SQL_SYNCHRONIZATION_STATUS_DELETE = "DELETE FROM SYNCHRONIZATION_STATUS";
 
-	public Patient[] getPatients(Filter[] filters) throws SQLException, ClassNotFoundException {
+	public Patient[] getPatients(Landscape landscape, Filter[] filters) throws SQLException, ClassNotFoundException {
 		Connection connection = null;
 		Statement stmt = null;
 		ResultSet rs = null;
 		Patient[] patients = null;
 		try {
-			connection = getConnection();
+			connection = getConnection(landscape);
 			stmt = connection.createStatement();
 			rs = stmt.executeQuery(Filter.getQuery(SQL_HOSPITAL_SELECT, filters));
 			patients = getPatients(rs);
@@ -173,6 +173,10 @@ public class CcfDataProvider {
 		return patients;
 	}
 	
+	public Patient[] getPatients(Filter[] filters) throws SQLException, ClassNotFoundException {
+		return getPatients(null, filters);
+	}
+	
 	public SynchronizationStatus[] getSynchronizationStatuses(Landscape landscape)  throws SQLException, ClassNotFoundException {
 		Filter filter1 = new Filter(SYNCHRONIZATION_STATUS_SOURCE_SYSTEM_ID, landscape.getId1(), true);
 		Filter filter2 = new Filter(SYNCHRONIZATION_STATUS_TARGET_SYSTEM_ID, landscape.getId2(), true);
@@ -195,7 +199,7 @@ public class CcfDataProvider {
 			connection = getConnection(landscape);
 			stmt = connection.createStatement();
 			rs = stmt.executeQuery(Filter.getQuery(SQL_SYNCHRONIZATION_STATUS_SELECT, filters));
-			statuses = getSynchronizationStatuses(rs);
+			statuses = getSynchronizationStatuses(rs, landscape);
 		}
 		catch (SQLException e) {
 			Activator.handleError(e);
@@ -335,6 +339,7 @@ public class CcfDataProvider {
 	}
 	
 	private Connection getConnection(Landscape landscape) throws ClassNotFoundException, SQLException {
+		if (landscape == null) return getConnection();
 		Connection connection = null;
 		String configurationFolder = landscape.getConfigurationFolder();
 		File folder = new File(configurationFolder);
@@ -347,7 +352,11 @@ public class CcfDataProvider {
 			String url = properties.getProperty(Activator.PROPERTIES_CCF_URL);
 			String driver = properties.getProperty(Activator.PROPERTIES_CCF_DRIVER);
 			String user = properties.getProperty(Activator.PROPERTIES_CCF_USER);
-			String password = properties.getProperty(Activator.PROPERTIES_CCF_PASSWORD);
+			String password = properties.getProperty(Activator.PROPERTIES_CCF_PASSWORD);			
+			store.setValue(Activator.PREFERENCES_DATABASE_URL, url);
+			store.setValue(Activator.PREFERENCES_DATABASE_DRIVER, driver);
+			store.setValue(Activator.PREFERENCES_DATABASE_USER, user);
+			store.setValue(Activator.PREFERENCES_DATABASE_PASSWORD, password);			
 			return getConnection(driver, url, user, password);
 		} catch (Exception e) {
 			Activator.handleError(e);
@@ -405,7 +414,7 @@ public class CcfDataProvider {
 		return patientArray;
 	}
 	
-	private SynchronizationStatus[] getSynchronizationStatuses(ResultSet rs) throws SQLException {
+	private SynchronizationStatus[] getSynchronizationStatuses(ResultSet rs, Landscape landscape) throws SQLException {
 		List<SynchronizationStatus> synchonizationStatuses = new ArrayList<SynchronizationStatus>();
 		while (rs.next()) {
 			SynchronizationStatus status = new SynchronizationStatus();
@@ -425,6 +434,7 @@ public class CcfDataProvider {
 			status.setSourceSystemEncoding(rs.getString(SYNCHRONIZATION_STATUS_SOURCE_SYSTEM_ENCODING));
 			status.setTargetSystemTimezone(rs.getString(SYNCHRONIZATION_STATUS_TARGET_SYSTEM_TIMEZONE));
 			status.setTargetSystemEncoding(rs.getString(SYNCHRONIZATION_STATUS_TARGET_SYSTEM_ENCODING));			
+			status.setLandscape(landscape);
 			synchonizationStatuses.add(status);
 		}
 		SynchronizationStatus[] statusArray = new SynchronizationStatus[synchonizationStatuses.size()];

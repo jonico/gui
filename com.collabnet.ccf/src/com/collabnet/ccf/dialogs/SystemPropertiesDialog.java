@@ -234,7 +234,7 @@ public class SystemPropertiesDialog extends CcfDialog {
 	}
 	
 	private void initializeQcValues() {
-		String id = properties.getProperty(Activator.PROPERTIES_SYSTEM_ID, "QC");
+		String id = properties.getProperty(Activator.PROPERTIES_SYSTEM_ID, "Quality Center"); //$NON-NLS-1$
 		idText.setText(id);
 		String url = properties.getProperty(Activator.PROPERTIES_QC_URL);
 		if (url != null) urlText.setText(url);
@@ -251,7 +251,7 @@ public class SystemPropertiesDialog extends CcfDialog {
 	}
 	
 	private void initializeTeamForgeValues() {
-		String id = properties.getProperty(Activator.PROPERTIES_SYSTEM_ID, "TeamForge");
+		String id = properties.getProperty(Activator.PROPERTIES_SYSTEM_ID, "TeamForge"); //$NON-NLS-1$
 		idText.setText(id);
 		String url = properties.getProperty(Activator.PROPERTIES_SFEE_URL);
 		if (url != null) urlText.setText(url);
@@ -268,7 +268,7 @@ public class SystemPropertiesDialog extends CcfDialog {
 	}
 	
 	private void initializeCeeValues() {
-		String id = properties.getProperty(Activator.PROPERTIES_SYSTEM_ID, "CEE");
+		String id = properties.getProperty(Activator.PROPERTIES_SYSTEM_ID, "Project Tracker"); //$NON-NLS-1$
 		idText.setText(id);
 		String url = properties.getProperty(Activator.PROPERTIES_CEE_URL);
 		if (url != null) urlText.setText(url);

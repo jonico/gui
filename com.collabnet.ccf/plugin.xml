@@ -130,16 +130,26 @@
             objectClass="com.collabnet.ccf.model.Landscape"
             id="com.collabnet.ccf.model.Landscape">
          <action
+               label="Show Hospital"
+               class="com.collabnet.ccf.actions.HospitalAction"
+               enablesFor="1"
+               menubarPath="group.a"
+               icon="icons/hospitalView.gif"
+               id="com.collabnet.ccf.actions.HospitalAction">
+         </action>                        
+         <action
                label="Delete landscape"
                class="com.collabnet.ccf.actions.DeleteLandscapeAction"
+               menubarPath="group.b"
                id="com.collabnet.ccf.actions.DeleteLandscapeAction">
          </action> 
          <action
                label="Change landscape..."
                class="com.collabnet.ccf.actions.ChangeLandscapeAction"
                enablesFor="1"
+               menubarPath="group.b"
                id="com.collabnet.ccf.actions.ChangeLandscapeAction">
-         </action>                                                      
+         </action>                                                     
       </objectContribution>
       
       <objectContribution
@@ -158,6 +168,7 @@
          <action
                label="Show Hospital"
                class="com.collabnet.ccf.actions.HospitalAction"
+               enablesFor="1"
                menubarPath="group.a"
                icon="icons/hospitalView.gif"
                id="com.collabnet.ccf.actions.HospitalAction">
@@ -169,10 +180,16 @@
                id="com.collabnet.ccf.actions.ResetSynchronizationStatusAction">
          </action>
          <action
-               label="Pause synchronization"
-               class="com.collabnet.ccf.actions.PauseSynchronizationStatusAction"
+               label="Resume synchronization"
+               class="com.collabnet.ccf.actions.ResumeSynchronizationAction"
                menubarPath="group.b"
-               id="com.collabnet.ccf.actions.PauseSynchronizationStatusAction">
+               id="com.collabnet.ccf.actions.ResumeSynchronizationAction">
+         </action>          
+         <action
+               label="Pause synchronization"
+               class="com.collabnet.ccf.actions.PauseSynchronizationAction"
+               menubarPath="group.b"
+               id="com.collabnet.ccf.actions.PauseSynchronizationAction">
          </action> 
          <action
                label="Delete project mapping"

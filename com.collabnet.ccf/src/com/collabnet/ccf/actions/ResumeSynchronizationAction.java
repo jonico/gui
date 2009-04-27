@@ -7,11 +7,11 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.actions.ActionDelegate;
 
-public class PauseSynchronizationStatusAction extends ActionDelegate {
+public class ResumeSynchronizationAction extends ActionDelegate {
 	private IStructuredSelection fSelection;
 	
 	public void run(IAction action) {
-		MessageDialog.openInformation(Display.getDefault().getActiveShell(), "Pause Synchronization", "Not yet implemented.");
+		MessageDialog.openInformation(Display.getDefault().getActiveShell(), "Resume Synchronization", "Not yet implemented.");
 	}
 
 	public void selectionChanged(IAction action, ISelection sel) {

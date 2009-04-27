@@ -50,6 +50,7 @@ import com.collabnet.ccf.actions.ExaminePayloadAction;
 import com.collabnet.ccf.db.CcfDataProvider;
 import com.collabnet.ccf.db.Filter;
 import com.collabnet.ccf.dialogs.HospitalFilterDialog;
+import com.collabnet.ccf.model.Landscape;
 import com.collabnet.ccf.model.Patient;
 import com.collabnet.ccf.preferences.CcfPreferencePage;
 import com.collabnet.ccf.preferences.HospitalPreferencePage;
@@ -64,6 +65,7 @@ public class HospitalView extends ViewPart {
 	
 	private static HospitalView view;
 	private static String contentDescription;
+	private static Landscape landscape;
 	private static Filter[]	filters;
 	private static boolean filtering;
 	private static boolean filtersActive = true;
@@ -232,6 +234,10 @@ public class HospitalView extends ViewPart {
 		else contentDescription = "";
 	}
 	
+	public static void setLandscape(Landscape landscape) {
+		HospitalView.landscape = landscape;
+	}
+	
 	private TableViewer createTable(Composite parent) {
 		Table table =	new Table(parent, SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.MULTI);
 		table.setHeaderVisible(true);
@@ -381,8 +387,8 @@ public class HospitalView extends ViewPart {
 				if (contentDescription == null) setContentDescription("");
 				else setContentDescription(contentDescription);
 				try {
-					if (filtering) patients = dataProvider.getPatients(filters);
-					else patients = dataProvider.getPatients(null);
+					if (filtering) patients = dataProvider.getPatients(landscape, filters);
+					else patients = dataProvider.getPatients(landscape, null);
 					hospitalLoaded = true;
 				} catch (Exception e) {
 					setContentDescription("Could not connect to database.  See error log.");
