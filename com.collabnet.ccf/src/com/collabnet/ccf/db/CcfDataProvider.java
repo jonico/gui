@@ -326,6 +326,9 @@ public class CcfDataProvider {
 	}
 	
 	public void resetSynchronizationStatus(SynchronizationStatus status, boolean deleteIdentityMappings) throws  SQLException, ClassNotFoundException {
+		// Pause first so that changes are not overlaid.
+		pauseSynchronization(status);
+		
 		Filter sourceSystemFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_SOURCE_SYSTEM_ID, status.getSourceSystemId(), true);
 		Filter sourceRepositoryFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_SOURCE_REPOSITORY_ID, status.getSourceRepositoryId(), true);
 		Filter targetSystemFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_TARGET_SYSTEM_ID, status.getTargetSystemId(), true);
@@ -333,12 +336,15 @@ public class CcfDataProvider {
 		Filter[] filters = { sourceSystemFilter, sourceRepositoryFilter, targetSystemFilter, targetRepositoryFilter };
 		Update dateUpdate = new Update(CcfDataProvider.SYNCHRONIZATION_STATUS_LAST_SOURCE_ARTIFACT_MODIFICATION_DATE, "1999-01-01 00:00:00.0");
 		Update versionUpdate = new Update(CcfDataProvider.SYNCHRONIZATION_STATUS_LAST_SOURCE_ARTIFACT_VERSION, "0");
-		Update idUpdate = new Update(CcfDataProvider.SYNCHRONIZATION_STATUS_LAST_SOURCE_ARTIFACT_ID, "");
+		Update idUpdate = new Update(CcfDataProvider.SYNCHRONIZATION_STATUS_LAST_SOURCE_ARTIFACT_ID, "0");
 		Update[] updates = { dateUpdate, versionUpdate, idUpdate };
 		updateSynchronizationStatuses(status.getLandscape(), updates, filters);
 		if (deleteIdentityMappings) {
 			deleteIdentityMappings(status.getLandscape(), filters);
 		}
+		
+		// Resume
+		resumeSynchronization(status);
 	}
 	
 	private int update(String sql, Landscape landscape, Update[] updates, Filter[] filters) throws SQLException, ClassNotFoundException {

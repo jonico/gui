@@ -34,7 +34,7 @@ public class ResetSynchronizationStatusAction extends ActionDelegate {
 					if (object instanceof SynchronizationStatus) {
 						SynchronizationStatus status = (SynchronizationStatus)object;		
 						try {
-							dataProvider.resetSynchronizationStatus(status, true);
+							dataProvider.resetSynchronizationStatus(status, false);
 							if (!projectMappingsList.contains(status.getProjectMappings())) {
 								projectMappingsList.add(status.getProjectMappings());
 							}
