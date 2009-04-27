@@ -526,7 +526,7 @@ public class HospitalView extends ViewPart {
 				else return patient.getTargetSystemId();	
 			case 16:
 				if (patient.getTargetRepositoryId() == null) return "";
-				else return patient.getSourceRepositoryId();	
+				else return patient.getTargetRepositoryId();	
 			case 17:
 				if (patient.getSourceSystemKind() == null) return "";
 				else return patient.getSourceSystemKind();
