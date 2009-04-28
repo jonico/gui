@@ -5,7 +5,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.custom.BusyIndicator;
@@ -14,6 +13,7 @@ import org.eclipse.ui.actions.ActionDelegate;
 
 import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.db.CcfDataProvider;
+import com.collabnet.ccf.dialogs.ResetSynchronizationStatusDialog;
 import com.collabnet.ccf.model.ProjectMappings;
 import com.collabnet.ccf.model.SynchronizationStatus;
 import com.collabnet.ccf.views.CcfExplorerView;
@@ -21,27 +21,36 @@ import com.collabnet.ccf.views.CcfExplorerView;
 public class ResetSynchronizationStatusAction extends ActionDelegate {
 	private IStructuredSelection fSelection;
 	
+	@SuppressWarnings("unchecked")
 	public void run(IAction action) {
-		if (!MessageDialog.openConfirm(Display.getDefault().getActiveShell(), "Reset Synchronization Status", "Reset synchronization status for the selected project mappings?")) return;
+		final List<SynchronizationStatus> statuses = new ArrayList<SynchronizationStatus>();
+		Iterator iter = fSelection.iterator();
+		while (iter.hasNext()) {
+			Object object = iter.next();
+			if (object instanceof SynchronizationStatus) {
+				statuses.add((SynchronizationStatus)object);
+			}
+		}
+		SynchronizationStatus[] statusArray = new SynchronizationStatus[statuses.size()];
+		statuses.toArray(statusArray);
+		ResetSynchronizationStatusDialog dialog = new ResetSynchronizationStatusDialog(Display.getDefault().getActiveShell(), statusArray);
+		if (dialog.open() == ResetSynchronizationStatusDialog.CANCEL) return;
+		final boolean clearMappings = dialog.isClearMappings();
 		final List<ProjectMappings> projectMappingsList = new ArrayList<ProjectMappings>();
 		final CcfDataProvider dataProvider = new CcfDataProvider();
 		BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
-			@SuppressWarnings("unchecked")
 			public void run() {
-				Iterator iter = fSelection.iterator();
+				Iterator<SynchronizationStatus> iter = statuses.iterator();
 				while (iter.hasNext()) {
-					Object object = iter.next();
-					if (object instanceof SynchronizationStatus) {
-						SynchronizationStatus status = (SynchronizationStatus)object;		
-						try {
-							dataProvider.resetSynchronizationStatus(status, false);
-							if (!projectMappingsList.contains(status.getProjectMappings())) {
-								projectMappingsList.add(status.getProjectMappings());
-							}
-						} catch (Exception e) {
-							Activator.handleError(e);
-							break;
+					SynchronizationStatus status = iter.next();
+					try {
+						dataProvider.resetSynchronizationStatus(status, clearMappings);
+						if (!projectMappingsList.contains(status.getProjectMappings())) {
+							projectMappingsList.add(status.getProjectMappings());
 						}
+					} catch (Exception e) {
+						Activator.handleError(e);
+						break;
 					}
 				}
 			}			
