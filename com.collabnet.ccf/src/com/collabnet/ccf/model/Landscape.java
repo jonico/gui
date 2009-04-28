@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.TimeZone;
 
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import org.eclipse.ui.views.properties.IPropertySource;
@@ -21,6 +22,9 @@ public class Landscape implements IPropertySource {
 	private String configurationFolder2;
 	private String contributorId;
 	private Preferences node;
+	
+	private Properties properties1;
+	private Properties properties2;
 	
 	public final static String TYPE_QC = "QC";
 	public final static String TYPE_TF = "TF";
@@ -100,72 +104,120 @@ public class Landscape implements IPropertySource {
 	
 	public String getId1() {
 		String id = null;
-		if (configurationFolder1 == null) return null;
-		File folder = new File(configurationFolder1);
-		String propertyFile = null;
-		String defaultId = null;
-		if (type1.equals(TYPE_QC)) {
-			propertyFile = "qc.properties";
-			defaultId = "QC";
-		}
-		else if (type1.equals(TYPE_TF)) {
-			propertyFile = "sfee.properties";
-			defaultId = "TeamForge";
-		}
-		else if (type1.equals(TYPE_PT)) {
-			propertyFile = "cee.properties";
-			defaultId = "CEE";
-		}
-		if (propertyFile != null) {
-			File propertiesFile = new File(folder, propertyFile);
-			if (propertiesFile.exists()) {
-				try {
-					FileInputStream inputStream = new FileInputStream(propertiesFile);
-					Properties properties = new Properties();
-					properties.load(inputStream);
-					inputStream.close();
-					id = properties.getProperty(Activator.PROPERTIES_SYSTEM_ID, defaultId);
-				} catch (Exception e) { 
-					Activator.handleError(e);
-				}
+		properties1 = getProperties1();
+		if (properties1 != null) {
+			String defaultId = null;
+			if (type1.equals(TYPE_QC)) {
+				defaultId = "Quality Center";
 			}
+			else if (type1.equals(TYPE_TF)) {
+				defaultId = "TeamForge";
+			}
+			else if (type1.equals(TYPE_PT)) {
+				defaultId = "Project Tracker";
+			}
+			id = properties1.getProperty(Activator.PROPERTIES_SYSTEM_ID, defaultId);
 		}
 		return id;
 	}
 	
 	public String getId2() {
 		String id = null;
-		if (configurationFolder2 == null) return null;
-		File folder = new File(configurationFolder2);
+		properties2 = getProperties2();
+		if (properties2 != null) {
+			String defaultId = null;
+			if (type2.equals(TYPE_QC)) {
+				defaultId = "Quality Center";
+			}
+			else if (type2.equals(TYPE_TF)) {
+				defaultId = "TeamForge";
+			}
+			else if (type2.equals(TYPE_PT)) {
+				defaultId = "Project Tracker";
+			}
+			id = properties2.getProperty(Activator.PROPERTIES_SYSTEM_ID, defaultId);
+		}
+		return id;
+	}
+	
+	public String getTimezone1() {
+		String timezone = null;
+		properties1 = getProperties1();
+		if (properties1 != null) {
+			timezone = properties1.getProperty(Activator.PROPERTIES_SYSTEM_TIMEZONE, TimeZone.getDefault().getID());
+		}
+		return timezone;
+	}
+	
+	public String getTimezone2() {
+		String timezone = null;
+		properties2 = getProperties1();
+		if (properties2 != null) {
+			timezone = properties2.getProperty(Activator.PROPERTIES_SYSTEM_TIMEZONE, TimeZone.getDefault().getID());
+		}
+		return timezone;
+	}
+	
+	public String getEncoding1() {
+		String encoding = null;
+		properties1 = getProperties1();
+		if (properties1 != null) {
+			encoding = properties1.getProperty(Activator.PROPERTIES_SYSTEM_ENCODING);
+		}
+		return encoding;
+	}
+	
+	public String getEncoding2() {
+		String encoding = null;
+		properties2 = getProperties1();
+		if (properties2 != null) {
+			encoding = properties2.getProperty(Activator.PROPERTIES_SYSTEM_ENCODING);
+		}
+		return encoding;
+	}
+	
+	public Properties getProperties1() {
+		if (properties1 == null) {
+			properties1 = getProperties(configurationFolder1, type1);
+		}
+		return properties1;
+	}
+	
+	public Properties getProperties2() {
+		if (properties2 == null) {
+			properties2 = getProperties(configurationFolder2, type2);
+		}
+		return properties2;
+	}
+	
+	private Properties getProperties(String configurationFolder, String type) {
+		if (configurationFolder == null) return null;
+		Properties properties = null;
+		File folder = new File(configurationFolder);
 		String propertyFile = null;
-		String defaultId = null;
-		if (type2.equals(TYPE_QC)) {
+		if (type.equals(TYPE_QC)) {
 			propertyFile = "qc.properties";
-			defaultId = "QC";
 		}
-		else if (type2.equals(TYPE_TF)) {
+		else if (type.equals(TYPE_TF)) {
 			propertyFile = "sfee.properties";
-			defaultId = "TeamForge";
 		}
-		else if (type2.equals(TYPE_PT)) {
+		else if (type.equals(TYPE_PT)) {
 			propertyFile = "cee.properties";
-			defaultId = "CEE";
 		}
 		if (propertyFile != null) {
 			File propertiesFile = new File(folder, propertyFile);
 			if (propertiesFile.exists()) {
 				try {
 					FileInputStream inputStream = new FileInputStream(propertiesFile);
-					Properties properties = new Properties();
+					properties = new Properties();
 					properties.load(inputStream);
 					inputStream.close();
-					id = properties.getProperty(Activator.PROPERTIES_SYSTEM_ID, defaultId);
 				} catch (Exception e) { 
 					Activator.handleError(e);
 				}
 			}
-		}
-		return id;
+		}	
+		return properties;
 	}
 	
 	public Object getEditableValue() {

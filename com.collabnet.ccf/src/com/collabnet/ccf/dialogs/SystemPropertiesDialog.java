@@ -2,7 +2,9 @@ package com.collabnet.ccf.dialogs;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.Arrays;
 import java.util.Properties;
+import java.util.TimeZone;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
@@ -11,6 +13,7 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
@@ -34,7 +37,9 @@ public class SystemPropertiesDialog extends CcfDialog {
 	private Text resyncUserText;
 	private Text resyncDisplayNameText;
 	private Text resyncPasswordText;
+	private Text encodingText;
 	private Text attachmentSizeText;
+	private Combo timeZonesCombo;
 	
 	private Button okButton;
 	
@@ -154,12 +159,34 @@ public class SystemPropertiesDialog extends CcfDialog {
 		resyncPasswordText.setLayoutData(gd);
 		resyncPasswordText.setEchoChar('*');
 		
+		Group timezoneGroup = new Group(composite, SWT.NULL);
+		GridLayout timezoneLayout = new GridLayout();
+		timezoneLayout.numColumns = 1;
+		timezoneGroup.setLayout(timezoneLayout);
+		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
+		timezoneGroup.setLayoutData(gd);	
+		timezoneGroup.setText("Time zone:");
+		
+		timeZonesCombo = new Combo(timezoneGroup, SWT.READ_ONLY);
+		String[] timeZoneIds = TimeZone.getAvailableIDs();
+		Arrays.sort(timeZoneIds);
+		for (String zone : timeZoneIds) {
+			timeZonesCombo.add(zone);
+		}	
+		
 		Composite sizeGroup = new Composite(composite, SWT.NULL);
 		GridLayout sizeLayout = new GridLayout();
-		sizeLayout.numColumns = 2;
+		sizeLayout.numColumns = 4;
 		sizeGroup.setLayout(sizeLayout);
 		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
 		sizeGroup.setLayoutData(gd);
+		
+		Label encodingLabel = new Label(sizeGroup, SWT.NONE);
+		encodingLabel.setText("Encoding:");
+		encodingText = new Text(sizeGroup, SWT.BORDER);
+		gd = new GridData();
+		gd.widthHint = 100;
+		encodingText.setLayoutData(gd);
 		
 		Label sizeLabel = new Label(sizeGroup, SWT.NONE);
 		sizeLabel.setText("Maximum attachment size per artifact:");
@@ -187,6 +214,8 @@ public class SystemPropertiesDialog extends CcfDialog {
 	protected void okPressed() {
 		try {
 			properties.setProperty(Activator.PROPERTIES_SYSTEM_ID, idText.getText().trim());
+			properties.setProperty(Activator.PROPERTIES_SYSTEM_TIMEZONE, timeZonesCombo.getText());
+			properties.setProperty(Activator.PROPERTIES_SYSTEM_ENCODING, encodingText.getText().trim());
 			switch (type) {
 			case QC:
 				setQcProperties();
@@ -230,7 +259,15 @@ public class SystemPropertiesDialog extends CcfDialog {
 			break;				
 		default:
 			break;
-		}		
+		}	
+		String encoding = properties.getProperty(Activator.PROPERTIES_SYSTEM_ENCODING); //$NON-NLS-1$
+		if (encoding != null) {
+			encodingText.setText(encoding);
+		}
+		String timezone = properties.getProperty(Activator.PROPERTIES_SYSTEM_TIMEZONE, TimeZone.getDefault().getID()); //$NON-NLS-1$
+		if (timezone != null) {
+			timeZonesCombo.select(timeZonesCombo.indexOf(timezone));
+		}
 	}
 	
 	private void initializeQcValues() {
