@@ -8,6 +8,8 @@ import java.util.Properties;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -33,6 +35,9 @@ public class CcfPropertiesDialog extends CcfDialog {
 	private Text driverText;
 	private Text userText;
 	private Text passwordText;
+	private Text templateText;
+	
+	private Button insertButton;
 	
 	private Button okButton;
 
@@ -95,6 +100,54 @@ public class CcfPropertiesDialog extends CcfDialog {
 				testConnection(false);
 			}			
 		});
+		
+		Group templateGroup = new Group(composite, SWT.NULL);
+		GridLayout templateLayout = new GridLayout();
+		templateLayout.numColumns = 1;
+		templateGroup.setLayout(templateLayout);
+		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
+		templateGroup.setLayoutData(gd);	
+		templateGroup.setText("Log message template:");
+		
+		templateText = new Text(templateGroup, SWT.BORDER | SWT.MULTI);
+		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
+		gd.heightHint = 175;
+		templateText.setLayoutData(gd);
+		
+		Composite buttonGroup = new Group(templateGroup, SWT.NULL);
+		GridLayout buttonLayout = new GridLayout();
+		buttonLayout.numColumns = 2;
+		buttonGroup.setLayout(buttonLayout);
+		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
+		buttonGroup.setLayoutData(gd);	
+		
+		Button resetButton = new Button(buttonGroup, SWT.PUSH);
+		resetButton.setText("Restore Defaults");
+		gd = new GridData(GridData.HORIZONTAL_ALIGN_CENTER);
+		resetButton.setLayoutData(gd);
+		resetButton.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent se) {
+				templateText.setText(Activator.DEFAULT_LOG_MESSAGE_TEMPLATE);
+			}			
+		});
+		
+		insertButton = new Button(buttonGroup, SWT.PUSH);
+		insertButton.setText("Insert Hospital Column...");
+		insertButton.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent se) {
+				insertHospitalColumn();
+			}			
+		});
+		insertButton.setEnabled(false);
+		
+		templateText.addFocusListener(new FocusListener() {
+			public void focusGained(FocusEvent fe) {
+				insertButton.setEnabled(true);
+			}
+			public void focusLost(FocusEvent fe) {
+				insertButton.setEnabled(false);
+			}			
+		});
 
 		initializeValues();
 		
@@ -118,6 +171,7 @@ public class CcfPropertiesDialog extends CcfDialog {
 			properties.setProperty(Activator.PROPERTIES_CCF_DRIVER, driverText.getText().trim());
 			properties.setProperty(Activator.PROPERTIES_CCF_USER, userText.getText().trim());
 			properties.setProperty(Activator.PROPERTIES_CCF_PASSWORD, passwordText.getText().trim());
+			properties.setProperty(Activator.PROPERTIES_CCF_LOG_MESSAGE_TEMPLATE, templateText.getText().trim());
 			if (propertiesFile1 != null) {
 				FileOutputStream outputStream = new FileOutputStream(propertiesFile1);
 				properties.store(outputStream, null);
@@ -149,6 +203,18 @@ public class CcfPropertiesDialog extends CcfDialog {
 		return true;
 	}
 	
+	private void insertHospitalColumn() {
+		HospitalColumnSelectionDialog dialog = new HospitalColumnSelectionDialog(getShell());
+		if (dialog.open() == HospitalColumnSelectionDialog.OK) {
+			String column = dialog.getColumn();
+			if (column != null) {
+				templateText.insert(column);
+			}
+		}
+		templateText.setFocus();		
+
+	}			
+	
 	protected Button createButton(Composite parent, int id, String label, boolean defaultButton) {
         Button button = super.createButton(parent, id, label, defaultButton);
 		if (id == IDialogConstants.OK_ID) {
@@ -166,6 +232,8 @@ public class CcfPropertiesDialog extends CcfDialog {
 		if (user != null) userText.setText(user);
 		String password = properties.getProperty(Activator.PROPERTIES_CCF_PASSWORD);
 		if (password != null) passwordText.setText(password);
+		String template = properties.getProperty(Activator.PROPERTIES_CCF_LOG_MESSAGE_TEMPLATE, Activator.DEFAULT_LOG_MESSAGE_TEMPLATE);
+		templateText.setText(template);
 	}
 	
 	private boolean canFinish() {
