@@ -122,6 +122,7 @@ public class CcfDataProvider {
 	private final static String SQL_SYNCHRONIZATION_STATUS_SELECT = "SELECT * FROM SYNCHRONIZATION_STATUS";
 	private final static String SQL_SYNCHRONIZATION_STATUS_UPDATE = "UPDATE SYNCHRONIZATION_STATUS";
 	private final static String SQL_SYNCHRONIZATION_STATUS_DELETE = "DELETE FROM SYNCHRONIZATION_STATUS";
+	private final static String SQL_SYNCHRONIZATION_STATUS_INSERT = "INSERT INTO SYNCHRONIZATION_STATUS";
 	
 	private final static String SQL_IDENTITY_MAPPING_DELETE = "DELETE FROM IDENTITY_MAPPING";
 
@@ -174,6 +175,67 @@ public class CcfDataProvider {
 	        }			
 		}
 		return patients;
+	}
+	
+	public void addSynchronizationStatus(ProjectMappings projectMappings, SynchronizationStatus synchronizationStatus) throws SQLException, ClassNotFoundException {
+		Connection connection = null;
+		Statement stmt = null;	
+		try {
+			Landscape landscape = projectMappings.getLandscape();
+			connection = getConnection(landscape);
+			stmt = connection.createStatement();
+			StringBuffer insertStatement = new StringBuffer(SQL_SYNCHRONIZATION_STATUS_INSERT +
+			" VALUES('" + synchronizationStatus.getSourceSystemId() + "','" +
+			synchronizationStatus.getSourceRepositoryId() + "','" +
+			synchronizationStatus.getTargetSystemId() + "','" +
+			synchronizationStatus.getTargetRepositoryId() + "','" +
+			synchronizationStatus.getSourceSystemKind() + "','" +
+			synchronizationStatus.getSourceRepositoryKind() + "','" +
+			synchronizationStatus.getTargetSystemKind() + "','" +
+			synchronizationStatus.getTargetRepositoryKind() + "','1999-01-01 00:00:00.0','0','0','" +
+			synchronizationStatus.getConflictResolutionPriority() + "','" +
+			synchronizationStatus.getSourceSystemTimezone() + "','" +
+			synchronizationStatus.getTargetSystemTimezone() + "',");
+			if (synchronizationStatus.getSourceSystemEncoding() == null) {
+				insertStatement.append("NULL,");
+			} else {
+				insertStatement.append("'" + synchronizationStatus.getSourceSystemEncoding() + "',");
+			}
+			if (synchronizationStatus.getTargetSystemEncoding() == null) {
+				insertStatement.append("NULL)");
+			} else {
+				insertStatement.append("'" + synchronizationStatus.getTargetSystemEncoding() + "')");
+			}	
+			stmt.executeUpdate(insertStatement.toString());
+		}
+		catch (SQLException e) {
+			Activator.handleError(e);
+			throw e;
+		}
+		catch (ClassNotFoundException e) {
+			Activator.handleError(e);
+			throw e;
+		}
+		finally {
+	        try
+	        {
+	            if (stmt != null)
+	                stmt.close();
+	        }
+	        catch (Exception e)
+	        {
+	        	 Activator.handleError("Could not close Statement" ,e);
+	        }
+	        try
+	        {
+	            if (connection  != null)
+	                connection.close();
+	        }
+	        catch (SQLException e)
+	        {
+	        	 Activator.handleError("Could not close Connection" ,e);
+	        }			
+		}	
 	}
 	
 	public SynchronizationStatus[] getSynchronizationStatuses(ProjectMappings projectMappings)  throws SQLException, ClassNotFoundException {

@@ -195,7 +195,6 @@ public class CcfExplorerView extends ViewPart {
 				BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
 					public void run() {
 						try {
-//							synchronizationStatuses = getDataProvider().getSynchronizationStatuses(projectMappings.getLandscape());
 							synchronizationStatuses = getDataProvider().getSynchronizationStatuses(projectMappings);
 						} catch (Exception e) {
 							synchronizationStatuses = new SynchronizationStatus[0];

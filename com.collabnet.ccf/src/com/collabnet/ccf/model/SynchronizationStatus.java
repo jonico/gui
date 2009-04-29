@@ -28,6 +28,10 @@ public class SynchronizationStatus implements IPropertySource, Comparable {
 	private String targetSystemEncoding;
 	private Landscape landscape;
 	private ProjectMappings projectMappings;
+	
+	public static final String CONFLICT_RESOLUTION_ALWAYS_IGNORE = "alwaysIgnore"; //$NON-NLS-1$
+	public static final String CONFLICT_RESOLUTION_ALWAYS_OVERRIDE = "alwaysOverride"; //$NON-NLS-1$
+	public static final String CONFLICT_RESOLUTION_QUARANTINE_ARTIFACT = "quarantineArtifact"; //$NON-NLS-1$
 
 	public static String P_ID_SOURCE_SYSTEM_ID = "srcSysId"; //$NON-NLS-1$
 	public static String P_SOURCE_SYSTEM_ID = "Source system ID";

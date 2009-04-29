@@ -151,7 +151,7 @@ public class Landscape implements IPropertySource {
 	
 	public String getTimezone2() {
 		String timezone = null;
-		properties2 = getProperties1();
+		properties2 = getProperties2();
 		if (properties2 != null) {
 			timezone = properties2.getProperty(Activator.PROPERTIES_SYSTEM_TIMEZONE, TimeZone.getDefault().getID());
 		}
@@ -169,7 +169,7 @@ public class Landscape implements IPropertySource {
 	
 	public String getEncoding2() {
 		String encoding = null;
-		properties2 = getProperties1();
+		properties2 = getProperties2();
 		if (properties2 != null) {
 			encoding = properties2.getProperty(Activator.PROPERTIES_SYSTEM_ENCODING);
 		}
