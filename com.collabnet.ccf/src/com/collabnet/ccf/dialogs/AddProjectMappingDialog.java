@@ -2,6 +2,7 @@ package com.collabnet.ccf.dialogs;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IDialogSettings;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.events.ModifyEvent;
@@ -114,14 +115,14 @@ public class AddProjectMappingDialog extends CcfDialog {
 		final SynchronizationStatus status = new SynchronizationStatus();
 		status.setSourceRepositoryId(sourceRepositoryIdText.getText().trim());
 		status.setTargetRepositoryId(targetRepositoryIdText.getText().trim());
-		status.setSourceRepositoryKind("DEFECT");
-		status.setTargetRepositoryKind("TRACKER");
 		status.setConflictResolutionPriority(conflictResolutionCombo.getText());
 		if (system1ToSystem2Button.getSelection()) {
 			status.setSourceSystemId(projectMappings.getLandscape().getId1());			
 			status.setTargetSystemId(projectMappings.getLandscape().getId2());			
 			status.setSourceSystemKind(projectMappings.getLandscape().getType1());			
 			status.setTargetSystemKind(projectMappings.getLandscape().getType2());			
+			status.setSourceRepositoryKind("DEFECT");
+			status.setTargetRepositoryKind("TRACKER");			
 			status.setSourceSystemTimezone(projectMappings.getLandscape().getTimezone1());
 			status.setTargetSystemTimezone(projectMappings.getLandscape().getTimezone2());
 			if (projectMappings.getLandscape().getEncoding1() != null && projectMappings.getLandscape().getEncoding1().trim().length() > 0) {
@@ -136,6 +137,8 @@ public class AddProjectMappingDialog extends CcfDialog {
 			status.setTargetSystemId(projectMappings.getLandscape().getId1());
 			status.setSourceSystemKind(projectMappings.getLandscape().getType2());
 			status.setTargetSystemKind(projectMappings.getLandscape().getType1());
+			status.setSourceRepositoryKind("TRACKER");
+			status.setTargetRepositoryKind("DEFECT");
 			status.setSourceSystemTimezone(projectMappings.getLandscape().getTimezone2());
 			status.setTargetSystemTimezone(projectMappings.getLandscape().getTimezone1());
 			if (projectMappings.getLandscape().getEncoding2() != null && projectMappings.getLandscape().getEncoding2().trim().length() > 0) {
@@ -153,6 +156,7 @@ public class AddProjectMappingDialog extends CcfDialog {
 				} catch (Exception e) {
 					Activator.handleError(e);
 					addError = true;
+					MessageDialog.openError(getShell(), "Add Project Mapping", e.getMessage());
 				}
 			}			
 		});

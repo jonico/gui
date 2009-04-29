@@ -204,7 +204,13 @@
                class="com.collabnet.ccf.actions.DeleteSynchronizationStatusAction"
                menubarPath="group.c"
                id="com.collabnet.ccf.actions.DeleteSynchronizationStatusAction">
-         </action>                                                                               
+         </action> 
+         <action
+               label="Change project mapping..."
+               class="com.collabnet.ccf.actions.ChangeSynchronizationStatusAction"
+               menubarPath="group.c"
+               id="com.collabnet.ccf.actions.ChangeSynchronizationStatusAction">
+         </action>                                                                                              
       </objectContribution>                         
                          
    </extension>   
