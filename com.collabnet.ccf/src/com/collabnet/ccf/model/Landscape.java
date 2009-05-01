@@ -22,13 +22,15 @@ public class Landscape implements IPropertySource {
 	private String configurationFolder2;
 	private String contributorId;
 	private Preferences node;
-	
+
+	private Properties ccfProperties;
 	private Properties properties1;
 	private Properties properties2;
 	
 	public final static String TYPE_QC = "QC";
 	public final static String TYPE_TF = "TF";
 	public final static String TYPE_PT = "PT";
+	public final static String TYPE_CCF = "CCF";
 	
 	public static String P_ID_DESCRIPTION = "desc"; //$NON-NLS-1$
 	public static String P_DESCRIPTION = "Description";
@@ -100,6 +102,51 @@ public class Landscape implements IPropertySource {
 	
 	public void setContributorId(String contributorId) {
 		this.contributorId = contributorId;
+	}
+	
+	public String getDatabaseUrl() {
+		String url = null;
+		ccfProperties = getCcfProperties();
+		if (ccfProperties != null) {
+			url = ccfProperties.getProperty(Activator.PROPERTIES_CCF_URL);
+		}
+		return url;
+	}
+	
+	public String getDatabaseDriver() {
+		String driver = null;
+		ccfProperties = getCcfProperties();
+		if (ccfProperties != null) {
+			driver = ccfProperties.getProperty(Activator.PROPERTIES_CCF_DRIVER);
+		}
+		return driver;
+	}
+	
+	public String getDatabaseUser() {
+		String user = null;
+		ccfProperties = getCcfProperties();
+		if (ccfProperties != null) {
+			user = ccfProperties.getProperty(Activator.PROPERTIES_CCF_USER);
+		}
+		return user;
+	}
+	
+	public String getDatabasePassword() {
+		String password = null;
+		ccfProperties = getCcfProperties();
+		if (ccfProperties != null) {
+			password = ccfProperties.getProperty(Activator.PROPERTIES_CCF_PASSWORD);
+		}
+		return password;
+	}
+	
+	public String getLogMessageTemplate() {
+		String template = null;
+		ccfProperties = getCcfProperties();
+		if (ccfProperties != null) {
+			template = ccfProperties.getProperty(Activator.PROPERTIES_CCF_LOG_MESSAGE_TEMPLATE);
+		}
+		return template;
 	}
 	
 	public String getId1() {
@@ -176,6 +223,31 @@ public class Landscape implements IPropertySource {
 		return encoding;
 	}
 	
+	public Properties getCcfProperties() {
+		if (ccfProperties == null) {
+			ccfProperties = getProperties(configurationFolder1, TYPE_CCF);
+		}
+		return ccfProperties;
+	}
+	
+	public Properties getQcProperties() {
+		if (type1.equals(TYPE_QC)) return getProperties1();
+		if (type2.equals(TYPE_QC)) return getProperties2();
+		return null;
+	}
+	
+	public Properties getSfeeProperties() {
+		if (type1.equals(TYPE_TF)) return getProperties1();
+		if (type2.equals(TYPE_TF)) return getProperties2();
+		return null;
+	}
+	
+	public Properties getCeeProperties() {
+		if (type1.equals(TYPE_PT)) return getProperties1();
+		if (type2.equals(TYPE_PT)) return getProperties2();
+		return null;
+	}
+	
 	public Properties getProperties1() {
 		if (properties1 == null) {
 			properties1 = getProperties(configurationFolder1, type1);
@@ -195,7 +267,10 @@ public class Landscape implements IPropertySource {
 		Properties properties = null;
 		File folder = new File(configurationFolder);
 		String propertyFile = null;
-		if (type.equals(TYPE_QC)) {
+		if (type.equals(TYPE_CCF)) {
+			propertyFile = "ccf.properties";
+		}
+		else if (type.equals(TYPE_QC)) {
 			propertyFile = "qc.properties";
 		}
 		else if (type.equals(TYPE_TF)) {

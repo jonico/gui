@@ -144,12 +144,11 @@
                id="com.collabnet.ccf.actions.DeleteLandscapeAction">
          </action> 
          <action
-               label="Change landscape..."
-               class="com.collabnet.ccf.actions.ChangeLandscapeAction"
-               enablesFor="1"
+               label="Edit landscape"
+               class="com.collabnet.ccf.actions.EditLandscapeAction"
                menubarPath="group.b"
-               id="com.collabnet.ccf.actions.ChangeLandscapeAction">
-         </action>                                                     
+               id="com.collabnet.ccf.actions.EditLandscapeAction">
+         </action>                                                                        
       </objectContribution>
       
       <objectContribution
@@ -213,6 +212,19 @@
          </action>                                                                                              
       </objectContribution>                         
                          
-   </extension>   
+   </extension> 
+   
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            name="CCF Editor"
+            default="false"
+            icon="icons/landscape.gif"
+            extensions="ccf"
+            contributorClass="com.collabnet.ccf.editors.CcfActionBarContributor"
+            class="com.collabnet.ccf.editors.CcfEditor"
+            id="com.collabnet.ccf.editors.CcfEditor">
+      </editor>      
+   </extension>
 
 </plugin>

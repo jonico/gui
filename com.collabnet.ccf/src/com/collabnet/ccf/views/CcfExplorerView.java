@@ -8,8 +8,10 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.viewers.IOpenListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.viewers.OpenEvent;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.graphics.Image;
@@ -23,6 +25,7 @@ import org.eclipse.ui.part.ViewPart;
 
 import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.ILandscapeContributor;
+import com.collabnet.ccf.actions.EditLandscapeAction;
 import com.collabnet.ccf.actions.NewLandscapeAction;
 import com.collabnet.ccf.db.CcfDataProvider;
 import com.collabnet.ccf.model.Landscape;
@@ -63,6 +66,17 @@ public class CcfExplorerView extends ViewPart {
 		layoutData.verticalAlignment = GridData.FILL;
 		treeViewer.getControl().setLayoutData(layoutData);
 		treeViewer.setInput(this);
+		
+		treeViewer.addOpenListener(new IOpenListener() {
+			public void open(OpenEvent se) {
+				IStructuredSelection selection = (IStructuredSelection)treeViewer.getSelection();
+				if (selection != null && selection.size() == 1 && selection.getFirstElement() instanceof Landscape) {
+					EditLandscapeAction editAction = new EditLandscapeAction();
+					editAction.selectionChanged(null, selection);
+					editAction.run(null);
+				}
+			}			
+		});
 		
 		createMenus();
 		createToolbar();

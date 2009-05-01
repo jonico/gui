@@ -5,9 +5,6 @@ import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.graphics.Image;
 
-import com.collabnet.ccf.actions.EditCcfPropertiesAction;
-import com.collabnet.ccf.actions.EditCeePropertiesAction;
-import com.collabnet.ccf.actions.EditQcPropertiesAction;
 import com.collabnet.ccf.model.Landscape;
 import com.collabnet.ccf.wizards.NewLandscapeWizardPropertiesFolderPage;
 
@@ -92,11 +89,12 @@ public class ProjectTrackerQCLandscapeContributor implements ILandscapeContribut
 	}
 	
 	public Action[] getEditPropertiesActions(Landscape landscape) {
-		Action ccfAction = new EditCcfPropertiesAction(landscape);
-		Action qcAction = new EditQcPropertiesAction(landscape);
-		Action ceeAction = new EditCeePropertiesAction(landscape);
-		Action[] actions = { ccfAction, qcAction, ceeAction };
-		return actions;
+//		Action ccfAction = new EditCcfPropertiesAction(landscape);
+//		Action qcAction = new EditQcPropertiesAction(landscape);
+//		Action ceeAction = new EditCeePropertiesAction(landscape);
+//		Action[] actions = { ccfAction, qcAction, ceeAction };
+//		return actions;
+		return null;
 	}
 	
 	public int compareTo(Object compareToObject) {

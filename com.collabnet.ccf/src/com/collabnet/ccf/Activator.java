@@ -39,6 +39,7 @@ public class Activator extends AbstractUIPlugin {
 	private static ILandscapeContributor[] landscapeContributors;
 	
 	// Images
+	public static final String IMAGE_ERROR = "error.gif"; //$NON-NLS-1$
 	public static final String IMAGE_NEW_LANDSCAPE = "new_landscape.gif"; //$NON-NLS-1$
 	public static final String IMAGE_NEW_LANDSCAPE_WIZBAN = "new_landscape_wizban.gif"; //$NON-NLS-1$
 	public static final String IMAGE_LANDSCAPE = "landscape.gif"; //$NON-NLS-1$
@@ -231,6 +232,14 @@ public class Activator extends AbstractUIPlugin {
 		return true;
 	}
 	
+	public Landscape getLandscape(String description) {
+		Landscape[] landscapes = getLandscapes();
+		for (int i = 0; i < landscapes.length; i++) {
+			if (landscapes[i].getDescription().equals(description)) return landscapes[i];
+		}
+		return null;
+	}
+	
 	public Landscape[] getLandscapes() {
 		List<Landscape> landscapes = new ArrayList<Landscape>();
 		try {
@@ -325,6 +334,7 @@ public class Activator extends AbstractUIPlugin {
 		createImageDescriptor(IMAGE_LANDSCAPE_QC_PT);
 		createImageDescriptor(IMAGE_LANDSCAPE_QC_TF);
 		createImageDescriptor(IMAGE_PROJECT_MAPPINGS);
+		createImageDescriptor(IMAGE_ERROR);
 	}
 	
 	protected void initializeImageRegistry(ImageRegistry reg) {
@@ -346,5 +356,6 @@ public class Activator extends AbstractUIPlugin {
 		reg.put(IMAGE_LANDSCAPE_QC_PT, getImageDescriptor(IMAGE_LANDSCAPE_QC_PT));
 		reg.put(IMAGE_LANDSCAPE_QC_TF, getImageDescriptor(IMAGE_LANDSCAPE_QC_TF));
 		reg.put(IMAGE_PROJECT_MAPPINGS, getImageDescriptor(IMAGE_PROJECT_MAPPINGS));
+		reg.put(IMAGE_ERROR, getImageDescriptor(IMAGE_ERROR));
 	}
 }
