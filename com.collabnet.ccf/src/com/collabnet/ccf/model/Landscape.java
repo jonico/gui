@@ -27,6 +27,11 @@ public class Landscape implements IPropertySource {
 	private Properties properties1;
 	private Properties properties2;
 	
+	private File configFile1;
+	private File configFile2;
+	private File logsFolder1;
+	private File logsFolder2;
+	
 	public final static String TYPE_QC = "QC";
 	public final static String TYPE_TF = "TF";
 	public final static String TYPE_PT = "PT";
@@ -260,6 +265,68 @@ public class Landscape implements IPropertySource {
 			properties2 = getProperties(configurationFolder2, type2);
 		}
 		return properties2;
+	}
+	
+	public File getConfigurationFile1() {
+		if (configFile1 == null) {
+			configFile1 = new File(getConfigurationFolder1(), "config.xml");
+		}
+		return configFile1;
+	}
+	
+	public File getConfigurationFile2() {
+		if (configFile2 == null) {
+			configFile2 = new File(getConfigurationFolder2(), "config.xml");
+		}
+		return configFile2;
+	}
+	
+	public File getLogsFolder1() {
+		if (logsFolder1 == null) {
+			logsFolder1 = getLogsFolder(configurationFolder1);
+		}
+		if (logsFolder1.exists()) return logsFolder1;
+		else return null;
+	}
+	
+	public File getLogsFolder2() {
+		if (logsFolder2 == null) {
+			logsFolder2 = getLogsFolder(configurationFolder2);
+		}
+		if (logsFolder2.exists()) return logsFolder2;
+		else return null;
+	}
+	
+	private File getLogsFolder(String config) {
+		File configurationFolder = new File(config);
+		File logsFolder = new File(configurationFolder.getParent(), "logs");
+		return logsFolder;
+	}
+	
+	public File[] getLogs1() {
+		return getLogs(getLogsFolder1());
+	}
+	
+	public File[] getLogs2() {
+		return getLogs(getLogsFolder2());
+	}
+	
+	private File[] getLogs(File logsFolder) {
+		List<File> logFiles = new ArrayList<File>();
+		File[] logs = null;
+		if (logsFolder != null) {
+			logs = logsFolder.listFiles();
+			if (logs != null) {
+				for (File logFile : logs) {
+					if (!logFile.isDirectory()) {
+						logFiles.add(logFile);
+					}
+				}
+			}
+		}
+		File[] logFileArray = new File[logFiles.size()];
+		logFiles.toArray(logFileArray);
+		return logFileArray;		
 	}
 	
 	private Properties getProperties(String configurationFolder, String type) {
