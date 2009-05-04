@@ -23,7 +23,8 @@ public class Landscape implements IPropertySource {
 	private String contributorId;
 	private Preferences node;
 
-	private Properties ccfProperties;
+	private Properties ccfProperties1;
+	private Properties ccfProperties2;
 	private Properties properties1;
 	private Properties properties2;
 	
@@ -111,45 +112,72 @@ public class Landscape implements IPropertySource {
 	
 	public String getDatabaseUrl() {
 		String url = null;
-		ccfProperties = getCcfProperties();
-		if (ccfProperties != null) {
-			url = ccfProperties.getProperty(Activator.PROPERTIES_CCF_URL);
+		ccfProperties1 = getCcfProperties1();
+		if (ccfProperties1 != null) {
+			url = ccfProperties1.getProperty(Activator.PROPERTIES_CCF_URL);
 		}
 		return url;
 	}
 	
 	public String getDatabaseDriver() {
 		String driver = null;
-		ccfProperties = getCcfProperties();
-		if (ccfProperties != null) {
-			driver = ccfProperties.getProperty(Activator.PROPERTIES_CCF_DRIVER);
+		ccfProperties1 = getCcfProperties1();
+		if (ccfProperties1 != null) {
+			driver = ccfProperties1.getProperty(Activator.PROPERTIES_CCF_DRIVER);
 		}
 		return driver;
 	}
 	
 	public String getDatabaseUser() {
 		String user = null;
-		ccfProperties = getCcfProperties();
-		if (ccfProperties != null) {
-			user = ccfProperties.getProperty(Activator.PROPERTIES_CCF_USER);
+		ccfProperties1 = getCcfProperties1();
+		if (ccfProperties1 != null) {
+			user = ccfProperties1.getProperty(Activator.PROPERTIES_CCF_USER);
 		}
 		return user;
 	}
 	
 	public String getDatabasePassword() {
 		String password = null;
-		ccfProperties = getCcfProperties();
-		if (ccfProperties != null) {
-			password = ccfProperties.getProperty(Activator.PROPERTIES_CCF_PASSWORD);
+		ccfProperties1 = getCcfProperties1();
+		if (ccfProperties1 != null) {
+			password = ccfProperties1.getProperty(Activator.PROPERTIES_CCF_PASSWORD);
 		}
 		return password;
 	}
 	
-	public String getLogMessageTemplate() {
+	public String getJmxPort1() {
+		String port = null;
+		ccfProperties1 = getCcfProperties1();
+		if (ccfProperties1 != null) {
+			port = ccfProperties1.getProperty(Activator.PROPERTIES_CCF_JMX_PORT);
+		}
+		return port;
+	}
+	
+	public String getJmxPort2() {
+		String port = null;
+		ccfProperties2 = getCcfProperties2();
+		if (ccfProperties2 != null) {
+			port = ccfProperties2.getProperty(Activator.PROPERTIES_CCF_JMX_PORT);
+		}
+		return port;
+	}
+	
+	public String getLogMessageTemplate1() {
 		String template = null;
-		ccfProperties = getCcfProperties();
-		if (ccfProperties != null) {
-			template = ccfProperties.getProperty(Activator.PROPERTIES_CCF_LOG_MESSAGE_TEMPLATE);
+		ccfProperties1 = getCcfProperties1();
+		if (ccfProperties1 != null) {
+			template = ccfProperties1.getProperty(Activator.PROPERTIES_CCF_LOG_MESSAGE_TEMPLATE);
+		}
+		return template;
+	}
+	
+	public String getLogMessageTemplate2() {
+		String template = null;
+		ccfProperties2 = getCcfProperties2();
+		if (ccfProperties2 != null) {
+			template = ccfProperties2.getProperty(Activator.PROPERTIES_CCF_LOG_MESSAGE_TEMPLATE);
 		}
 		return template;
 	}
@@ -228,11 +256,18 @@ public class Landscape implements IPropertySource {
 		return encoding;
 	}
 	
-	public Properties getCcfProperties() {
-		if (ccfProperties == null) {
-			ccfProperties = getProperties(configurationFolder1, TYPE_CCF);
+	public Properties getCcfProperties1() {
+		if (ccfProperties1 == null) {
+			ccfProperties1 = getProperties(configurationFolder1, TYPE_CCF);
 		}
-		return ccfProperties;
+		return ccfProperties1;
+	}
+	
+	public Properties getCcfProperties2() {
+		if (ccfProperties2 == null) {
+			ccfProperties2 = getProperties(configurationFolder2, TYPE_CCF);
+		}
+		return ccfProperties2;
 	}
 	
 	public Properties getQcProperties() {

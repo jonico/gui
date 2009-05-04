@@ -52,6 +52,9 @@ public class CcfCcfEditorPage extends CcfEditorPage {
 	private Text userText;
 	private Text passwordText;
 	
+	private Text jmxPort1Text;
+	private Text jmxPort2Text;
+	
 	private Text templateText;
 	
 	private String description;
@@ -59,6 +62,10 @@ public class CcfCcfEditorPage extends CcfEditorPage {
 	private String driver;
 	private String user;
 	private String password;
+	
+	private String jmxPort1;
+	private String jmxPort2;
+	
 	private String template;
 	
 	private Button insertButton;
@@ -66,6 +73,7 @@ public class CcfCcfEditorPage extends CcfEditorPage {
 	private boolean ccfPropertiesUpdated;
 	
 	public final static String DATABASE_SECTION_STATE = "CcfCcfEditorPage.databaseSectionExpanded";
+	public final static String JMX_SECTION_STATE = "CcfCcfEditorPage.jmxSectionExpanded";
 	public final static String TEMPLATE_SECTION_STATE = "CcfCcfEditorPage.templateSectionExpanded";
 
 	public CcfCcfEditorPage(String id, String title) {
@@ -92,7 +100,9 @@ public class CcfCcfEditorPage extends CcfEditorPage {
 		driver = getLandscape().getDatabaseDriver();
 		user = getLandscape().getDatabaseUser();
 		password = getLandscape().getDatabasePassword();
-		template = getLandscape().getLogMessageTemplate();
+		template = getLandscape().getLogMessageTemplate1();
+		jmxPort1 = getLandscape().getJmxPort1();
+		jmxPort2 = getLandscape().getJmxPort2();
 		
 		Label headerImageLabel = new Label(composite, SWT.NONE);
 		headerImageLabel.setImage(Activator.getImage(getLandscape()));
@@ -111,7 +121,7 @@ public class CcfCcfEditorPage extends CcfEditorPage {
 		errorImageLabel.setVisible(false);
 		
 		errorTextLabel = new Label(composite, SWT.NONE);
-		errorTextLabel.setText("One or more required field is empty.");
+		errorTextLabel.setText("One or more required field is empty or invalid.");
 		errorTextLabel.setBackground(((FormEditor)getEditor()).getToolkit().getColors().getBackground());
 		errorTextLabel.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_RED));
 		errorTextLabel.setVisible(false);
@@ -184,6 +194,37 @@ public class CcfCcfEditorPage extends CcfEditorPage {
 			}			
 		});
 		
+		Section jmxSection = toolkit.createSection(composite, Section.TITLE_BAR | Section.TWISTIE | Section.EXPANDED);
+        td = new TableWrapData(TableWrapData.FILL_GRAB);
+        td.colspan = 4;
+        jmxSection.setLayoutData(td);
+        jmxSection.setText("JMX Ports");
+        Composite jmxSectionClient = toolkit.createComposite(jmxSection); 
+        GridLayout jmxLayout = new GridLayout();
+        jmxLayout.numColumns = 2;
+        jmxLayout.verticalSpacing = 10;
+        jmxSectionClient.setLayout(jmxLayout);
+        jmxSection.setClient(jmxSectionClient);
+        jmxSection.addExpansionListener(new ExpansionAdapter() {
+            public void expansionStateChanged(ExpansionEvent e) {
+                form.reflow(true);
+                if (e.getState()) getDialogSettings().put(JMX_SECTION_STATE, STATE_EXPANDED);
+                else getDialogSettings().put(JMX_SECTION_STATE, STATE_CONTRACTED);
+            }
+        });	
+        
+		toolkit.createLabel(jmxSectionClient, getLandscape().getType2() + " => " + getLandscape().getType1() + " port:");
+		jmxPort1Text = toolkit.createText(jmxSectionClient, jmxPort1);
+		gd = new GridData();
+		gd.widthHint = 100;
+		jmxPort1Text.setLayoutData(gd);
+		
+		toolkit.createLabel(jmxSectionClient, getLandscape().getType1() + " => " + getLandscape().getType2() + " port:");
+		jmxPort2Text = toolkit.createText(jmxSectionClient, jmxPort2);
+		gd = new GridData();
+		gd.widthHint = 100;
+		jmxPort2Text.setLayoutData(gd);
+		
 		Section templateSection = toolkit.createSection(composite, Section.TITLE_BAR | Section.TWISTIE | Section.EXPANDED);
         td = new TableWrapData(TableWrapData.FILL_GRAB);
         td.colspan = 4;
@@ -203,7 +244,7 @@ public class CcfCcfEditorPage extends CcfEditorPage {
             }
         });
         
-        templateText = toolkit.createText(templateSectionClient, getLandscape().getLogMessageTemplate(), SWT.BORDER | SWT.MULTI);
+        templateText = toolkit.createText(templateSectionClient, getLandscape().getLogMessageTemplate1(), SWT.BORDER | SWT.MULTI);
 		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
 		gd.heightHint = 175;
 		templateText.setLayoutData(gd);
@@ -233,10 +274,14 @@ public class CcfCcfEditorPage extends CcfEditorPage {
 		insertButton.setEnabled(false);
 		
         toolkit.paintBordersFor(databaseSectionClient);
+        toolkit.paintBordersFor(jmxSectionClient);
         toolkit.paintBordersFor(templateSectionClient);
         
         String expansionState = getDialogSettings().get(DATABASE_SECTION_STATE);
         databaseSection.setExpanded(expansionState == null  || expansionState.equals(STATE_EXPANDED));
+        
+        expansionState = getDialogSettings().get(JMX_SECTION_STATE);
+        jmxSection.setExpanded(expansionState == null  || expansionState.equals(STATE_EXPANDED));
         
         expansionState = getDialogSettings().get(TEMPLATE_SECTION_STATE);
         templateSection.setExpanded(expansionState == null  || expansionState.equals(STATE_EXPANDED));
@@ -257,6 +302,8 @@ public class CcfCcfEditorPage extends CcfEditorPage {
 		driverText.addModifyListener(modifyListener);
 		userText.addModifyListener(modifyListener);
 		passwordText.addModifyListener(modifyListener);
+		jmxPort1Text.addModifyListener(modifyListener);
+		jmxPort2Text.addModifyListener(modifyListener);
 		templateText.addModifyListener(modifyListener);
 		
 		FocusListener focusListener = new FocusAdapter() {
@@ -275,14 +322,31 @@ public class CcfCcfEditorPage extends CcfEditorPage {
 		driverText.addFocusListener(focusListener);
 		userText.addFocusListener(focusListener);
 		passwordText.addFocusListener(focusListener);
+		jmxPort1Text.addFocusListener(focusListener);
+		jmxPort2Text.addFocusListener(focusListener);
 		templateText.addFocusListener(focusListener);
 	}
 	
 	@Override
 	public boolean canLeaveThePage() {
-		return descriptionText.getText().trim().length() > 0 &&
-		urlText.getText().trim().length() > 0 &&
-		driverText.getText().trim().length() > 0;
+		if (descriptionText.getText().trim().length() == 0 ||
+		urlText.getText().trim().length() == 0 ||
+		driverText.getText().trim().length() == 0) return false;
+		if (jmxPort1Text.getText().trim().length() > 0) {
+			int port = 0;
+			try {
+				port = Integer.parseInt(jmxPort1Text.getText().trim());
+			} catch (Exception e) {}
+			if (port <= 0) return false;			
+		}
+		if (jmxPort2Text.getText().trim().length() > 0) {
+			int port = 0;
+			try {
+				port = Integer.parseInt(jmxPort2Text.getText().trim());
+			} catch (Exception e) {}
+			if (port <= 0) return false;			
+		}		
+		return true;
 	}
 
 	private void insertHospitalColumn() {
@@ -303,6 +367,8 @@ public class CcfCcfEditorPage extends CcfEditorPage {
 		!driverText.getText().trim().equals(driver) ||
 		!userText.getText().trim().equals(user) ||
 		!passwordText.getText().trim().equals(password) ||
+		!jmxPort1Text.getText().trim().equals(jmxPort1)	 ||
+		!jmxPort2Text.getText().trim().equals(jmxPort2) ||
 		!templateText.getText().trim().equals(template);
 	}
 	
@@ -326,6 +392,8 @@ public class CcfCcfEditorPage extends CcfEditorPage {
 		driver = driverText.getText().trim();
 		user = userText.getText().trim();
 		password = passwordText.getText().trim();
+		jmxPort1 = jmxPort1Text.getText().trim();
+		jmxPort2 = jmxPort2Text.getText().trim();
 		template = templateText.getText().trim();
 	}
 	
@@ -357,11 +425,13 @@ public class CcfCcfEditorPage extends CcfEditorPage {
 			properties.setProperty(Activator.PROPERTIES_CCF_PASSWORD, getPassword());
 			properties.setProperty(Activator.PROPERTIES_CCF_LOG_MESSAGE_TEMPLATE, getLogMessageTemplate());
 			if (propertiesFile1 != null) {
+				properties.setProperty(Activator.PROPERTIES_CCF_JMX_PORT, getJmxPort1());
 				FileOutputStream outputStream = new FileOutputStream(propertiesFile1);
 				properties.store(outputStream, null);
 				outputStream.close();
 			}
 			if (propertiesFile2 != null) {
+				properties.setProperty(Activator.PROPERTIES_CCF_JMX_PORT, getJmxPort2());
 				FileOutputStream outputStream = new FileOutputStream(propertiesFile2);
 				properties.store(outputStream, null);
 				outputStream.close();
@@ -389,6 +459,14 @@ public class CcfCcfEditorPage extends CcfEditorPage {
 	
 	public String getPassword() {
 		return passwordText.getText().trim();
+	}
+	
+	public String getJmxPort1() {
+		return jmxPort1Text.getText().trim();
+	}
+	
+	public String getJmxPort2() {
+		return jmxPort2Text.getText().trim();
 	}
 	
 	public String getLogMessageTemplate() {
