@@ -20,15 +20,19 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
+import org.eclipse.ui.actions.ActionDelegate;
 import org.eclipse.ui.model.WorkbenchContentProvider;
 import org.eclipse.ui.part.ViewPart;
 
 import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.ILandscapeContributor;
 import com.collabnet.ccf.actions.EditLandscapeAction;
+import com.collabnet.ccf.actions.EditLogAction;
 import com.collabnet.ccf.actions.NewLandscapeAction;
 import com.collabnet.ccf.db.CcfDataProvider;
 import com.collabnet.ccf.model.Landscape;
+import com.collabnet.ccf.model.Log;
+import com.collabnet.ccf.model.Logs;
 import com.collabnet.ccf.model.ProjectMappings;
 import com.collabnet.ccf.model.SynchronizationStatus;
 
@@ -70,10 +74,18 @@ public class CcfExplorerView extends ViewPart {
 		treeViewer.addOpenListener(new IOpenListener() {
 			public void open(OpenEvent se) {
 				IStructuredSelection selection = (IStructuredSelection)treeViewer.getSelection();
-				if (selection != null && selection.size() == 1 && selection.getFirstElement() instanceof Landscape) {
-					EditLandscapeAction editAction = new EditLandscapeAction();
-					editAction.selectionChanged(null, selection);
-					editAction.run(null);
+				if (selection != null && selection.size() == 1) {
+					ActionDelegate action = null;
+					if (selection.getFirstElement() instanceof Landscape) {
+						action = new EditLandscapeAction();
+					}
+					else if (selection.getFirstElement() instanceof Log) {
+						action = new EditLogAction();
+					}
+					if (action != null) {
+						action.selectionChanged(null, selection);
+						action.run(null);						
+					}
 				}
 			}			
 		});
@@ -163,19 +175,21 @@ public class CcfExplorerView extends ViewPart {
 	class LandscapeLabelProvider extends LabelProvider {
 		public Image getImage(Object element) {
 			if (element instanceof Landscape) return Activator.getImage((Landscape)element);
-			if (element instanceof ProjectMappings) return Activator.getImage(Activator.IMAGE_PROJECT_MAPPINGS);
-			if (element instanceof SynchronizationStatus) {
+			else if (element instanceof ProjectMappings) return Activator.getImage(Activator.IMAGE_PROJECT_MAPPINGS);
+			else if (element instanceof Logs) return Activator.getImage(Activator.IMAGE_LOGS);
+			else if (element instanceof Log) return Activator.getImage(Activator.IMAGE_LOG);
+			else if (element instanceof SynchronizationStatus) {
 				if (((SynchronizationStatus)element).isPaused())
 					return Activator.getImage(Activator.IMAGE_SYNC_STATUS_ENTRY_PAUSED);
 				else
 					return Activator.getImage(Activator.IMAGE_SYNC_STATUS_ENTRY);
 			}
-			return super.getImage(element);
+			else return super.getImage(element);
 		}
 		
 		public String getText(Object element) {
 			if (element instanceof Landscape) return ((Landscape) element).getDescription();
-			return super.getText(element);
+			else return super.getText(element);
 		}
 	}
 	
@@ -187,7 +201,7 @@ public class CcfExplorerView extends ViewPart {
 		}
 		
 		public boolean hasChildren(Object element) {
-			if (element instanceof SynchronizationStatus) return false;
+			if (element instanceof SynchronizationStatus || element instanceof Log) return false;
 			return true;
 		}
 		
@@ -199,12 +213,13 @@ public class CcfExplorerView extends ViewPart {
 			if (parentElement instanceof CcfExplorerView) {
 				return Activator.getDefault().getLandscapes();
 			}
-			if (parentElement instanceof Landscape) {
+			else if (parentElement instanceof Landscape) {
 				ProjectMappings projectMappings = new ProjectMappings((Landscape)parentElement);
-				Object[] children = { projectMappings };
+				Logs logs = new Logs((Landscape)parentElement);
+				Object[] children = { projectMappings, logs };
 				return children;
 			}
-			if (parentElement instanceof ProjectMappings) {
+			else if (parentElement instanceof ProjectMappings) {
 				final ProjectMappings projectMappings = (ProjectMappings)parentElement;
 				BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
 					public void run() {
@@ -217,6 +232,9 @@ public class CcfExplorerView extends ViewPart {
 					}					
 				});
 				return synchronizationStatuses;
+			}
+			else if (parentElement instanceof Logs) {
+				return ((Logs)parentElement).getLandscape().getLogs((Logs)parentElement);
 			}
 			return new Object[0];
 		}

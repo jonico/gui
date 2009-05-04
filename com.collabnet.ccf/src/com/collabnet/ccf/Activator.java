@@ -44,6 +44,8 @@ public class Activator extends AbstractUIPlugin {
 	public static final String IMAGE_NEW_LANDSCAPE_WIZBAN = "new_landscape_wizban.gif"; //$NON-NLS-1$
 	public static final String IMAGE_LANDSCAPE = "landscape.gif"; //$NON-NLS-1$
 	public static final String IMAGE_PROJECT_MAPPINGS = "project_mappings.gif"; //$NON-NLS-1$
+	public static final String IMAGE_LOGS = "logs.gif"; //$NON-NLS-1$
+	public static final String IMAGE_LOG = "log.gif"; //$NON-NLS-1$
 	public static final String IMAGE_LANDSCAPE_QC_PT = "landscape_QC_PT.gif"; //$NON-NLS-1$
 	public static final String IMAGE_LANDSCAPE_QC_TF = "landscape_QC_TF.gif"; //$NON-NLS-1$
 	public static final String IMAGE_REFRESH = "refresh.gif"; //$NON-NLS-1$
@@ -339,6 +341,8 @@ public class Activator extends AbstractUIPlugin {
 		createImageDescriptor(IMAGE_LANDSCAPE_QC_PT);
 		createImageDescriptor(IMAGE_LANDSCAPE_QC_TF);
 		createImageDescriptor(IMAGE_PROJECT_MAPPINGS);
+		createImageDescriptor(IMAGE_LOGS);
+		createImageDescriptor(IMAGE_LOG);
 		createImageDescriptor(IMAGE_ERROR);
 	}
 	
@@ -361,6 +365,8 @@ public class Activator extends AbstractUIPlugin {
 		reg.put(IMAGE_LANDSCAPE_QC_PT, getImageDescriptor(IMAGE_LANDSCAPE_QC_PT));
 		reg.put(IMAGE_LANDSCAPE_QC_TF, getImageDescriptor(IMAGE_LANDSCAPE_QC_TF));
 		reg.put(IMAGE_PROJECT_MAPPINGS, getImageDescriptor(IMAGE_PROJECT_MAPPINGS));
+		reg.put(IMAGE_LOGS, getImageDescriptor(IMAGE_LOGS));
+		reg.put(IMAGE_LOG, getImageDescriptor(IMAGE_LOG));
 		reg.put(IMAGE_ERROR, getImageDescriptor(IMAGE_ERROR));
 	}
 }

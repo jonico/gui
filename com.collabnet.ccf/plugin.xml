@@ -210,7 +210,24 @@
                menubarPath="group.c"
                id="com.collabnet.ccf.actions.ChangeSynchronizationStatusAction">
          </action>                                                                                              
-      </objectContribution>                         
+      </objectContribution>
+      
+      <objectContribution
+            objectClass="com.collabnet.ccf.model.Log"
+            id="com.collabnet.ccf.model.log">  
+         <action
+               label="Open log"
+               class="com.collabnet.ccf.actions.EditLogAction"
+               menubarPath="group.a"
+               id="com.collabnet.ccf.actions.EditLogAction">
+         </action> 
+         <action
+               label="Delete log"
+               class="com.collabnet.ccf.actions.DeleteLogAction"
+               menubarPath="group.c"
+               id="com.collabnet.ccf.actions.DeleteLogAction">
+         </action>                                                                                                  
+      </objectContribution>                                        
                          
    </extension> 
    

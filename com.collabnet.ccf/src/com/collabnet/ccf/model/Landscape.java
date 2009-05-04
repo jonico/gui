@@ -3,6 +3,7 @@ package com.collabnet.ccf.model;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
@@ -338,15 +339,47 @@ public class Landscape implements IPropertySource {
 		return logsFolder;
 	}
 	
-	public File[] getLogs1() {
-		return getLogs(getLogsFolder1());
+	public Log[] getLogs1(Logs logs) {
+		List<Log> logList = new ArrayList<Log>();
+		File[] logFiles = getLogFiles(getLogsFolder1());
+		if (logFiles != null) {
+			for (File logFile : logFiles) {
+				Log log = new Log(logs, logFile);
+				logList.add(log);
+			}
+		}
+		Log[] logArray = new Log[logList.size()];
+		logList.toArray(logArray);
+		return logArray;
 	}
 	
-	public File[] getLogs2() {
-		return getLogs(getLogsFolder2());
+	public Log[] getLogs2(Logs logs) {
+		List<Log> logList = new ArrayList<Log>();
+		File[] logFiles = getLogFiles(getLogsFolder2());
+		if (logFiles != null) {
+			for (File logFile : logFiles) {
+				Log log = new Log(logs, logFile);
+				logList.add(log);
+			}
+		}
+		Log[] logArray = new Log[logList.size()];
+		logList.toArray(logArray);
+		return logArray;
 	}
 	
-	private File[] getLogs(File logsFolder) {
+	public Log[] getLogs(Logs logs) {
+		Log[] logs1 = getLogs1(logs);
+		Log[] logs2 = getLogs2(logs);
+		List<Log> logList = new ArrayList<Log>();
+		for (Log log : logs1) logList.add(log);
+		for (Log log : logs2) logList.add(log);
+		Log[] logArray = new Log[logList.size()];
+		logList.toArray(logArray);
+		Arrays.sort(logArray);
+		return logArray;
+	}
+	
+	private File[] getLogFiles(File logsFolder) {
 		List<File> logFiles = new ArrayList<File>();
 		File[] logs = null;
 		if (logsFolder != null) {
