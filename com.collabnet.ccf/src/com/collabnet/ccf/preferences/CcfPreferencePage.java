@@ -32,6 +32,8 @@ public class CcfPreferencePage extends PreferencePage implements IWorkbenchPrefe
 	private Text passwordText;
 	private Button autoConnectButton;
 	
+	private Text resetDelayText;
+	
 	private IPreferenceStore store = Activator.getDefault().getPreferenceStore();
 	
 	public static final String ID = "com.collabnet.ccf.preferences";
@@ -52,7 +54,7 @@ public class CcfPreferencePage extends PreferencePage implements IWorkbenchPrefe
 	protected Control createContents(Composite parent) {
 		Composite composite = new Composite(parent, SWT.NULL);
 		GridLayout layout = new GridLayout();
-		layout.numColumns = 1;
+		layout.numColumns = 2;
 		composite.setLayout(layout);
 		GridData gd = new GridData(GridData.FILL_BOTH);
 		composite.setLayoutData(gd);
@@ -62,6 +64,7 @@ public class CcfPreferencePage extends PreferencePage implements IWorkbenchPrefe
 		clientLayout.numColumns = 2;
 		databaseGroup.setLayout(clientLayout);
 		gd = new GridData(GridData.FILL_HORIZONTAL);
+		gd.horizontalSpan = 2;
 		databaseGroup.setLayoutData(gd);	
 		databaseGroup.setText("Database:");
 		
@@ -125,6 +128,13 @@ public class CcfPreferencePage extends PreferencePage implements IWorkbenchPrefe
 			}			
 		});
 		
+		Label resetDelayLabel = new Label(composite, SWT.NONE);
+		resetDelayLabel.setText("Reset synchronization status delay (seconds):");
+		resetDelayText = new Text(composite, SWT.BORDER);
+		gd = new GridData();
+		gd.widthHint = 75;
+		resetDelayText.setLayoutData(gd);
+		
 		initializeValues();
 		
 		return composite;
@@ -142,6 +152,11 @@ public class CcfPreferencePage extends PreferencePage implements IWorkbenchPrefe
 		store.setValue(Activator.PREFERENCES_DATABASE_USER, userText.getText().trim());
 		store.setValue(Activator.PREFERENCES_DATABASE_PASSWORD, passwordText.getText().trim());
 		store.setValue(Activator.PREFERENCES_AUTOCONNECT, autoConnectButton.getSelection());
+		int resetDelay = Activator.DEFAULT_RESET_DELAY;
+		try {
+			resetDelay = Integer.parseInt(resetDelayText.getText().trim());
+		} catch (Exception e) {}
+		store.setValue(Activator.PREFERENCES_RESET_DELAY, resetDelay);
 		if (needsRefresh && HospitalView.getView() != null && HospitalView.getView().isHospitalLoaded()) {
 			HospitalView.getView().refresh();
 		}
@@ -155,6 +170,7 @@ public class CcfPreferencePage extends PreferencePage implements IWorkbenchPrefe
 		userText.setText(Activator.DATABASE_DEFAULT_USER);
 		passwordText.setText(Activator.DATABASE_DEFAULT_PASSWORD);
 		autoConnectButton.setSelection(Activator.DEFAULT_AUTOCONNECT);
+		resetDelayText.setText(Integer.toString(Activator.DEFAULT_RESET_DELAY));
 		super.performDefaults();
 	}
 
@@ -169,6 +185,7 @@ public class CcfPreferencePage extends PreferencePage implements IWorkbenchPrefe
 		userText.setText(store.getString(Activator.PREFERENCES_DATABASE_USER));
 		passwordText.setText(store.getString(Activator.PREFERENCES_DATABASE_PASSWORD));
 		autoConnectButton.setSelection(store.getBoolean(Activator.PREFERENCES_AUTOCONNECT));
+		resetDelayText.setText(Integer.toString(store.getInt(Activator.PREFERENCES_RESET_DELAY)));
 	}
 
 }

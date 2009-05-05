@@ -13,12 +13,14 @@ import java.util.List;
 import java.util.Properties;
 
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.swt.widgets.Display;
 
 import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.model.Landscape;
 import com.collabnet.ccf.model.Patient;
 import com.collabnet.ccf.model.ProjectMappings;
 import com.collabnet.ccf.model.SynchronizationStatus;
+import com.collabnet.ccf.views.CcfExplorerView;
 
 public class CcfDataProvider {	
 	private IPreferenceStore store = Activator.getDefault().getPreferenceStore();
@@ -371,6 +373,7 @@ public class CcfDataProvider {
 		Update update = new Update(CcfDataProvider.SYNCHRONIZATION_STATUS_SOURCE_SYSTEM_KIND, status.getSourceSystemKind() + "_paused");
 		Update[] updates = { update };	
 		updateSynchronizationStatuses(status.getLandscape(), updates, filters);
+		status.setSourceSystemKind(status.getSourceSystemKind() + "_paused");
 	}
 	
 	public void resumeSynchronization(SynchronizationStatus status) throws  SQLException, ClassNotFoundException {
@@ -384,26 +387,58 @@ public class CcfDataProvider {
 			Update update = new Update(CcfDataProvider.SYNCHRONIZATION_STATUS_SOURCE_SYSTEM_KIND, status.getSourceSystemKind().substring(0, index));
 			Update[] updates = { update };	
 			updateSynchronizationStatuses(status.getLandscape(), updates, filters);
+			status.setSourceSystemKind(status.getSourceSystemKind().substring(0, index));
 		}
 	}
 	
-	public void resetSynchronizationStatus(SynchronizationStatus status) throws SQLException, ClassNotFoundException {
+	public void resetSynchronizationStatus(final SynchronizationStatus status) throws SQLException, ClassNotFoundException {
 		// Pause first so that changes are not overlaid.
 		pauseSynchronization(status);
 		
-		Filter sourceSystemFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_SOURCE_SYSTEM_ID, status.getSourceSystemId(), true);
-		Filter sourceRepositoryFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_SOURCE_REPOSITORY_ID, status.getSourceRepositoryId(), true);
-		Filter targetSystemFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_TARGET_SYSTEM_ID, status.getTargetSystemId(), true);
-		Filter targetRepositoryFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_TARGET_REPOSITORY_ID, status.getTargetRepositoryId(), true);
-		Filter[] filters = { sourceSystemFilter, sourceRepositoryFilter, targetSystemFilter, targetRepositoryFilter };
-		Update dateUpdate = new Update(CcfDataProvider.SYNCHRONIZATION_STATUS_LAST_SOURCE_ARTIFACT_MODIFICATION_DATE, "1999-01-01 00:00:00.0");
-		Update versionUpdate = new Update(CcfDataProvider.SYNCHRONIZATION_STATUS_LAST_SOURCE_ARTIFACT_VERSION, "0");
-		Update idUpdate = new Update(CcfDataProvider.SYNCHRONIZATION_STATUS_LAST_SOURCE_ARTIFACT_ID, "0");
-		Update[] updates = { dateUpdate, versionUpdate, idUpdate };
-		updateSynchronizationStatuses(status.getLandscape(), updates, filters);
-
-		// Resume
-		resumeSynchronization(status);
+		Runnable runnable = new Runnable() {
+			public void run() {
+				Filter sourceSystemFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_SOURCE_SYSTEM_ID, status.getSourceSystemId(), true);
+				Filter sourceRepositoryFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_SOURCE_REPOSITORY_ID, status.getSourceRepositoryId(), true);
+				Filter targetSystemFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_TARGET_SYSTEM_ID, status.getTargetSystemId(), true);
+				Filter targetRepositoryFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_TARGET_REPOSITORY_ID, status.getTargetRepositoryId(), true);
+				Filter[] filters = { sourceSystemFilter, sourceRepositoryFilter, targetSystemFilter, targetRepositoryFilter };
+				Update dateUpdate = new Update(CcfDataProvider.SYNCHRONIZATION_STATUS_LAST_SOURCE_ARTIFACT_MODIFICATION_DATE, "1999-01-01 00:00:00.0");
+				Update versionUpdate = new Update(CcfDataProvider.SYNCHRONIZATION_STATUS_LAST_SOURCE_ARTIFACT_VERSION, "0");
+				Update idUpdate = new Update(CcfDataProvider.SYNCHRONIZATION_STATUS_LAST_SOURCE_ARTIFACT_ID, "0");
+				Update[] updates = { dateUpdate, versionUpdate, idUpdate };
+				try {
+					updateSynchronizationStatuses(status.getLandscape(), updates, filters);
+					// Resume
+					resumeSynchronization(status);				
+					if (CcfExplorerView.getView() != null) {
+						Display.getDefault().syncExec(new Runnable() {
+							public void run() {
+								CcfExplorerView.getView().refresh(status.getProjectMappings());
+							}						
+						});
+					}
+				} catch (Exception e) {
+					Activator.handleError(e);
+				}
+			}			
+		};
+		int delay = Activator.getDefault().getPreferenceStore().getInt(Activator.PREFERENCES_RESET_DELAY);
+		runAfterDelay(runnable, delay);
+	}
+	
+	private void runAfterDelay(final Runnable runnable, final int delaySeconds) {
+		Thread thread = new Thread() {
+			@Override
+			public void run() {
+				try {
+					Thread.sleep(delaySeconds * 1000);
+					runnable.run();
+				} catch (InterruptedException e) {
+					Activator.handleError(e);
+				}				
+			}			
+		};
+		thread.start();
 	}
 	
 	public void deleteIdentityMappings(SynchronizationStatus status) throws SQLException, ClassNotFoundException {

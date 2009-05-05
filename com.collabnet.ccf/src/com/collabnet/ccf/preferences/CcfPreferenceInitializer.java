@@ -18,6 +18,7 @@ public class CcfPreferenceInitializer extends AbstractPreferenceInitializer {
 		node.put(Activator.PREFERENCES_DATABASE_PASSWORD, Activator.DATABASE_DEFAULT_PASSWORD);
 		node.putBoolean(Activator.PREFERENCES_AUTOCONNECT, Activator.DEFAULT_AUTOCONNECT);
 		node.put(Activator.PREFERENCES_HOSPITAL_COLUMNS, Activator.DEFAULT_HOSPITAL_COLUMNS);
+		node.putInt(Activator.PREFERENCES_RESET_DELAY, Activator.DEFAULT_RESET_DELAY);
 	}
 
 }
