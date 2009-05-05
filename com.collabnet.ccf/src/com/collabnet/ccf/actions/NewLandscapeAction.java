@@ -4,8 +4,12 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PartInitException;
 
 import com.collabnet.ccf.Activator;
+import com.collabnet.ccf.editors.CcfEditor;
+import com.collabnet.ccf.editors.CcfEditorInput;
 import com.collabnet.ccf.wizards.CustomWizardDialog;
 import com.collabnet.ccf.wizards.NewLandscapeWizard;
 
@@ -31,6 +35,15 @@ public class NewLandscapeAction extends Action {
 		NewLandscapeWizard wizard = new NewLandscapeWizard();
 		WizardDialog dialog = new CustomWizardDialog(Display.getDefault().getActiveShell(), wizard);
 		dialog.open();
+		if (wizard.getNewLandscape() != null) {
+			CcfEditorInput editorInput = new CcfEditorInput(wizard.getNewLandscape());
+			IWorkbenchPage page = Activator.getDefault().getWorkbench().getActiveWorkbenchWindow().getActivePage();
+			try {
+				page.openEditor(editorInput, CcfEditor.ID);
+			} catch (PartInitException e) {
+				Activator.handleError(e);
+			}			
+		}
 	}
 
 }

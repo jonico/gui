@@ -6,11 +6,13 @@ import org.eclipse.jface.wizard.WizardPage;
 
 import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.ILandscapeContributor;
+import com.collabnet.ccf.model.Landscape;
 import com.collabnet.ccf.views.CcfExplorerView;
 
 public class NewLandscapeWizard extends Wizard {
 	private NewLandscapeWizardMainPage mainPage;
 	private ILandscapeContributor[] landscapeContributors;
+	private Landscape newLandscape;
 	
 	private IWizardPage[][] pages;
 
@@ -68,10 +70,17 @@ public class NewLandscapeWizard extends Wizard {
 	@Override
 	public boolean performFinish() {
 		boolean landscapeAdded = Activator.getDefault().storeLandscape(mainPage.getDescription().replaceAll("/", "%slash%"), mainPage.getSelectedLandscapeContributor());
-		if (landscapeAdded && CcfExplorerView.getView() != null) {
-			CcfExplorerView.getView().refresh();
+		if (landscapeAdded) {
+			newLandscape = Activator.getDefault().getLandscape(mainPage.getDescription());
+			if (CcfExplorerView.getView() != null) {
+				CcfExplorerView.getView().refresh();
+			}
 		}
 		return landscapeAdded;
+	}
+	
+	public Landscape getNewLandscape() {
+		return newLandscape;
 	}
 
 }
