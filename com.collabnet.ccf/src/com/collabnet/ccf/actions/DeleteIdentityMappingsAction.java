@@ -14,11 +14,9 @@ import org.eclipse.ui.actions.ActionDelegate;
 
 import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.db.CcfDataProvider;
-import com.collabnet.ccf.model.ProjectMappings;
 import com.collabnet.ccf.model.SynchronizationStatus;
-import com.collabnet.ccf.views.CcfExplorerView;
 
-public class ResetSynchronizationStatusAction extends ActionDelegate {
+public class DeleteIdentityMappingsAction extends ActionDelegate {
 	private IStructuredSelection fSelection;
 	
 	@SuppressWarnings("unchecked")
@@ -33,17 +31,17 @@ public class ResetSynchronizationStatusAction extends ActionDelegate {
 		}
 
 		String message;
+		String warningMessage = "WARNING:  This operation cannot be undone!";
 		if (statuses.size() == 1) {
-			message = "Reset " + statuses.get(0) + " synchronization status?";
+			message = "Delete identity mappings for " + statuses.get(0) + " project mapping?\n\n" + warningMessage;
 		} else {
-			message = "Reset synchronization status for the " + statuses.size() + " selected project mappings?";
+			message = "Delete identity mappings for the " + statuses.size() + " selected project mappings?\n\n" + warningMessage;
 		}
 		
-		if (!MessageDialog.openQuestion(Display.getDefault().getActiveShell(), "Reset Synchronization Status", message)) {
+		if (!MessageDialog.openQuestion(Display.getDefault().getActiveShell(), "Delete Identity Mappings", message)) {
 			return;
 		}
 		
-		final List<ProjectMappings> projectMappingsList = new ArrayList<ProjectMappings>();
 		final CcfDataProvider dataProvider = new CcfDataProvider();
 		BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
 			public void run() {
@@ -51,10 +49,7 @@ public class ResetSynchronizationStatusAction extends ActionDelegate {
 				while (iter.hasNext()) {
 					SynchronizationStatus status = iter.next();
 					try {
-						dataProvider.resetSynchronizationStatus(status);
-						if (!projectMappingsList.contains(status.getProjectMappings())) {
-							projectMappingsList.add(status.getProjectMappings());
-						}
+						dataProvider.deleteIdentityMappings(status);
 					} catch (Exception e) {
 						Activator.handleError(e);
 						break;
@@ -62,11 +57,6 @@ public class ResetSynchronizationStatusAction extends ActionDelegate {
 				}
 			}			
 		});
-		if (CcfExplorerView.getView() != null) {
-			for (ProjectMappings projectMappings: projectMappingsList) {
-				CcfExplorerView.getView().refresh(projectMappings);
-			}
-		}	
 	}
 
 	public void selectionChanged(IAction action, ISelection sel) {

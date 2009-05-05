@@ -120,7 +120,7 @@
                id="com.collabnet.ccf.actions.HospitalStackTraceAction">
          </action>                   
          <action
-               label="Examine/Edit Payload"
+               label="Examine quarantined artifact"
                class="com.collabnet.ccf.actions.ExaminePayloadAction"
                id="com.collabnet.ccf.actions.ExaminePayloadAction">
          </action>                          
@@ -179,7 +179,13 @@
                menubarPath="group.a"
                icon="icons/hospitalView.gif"
                id="com.collabnet.ccf.actions.HospitalAction">
-         </action>                    
+         </action>  
+         <action
+               label="Delete identity mappings"
+               class="com.collabnet.ccf.actions.DeleteIdentityMappingsAction"
+               menubarPath="group.b"
+               id="com.collabnet.ccf.actions.DeleteIdentityMappingsAction">
+         </action>                           
          <action
                label="Reset synchronization status"
                class="com.collabnet.ccf.actions.ResetSynchronizationStatusAction"
