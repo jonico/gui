@@ -155,9 +155,9 @@
             objectClass="com.collabnet.ccf.model.ProjectMappings"
             id="com.collabnet.ccf.model.ProjectMappings">
          <action
-               label="Add project mapping..."
+               label="Project Mapping"
                class="com.collabnet.ccf.actions.AddSynchronizationStatusAction"
-               menubarPath="group.a"
+               menubarPath="group.add/New"
                id="com.collabnet.ccf.actions.AddSynchronizationStatusAction">
          </action> 
          <action

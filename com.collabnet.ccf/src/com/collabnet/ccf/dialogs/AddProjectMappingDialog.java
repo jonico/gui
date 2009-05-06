@@ -148,6 +148,7 @@ public class AddProjectMappingDialog extends CcfDialog {
 				status.setTargetSystemEncoding(projectMappings.getLandscape().getEncoding1());
 			}
 		}
+		status.setSourceSystemKind(status.getSourceSystemKind() + "_paused");
 		BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
 			public void run() {
 				try {
