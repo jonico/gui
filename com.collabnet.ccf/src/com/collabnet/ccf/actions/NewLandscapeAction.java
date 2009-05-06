@@ -15,14 +15,13 @@ import com.collabnet.ccf.wizards.NewLandscapeWizard;
 
 public class NewLandscapeAction extends Action {
 
-	@Override
-	public String getText() {
-		return "Add CCF Landscape...";
+	public NewLandscapeAction(String text) {
+		super(text);
 	}
 
 	@Override
 	public String getToolTipText() {
-		return "Add CCF landscape";
+		return "New CCF landscape";
 	}
 
 	@Override

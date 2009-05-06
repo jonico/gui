@@ -20,6 +20,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
+import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.actions.ActionDelegate;
 import org.eclipse.ui.model.WorkbenchContentProvider;
 import org.eclipse.ui.part.ViewPart;
@@ -106,10 +107,21 @@ public class CcfExplorerView extends ViewPart {
 		});
 		Menu menu = menuMgr.createContextMenu(treeViewer.getControl());
 		treeViewer.getControl().setMenu(menu);
-		getSite().registerContextMenu(menuMgr, treeViewer);		
+		getSite().registerContextMenu(menuMgr, treeViewer);
+		
+		IMenuManager barMenuManager = getViewSite().getActionBars().getMenuManager();
+		NewLandscapeAction newLandscapeAction = new NewLandscapeAction("New CCF Landscape...");
+		barMenuManager.add(newLandscapeAction);
+//		barMenuManager.setRemoveAllWhenShown(true);
 	}
 	
 	private void fillContextMenu(IMenuManager manager) {
+		MenuManager sub = new MenuManager("New", IWorkbenchActionConstants.GROUP_ADD); //$NON-NLS-1$
+		NewLandscapeAction newLandscapeAction = new NewLandscapeAction("CCF Landscape");
+		sub.add(newLandscapeAction);
+		sub.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
+		manager.add(sub);		
+		
 		IStructuredSelection selection = (IStructuredSelection)treeViewer.getSelection();
 		if (selection.size() == 1 && selection.getFirstElement() instanceof Landscape) {
 			ILandscapeContributor landscapeContributor = null;
@@ -134,7 +146,7 @@ public class CcfExplorerView extends ViewPart {
 		IToolBarManager toolbarManager = getViewSite().getActionBars().getToolBarManager();		
 		toolbarManager.add(new RefreshAction());
 		toolbarManager.add(new Separator());
-		toolbarManager.add(new NewLandscapeAction());
+		toolbarManager.add(new NewLandscapeAction("New CCF Landscape..."));
 	}
 
 	@Override
