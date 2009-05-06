@@ -10,7 +10,7 @@ public abstract class CcfEditorPage extends FormPage {
 	
 	public final static String STATE_CONTRACTED = "C";
 	public final static String STATE_EXPANDED = "E";
-	public final static String ACTIVE_PAGE = "CcfEditor.activePage";
+	public final static String ACTIVE_PAGE = "CcfEditor.activePageId";
 
 	public CcfEditorPage(String id, String title) {
 		super(id, title);
@@ -23,7 +23,7 @@ public abstract class CcfEditorPage extends FormPage {
 	@Override
 	public void setActive(boolean active) {
 		if (active) {
-			((CcfEditor)getEditor()).getDialogSettings().put(ACTIVE_PAGE, getIndex());
+			((CcfEditor)getEditor()).getDialogSettings().put(ACTIVE_PAGE, getId());
 		}
 		super.setActive(active);
 	}

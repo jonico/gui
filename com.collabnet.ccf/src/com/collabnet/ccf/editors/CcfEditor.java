@@ -51,11 +51,10 @@ public class CcfEditor extends FormEditor implements ISaveablePart2 {
 		if (landscape.getType1().equals(Landscape.TYPE_PT) || landscape.getType2().equals(Landscape.TYPE_PT)) {
 			createCeePage();
 		}
-		int activePage = 0;
 		try {
-			activePage = settings.getInt(CcfEditorPage.ACTIVE_PAGE);
-			if (activePage >= 0 && activePage < getPageCount()) {
-				setActivePage(activePage);				
+			String activePage = settings.get(CcfEditorPage.ACTIVE_PAGE);
+			if (activePage != null) {
+				setActivePage(activePage);	
 			}
 		} catch (Exception e) {}
 	}
