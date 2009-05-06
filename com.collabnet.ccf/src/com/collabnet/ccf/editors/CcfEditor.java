@@ -54,8 +54,10 @@ public class CcfEditor extends FormEditor implements ISaveablePart2 {
 		int activePage = 0;
 		try {
 			activePage = settings.getInt(CcfEditorPage.ACTIVE_PAGE);
+			if (activePage >= 0 && activePage < getPageCount()) {
+				setActivePage(activePage);				
+			}
 		} catch (Exception e) {}
-		setActivePage(activePage);
 	}
 
 	@Override

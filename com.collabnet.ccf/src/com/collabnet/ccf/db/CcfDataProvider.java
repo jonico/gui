@@ -7,6 +7,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -186,6 +187,12 @@ public class CcfDataProvider {
 			Landscape landscape = projectMappings.getLandscape();
 			connection = getConnection(landscape);
 			stmt = connection.createStatement();
+			String version;
+			if (synchronizationStatus.getSourceSystemKind().startsWith(Landscape.TYPE_PT)) {
+				version = Long.toString(Timestamp.valueOf("1999-01-01 00:00:00.0").getTime());	
+			} else {
+				version = "0";
+			}
 			StringBuffer insertStatement = new StringBuffer(SQL_SYNCHRONIZATION_STATUS_INSERT +
 			" VALUES('" + synchronizationStatus.getSourceSystemId() + "','" +
 			synchronizationStatus.getSourceRepositoryId() + "','" +
@@ -194,7 +201,7 @@ public class CcfDataProvider {
 			synchronizationStatus.getSourceSystemKind() + "','" +
 			synchronizationStatus.getSourceRepositoryKind() + "','" +
 			synchronizationStatus.getTargetSystemKind() + "','" +
-			synchronizationStatus.getTargetRepositoryKind() + "','1999-01-01 00:00:00.0','0','0','" +
+			synchronizationStatus.getTargetRepositoryKind() + "','1999-01-01 00:00:00.0','" + version + "','0','" +
 			synchronizationStatus.getConflictResolutionPriority() + "','" +
 			synchronizationStatus.getSourceSystemTimezone() + "','" +
 			synchronizationStatus.getTargetSystemTimezone() + "',");
@@ -393,7 +400,11 @@ public class CcfDataProvider {
 		}
 	}
 	
-	public void resetSynchronizationStatus(final SynchronizationStatus status) throws SQLException, ClassNotFoundException {
+	public void resetSynchronizationStatus(SynchronizationStatus status) throws SQLException, ClassNotFoundException {
+		resetSynchronizationStatus(status, Timestamp.valueOf("1999-01-01 00:00:00.0"));
+	}
+	
+	public void resetSynchronizationStatus(final SynchronizationStatus status, final Timestamp timestamp) throws SQLException, ClassNotFoundException {
 		// Pause first so that changes are not overlaid.
 		pauseSynchronization(status);
 		
@@ -405,7 +416,14 @@ public class CcfDataProvider {
 				Filter targetRepositoryFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_TARGET_REPOSITORY_ID, status.getTargetRepositoryId(), true);
 				Filter[] filters = { sourceSystemFilter, sourceRepositoryFilter, targetSystemFilter, targetRepositoryFilter };
 				Update dateUpdate = new Update(CcfDataProvider.SYNCHRONIZATION_STATUS_LAST_SOURCE_ARTIFACT_MODIFICATION_DATE, "1999-01-01 00:00:00.0");
-				Update versionUpdate = new Update(CcfDataProvider.SYNCHRONIZATION_STATUS_LAST_SOURCE_ARTIFACT_VERSION, "0");
+				String version;
+				if (status.getSourceSystemKind().startsWith(Landscape.TYPE_PT)) {
+					version = Long.toString(timestamp.getTime());	
+				} else {
+					version = "0";
+				}
+				Update versionUpdate = new Update(CcfDataProvider.SYNCHRONIZATION_STATUS_LAST_SOURCE_ARTIFACT_VERSION, version);
+				
 				Update idUpdate = new Update(CcfDataProvider.SYNCHRONIZATION_STATUS_LAST_SOURCE_ARTIFACT_ID, "0");
 				Update[] updates = { dateUpdate, versionUpdate, idUpdate };
 				try {
