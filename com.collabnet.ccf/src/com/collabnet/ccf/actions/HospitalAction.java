@@ -38,9 +38,12 @@ public class HospitalAction extends ActionDelegate {
 					if (status == null) {
 						HospitalView.setFilters(null, true);
 					} else {
-						Filter sourceSystemFilter = new Filter(CcfDataProvider.HOSPITAL_SOURCE_SYSTEM_ID, status.getSourceSystemId(), true);
+						String sourceSystemKind;
+						if (status.isPaused()) sourceSystemKind = status.getSourceSystemKind().substring(0, 2);
+						else sourceSystemKind = status.getSourceSystemKind();
+						Filter sourceSystemFilter = new Filter(CcfDataProvider.HOSPITAL_SOURCE_SYSTEM_KIND, sourceSystemKind, true, Filter.FILTER_TYPE_LIKE);
 						Filter sourceRepositoryFilter = new Filter(CcfDataProvider.HOSPITAL_SOURCE_REPOSITORY_ID, status.getSourceRepositoryId(), true);
-						Filter targetSystemFilter = new Filter(CcfDataProvider.HOSPITAL_TARGET_SYSTEM_ID, status.getTargetSystemId(), true);
+						Filter targetSystemFilter = new Filter(CcfDataProvider.HOSPITAL_TARGET_SYSTEM_KIND, status.getTargetSystemKind(), true, Filter.FILTER_TYPE_LIKE);
 						Filter targetRepositoryFilter = new Filter(CcfDataProvider.HOSPITAL_TARGET_REPOSITORY_ID, status.getTargetRepositoryId(), true);
 						Filter[] filters = { sourceSystemFilter, sourceRepositoryFilter, targetSystemFilter, targetRepositoryFilter };
 						HospitalView.setFilters(filters, true);

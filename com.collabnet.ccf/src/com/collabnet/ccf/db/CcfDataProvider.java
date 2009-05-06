@@ -242,13 +242,15 @@ public class CcfDataProvider {
 	
 	public SynchronizationStatus[] getSynchronizationStatuses(ProjectMappings projectMappings)  throws SQLException, ClassNotFoundException {
 		Landscape landscape = projectMappings.getLandscape();
-		Filter filter1 = new Filter(SYNCHRONIZATION_STATUS_SOURCE_SYSTEM_ID, landscape.getId1(), true);
-		Filter filter2 = new Filter(SYNCHRONIZATION_STATUS_TARGET_SYSTEM_ID, landscape.getId2(), true);
+		Filter filter1 = new Filter(SYNCHRONIZATION_STATUS_SOURCE_SYSTEM_KIND, landscape.getType1(), true, Filter.FILTER_TYPE_LIKE);
+		Filter filter2 = new Filter(SYNCHRONIZATION_STATUS_TARGET_SYSTEM_KIND, landscape.getType2(), true, Filter.FILTER_TYPE_LIKE);
 		Filter[] orGroup1 = { filter1, filter2 };
-		Filter filter3 = new Filter(SYNCHRONIZATION_STATUS_SOURCE_SYSTEM_ID, landscape.getId2(), true);
-		Filter filter4 = new Filter(SYNCHRONIZATION_STATUS_TARGET_SYSTEM_ID, landscape.getId1(), true);
+		Filter filter3 = new Filter(SYNCHRONIZATION_STATUS_SOURCE_SYSTEM_KIND, landscape.getType2(), true, Filter.FILTER_TYPE_LIKE);
+		Filter filter4 = new Filter(SYNCHRONIZATION_STATUS_TARGET_SYSTEM_KIND, landscape.getType1(), true, Filter.FILTER_TYPE_LIKE);
 		Filter[] orGroup2 = { filter3, filter4 };
+
 		Filter[][] filters = { orGroup1, orGroup2 };
+
 		SynchronizationStatus[] statuses = getSynchronizationStatuses(projectMappings, filters);
 		Arrays.sort(statuses);
 		return statuses;

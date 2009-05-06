@@ -415,9 +415,7 @@ public class HospitalView extends ViewPart {
 		updateFilterList(filterList, CcfDataProvider.HOSPITAL_DATA, true);
 		updateFilterList(filterList, CcfDataProvider.HOSPITAL_FIXED, false);
 		updateFilterList(filterList, CcfDataProvider.HOSPITAL_REPROCESSED, false);
-		updateFilterList(filterList, CcfDataProvider.HOSPITAL_SOURCE_SYSTEM_ID, true);
 		updateFilterList(filterList, CcfDataProvider.HOSPITAL_SOURCE_REPOSITORY_ID, true);
-		updateFilterList(filterList, CcfDataProvider.HOSPITAL_TARGET_SYSTEM_ID, true);
 		updateFilterList(filterList, CcfDataProvider.HOSPITAL_TARGET_REPOSITORY_ID, true);	
 		updateFilterList(filterList, CcfDataProvider.HOSPITAL_SOURCE_SYSTEM_KIND, true);
 		updateFilterList(filterList, CcfDataProvider.HOSPITAL_SOURCE_REPOSITORY_KIND, true);

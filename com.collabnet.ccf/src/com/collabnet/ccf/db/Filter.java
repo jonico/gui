@@ -112,7 +112,7 @@ public class Filter {
 			if (i > 0) query.append(" OR "); //$NON-NLS-1$
 			query.append("("); //$NON-NLS-1$
 			Filter[] orGroup = filters[i];
-			for (int j = 0; j < filters.length; j++) {
+			for (int j = 0; j < orGroup.length; j++) {
 				if (j > 0) query.append(" AND "); //$NON-NLS-1$
 				query.append(orGroup[j].toString());
 			}

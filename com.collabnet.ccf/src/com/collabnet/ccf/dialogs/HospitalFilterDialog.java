@@ -24,9 +24,7 @@ public class HospitalFilterDialog extends CcfDialog {
 	private boolean filtersActive;
 	
 	private Button filtersActiveButton;
-	
-	private Text sourceSystemIdText;
-	private Combo sourceSystemIdCombo;
+
 	private Text sourceRepositoryIdText;
 	private Combo sourceRepositoryIdCombo;
 	private Text sourceSystemKindText;
@@ -37,9 +35,7 @@ public class HospitalFilterDialog extends CcfDialog {
 	private Combo sourceArtifactIdCombo;
 	private Text sourceArtifactVersionText;
 	private Combo sourceArtifactVersionCombo;
-	
-	private Text targetSystemIdText;
-	private Combo targetSystemIdCombo;
+
 	private Text targetRepositoryIdText;
 	private Combo targetRepositoryIdCombo;
 	private Text targetSystemKindText;
@@ -107,14 +103,7 @@ public class HospitalFilterDialog extends CcfDialog {
 		sourceGroup.setLayout(sourceLayout);
 		data = new GridData(GridData.FILL_BOTH);
 		sourceGroup.setLayoutData(data);
-		
-		Label sourceSystemIdLabel = new Label(sourceGroup, SWT.NONE);
-		sourceSystemIdLabel.setText("System ID:");
-		sourceSystemIdText = new Text(sourceGroup, SWT.BORDER);
-		data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
-		sourceSystemIdText.setLayoutData(data);
-		sourceSystemIdCombo = createCombo(sourceGroup);
-		
+
 		Label sourceRepositoryIdLabel = new Label(sourceGroup, SWT.NONE);
 		sourceRepositoryIdLabel.setText("Repository ID:");
 		sourceRepositoryIdText = new Text(sourceGroup, SWT.BORDER);
@@ -157,14 +146,7 @@ public class HospitalFilterDialog extends CcfDialog {
 		targetGroup.setLayout(targetLayout);
 		data = new GridData(GridData.FILL_BOTH);
 		targetGroup.setLayoutData(data);
-		
-		Label targetSystemIdLabel = new Label(targetGroup, SWT.NONE);
-		targetSystemIdLabel.setText("System ID:");
-		targetSystemIdText = new Text(targetGroup, SWT.BORDER);
-		data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
-		targetSystemIdText.setLayoutData(data);
-		targetSystemIdCombo = createCombo(targetGroup);
-		
+
 		Label targetRepositoryIdLabel = new Label(targetGroup, SWT.NONE);
 		targetRepositoryIdLabel.setText("Repository ID:");
 		targetRepositoryIdText = new Text(targetGroup, SWT.BORDER);
@@ -368,13 +350,11 @@ public class HospitalFilterDialog extends CcfDialog {
 		updateFilterList(filterList, CcfDataProvider.HOSPITAL_CAUSE_EXCEPTION_MESSAGE, true, causeExceptionMessageText, causeExceptionMessageCombo, settings);
 		updateFilterList(filterList, CcfDataProvider.HOSPITAL_STACK_TRACE, true, stackTraceText, stackTraceCombo, settings);
 		updateFilterList(filterList, CcfDataProvider.HOSPITAL_ERROR_CODE, true, errorCodeText, errorCodeCombo, settings);		
-		updateFilterList(filterList, CcfDataProvider.HOSPITAL_SOURCE_SYSTEM_ID, true, sourceSystemIdText, sourceSystemIdCombo, settings);
 		updateFilterList(filterList, CcfDataProvider.HOSPITAL_SOURCE_REPOSITORY_ID, true, sourceRepositoryIdText, sourceRepositoryIdCombo, settings);
 		updateFilterList(filterList, CcfDataProvider.HOSPITAL_SOURCE_SYSTEM_KIND, true, sourceSystemKindText, sourceSystemKindCombo, settings);
 		updateFilterList(filterList, CcfDataProvider.HOSPITAL_SOURCE_REPOSITORY_KIND, true, sourceRepositoryKindText, sourceRepositoryKindCombo, settings);
 		updateFilterList(filterList, CcfDataProvider.HOSPITAL_SOURCE_ARTIFACT_ID, true, sourceArtifactIdText, sourceArtifactIdCombo, settings);
 		updateFilterList(filterList, CcfDataProvider.HOSPITAL_SOURCE_ARTIFACT_VERSION, true, sourceArtifactVersionText, sourceArtifactVersionCombo, settings);
-		updateFilterList(filterList, CcfDataProvider.HOSPITAL_TARGET_SYSTEM_ID, true, targetSystemIdText, targetSystemIdCombo, settings);
 		updateFilterList(filterList, CcfDataProvider.HOSPITAL_TARGET_REPOSITORY_ID, true, targetRepositoryIdText, targetRepositoryIdCombo, settings);
 		updateFilterList(filterList, CcfDataProvider.HOSPITAL_TARGET_SYSTEM_KIND, true, targetSystemKindText, targetSystemKindCombo, settings);
 		updateFilterList(filterList, CcfDataProvider.HOSPITAL_TARGET_REPOSITORY_KIND, true, targetRepositoryKindText, targetRepositoryKindCombo, settings);
@@ -453,10 +433,6 @@ public class HospitalFilterDialog extends CcfDialog {
 					stackTraceText.setText(filters[i].getValue());
 					setComboSelection(stackTraceCombo, filters[i]);
 				}			
-				else if (filters[i].getColumnName().equals(CcfDataProvider.HOSPITAL_SOURCE_SYSTEM_ID)) {
-					sourceSystemIdText.setText(filters[i].getValue());
-					setComboSelection(sourceSystemIdCombo, filters[i]);
-				}
 				else if (filters[i].getColumnName().equals(CcfDataProvider.HOSPITAL_SOURCE_REPOSITORY_ID)) {
 					sourceRepositoryIdText.setText(filters[i].getValue());
 					setComboSelection(sourceRepositoryIdCombo, filters[i]);
@@ -477,10 +453,6 @@ public class HospitalFilterDialog extends CcfDialog {
 					sourceArtifactVersionText.setText(filters[i].getValue());
 					setComboSelection(sourceArtifactVersionCombo, filters[i]);
 				}		
-				else if (filters[i].getColumnName().equals(CcfDataProvider.HOSPITAL_TARGET_SYSTEM_ID)) {
-					targetSystemIdText.setText(filters[i].getValue());
-					setComboSelection(targetSystemIdCombo, filters[i]);
-				}
 				else if (filters[i].getColumnName().equals(CcfDataProvider.HOSPITAL_TARGET_REPOSITORY_ID)) {
 					targetRepositoryIdText.setText(filters[i].getValue());
 					setComboSelection(targetRepositoryIdCombo, filters[i]);

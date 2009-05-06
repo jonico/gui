@@ -47,7 +47,6 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 	private Properties properties;
 	
 	private Text urlText;
-	private Text idText;
 	private Text userText;
 	private Text displayNameText;
 	private Text passwordText;
@@ -59,7 +58,6 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 	private Combo timeZonesCombo;
 	
 	private String url;
-	private String id;
 	private String user;
 	private String displayName;
 	private String password;
@@ -164,12 +162,7 @@ public class CcfSystemEditorPage extends CcfEditorPage {
         urlText = toolkit.createText(systemSectionClient, url);
 		GridData gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
 		urlText.setLayoutData(gd);
-		
-        toolkit.createLabel(systemSectionClient, "ID:");
-        idText = toolkit.createText(systemSectionClient, id);
-		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
-		idText.setLayoutData(gd);
-		
+
         toolkit.createLabel(systemSectionClient, "Encoding:");
         encodingText = toolkit.createText(systemSectionClient, encoding);
 		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
@@ -292,7 +285,6 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 		};
 		
 		urlText.addModifyListener(modifyListener);
-		idText.addModifyListener(modifyListener);
 		encodingText.addModifyListener(modifyListener);
 		attachmentSizeText.addModifyListener(modifyListener);
 		userText.addModifyListener(modifyListener);
@@ -320,7 +312,6 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 		};
 		
 		urlText.addFocusListener(focusListener);
-		idText.addFocusListener(focusListener);
 		encodingText.addFocusListener(focusListener);
 		attachmentSizeText.addFocusListener(focusListener);
 		userText.addFocusListener(focusListener);
@@ -335,7 +326,7 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 	
 	@Override
 	public boolean canLeaveThePage() {
-		if (urlText.getText().trim().length() == 0 || idText.getText().trim().length() == 0) return false;
+		if (urlText.getText().trim().length() == 0) return false;
 		if (attachmentSizeText.getText().trim().length() > 0) {
 			int maxSize = 0;
 			try {
@@ -349,7 +340,6 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 	public boolean isDirty() {
 		if (urlText == null) return false;
 		return !urlText.getText().trim().equals(url) ||
-		!idText.getText().trim().equals(id) ||
 		!encodingText.getText().trim().equals(encoding) ||
 		!attachmentSizeText.getText().trim().equals(attachmentSize) ||
 		!timeZonesCombo.getText().equals(timezone) ||
@@ -365,7 +355,6 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 	public void doSave(IProgressMonitor monitor) {
 		if (urlText == null) return;
 		try {
-			properties.setProperty(Activator.PROPERTIES_SYSTEM_ID, idText.getText().trim());
 			properties.setProperty(Activator.PROPERTIES_SYSTEM_TIMEZONE, timeZonesCombo.getText());
 			properties.setProperty(Activator.PROPERTIES_SYSTEM_ENCODING, encodingText.getText().trim());
 			
@@ -429,7 +418,6 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 	}
 	
 	private void initializeQcValues() {
-		id = properties.getProperty(Activator.PROPERTIES_SYSTEM_ID, "Quality Center"); //$NON-NLS-1$
 		url = properties.getProperty(Activator.PROPERTIES_QC_URL, "");
 		user = properties.getProperty(Activator.PROPERTIES_QC_USER, "");
 		password = properties.getProperty(Activator.PROPERTIES_QC_PASSWORD, "");
@@ -439,7 +427,6 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 	}
 	
 	private void initializeTeamForgeValues() {
-		id = properties.getProperty(Activator.PROPERTIES_SYSTEM_ID, "TeamForge"); //$NON-NLS-1$
 		url = properties.getProperty(Activator.PROPERTIES_SFEE_URL, "");
 		user = properties.getProperty(Activator.PROPERTIES_SFEE_USER, "");
 		password = properties.getProperty(Activator.PROPERTIES_SFEE_PASSWORD, "");	
@@ -449,7 +436,6 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 	}
 	
 	private void initializeCeeValues() {
-		id = properties.getProperty(Activator.PROPERTIES_SYSTEM_ID, "Project Tracker"); //$NON-NLS-1$
 		url = properties.getProperty(Activator.PROPERTIES_CEE_URL, "");
 		user = properties.getProperty(Activator.PROPERTIES_CEE_USER, "");
 		displayName = properties.getProperty(Activator.PROPERTIES_CEE_DISPLAY_NAME, "");

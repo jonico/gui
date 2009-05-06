@@ -21,6 +21,7 @@ import org.eclipse.swt.widgets.Text;
 
 import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.db.CcfDataProvider;
+import com.collabnet.ccf.model.Landscape;
 import com.collabnet.ccf.model.ProjectMappings;
 import com.collabnet.ccf.model.SynchronizationStatus;
 
@@ -63,10 +64,10 @@ public class AddProjectMappingDialog extends CcfDialog {
 		directionGroup.setText("Direction:");
 
 		system2ToSystem1Button = new Button(directionGroup, SWT.RADIO);
-		system2ToSystem1Button.setText(projectMappings.getLandscape().getId2() + " => " + projectMappings.getLandscape().getId1());
+		system2ToSystem1Button.setText(Landscape.getTypeDescription(projectMappings.getLandscape().getType2()) + " => " + Landscape.getTypeDescription(projectMappings.getLandscape().getType1()));
 
 		system1ToSystem2Button = new Button(directionGroup, SWT.RADIO);
-		system1ToSystem2Button.setText(projectMappings.getLandscape().getId1() + " => " + projectMappings.getLandscape().getId2());
+		system1ToSystem2Button.setText(Landscape.getTypeDescription(projectMappings.getLandscape().getType1()) + " => " + Landscape.getTypeDescription(projectMappings.getLandscape().getType2()));
 		
 		system2ToSystem1Button.setSelection(true);
 		

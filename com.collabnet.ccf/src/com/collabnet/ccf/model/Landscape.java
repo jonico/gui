@@ -39,6 +39,10 @@ public class Landscape implements IPropertySource {
 	public final static String TYPE_PT = "PT";
 	public final static String TYPE_CCF = "CCF";
 	
+	public final static String TYPE_DESCRIPTION_QC = "Quality Center";
+	public final static String TYPE_DESCRIPTION_TF = "TeamForge";
+	public final static String TYPE_DESCRIPTION_PT = "Project Tracker";
+	
 	public static String P_ID_DESCRIPTION = "desc"; //$NON-NLS-1$
 	public static String P_DESCRIPTION = "Description";
 	public static String P_ID_TYPE1 = "type1"; //$NON-NLS-1$
@@ -184,41 +188,11 @@ public class Landscape implements IPropertySource {
 	}
 	
 	public String getId1() {
-		String id = null;
-		properties1 = getProperties1();
-		if (properties1 != null) {
-			String defaultId = null;
-			if (type1.equals(TYPE_QC)) {
-				defaultId = "Quality Center";
-			}
-			else if (type1.equals(TYPE_TF)) {
-				defaultId = "TeamForge";
-			}
-			else if (type1.equals(TYPE_PT)) {
-				defaultId = "Project Tracker";
-			}
-			id = properties1.getProperty(Activator.PROPERTIES_SYSTEM_ID, defaultId);
-		}
-		return id;
+		return getTypeDescription(type1);
 	}
 	
 	public String getId2() {
-		String id = null;
-		properties2 = getProperties2();
-		if (properties2 != null) {
-			String defaultId = null;
-			if (type2.equals(TYPE_QC)) {
-				defaultId = "Quality Center";
-			}
-			else if (type2.equals(TYPE_TF)) {
-				defaultId = "TeamForge";
-			}
-			else if (type2.equals(TYPE_PT)) {
-				defaultId = "Project Tracker";
-			}
-			id = properties2.getProperty(Activator.PROPERTIES_SYSTEM_ID, defaultId);
-		}
-		return id;
+		return getTypeDescription(type2);
 	}
 	
 	public String getTimezone1() {
@@ -377,6 +351,22 @@ public class Landscape implements IPropertySource {
 		logList.toArray(logArray);
 		Arrays.sort(logArray);
 		return logArray;
+	}
+	
+	public static String getTypeDescription(String type) {
+		String description;
+		if (type.equals(TYPE_QC)) {
+			description = TYPE_DESCRIPTION_QC;
+		}
+		else if (type.equals(TYPE_TF)) {
+			description = TYPE_DESCRIPTION_TF;
+		}
+		else if (type.equals(TYPE_PT)) {
+			description = TYPE_DESCRIPTION_PT;
+		} else {
+			description = type;
+		}
+		return description;
 	}
 	
 	private File[] getLogFiles(File logsFolder) {
