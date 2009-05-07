@@ -27,6 +27,7 @@ import org.eclipse.ui.part.ViewPart;
 
 import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.ILandscapeContributor;
+import com.collabnet.ccf.actions.ChangeSynchronizationStatusAction;
 import com.collabnet.ccf.actions.EditLandscapeAction;
 import com.collabnet.ccf.actions.EditLogAction;
 import com.collabnet.ccf.actions.NewLandscapeAction;
@@ -82,6 +83,9 @@ public class CcfExplorerView extends ViewPart {
 					}
 					else if (selection.getFirstElement() instanceof Log) {
 						action = new EditLogAction();
+					}
+					else if (selection.getFirstElement() instanceof SynchronizationStatus) {
+						action = new ChangeSynchronizationStatusAction();
 					}
 					if (action != null) {
 						action.selectionChanged(null, selection);

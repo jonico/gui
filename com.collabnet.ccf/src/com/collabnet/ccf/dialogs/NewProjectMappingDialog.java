@@ -25,13 +25,16 @@ import com.collabnet.ccf.model.Landscape;
 import com.collabnet.ccf.model.ProjectMappings;
 import com.collabnet.ccf.model.SynchronizationStatus;
 
-public class AddProjectMappingDialog extends CcfDialog {
+public class NewProjectMappingDialog extends CcfDialog {
 	private ProjectMappings projectMappings;
 	
 	private Button system1ToSystem2Button;
 	private Button system2ToSystem1Button;
-	private Text sourceRepositoryIdText;
-	private Text targetRepositoryIdText;
+	
+	private Text trackerText;
+	private Text qcProjectText;
+	private Text qcDomainText;
+	
 	private Combo conflictResolutionCombo;
 	
 	private Button okButton;
@@ -39,15 +42,15 @@ public class AddProjectMappingDialog extends CcfDialog {
 	private boolean addError;
 	
 	private IDialogSettings settings = Activator.getDefault().getDialogSettings();
-	private static final String PREVIOUS_CONFLICT_RESOLUTION_PRIORITY = "AddProjectMappingDialog.conflictResolutionPriority";
+	private static final String PREVIOUS_CONFLICT_RESOLUTION_PRIORITY = "NewProjectMappingDialog.conflictResolutionPriority";
 	
-	public AddProjectMappingDialog(Shell shell, ProjectMappings projectMappings) {
-		super(shell, "AddProjectMappingDialog");
+	public NewProjectMappingDialog(Shell shell, ProjectMappings projectMappings) {
+		super(shell, "NewProjectMappingDialog");
 		this.projectMappings = projectMappings;
 	}
 	
 	protected Control createDialogArea(Composite parent) {
-		getShell().setText("Add Project Mapping");
+		getShell().setText("New Project Mapping");
 		Composite composite = new Composite(parent, SWT.NULL);
 		GridLayout layout = new GridLayout();
 		layout.numColumns = 2;
@@ -71,19 +74,48 @@ public class AddProjectMappingDialog extends CcfDialog {
 		
 		system2ToSystem1Button.setSelection(true);
 		
-		Label sourceRepositoryIdLabel = new Label(composite, SWT.NONE);
-		sourceRepositoryIdLabel.setText("Source repository ID:");
-		
-		sourceRepositoryIdText = new Text(composite, SWT.BORDER);
+		Group qcGroup = new Group(composite, SWT.NULL);
+		GridLayout qcLayout = new GridLayout();
+		qcLayout.numColumns = 2;
+		qcGroup.setLayout(qcLayout);
 		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
-		sourceRepositoryIdText.setLayoutData(gd);
+		gd.horizontalSpan = 2;
+		qcGroup.setLayoutData(gd);	
+		qcGroup.setText("Quality Center:");
 		
-		Label targetRepositoryIdLabel = new Label(composite, SWT.NONE);
-		targetRepositoryIdLabel.setText("Target repository ID:");
+		Label domainLabel = new Label(qcGroup, SWT.NONE);
+		domainLabel.setText("Domain:");
 		
-		targetRepositoryIdText = new Text(composite, SWT.BORDER);
+		qcDomainText = new Text(qcGroup, SWT.BORDER);
 		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
-		targetRepositoryIdText.setLayoutData(gd);
+		qcDomainText.setLayoutData(gd);	
+		
+		Label projectLabel = new Label(qcGroup, SWT.NONE);
+		projectLabel.setText("Project:");
+		
+		qcProjectText = new Text(qcGroup, SWT.BORDER);
+		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
+		qcProjectText.setLayoutData(gd);
+		
+		Group otherGroup = new Group(composite, SWT.NULL);
+		GridLayout otherLayout = new GridLayout();
+		otherLayout.numColumns = 2;
+		otherGroup.setLayout(otherLayout);
+		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
+		gd.horizontalSpan = 2;
+		otherGroup.setLayoutData(gd);	
+		if (projectMappings.getLandscape().getType1().equals(Landscape.TYPE_PT) || projectMappings.getLandscape().getType2().equals(Landscape.TYPE_PT)) {
+			otherGroup.setText(Landscape.TYPE_DESCRIPTION_PT + ":");
+		} else {
+			otherGroup.setText(Landscape.TYPE_DESCRIPTION_TF + ":");
+		}
+		
+		Label trackerLabel = new Label(otherGroup, SWT.NONE);
+		trackerLabel.setText("Tracker ID:");
+		
+		trackerText = new Text(otherGroup, SWT.BORDER);
+		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
+		trackerText.setLayoutData(gd);
 		
 		Label conflictResolutionPriorityLabel = new Label(composite, SWT.NONE);
 		conflictResolutionPriorityLabel.setText("Conflict resolution priority:");
@@ -103,8 +135,9 @@ public class AddProjectMappingDialog extends CcfDialog {
 			}			
 		};
 		
-		sourceRepositoryIdText.addModifyListener(modifyListener);
-		targetRepositoryIdText.addModifyListener(modifyListener);
+		trackerText.addModifyListener(modifyListener);
+		qcProjectText.addModifyListener(modifyListener);
+		qcDomainText.addModifyListener(modifyListener);
 		
 		return composite;
 	}
@@ -114,10 +147,12 @@ public class AddProjectMappingDialog extends CcfDialog {
 		addError = false;
 		settings.put(PREVIOUS_CONFLICT_RESOLUTION_PRIORITY, conflictResolutionCombo.getText());
 		final SynchronizationStatus status = new SynchronizationStatus();
-		status.setSourceRepositoryId(sourceRepositoryIdText.getText().trim());
-		status.setTargetRepositoryId(targetRepositoryIdText.getText().trim());
 		status.setConflictResolutionPriority(conflictResolutionCombo.getText());
 		if (system1ToSystem2Button.getSelection()) {
+			
+			status.setSourceRepositoryId(qcDomainText.getText().trim() + "-" + qcProjectText.getText().trim());
+			status.setTargetRepositoryId(trackerText.getText().trim());
+			
 			status.setSourceSystemId(projectMappings.getLandscape().getId1());			
 			status.setTargetSystemId(projectMappings.getLandscape().getId2());			
 			status.setSourceSystemKind(projectMappings.getLandscape().getType1());			
@@ -134,6 +169,10 @@ public class AddProjectMappingDialog extends CcfDialog {
 			}
 		}
 		if (system2ToSystem1Button.getSelection()) {
+			
+			status.setTargetRepositoryId(qcDomainText.getText().trim() + "-" + qcProjectText.getText().trim());
+			status.setSourceRepositoryId(trackerText.getText().trim());	
+			
 			status.setSourceSystemId(projectMappings.getLandscape().getId2());
 			status.setTargetSystemId(projectMappings.getLandscape().getId1());
 			status.setSourceSystemKind(projectMappings.getLandscape().getType2());
@@ -158,14 +197,14 @@ public class AddProjectMappingDialog extends CcfDialog {
 				} catch (Exception e) {
 					Activator.handleError(e);
 					addError = true;
-					MessageDialog.openError(getShell(), "Add Project Mapping", e.getMessage());
+					MessageDialog.openError(getShell(), "New Project Mapping", e.getMessage());
 				}
 			}			
 		});
 		if (addError) return;
 		super.okPressed();
-	}
-
+	}	
+	
 	protected Button createButton(Composite parent, int id, String label, boolean defaultButton) {
         Button button = super.createButton(parent, id, label, defaultButton);
 		if (id == IDialogConstants.OK_ID) {
@@ -176,8 +215,9 @@ public class AddProjectMappingDialog extends CcfDialog {
     }
 	
 	private boolean canFinish() {
-		return sourceRepositoryIdText.getText().trim().length() > 0 &&
-		targetRepositoryIdText.getText().trim().length() > 0;
+		return trackerText.getText().trim().length() > 0 &&
+		qcProjectText.getText().trim().length() > 0 &&
+		qcDomainText.getText().trim().length() > 0;
 	}
 
 }

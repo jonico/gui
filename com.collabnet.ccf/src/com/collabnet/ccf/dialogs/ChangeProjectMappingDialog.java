@@ -15,6 +15,7 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
@@ -29,8 +30,10 @@ import com.collabnet.ccf.model.SynchronizationStatus;
 public class ChangeProjectMappingDialog extends CcfDialog {
 	private SynchronizationStatus status;
 	
-	private Text sourceRepositoryIdText;
-	private Text targetRepositoryIdText;
+	private Text trackerText;
+	private Text qcProjectText;
+	private Text qcDomainText;
+	
 	private Combo conflictResolutionCombo;
 	
 	private Button okButton;
@@ -49,24 +52,52 @@ public class ChangeProjectMappingDialog extends CcfDialog {
 		layout.numColumns = 2;
 		composite.setLayout(layout);
 		composite.setLayoutData(new GridData(GridData.FILL_BOTH));
-		
-		Label sourceRepositoryIdLabel = new Label(composite, SWT.NONE);
-		sourceRepositoryIdLabel.setText("Source repository ID:");
-		
-		sourceRepositoryIdText = new Text(composite, SWT.BORDER);
+
+		Group qcGroup = new Group(composite, SWT.NULL);
+		GridLayout qcLayout = new GridLayout();
+		qcLayout.numColumns = 2;
+		qcGroup.setLayout(qcLayout);
 		GridData gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
-		sourceRepositoryIdText.setLayoutData(gd);
+		gd.horizontalSpan = 2;
+		qcGroup.setLayoutData(gd);	
+		qcGroup.setText("Quality Center:");
 		
-		sourceRepositoryIdText.setText(status.getSourceRepositoryId());
+		Label domainLabel = new Label(qcGroup, SWT.NONE);
+		domainLabel.setText("Domain:");
 		
-		Label targetRepositoryIdLabel = new Label(composite, SWT.NONE);
-		targetRepositoryIdLabel.setText("Target repository ID:");
-		
-		targetRepositoryIdText = new Text(composite, SWT.BORDER);
+		qcDomainText = new Text(qcGroup, SWT.BORDER);
 		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
-		targetRepositoryIdText.setLayoutData(gd);
+		qcDomainText.setLayoutData(gd);	
+		qcDomainText.setText(getQcDomain());
 		
-		targetRepositoryIdText.setText(status.getTargetRepositoryId());
+		Label projectLabel = new Label(qcGroup, SWT.NONE);
+		projectLabel.setText("Project:");
+		
+		qcProjectText = new Text(qcGroup, SWT.BORDER);
+		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
+		qcProjectText.setLayoutData(gd);
+		qcProjectText.setText(getQcProject());
+		
+		Group otherGroup = new Group(composite, SWT.NULL);
+		GridLayout otherLayout = new GridLayout();
+		otherLayout.numColumns = 2;
+		otherGroup.setLayout(otherLayout);
+		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
+		gd.horizontalSpan = 2;
+		otherGroup.setLayoutData(gd);	
+		if (status.getLandscape().getType1().equals(Landscape.TYPE_PT) || status.getLandscape().getType2().equals(Landscape.TYPE_PT)) {
+			otherGroup.setText(Landscape.TYPE_DESCRIPTION_PT + ":");
+		} else {
+			otherGroup.setText(Landscape.TYPE_DESCRIPTION_TF + ":");
+		}
+		
+		Label trackerLabel = new Label(otherGroup, SWT.NONE);
+		trackerLabel.setText("Tracker ID:");
+		
+		trackerText = new Text(otherGroup, SWT.BORDER);
+		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
+		trackerText.setLayoutData(gd);
+		trackerText.setText(getTrackerId());
 		
 		Label conflictResolutionPriorityLabel = new Label(composite, SWT.NONE);
 		conflictResolutionPriorityLabel.setText("Conflict resolution priority:");
@@ -88,9 +119,10 @@ public class ChangeProjectMappingDialog extends CcfDialog {
 				okButton.setEnabled(canFinish());
 			}			
 		};
-		
-		sourceRepositoryIdText.addModifyListener(modifyListener);
-		targetRepositoryIdText.addModifyListener(modifyListener);
+
+		trackerText.addModifyListener(modifyListener);
+		qcProjectText.addModifyListener(modifyListener);
+		qcDomainText.addModifyListener(modifyListener);
 		
 		return composite;
 	}
@@ -108,8 +140,20 @@ public class ChangeProjectMappingDialog extends CcfDialog {
 					Filter targetSystemFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_TARGET_SYSTEM_ID, status.getTargetSystemId(), true);
 					Filter targetRepositoryFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_TARGET_REPOSITORY_ID, status.getTargetRepositoryId(), true);
 					Filter[] filters = { sourceSystemFilter, sourceRepositoryFilter, targetSystemFilter, targetRepositoryFilter };
-					Update sourceRepositoryUpdate = new Update(CcfDataProvider.SYNCHRONIZATION_STATUS_SOURCE_REPOSITORY_ID, sourceRepositoryIdText.getText().trim());
-					Update targetRepositoryUpdate = new Update(CcfDataProvider.SYNCHRONIZATION_STATUS_TARGET_REPOSITORY_ID, targetRepositoryIdText.getText().trim());
+					
+					String sourceRepository;
+					String targetRepository;
+					
+					if (status.getSourceSystemKind().startsWith(Landscape.TYPE_QC)) {
+						targetRepository = trackerText.getText().trim();
+						sourceRepository = qcDomainText.getText().trim() + "-" + qcProjectText.getText().trim();
+					} else {
+						targetRepository = qcDomainText.getText().trim() + "-" + qcProjectText.getText().trim();
+						sourceRepository = trackerText.getText().trim();
+					}					
+					
+					Update sourceRepositoryUpdate = new Update(CcfDataProvider.SYNCHRONIZATION_STATUS_SOURCE_REPOSITORY_ID, sourceRepository);
+					Update targetRepositoryUpdate = new Update(CcfDataProvider.SYNCHRONIZATION_STATUS_TARGET_REPOSITORY_ID, targetRepository);
 					Update conflictResolutionPriorityUpdate = new Update(CcfDataProvider.SYNCHRONIZATION_STATUS_CONFLICT_RESOLUTION_PRIORITY, conflictResolutionCombo.getText().trim());
 					Update[] updates = { sourceRepositoryUpdate, targetRepositoryUpdate, conflictResolutionPriorityUpdate };						
 					dataProvider.updateSynchronizationStatuses(landscape, updates, filters);
@@ -132,10 +176,45 @@ public class ChangeProjectMappingDialog extends CcfDialog {
 		}
         return button;
     }
-	
+
 	private boolean canFinish() {
-		return sourceRepositoryIdText.getText().trim().length() > 0 &&
-		targetRepositoryIdText.getText().trim().length() > 0;
-	}	
+		return trackerText.getText().trim().length() > 0 &&
+		qcProjectText.getText().trim().length() > 0 &&
+		qcDomainText.getText().trim().length() > 0;
+	}
+	
+	private String getTrackerId() {
+		String trackerId;
+		if (status.getSourceSystemKind().startsWith(Landscape.TYPE_QC)) {
+			trackerId = status.getTargetRepositoryId();
+		} else {
+			trackerId = status.getSourceRepositoryId();
+		}
+		return trackerId;
+	}
+	
+	private String getQcDomain() {
+		String repositoryId;
+		if (status.getSourceSystemKind().startsWith(Landscape.TYPE_QC)) {
+			repositoryId = status.getSourceRepositoryId();
+		} else {
+			repositoryId = status.getTargetRepositoryId();
+		}
+		int index = repositoryId.indexOf("-");
+		if (index == -1) return "";
+		else return repositoryId.substring(0, index);
+	}
+	
+	private String getQcProject() {
+		String repositoryId;
+		if (status.getSourceSystemKind().startsWith(Landscape.TYPE_QC)) {
+			repositoryId = status.getSourceRepositoryId();
+		} else {
+			repositoryId = status.getTargetRepositoryId();
+		}
+		int index = repositoryId.indexOf("-");
+		if (index == -1) return "";
+		else return repositoryId.substring(index + 1);
+	}
 
 }
