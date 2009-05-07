@@ -33,6 +33,8 @@ public class Landscape implements IPropertySource {
 	private File configFile2;
 	private File logsFolder1;
 	private File logsFolder2;
+	private File xsltFolder1;
+	private File xsltFolder2;
 	
 	public final static String TYPE_QC = "QC";
 	public final static String TYPE_TF = "TF";
@@ -311,6 +313,28 @@ public class Landscape implements IPropertySource {
 		File configurationFolder = new File(config);
 		File logsFolder = new File(configurationFolder.getParent(), "logs");
 		return logsFolder;
+	}
+	
+	public File getXsltFolder1() {
+		if (xsltFolder1 == null) {
+			xsltFolder1 = getXsltFolder(configurationFolder1);
+		}
+		if (xsltFolder1.exists()) return xsltFolder1;
+		else return null;
+	}
+	
+	public File getXsltFolder2() {
+		if (xsltFolder2 == null) {
+			xsltFolder2 = getXsltFolder(configurationFolder2);
+		}
+		if (xsltFolder2.exists()) return xsltFolder2;
+		else return null;
+	}
+	
+	private File getXsltFolder(String config) {
+		File configurationFolder = new File(config);
+		File xsltFolder = new File(configurationFolder.getParent(), "xslt");
+		return xsltFolder;
 	}
 	
 	public Log[] getLogs1(Logs logs) {

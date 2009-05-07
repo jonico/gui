@@ -1,5 +1,6 @@
 package com.collabnet.ccf.model;
 
+import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +29,8 @@ public class SynchronizationStatus implements IPropertySource, Comparable {
 	private String targetSystemEncoding;
 	private Landscape landscape;
 	private ProjectMappings projectMappings;
+	private File xslFile;
+	private File sampleXslFile;
 	
 	public static final String CONFLICT_RESOLUTION_ALWAYS_IGNORE = "alwaysIgnore"; //$NON-NLS-1$
 	public static final String CONFLICT_RESOLUTION_ALWAYS_OVERRIDE = "alwaysOverride"; //$NON-NLS-1$
@@ -183,6 +186,87 @@ public class SynchronizationStatus implements IPropertySource, Comparable {
 	}
 	public void setTargetSystemEncoding(String targetSystemEncoding) {
 		this.targetSystemEncoding = targetSystemEncoding;
+	}
+	
+	private String getXslFileName() {
+		return (sourceSystemId + "+" +
+		sourceRepositoryId + "+" +
+		targetSystemId + "+" +
+		targetRepositoryId + ".xsl").replaceAll(":", "-");
+	}
+	
+	private String getSampleXslFileName() {
+		String srcSysId = null;
+		String srcRepoId = null;
+		String tgtSysId = null;
+		String tgtRepoId = null;
+		
+		if (sourceSystemKind.equals(Landscape.TYPE_QC)) {
+			srcSysId = "QCSYSTEM";
+			srcRepoId = "QCDOMAIN-QCPROJECT";
+		}
+		else if (sourceSystemKind.equals(Landscape.TYPE_TF)) {
+			srcSysId = "SFEESYSTEM";
+			srcRepoId = "SFEETRACKER";
+		}
+		else if (sourceSystemKind.equals(Landscape.TYPE_PT)) {
+			srcSysId = "CEESYSTEM";
+			srcRepoId = "CEEPROJECT-PTISSUETYPE";
+		}	
+		
+		if (targetSystemKind.equals(Landscape.TYPE_QC)) {
+			tgtSysId = "QCSYSTEM";
+			tgtRepoId = "QCDOMAIN-QCPROJECT";
+		}
+		else if (targetSystemKind.equals(Landscape.TYPE_TF)) {
+			tgtSysId = "SFEESYSTEM";
+			tgtRepoId = "SFEETRACKER";
+		}
+		else if (targetSystemKind.equals(Landscape.TYPE_PT)) {
+			tgtSysId = "CEESYSTEM";
+			tgtRepoId = "CEEPROJECT-PTISSUETYPE";
+		}				
+		
+		String sampleFile = srcSysId + "+" +
+		srcRepoId + "+" +
+		tgtSysId + "+" +
+		tgtRepoId + ".xsl";
+		
+		return sampleFile;
+	}
+	
+	public File getSampleXslFile() {
+		if (sampleXslFile == null) {
+			File xsltFolder = null;
+			if (sourceSystemKind.equals(landscape.getType1())) {
+				xsltFolder = landscape.getXsltFolder2();
+			}
+			if (sourceSystemKind.equals(landscape.getType2())) {
+				xsltFolder = landscape.getXsltFolder1();
+			}
+			if (xsltFolder != null) {
+				sampleXslFile = new File(xsltFolder, getSampleXslFileName());
+			}
+		}
+		
+		return sampleXslFile;		
+	}
+	
+	public File getXslFile() {
+		if (xslFile == null) {
+			File xsltFolder = null;
+			if (sourceSystemKind.equals(landscape.getType1())) {
+				xsltFolder = landscape.getXsltFolder2();
+			}
+			if (sourceSystemKind.equals(landscape.getType2())) {
+				xsltFolder = landscape.getXsltFolder1();
+			}
+			if (xsltFolder != null) {
+				xslFile = new File(xsltFolder, getXslFileName());
+			}
+		}
+		
+		return xslFile;
 	}
 	
 	public Landscape getLandscape() {

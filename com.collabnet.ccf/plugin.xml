@@ -179,41 +179,47 @@
                menubarPath="group.a"
                icon="icons/hospitalView.gif"
                id="com.collabnet.ccf.actions.HospitalAction">
-         </action>  
+         </action>
+         <action
+               label="Edit field mappings"
+               class="com.collabnet.ccf.actions.EditWiringsAction"
+               menubarPath="group.b"
+               id="com.collabnet.ccf.actions.EditWiringsAction">
+         </action>                      
          <action
                label="Delete identity mappings"
                class="com.collabnet.ccf.actions.DeleteIdentityMappingsAction"
-               menubarPath="group.b"
+               menubarPath="group.c"
                id="com.collabnet.ccf.actions.DeleteIdentityMappingsAction">
          </action>                           
          <action
                label="Reset synchronization status"
                class="com.collabnet.ccf.actions.ResetSynchronizationStatusAction"
-               menubarPath="group.b"
+               menubarPath="group.c"
                id="com.collabnet.ccf.actions.ResetSynchronizationStatusAction">
          </action>
          <action
                label="Resume synchronization"
                class="com.collabnet.ccf.actions.ResumeSynchronizationAction"
-               menubarPath="group.b"
+               menubarPath="group.c"
                id="com.collabnet.ccf.actions.ResumeSynchronizationAction">
          </action>          
          <action
                label="Pause synchronization"
                class="com.collabnet.ccf.actions.PauseSynchronizationAction"
-               menubarPath="group.b"
+               menubarPath="group.c"
                id="com.collabnet.ccf.actions.PauseSynchronizationAction">
          </action> 
          <action
                label="Delete project mapping"
                class="com.collabnet.ccf.actions.DeleteSynchronizationStatusAction"
-               menubarPath="group.c"
+               menubarPath="group.d"
                id="com.collabnet.ccf.actions.DeleteSynchronizationStatusAction">
          </action> 
          <action
                label="Change project mapping..."
                class="com.collabnet.ccf.actions.ChangeSynchronizationStatusAction"
-               menubarPath="group.c"
+               menubarPath="group.d"
                id="com.collabnet.ccf.actions.ChangeSynchronizationStatusAction">
          </action>                                                                                              
       </objectContribution>
