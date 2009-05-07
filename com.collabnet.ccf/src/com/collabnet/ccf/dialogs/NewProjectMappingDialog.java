@@ -7,6 +7,9 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -30,19 +33,25 @@ public class NewProjectMappingDialog extends CcfDialog {
 	
 	private Button system1ToSystem2Button;
 	private Button system2ToSystem1Button;
+	private Button bothButton;
 	
 	private Text trackerText;
 	private Text qcProjectText;
 	private Text qcDomainText;
-	
-	private Combo conflictResolutionCombo;
+
+	private Label system1ToSystem2ConflictResolutionLabel;
+	private Combo system1ToSystem2ConflictResolutionCombo;
+	private Label system2ToSystem1ConflictResolutionLabel;
+	private Combo system2ToSystem1ConflictResolutionCombo;
 	
 	private Button okButton;
 	
 	private boolean addError;
 	
 	private IDialogSettings settings = Activator.getDefault().getDialogSettings();
-	private static final String PREVIOUS_CONFLICT_RESOLUTION_PRIORITY = "NewProjectMappingDialog.conflictResolutionPriority";
+	private static final String PREVIOUS_DIRECTION = "NewProjectMappingDialog.direction";
+	private static final String PREVIOUS_SYSTEM1_SYSTEM2_CONFLICT_RESOLUTION_PRIORITY = "NewProjectMappingDialog.conflictResolutionPriority12";
+	private static final String PREVIOUS_SYSTEM2_SYSTEM1_CONFLICT_RESOLUTION_PRIORITY = "NewProjectMappingDialog.conflictResolutionPriority21";
 	
 	public NewProjectMappingDialog(Shell shell, ProjectMappings projectMappings) {
 		super(shell, "NewProjectMappingDialog");
@@ -72,7 +81,45 @@ public class NewProjectMappingDialog extends CcfDialog {
 		system1ToSystem2Button = new Button(directionGroup, SWT.RADIO);
 		system1ToSystem2Button.setText(Landscape.getTypeDescription(projectMappings.getLandscape().getType1()) + " => " + Landscape.getTypeDescription(projectMappings.getLandscape().getType2()));
 		
-		system2ToSystem1Button.setSelection(true);
+		bothButton = new Button(directionGroup, SWT.RADIO);
+		bothButton.setText("Create mappings for both directions");
+		
+		int direction = 0;
+		try {
+			direction = settings.getInt(PREVIOUS_DIRECTION);
+		} catch (Exception e) {}
+		switch (direction) {
+		case 0:
+			system2ToSystem1Button.setSelection(true);
+			break;
+		case 1:
+			system1ToSystem2Button.setSelection(true);
+			break;
+		case 2:
+			bothButton.setSelection(true);
+			break;			
+		default:
+			system2ToSystem1Button.setSelection(true);
+			break;
+		}
+		
+		SelectionListener selectionListener = new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent se) {
+				if (system2ToSystem1Button.getSelection()) {
+					settings.put(PREVIOUS_DIRECTION, 0);
+				} else if (system1ToSystem2Button.getSelection()) {
+					settings.put(PREVIOUS_DIRECTION, 1);
+				} else if (bothButton.getSelection()) {
+					settings.put(PREVIOUS_DIRECTION, 2);
+				}
+				setComboEnablement();
+			}
+	
+		};
+		
+		system2ToSystem1Button.addSelectionListener(selectionListener);
+		system1ToSystem2Button.addSelectionListener(selectionListener);
+		bothButton.addSelectionListener(selectionListener);
 		
 		Group qcGroup = new Group(composite, SWT.NULL);
 		GridLayout qcLayout = new GridLayout();
@@ -117,18 +164,37 @@ public class NewProjectMappingDialog extends CcfDialog {
 		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
 		trackerText.setLayoutData(gd);
 		
-		Label conflictResolutionPriorityLabel = new Label(composite, SWT.NONE);
-		conflictResolutionPriorityLabel.setText("Conflict resolution priority:");
+		Group conflictGroup = new Group(composite, SWT.NULL);
+		GridLayout conflictLayout = new GridLayout();
+		conflictLayout.numColumns = 2;
+		conflictGroup.setLayout(conflictLayout);
+		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
+		gd.horizontalSpan = 2;
+		conflictGroup.setLayoutData(gd);	
+		conflictGroup.setText("Conflict resolution priority:");
 		
-		conflictResolutionCombo = new Combo(composite, SWT.READ_ONLY);
-		conflictResolutionCombo.add(SynchronizationStatus.CONFLICT_RESOLUTION_ALWAYS_IGNORE);
-		conflictResolutionCombo.add(SynchronizationStatus.CONFLICT_RESOLUTION_ALWAYS_OVERRIDE);
-		conflictResolutionCombo.add(SynchronizationStatus.CONFLICT_RESOLUTION_QUARANTINE_ARTIFACT);
+		system2ToSystem1ConflictResolutionLabel = new Label(conflictGroup, SWT.NONE);
+		system2ToSystem1ConflictResolutionLabel.setText(system2ToSystem1Button.getText());
+		system2ToSystem1ConflictResolutionCombo = new Combo(conflictGroup, SWT.READ_ONLY);
+		system2ToSystem1ConflictResolutionCombo.add(SynchronizationStatus.CONFLICT_RESOLUTION_ALWAYS_IGNORE);
+		system2ToSystem1ConflictResolutionCombo.add(SynchronizationStatus.CONFLICT_RESOLUTION_ALWAYS_OVERRIDE);
+		system2ToSystem1ConflictResolutionCombo.add(SynchronizationStatus.CONFLICT_RESOLUTION_QUARANTINE_ARTIFACT);
 		
-		String previousResolutionPriority = settings.get(PREVIOUS_CONFLICT_RESOLUTION_PRIORITY);
-		if (previousResolutionPriority == null) conflictResolutionCombo.setText(SynchronizationStatus.CONFLICT_RESOLUTION_ALWAYS_IGNORE);
-		else conflictResolutionCombo.setText(previousResolutionPriority);
+		String previousResolutionPriority = settings.get(PREVIOUS_SYSTEM2_SYSTEM1_CONFLICT_RESOLUTION_PRIORITY);
+		if (previousResolutionPriority == null) system2ToSystem1ConflictResolutionCombo.setText(SynchronizationStatus.CONFLICT_RESOLUTION_ALWAYS_IGNORE);
+		else system2ToSystem1ConflictResolutionCombo.setText(previousResolutionPriority);
 		
+		system1ToSystem2ConflictResolutionLabel = new Label(conflictGroup, SWT.NONE);
+		system1ToSystem2ConflictResolutionLabel.setText(system1ToSystem2Button.getText());
+		system1ToSystem2ConflictResolutionCombo = new Combo(conflictGroup, SWT.READ_ONLY);
+		system1ToSystem2ConflictResolutionCombo.add(SynchronizationStatus.CONFLICT_RESOLUTION_ALWAYS_IGNORE);
+		system1ToSystem2ConflictResolutionCombo.add(SynchronizationStatus.CONFLICT_RESOLUTION_ALWAYS_OVERRIDE);
+		system1ToSystem2ConflictResolutionCombo.add(SynchronizationStatus.CONFLICT_RESOLUTION_QUARANTINE_ARTIFACT);
+
+		previousResolutionPriority = settings.get(PREVIOUS_SYSTEM1_SYSTEM2_CONFLICT_RESOLUTION_PRIORITY);
+		if (previousResolutionPriority == null) system1ToSystem2ConflictResolutionCombo.setText(SynchronizationStatus.CONFLICT_RESOLUTION_ALWAYS_IGNORE);
+		else system1ToSystem2ConflictResolutionCombo.setText(previousResolutionPriority);
+
 		ModifyListener modifyListener = new ModifyListener() {
 			public void modifyText(ModifyEvent me) {
 				okButton.setEnabled(canFinish());
@@ -139,17 +205,19 @@ public class NewProjectMappingDialog extends CcfDialog {
 		qcProjectText.addModifyListener(modifyListener);
 		qcDomainText.addModifyListener(modifyListener);
 		
+		setComboEnablement();
+		
 		return composite;
 	}
 	
 	@Override
 	protected void okPressed() {
 		addError = false;
-		settings.put(PREVIOUS_CONFLICT_RESOLUTION_PRIORITY, conflictResolutionCombo.getText());
 		final SynchronizationStatus status = new SynchronizationStatus();
-		status.setConflictResolutionPriority(conflictResolutionCombo.getText());
-		if (system1ToSystem2Button.getSelection()) {
-			
+		
+		if (system1ToSystem2Button.getSelection() || bothButton.getSelection()) {
+			settings.put(PREVIOUS_SYSTEM1_SYSTEM2_CONFLICT_RESOLUTION_PRIORITY, system1ToSystem2ConflictResolutionCombo.getText());
+			status.setConflictResolutionPriority(system1ToSystem2ConflictResolutionCombo.getText());
 			status.setSourceRepositoryId(qcDomainText.getText().trim() + "-" + qcProjectText.getText().trim());
 			status.setTargetRepositoryId(trackerText.getText().trim());
 			
@@ -167,9 +235,12 @@ public class NewProjectMappingDialog extends CcfDialog {
 			if (projectMappings.getLandscape().getEncoding2() != null && projectMappings.getLandscape().getEncoding2().trim().length() > 0) {
 				status.setTargetSystemEncoding(projectMappings.getLandscape().getEncoding2());
 			}
+			createMapping(status);
+			if (addError) return;
 		}
-		if (system2ToSystem1Button.getSelection()) {
-			
+		if (system2ToSystem1Button.getSelection() || bothButton.getSelection()) {
+			settings.put(PREVIOUS_SYSTEM2_SYSTEM1_CONFLICT_RESOLUTION_PRIORITY, system2ToSystem1ConflictResolutionCombo.getText());
+			status.setConflictResolutionPriority(system2ToSystem1ConflictResolutionCombo.getText());
 			status.setTargetRepositoryId(qcDomainText.getText().trim() + "-" + qcProjectText.getText().trim());
 			status.setSourceRepositoryId(trackerText.getText().trim());	
 			
@@ -187,7 +258,13 @@ public class NewProjectMappingDialog extends CcfDialog {
 			if (projectMappings.getLandscape().getEncoding1() != null && projectMappings.getLandscape().getEncoding1().trim().length() > 0) {
 				status.setTargetSystemEncoding(projectMappings.getLandscape().getEncoding1());
 			}
+			createMapping(status);
 		}
+		if (addError) return;
+		super.okPressed();
+	}
+
+	private void createMapping(final SynchronizationStatus status) {
 		status.setSourceSystemKind(status.getSourceSystemKind() + "_paused");
 		BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
 			public void run() {
@@ -201,9 +278,14 @@ public class NewProjectMappingDialog extends CcfDialog {
 				}
 			}			
 		});
-		if (addError) return;
-		super.okPressed();
-	}	
+	}
+	
+	private void setComboEnablement() {
+		system2ToSystem1ConflictResolutionLabel.setEnabled(system2ToSystem1Button.getSelection() || bothButton.getSelection());
+		system2ToSystem1ConflictResolutionCombo.setEnabled(system2ToSystem1Button.getSelection() || bothButton.getSelection());
+		system1ToSystem2ConflictResolutionLabel.setEnabled(system1ToSystem2Button.getSelection() || bothButton.getSelection());
+		system1ToSystem2ConflictResolutionCombo.setEnabled(system1ToSystem2Button.getSelection() || bothButton.getSelection());
+	}		
 	
 	protected Button createButton(Composite parent, int id, String label, boolean defaultButton) {
         Button button = super.createButton(parent, id, label, defaultButton);
