@@ -41,7 +41,7 @@ public class Activator extends AbstractUIPlugin {
 	// Images
 	public static final String IMAGE_ERROR = "error.gif"; //$NON-NLS-1$
 	public static final String IMAGE_NEW_LANDSCAPE = "new_landscape.gif"; //$NON-NLS-1$
-	public static final String IMAGE_NEW_LANDSCAPE_WIZBAN = "new_landscape_wizban.gif"; //$NON-NLS-1$
+	public static final String IMAGE_NEW_LANDSCAPE_WIZBAN = "new_landscape_wizban.png"; //$NON-NLS-1$
 	public static final String IMAGE_LANDSCAPE = "landscape.gif"; //$NON-NLS-1$
 	public static final String IMAGE_PROJECT_MAPPINGS = "project_mappings.gif"; //$NON-NLS-1$
 	public static final String IMAGE_LOGS = "logs.gif"; //$NON-NLS-1$
