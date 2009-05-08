@@ -36,6 +36,13 @@ public class SynchronizationStatus implements IPropertySource, Comparable {
 	public static final String CONFLICT_RESOLUTION_ALWAYS_OVERRIDE = "alwaysOverride"; //$NON-NLS-1$
 	public static final String CONFLICT_RESOLUTION_QUARANTINE_ARTIFACT = "quarantineArtifact"; //$NON-NLS-1$
 
+	public static final String CONFLICT_RESOLUTION_DESCRIPTION_ALWAYS_IGNORE = "Do not update target artifact"; //$NON-NLS-1$
+	public static final String CONFLICT_RESOLUTION_DESCRIPTION_ALWAYS_OVERRIDE = "Overwrite target artifact"; //$NON-NLS-1$
+	public static final String CONFLICT_RESOLUTION_DESCRIPTION_QUARANTINE_ARTIFACT = "Store artifact in hospital"; //$NON-NLS-1$	
+	
+	public static final String[] CONFLICT_RESOLUTIONS = { CONFLICT_RESOLUTION_ALWAYS_IGNORE, CONFLICT_RESOLUTION_ALWAYS_OVERRIDE, CONFLICT_RESOLUTION_QUARANTINE_ARTIFACT };
+	public static final String[] CONFLICT_RESOLUTION_DESCRIPTIONS = { CONFLICT_RESOLUTION_DESCRIPTION_ALWAYS_IGNORE, CONFLICT_RESOLUTION_DESCRIPTION_ALWAYS_OVERRIDE, CONFLICT_RESOLUTION_DESCRIPTION_QUARANTINE_ARTIFACT };
+	
 	public static String P_ID_SOURCE_SYSTEM_ID = "srcSysId"; //$NON-NLS-1$
 	public static String P_SOURCE_SYSTEM_ID = "Source system ID";
 	public static String P_ID_SOURCE_REPOSITORY_ID = "srcRepoId"; //$NON-NLS-1$
@@ -290,6 +297,15 @@ public class SynchronizationStatus implements IPropertySource, Comparable {
 	
 	public String toString() {
 		return sourceRepositoryId + " => " + targetRepositoryId;
+	}
+	
+	public static String getConflictResolutionDescription(String code) {
+		for (int i = 0; i < CONFLICT_RESOLUTIONS.length; i++) {
+			if (CONFLICT_RESOLUTIONS[i].equals(code)) {
+				return CONFLICT_RESOLUTION_DESCRIPTIONS[i];
+			}
+		}
+		return null;
 	}
 	
 	public int compareTo(Object compareToObject) {

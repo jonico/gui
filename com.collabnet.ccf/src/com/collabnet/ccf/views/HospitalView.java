@@ -46,7 +46,7 @@ import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.eclipse.ui.part.ViewPart;
 
 import com.collabnet.ccf.Activator;
-import com.collabnet.ccf.actions.ExaminePayloadAction;
+import com.collabnet.ccf.actions.HospitalEditAction;
 import com.collabnet.ccf.db.CcfDataProvider;
 import com.collabnet.ccf.db.Filter;
 import com.collabnet.ccf.dialogs.HospitalFilterDialog;
@@ -278,7 +278,7 @@ public class HospitalView extends ViewPart {
 		
 		tableViewer.addOpenListener(new IOpenListener() {
 			public void open(OpenEvent evt) {
-				ExaminePayloadAction action = new ExaminePayloadAction();
+				HospitalEditAction action = new HospitalEditAction();
 				action.selectionChanged(null, tableViewer.getSelection());
 				action.run(null);
 			}			

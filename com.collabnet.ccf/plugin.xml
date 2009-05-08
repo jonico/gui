@@ -95,35 +95,47 @@
             objectClass="com.collabnet.ccf.model.Patient"
             id="com.collabnet.ccf.model.Patient">
          <action
-               label="Delete"
-               class="com.collabnet.ccf.actions.DeletePatientAction"
-               id="com.collabnet.ccf.actions.DeletePatientAction">
-         </action>                        
+               label="Stack Trace"
+               menubarPath="group.a"
+               class="com.collabnet.ccf.actions.HospitalStackTraceAction"
+               id="com.collabnet.ccf.actions.HospitalStackTraceAction">
+         </action>                    
+         <action
+               label="Examine quarantined artifact"
+               menubarPath="group.a"
+               class="com.collabnet.ccf.actions.ExaminePayloadAction"
+               id="com.collabnet.ccf.actions.ExaminePayloadAction">
+         </action> 
+         <action
+               label="View Details"
+               menubarPath="group.a"
+               class="com.collabnet.ccf.actions.HospitalEditAction"
+               id="com.collabnet.ccf.actions.HospitalEditAction">
+         </action>
          <action
                label="Reopen"
+               menubarPath="group.b"
                class="com.collabnet.ccf.actions.ReopenAction"
                id="com.collabnet.ccf.actions.ReopenAction">
          </action>                       
          <action
                label="Mark as Fixed"
+               menubarPath="group.b"
                class="com.collabnet.ccf.actions.MarkFixedAction"
                id="com.collabnet.ccf.actions.MarkFixedAction">
          </action>              
          <action
                label="Replay"
+               menubarPath="group.b"
                class="com.collabnet.ccf.actions.ReplayHospitalAction"
                id="com.collabnet.ccf.actions.ReplayHospitalAction">
-         </action> 
+         </action>                                 
          <action
-               label="Stack Trace"
-               class="com.collabnet.ccf.actions.HospitalStackTraceAction"
-               id="com.collabnet.ccf.actions.HospitalStackTraceAction">
-         </action>                   
-         <action
-               label="Examine quarantined artifact"
-               class="com.collabnet.ccf.actions.ExaminePayloadAction"
-               id="com.collabnet.ccf.actions.ExaminePayloadAction">
-         </action>                          
+               label="Delete"
+               menubarPath="group.c"
+               class="com.collabnet.ccf.actions.DeletePatientAction"
+               id="com.collabnet.ccf.actions.DeletePatientAction">
+         </action>                                                                         
       </objectContribution>
       
       <objectContribution
@@ -253,7 +265,15 @@
             contributorClass="com.collabnet.ccf.editors.CcfActionBarContributor"
             class="com.collabnet.ccf.editors.CcfEditor"
             id="com.collabnet.ccf.editors.CcfEditor">
-      </editor>      
+      </editor> 
+      <editor
+            name="Hospital Editor"
+            default="false"
+            icon="icons/hospitalEntry.gif"
+            contributorClass="com.collabnet.ccf.editors.HospitalActionBarContributor"
+            class="com.collabnet.ccf.editors.HospitalEditor"
+            id="com.collabnet.ccf.editors.HospitalEditor">
+      </editor>                 
    </extension>
 
 </plugin>

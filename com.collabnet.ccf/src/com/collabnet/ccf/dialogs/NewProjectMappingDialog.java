@@ -176,23 +176,23 @@ public class NewProjectMappingDialog extends CcfDialog {
 		system2ToSystem1ConflictResolutionLabel = new Label(conflictGroup, SWT.NONE);
 		system2ToSystem1ConflictResolutionLabel.setText(system2ToSystem1Button.getText());
 		system2ToSystem1ConflictResolutionCombo = new Combo(conflictGroup, SWT.READ_ONLY);
-		system2ToSystem1ConflictResolutionCombo.add(SynchronizationStatus.CONFLICT_RESOLUTION_ALWAYS_IGNORE);
-		system2ToSystem1ConflictResolutionCombo.add(SynchronizationStatus.CONFLICT_RESOLUTION_ALWAYS_OVERRIDE);
-		system2ToSystem1ConflictResolutionCombo.add(SynchronizationStatus.CONFLICT_RESOLUTION_QUARANTINE_ARTIFACT);
+		system2ToSystem1ConflictResolutionCombo.add(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_ALWAYS_IGNORE);
+		system2ToSystem1ConflictResolutionCombo.add(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_ALWAYS_OVERRIDE);
+		system2ToSystem1ConflictResolutionCombo.add(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_QUARANTINE_ARTIFACT);
 		
 		String previousResolutionPriority = settings.get(PREVIOUS_SYSTEM2_SYSTEM1_CONFLICT_RESOLUTION_PRIORITY);
-		if (previousResolutionPriority == null) system2ToSystem1ConflictResolutionCombo.setText(SynchronizationStatus.CONFLICT_RESOLUTION_ALWAYS_IGNORE);
+		if (previousResolutionPriority == null || system2ToSystem1ConflictResolutionCombo.indexOf(previousResolutionPriority) == -1) system2ToSystem1ConflictResolutionCombo.setText(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_ALWAYS_IGNORE);
 		else system2ToSystem1ConflictResolutionCombo.setText(previousResolutionPriority);
 		
 		system1ToSystem2ConflictResolutionLabel = new Label(conflictGroup, SWT.NONE);
 		system1ToSystem2ConflictResolutionLabel.setText(system1ToSystem2Button.getText());
 		system1ToSystem2ConflictResolutionCombo = new Combo(conflictGroup, SWT.READ_ONLY);
-		system1ToSystem2ConflictResolutionCombo.add(SynchronizationStatus.CONFLICT_RESOLUTION_ALWAYS_IGNORE);
-		system1ToSystem2ConflictResolutionCombo.add(SynchronizationStatus.CONFLICT_RESOLUTION_ALWAYS_OVERRIDE);
-		system1ToSystem2ConflictResolutionCombo.add(SynchronizationStatus.CONFLICT_RESOLUTION_QUARANTINE_ARTIFACT);
+		system1ToSystem2ConflictResolutionCombo.add(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_ALWAYS_IGNORE);
+		system1ToSystem2ConflictResolutionCombo.add(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_ALWAYS_OVERRIDE);
+		system1ToSystem2ConflictResolutionCombo.add(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_QUARANTINE_ARTIFACT);
 
 		previousResolutionPriority = settings.get(PREVIOUS_SYSTEM1_SYSTEM2_CONFLICT_RESOLUTION_PRIORITY);
-		if (previousResolutionPriority == null) system1ToSystem2ConflictResolutionCombo.setText(SynchronizationStatus.CONFLICT_RESOLUTION_ALWAYS_IGNORE);
+		if (previousResolutionPriority == null || system1ToSystem2ConflictResolutionCombo.indexOf(previousResolutionPriority) == -1) system1ToSystem2ConflictResolutionCombo.setText(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_ALWAYS_IGNORE);
 		else system1ToSystem2ConflictResolutionCombo.setText(previousResolutionPriority);
 
 		ModifyListener modifyListener = new ModifyListener() {
@@ -217,7 +217,7 @@ public class NewProjectMappingDialog extends CcfDialog {
 		
 		if (system1ToSystem2Button.getSelection() || bothButton.getSelection()) {
 			settings.put(PREVIOUS_SYSTEM1_SYSTEM2_CONFLICT_RESOLUTION_PRIORITY, system1ToSystem2ConflictResolutionCombo.getText());
-			status.setConflictResolutionPriority(system1ToSystem2ConflictResolutionCombo.getText());
+			status.setConflictResolutionPriority(SynchronizationStatus.CONFLICT_RESOLUTIONS[system1ToSystem2ConflictResolutionCombo.getSelectionIndex()]);
 			status.setSourceRepositoryId(qcDomainText.getText().trim() + "-" + qcProjectText.getText().trim());
 			status.setTargetRepositoryId(trackerText.getText().trim());
 			
@@ -240,7 +240,7 @@ public class NewProjectMappingDialog extends CcfDialog {
 		}
 		if (system2ToSystem1Button.getSelection() || bothButton.getSelection()) {
 			settings.put(PREVIOUS_SYSTEM2_SYSTEM1_CONFLICT_RESOLUTION_PRIORITY, system2ToSystem1ConflictResolutionCombo.getText());
-			status.setConflictResolutionPriority(system2ToSystem1ConflictResolutionCombo.getText());
+			status.setConflictResolutionPriority(SynchronizationStatus.CONFLICT_RESOLUTIONS[system2ToSystem1ConflictResolutionCombo.getSelectionIndex()]);
 			status.setTargetRepositoryId(qcDomainText.getText().trim() + "-" + qcProjectText.getText().trim());
 			status.setSourceRepositoryId(trackerText.getText().trim());	
 			

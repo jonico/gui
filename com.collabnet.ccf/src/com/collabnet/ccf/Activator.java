@@ -53,10 +53,6 @@ public class Activator extends AbstractUIPlugin {
 	public static final String IMAGE_DATABASE_CONNECTION = "dbConnection.gif"; //$NON-NLS-1$
 	public static final String IMAGE_HOSPITAL_ENTRY = "hospitalEntry.gif"; //$NON-NLS-1$
 	public static final String IMAGE_HOSPITAL_ENTRY_FIXED = "hospitalEntryFixed.gif"; //$NON-NLS-1$
-	public static final String IMAGE_SYSTEM_CEE = "system_cee.gif"; //$NON-NLS-1$
-	public static final String IMAGE_SYSTEM_SFEE = "system_sfee.gif"; //$NON-NLS-1$
-	public static final String IMAGE_SYSTEM_QC = "system_qc.gif"; //$NON-NLS-1$
-	public static final String IMAGE_SYSTEM_OTHER = "system_other.gif"; //$NON-NLS-1$
 	public static final String IMAGE_SYNC_STATUS_ENTRY = "sync_status_entry.gif"; //$NON-NLS-1$
 	public static final String IMAGE_SYNC_STATUS_ENTRY_PAUSED = "sync_status_entry_paused.gif"; //$NON-NLS-1$
 	
@@ -330,10 +326,6 @@ public class Activator extends AbstractUIPlugin {
 		createImageDescriptor(IMAGE_DATABASE_CONNECTION);
 		createImageDescriptor(IMAGE_HOSPITAL_ENTRY);
 		createImageDescriptor(IMAGE_HOSPITAL_ENTRY_FIXED);
-		createImageDescriptor(IMAGE_SYSTEM_CEE);
-		createImageDescriptor(IMAGE_SYSTEM_SFEE);
-		createImageDescriptor(IMAGE_SYSTEM_QC);
-		createImageDescriptor(IMAGE_SYSTEM_OTHER);
 		createImageDescriptor(IMAGE_SYNC_STATUS_ENTRY);
 		createImageDescriptor(IMAGE_SYNC_STATUS_ENTRY_PAUSED);
 		createImageDescriptor(IMAGE_NEW_LANDSCAPE);
@@ -354,10 +346,6 @@ public class Activator extends AbstractUIPlugin {
 		reg.put(IMAGE_DATABASE_CONNECTION, getImageDescriptor(IMAGE_DATABASE_CONNECTION));
 		reg.put(IMAGE_HOSPITAL_ENTRY, getImageDescriptor(IMAGE_HOSPITAL_ENTRY));
 		reg.put(IMAGE_HOSPITAL_ENTRY_FIXED, getImageDescriptor(IMAGE_HOSPITAL_ENTRY_FIXED));
-		reg.put(IMAGE_SYSTEM_CEE, getImageDescriptor(IMAGE_SYSTEM_CEE));
-		reg.put(IMAGE_SYSTEM_SFEE, getImageDescriptor(IMAGE_SYSTEM_SFEE));
-		reg.put(IMAGE_SYSTEM_QC, getImageDescriptor(IMAGE_SYSTEM_QC));
-		reg.put(IMAGE_SYSTEM_OTHER, getImageDescriptor(IMAGE_SYSTEM_OTHER));
 		reg.put(IMAGE_SYNC_STATUS_ENTRY, getImageDescriptor(IMAGE_SYNC_STATUS_ENTRY));
 		reg.put(IMAGE_SYNC_STATUS_ENTRY_PAUSED, getImageDescriptor(IMAGE_SYNC_STATUS_ENTRY_PAUSED));
 		reg.put(IMAGE_NEW_LANDSCAPE, getImageDescriptor(IMAGE_NEW_LANDSCAPE));
