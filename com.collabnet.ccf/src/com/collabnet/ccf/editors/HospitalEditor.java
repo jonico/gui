@@ -12,6 +12,7 @@ import com.collabnet.ccf.Activator;
 public class HospitalEditor extends FormEditor {
 	
 	private HospitalExceptionEditorPage exceptionPage;
+	private HospitalDetailsEditorPage detailsPage;
 	
 	private IDialogSettings settings = Activator.getDefault().getDialogSettings();
 	
@@ -32,6 +33,7 @@ public class HospitalEditor extends FormEditor {
 	@Override
 	protected void addPages() {
 		createExceptionPage();
+		createDetailsPage();
 		try {
 			String activePage = settings.get(HospitalEditorPage.ACTIVE_PAGE);
 			if (activePage != null) {
@@ -49,6 +51,18 @@ public class HospitalEditor extends FormEditor {
 	        int index = addPage(exceptionPage);
 	        setPageText(index, "Exception Details");
 	        pages.add(exceptionPage);
+        } catch (Exception e) { 
+        	Activator.handleError(e);
+        }		
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void createDetailsPage() {
+        try {
+        	detailsPage = new HospitalDetailsEditorPage(this, "details", getEditorInput().getName());
+	        int index = addPage(detailsPage);
+	        setPageText(index, "Hospital Details");
+	        pages.add(detailsPage);
         } catch (Exception e) { 
         	Activator.handleError(e);
         }		
