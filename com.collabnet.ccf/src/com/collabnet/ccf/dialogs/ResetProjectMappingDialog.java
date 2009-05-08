@@ -19,7 +19,9 @@ import org.eclipse.swt.widgets.Shell;
 
 import com.collabnet.ccf.Activator;
 
-public class ResetProjectMappingDialog extends CcfDialog {
+public class ResetProjectMappingDialog extends CcfDialog {	
+	private boolean needsPause;
+	
 	private Button resetTo1999Button;
 	private Button resetToCurrentButton;
 	private Button resetToSelectedButton;
@@ -30,8 +32,9 @@ public class ResetProjectMappingDialog extends CcfDialog {
 	
 	private Timestamp resetDate;
 
-	public ResetProjectMappingDialog(Shell shell) {
+	public ResetProjectMappingDialog(Shell shell, boolean needsPause) {
 		super(shell, "ResetProjectMappingDialog");
+		this.needsPause = needsPause;
 	}
 	
 	protected Control createDialogArea(Composite parent) {
@@ -42,13 +45,15 @@ public class ResetProjectMappingDialog extends CcfDialog {
 		composite.setLayout(layout);
 		composite.setLayoutData(new GridData(GridData.FILL_BOTH));
 		
-		int delay = Activator.getDefault().getPreferenceStore().getInt(Activator.PREFERENCES_RESET_DELAY);
-		if (delay > 0) {
-			Label pauseLabel = new Label(composite, SWT.WRAP);
-			pauseLabel.setText("Synchronization will be paused for " + delay + " seconds before resetting, then resumed automatically.\n\n");
-			GridData gd = new GridData();
-			gd.horizontalSpan = 5;
-			pauseLabel.setLayoutData(gd);
+		if (needsPause) {
+			int delay = Activator.getDefault().getPreferenceStore().getInt(Activator.PREFERENCES_RESET_DELAY);
+			if (delay > 0) {
+				Label pauseLabel = new Label(composite, SWT.WRAP);
+				pauseLabel.setText("Synchronization will be paused for " + delay + " seconds before resetting, then resumed automatically.\n\n");
+				GridData gd = new GridData();
+				gd.horizontalSpan = 5;
+				pauseLabel.setLayoutData(gd);
+			}
 		}
 		
 		resetTo1999Button = new Button(composite, SWT.RADIO);

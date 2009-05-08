@@ -406,7 +406,8 @@ public class CcfDataProvider {
 	
 	public void resetSynchronizationStatus(final SynchronizationStatus status, final Timestamp timestamp) throws SQLException, ClassNotFoundException {
 		// Pause first so that changes are not overlaid.
-		pauseSynchronization(status);
+		final boolean pausedAlready = status.isPaused();
+		if (!pausedAlready) pauseSynchronization(status);
 		
 		Runnable runnable = new Runnable() {
 			public void run() {
@@ -429,7 +430,7 @@ public class CcfDataProvider {
 				try {
 					updateSynchronizationStatuses(status.getLandscape(), updates, filters);
 					// Resume
-					resumeSynchronization(status);				
+					if (!pausedAlready) resumeSynchronization(status);				
 					if (CcfExplorerView.getView() != null) {
 						Display.getDefault().syncExec(new Runnable() {
 							public void run() {
@@ -442,7 +443,9 @@ public class CcfDataProvider {
 				}
 			}			
 		};
-		int delay = Activator.getDefault().getPreferenceStore().getInt(Activator.PREFERENCES_RESET_DELAY);
+		int delay;
+		if (pausedAlready) delay = 0;
+		else delay = Activator.getDefault().getPreferenceStore().getInt(Activator.PREFERENCES_RESET_DELAY);
 		runAfterDelay(runnable, delay);
 	}
 	

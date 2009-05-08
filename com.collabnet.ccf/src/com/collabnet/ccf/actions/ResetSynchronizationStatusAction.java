@@ -23,17 +23,20 @@ public class ResetSynchronizationStatusAction extends ActionDelegate {
 	
 	@SuppressWarnings("unchecked")
 	public void run(IAction action) {
-		
+		boolean needsPause = false;
 		final List<SynchronizationStatus> statuses = new ArrayList<SynchronizationStatus>();
 		Iterator iter = fSelection.iterator();
 		while (iter.hasNext()) {
 			Object object = iter.next();
 			if (object instanceof SynchronizationStatus) {
 				statuses.add((SynchronizationStatus)object);
+				if (!((SynchronizationStatus)object).isPaused()) {
+					needsPause = true;
+				}
 			}
 		}
 		
-		final ResetProjectMappingDialog dialog = new ResetProjectMappingDialog(Display.getDefault().getActiveShell());
+		final ResetProjectMappingDialog dialog = new ResetProjectMappingDialog(Display.getDefault().getActiveShell(), needsPause);
 		if (dialog.open() == ResetProjectMappingDialog.CANCEL) return;
 		
 		final List<ProjectMappings> projectMappingsList = new ArrayList<ProjectMappings>();
