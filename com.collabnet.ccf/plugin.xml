@@ -205,7 +205,7 @@
                id="com.collabnet.ccf.actions.DeleteIdentityMappingsAction">
          </action>                           
          <action
-               label="Reset synchronization status"
+               label="Reset synchronization status..."
                class="com.collabnet.ccf.actions.ResetSynchronizationStatusAction"
                menubarPath="group.c"
                id="com.collabnet.ccf.actions.ResetSynchronizationStatusAction">

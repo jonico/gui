@@ -5,7 +5,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.custom.BusyIndicator;
@@ -14,6 +13,7 @@ import org.eclipse.ui.actions.ActionDelegate;
 
 import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.db.CcfDataProvider;
+import com.collabnet.ccf.dialogs.ResetProjectMappingDialog;
 import com.collabnet.ccf.model.ProjectMappings;
 import com.collabnet.ccf.model.SynchronizationStatus;
 import com.collabnet.ccf.views.CcfExplorerView;
@@ -23,6 +23,7 @@ public class ResetSynchronizationStatusAction extends ActionDelegate {
 	
 	@SuppressWarnings("unchecked")
 	public void run(IAction action) {
+		
 		final List<SynchronizationStatus> statuses = new ArrayList<SynchronizationStatus>();
 		Iterator iter = fSelection.iterator();
 		while (iter.hasNext()) {
@@ -31,17 +32,9 @@ public class ResetSynchronizationStatusAction extends ActionDelegate {
 				statuses.add((SynchronizationStatus)object);
 			}
 		}
-
-		String message;
-		if (statuses.size() == 1) {
-			message = "Reset " + statuses.get(0) + " synchronization status?";
-		} else {
-			message = "Reset synchronization status for the " + statuses.size() + " selected project mappings?";
-		}
 		
-		if (!MessageDialog.openQuestion(Display.getDefault().getActiveShell(), "Reset Synchronization Status", message)) {
-			return;
-		}
+		final ResetProjectMappingDialog dialog = new ResetProjectMappingDialog(Display.getDefault().getActiveShell());
+		if (dialog.open() == ResetProjectMappingDialog.CANCEL) return;
 		
 		final List<ProjectMappings> projectMappingsList = new ArrayList<ProjectMappings>();
 		final CcfDataProvider dataProvider = new CcfDataProvider();
@@ -51,7 +44,7 @@ public class ResetSynchronizationStatusAction extends ActionDelegate {
 				while (iter.hasNext()) {
 					SynchronizationStatus status = iter.next();
 					try {
-						dataProvider.resetSynchronizationStatus(status);
+						dataProvider.resetSynchronizationStatus(status, dialog.getResetDate());
 						if (!projectMappingsList.contains(status.getProjectMappings())) {
 							projectMappingsList.add(status.getProjectMappings());
 						}
