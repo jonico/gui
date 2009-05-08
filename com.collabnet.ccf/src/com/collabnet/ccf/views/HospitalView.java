@@ -464,6 +464,7 @@ public class HospitalView extends ViewPart {
 			if (columnIndex == 0) {
 				Patient patient = (Patient)element;
 				if (patient.isFixed()) return Activator.getImage(Activator.IMAGE_HOSPITAL_ENTRY_FIXED);
+				else if (patient.getErrorCode().equals("replay")) return Activator.getImage(Activator.IMAGE_HOSPITAL_ENTRY_REPLAY);
 				else return Activator.getImage(Activator.IMAGE_HOSPITAL_ENTRY);
 			}
 			return null;
