@@ -19,7 +19,7 @@ public class CancelReplayHospitalAction extends ReplayHospitalAction {
 
 	@Override
 	public String getUpdateValue() {
-		return "";
+		return "Replay canceled";
 	}
 
 }
