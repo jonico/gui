@@ -53,7 +53,7 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 	private Text resyncUserText;
 	private Text resyncDisplayNameText;
 	private Text resyncPasswordText;
-	private Text encodingText;
+//	private Text encodingText;
 	private Text attachmentSizeText;
 	private Combo timeZonesCombo;
 	
@@ -64,7 +64,7 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 	private String resyncUser;
 	private String resyncDisplayName;
 	private String resyncPassword;
-	private String encoding;
+//	private String encoding;
 	private String attachmentSize;
 	private String timezone;
 	
@@ -121,7 +121,7 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 		default:
 			break;
 		}
-		encoding = properties.getProperty(Activator.PROPERTIES_SYSTEM_ENCODING, ""); //$NON-NLS-1$
+//		encoding = properties.getProperty(Activator.PROPERTIES_SYSTEM_ENCODING, ""); //$NON-NLS-1$
 		timezone = properties.getProperty(Activator.PROPERTIES_SYSTEM_TIMEZONE, TimeZone.getDefault().getID()); //$NON-NLS-1$	
         
 		errorImageLabel = new Label(composite, SWT.NONE);
@@ -163,10 +163,10 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 		GridData gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
 		urlText.setLayoutData(gd);
 
-        toolkit.createLabel(systemSectionClient, "Encoding:");
-        encodingText = toolkit.createText(systemSectionClient, encoding);
-		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
-		encodingText.setLayoutData(gd);
+//      toolkit.createLabel(systemSectionClient, "Encoding:");
+//      encodingText = toolkit.createText(systemSectionClient, encoding);
+//		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
+//		encodingText.setLayoutData(gd);
 		
 		toolkit.createLabel(systemSectionClient, "Time zone:");
 		timeZonesCombo = new Combo(systemSectionClient, SWT.READ_ONLY);
@@ -285,7 +285,7 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 		};
 		
 		urlText.addModifyListener(modifyListener);
-		encodingText.addModifyListener(modifyListener);
+//		encodingText.addModifyListener(modifyListener);
 		attachmentSizeText.addModifyListener(modifyListener);
 		userText.addModifyListener(modifyListener);
 		if (displayNameText != null) displayNameText.addModifyListener(modifyListener);
@@ -312,7 +312,7 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 		};
 		
 		urlText.addFocusListener(focusListener);
-		encodingText.addFocusListener(focusListener);
+//		encodingText.addFocusListener(focusListener);
 		attachmentSizeText.addFocusListener(focusListener);
 		userText.addFocusListener(focusListener);
 		if (displayNameText != null) displayNameText.addFocusListener(focusListener);
@@ -340,7 +340,7 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 	public boolean isDirty() {
 		if (urlText == null) return false;
 		return !urlText.getText().trim().equals(url) ||
-		!encodingText.getText().trim().equals(encoding) ||
+//		!encodingText.getText().trim().equals(encoding) ||
 		!attachmentSizeText.getText().trim().equals(attachmentSize) ||
 		!timeZonesCombo.getText().equals(timezone) ||
 		!userText.getText().trim().equals(user) ||
@@ -356,7 +356,7 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 		if (urlText == null) return;
 		try {
 			properties.setProperty(Activator.PROPERTIES_SYSTEM_TIMEZONE, timeZonesCombo.getText());
-			properties.setProperty(Activator.PROPERTIES_SYSTEM_ENCODING, encodingText.getText().trim());
+//			properties.setProperty(Activator.PROPERTIES_SYSTEM_ENCODING, encodingText.getText().trim());
 			
 			File folder = new File(getLandscape().getConfigurationFolder());
 			File propertiesFile1 = null;
