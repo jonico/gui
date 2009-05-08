@@ -8,10 +8,8 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.forms.editor.FormEditor;
 
 import com.collabnet.ccf.Activator;
-import com.collabnet.ccf.model.Patient;
 
 public class HospitalEditor extends FormEditor {
-	private Patient patient;
 	
 	private HospitalExceptionEditorPage exceptionPage;
 	
@@ -28,8 +26,6 @@ public class HospitalEditor extends FormEditor {
         setSite(site);
         setInput(input);
         setPartName(input.getName());
-		HospitalEditorInput hospitalEditorInput = (HospitalEditorInput)getEditorInput();
-		patient = hospitalEditorInput.getPatient();	
         setTitleImage(Activator.getImage(Activator.IMAGE_HOSPITAL_ENTRY));
     }
 
@@ -41,7 +37,9 @@ public class HospitalEditor extends FormEditor {
 			if (activePage != null) {
 				setActivePage(activePage);	
 			}
-		} catch (Exception e) {}
+		} catch (Exception e) {
+			Activator.handleError(e);
+		}
 	}
 	
 	@SuppressWarnings("unchecked")
