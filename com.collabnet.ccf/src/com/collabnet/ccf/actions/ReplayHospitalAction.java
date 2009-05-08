@@ -22,10 +22,10 @@ public class ReplayHospitalAction extends ActionDelegate {
 	private boolean patientsUpdated;
 
 	public void run(IAction action) {
-		if (!MessageDialog.openConfirm(Display.getDefault().getActiveShell(), "Replay", "Replay the selected hospital items?")) return;
+		if (!confirm()) return;
 		patientsUpdated = false;
 		final CcfDataProvider dataProvider = new CcfDataProvider();
-		Update update = new Update(CcfDataProvider.HOSPITAL_ERROR_CODE, CcfDataProvider.HOSPITAL_REPLAY, true);
+		Update update = new Update(CcfDataProvider.HOSPITAL_ERROR_CODE, getUpdateValue(), true);
 		final Update[] updates = { update };
 		BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
 			@SuppressWarnings("unchecked")
@@ -68,11 +68,22 @@ public class ReplayHospitalAction extends ActionDelegate {
 			Object object = iter.next();
 			if (object instanceof Patient) {
 				Patient patient = (Patient)object;
-				if (patient.getErrorCode().equals("replay") || !patient.getOriginatingComponent().endsWith("Writer"))
-					return false;
+				if (!isEnabled(patient)) return false;
 			}
 		}
 		return true;
+	}
+	
+	public boolean confirm() {
+		return MessageDialog.openConfirm(Display.getDefault().getActiveShell(), "Replay", "Replay the selected hospital items?");
+	}
+
+	public boolean isEnabled(Patient patient) {
+		return (!patient.getErrorCode().equals("replay") && patient.getOriginatingComponent().endsWith("Writer"));
 	}	
+	
+	public String getUpdateValue() {
+		return CcfDataProvider.HOSPITAL_REPLAY;
+	}
 	
 }

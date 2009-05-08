@@ -123,7 +123,13 @@
                menubarPath="group.b"
                class="com.collabnet.ccf.actions.MarkFixedAction"
                id="com.collabnet.ccf.actions.MarkFixedAction">
-         </action>              
+         </action>
+         <action
+               label="Cancel replay"
+               menubarPath="group.b"
+               class="com.collabnet.ccf.actions.CancelReplayHospitalAction"
+               id="com.collabnet.ccf.actions.CancelReplayHospitalAction">
+         </action>                          
          <action
                label="Replay"
                menubarPath="group.b"

@@ -29,7 +29,7 @@ public class HospitalEditorPage extends FormPage {
 	}
 	
 	public IDialogSettings getDialogSettings() {
-		return ((CcfEditor)getEditor()).getDialogSettings();
+		return ((HospitalEditor)getEditor()).getDialogSettings();
 	}
 	
 	public Patient getPatient() {
