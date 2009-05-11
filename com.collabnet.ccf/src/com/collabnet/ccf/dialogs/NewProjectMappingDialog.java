@@ -30,6 +30,7 @@ import com.collabnet.ccf.model.SynchronizationStatus;
 
 public class NewProjectMappingDialog extends CcfDialog {
 	private ProjectMappings projectMappings;
+	private int direction = -1;
 	
 	private Button system1ToSystem2Button;
 	private Button system2ToSystem1Button;
@@ -84,10 +85,13 @@ public class NewProjectMappingDialog extends CcfDialog {
 		bothButton = new Button(directionGroup, SWT.RADIO);
 		bothButton.setText("Create mappings for both directions");
 		
-		int direction = 0;
-		try {
-			direction = settings.getInt(PREVIOUS_DIRECTION);
-		} catch (Exception e) {}
+		if (direction == -1) {
+			try {
+				direction = settings.getInt(PREVIOUS_DIRECTION);
+			} catch (Exception e) {
+				direction = 0;
+			}
+		}
 		switch (direction) {
 		case 0:
 			system2ToSystem1Button.setSelection(true);
@@ -262,6 +266,10 @@ public class NewProjectMappingDialog extends CcfDialog {
 		}
 		if (addError) return;
 		super.okPressed();
+	}
+	
+	public void setDirection(int direction) {
+		this.direction = direction;
 	}
 
 	private void createMapping(final SynchronizationStatus status) {

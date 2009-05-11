@@ -262,10 +262,10 @@ public class SynchronizationStatus implements IPropertySource, Comparable {
 	public File getXslFile() {
 		if (xslFile == null) {
 			File xsltFolder = null;
-			if (sourceSystemKind.equals(landscape.getType1())) {
+			if (sourceSystemKind.startsWith(landscape.getType1())) {
 				xsltFolder = landscape.getXsltFolder2();
 			}
-			if (sourceSystemKind.equals(landscape.getType2())) {
+			if (sourceSystemKind.startsWith(landscape.getType2())) {
 				xsltFolder = landscape.getXsltFolder1();
 			}
 			if (xsltFolder != null) {
@@ -285,6 +285,9 @@ public class SynchronizationStatus implements IPropertySource, Comparable {
 	}
 	
 	public ProjectMappings getProjectMappings() {
+		if (projectMappings == null) {
+			projectMappings = new ProjectMappings(landscape);
+		}
 		return projectMappings;
 	}
 	public void setProjectMappings(ProjectMappings projectMappings) {

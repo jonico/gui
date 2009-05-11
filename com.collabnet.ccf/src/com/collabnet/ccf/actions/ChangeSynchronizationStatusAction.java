@@ -11,6 +11,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.actions.ActionDelegate;
 
 import com.collabnet.ccf.dialogs.ChangeProjectMappingDialog;
+import com.collabnet.ccf.editors.CcfProjectMappingsEditorPage;
 import com.collabnet.ccf.model.ProjectMappings;
 import com.collabnet.ccf.model.SynchronizationStatus;
 import com.collabnet.ccf.views.CcfExplorerView;
@@ -35,11 +36,14 @@ public class ChangeSynchronizationStatusAction extends ActionDelegate {
 				mappingsChanged = true;
 			}
 		}
-		if (mappingsChanged && CcfExplorerView.getView() != null) {
+		if (mappingsChanged) {
 			for (ProjectMappings projectMappings: projectMappingsList) {
-				CcfExplorerView.getView().refresh(projectMappings);
-			}			
-		}		
+				if (CcfExplorerView.getView() != null) {
+					CcfExplorerView.getView().refresh(projectMappings);
+				}
+				CcfProjectMappingsEditorPage.notifyChanged(projectMappings);
+			}
+		}
 	}
 	
 	public void selectionChanged(IAction action, ISelection sel) {

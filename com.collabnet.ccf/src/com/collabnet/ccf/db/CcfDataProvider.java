@@ -17,6 +17,7 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.widgets.Display;
 
 import com.collabnet.ccf.Activator;
+import com.collabnet.ccf.editors.CcfProjectMappingsEditorPage;
 import com.collabnet.ccf.model.Landscape;
 import com.collabnet.ccf.model.Patient;
 import com.collabnet.ccf.model.ProjectMappings;
@@ -247,8 +248,7 @@ public class CcfDataProvider {
 		}	
 	}
 	
-	public SynchronizationStatus[] getSynchronizationStatuses(ProjectMappings projectMappings)  throws SQLException, ClassNotFoundException {
-		Landscape landscape = projectMappings.getLandscape();
+	public SynchronizationStatus[] getSynchronizationStatuses(Landscape landscape, ProjectMappings projectMappings)  throws SQLException, ClassNotFoundException {
 		Filter filter1 = new Filter(SYNCHRONIZATION_STATUS_SOURCE_SYSTEM_KIND, landscape.getType1(), true, Filter.FILTER_TYPE_LIKE);
 		Filter filter2 = new Filter(SYNCHRONIZATION_STATUS_TARGET_SYSTEM_KIND, landscape.getType2(), true, Filter.FILTER_TYPE_LIKE);
 		Filter[] orGroup1 = { filter1, filter2 };
@@ -258,21 +258,21 @@ public class CcfDataProvider {
 
 		Filter[][] filters = { orGroup1, orGroup2 };
 
-		SynchronizationStatus[] statuses = getSynchronizationStatuses(projectMappings, filters);
+		SynchronizationStatus[] statuses = getSynchronizationStatuses(landscape, projectMappings, filters);
 		Arrays.sort(statuses);
 		return statuses;
 	}
 	
-	public SynchronizationStatus[] getSynchronizationStatuses(ProjectMappings projectMappings, Filter[][] filters) throws SQLException, ClassNotFoundException {
+	public SynchronizationStatus[] getSynchronizationStatuses(Landscape landscape, ProjectMappings projectMappings, Filter[][] filters) throws SQLException, ClassNotFoundException {
 		Connection connection = null;
 		Statement stmt = null;
 		ResultSet rs = null;
 		SynchronizationStatus[] statuses = null;
 		try {
-			connection = getConnection(projectMappings.getLandscape());
+			connection = getConnection(landscape);
 			stmt = connection.createStatement();
 			rs = stmt.executeQuery(Filter.getQuery(SQL_SYNCHRONIZATION_STATUS_SELECT, filters));
-			statuses = getSynchronizationStatuses(rs, projectMappings);
+			statuses = getSynchronizationStatuses(rs, landscape, projectMappings);
 		}
 		catch (SQLException e) {
 			Activator.handleError(e);
@@ -434,7 +434,10 @@ public class CcfDataProvider {
 					if (CcfExplorerView.getView() != null) {
 						Display.getDefault().syncExec(new Runnable() {
 							public void run() {
-								CcfExplorerView.getView().refresh(status.getProjectMappings());
+								if (CcfExplorerView.getView() != null) {
+									CcfExplorerView.getView().refresh(status.getProjectMappings());
+								}
+								CcfProjectMappingsEditorPage.notifyChanged(status.getProjectMappings());
 							}						
 						});
 					}
@@ -596,7 +599,7 @@ public class CcfDataProvider {
 		return patientArray;
 	}
 	
-	private SynchronizationStatus[] getSynchronizationStatuses(ResultSet rs, ProjectMappings projectMappings) throws SQLException {
+	private SynchronizationStatus[] getSynchronizationStatuses(ResultSet rs, Landscape landscape, ProjectMappings projectMappings) throws SQLException {
 		List<SynchronizationStatus> synchonizationStatuses = new ArrayList<SynchronizationStatus>();
 		while (rs.next()) {
 			SynchronizationStatus status = new SynchronizationStatus();
@@ -617,7 +620,7 @@ public class CcfDataProvider {
 			status.setTargetSystemTimezone(rs.getString(SYNCHRONIZATION_STATUS_TARGET_SYSTEM_TIMEZONE));
 			status.setTargetSystemEncoding(rs.getString(SYNCHRONIZATION_STATUS_TARGET_SYSTEM_ENCODING));			
 			status.setProjectMappings(projectMappings);
-			status.setLandscape(projectMappings.getLandscape());
+			status.setLandscape(landscape);
 			synchonizationStatuses.add(status);
 		}
 		SynchronizationStatus[] statusArray = new SynchronizationStatus[synchonizationStatuses.size()];

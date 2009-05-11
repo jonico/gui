@@ -15,4 +15,13 @@ public class ProjectMappings {
 		return landscape;
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof ProjectMappings) {
+			ProjectMappings compareTo = (ProjectMappings)obj;
+			return landscape.equals(compareTo.getLandscape());
+		}
+		return super.equals(obj);
+	}
+
 }

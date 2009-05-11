@@ -134,7 +134,7 @@ public class ChangeProjectMappingDialog extends CcfDialog {
 		BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
 			public void run() {
 				try {
-					Landscape landscape = status.getProjectMappings().getLandscape();
+					Landscape landscape = status.getLandscape();
 					CcfDataProvider dataProvider = new CcfDataProvider();
 					Filter sourceSystemFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_SOURCE_SYSTEM_ID, status.getSourceSystemId(), true);
 					Filter sourceRepositoryFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_SOURCE_REPOSITORY_ID, status.getSourceRepositoryId(), true);

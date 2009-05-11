@@ -22,6 +22,7 @@ public class CcfEditor extends FormEditor implements ISaveablePart2 {
 	private CcfSystemEditorPage qcPage;
 	private CcfSystemEditorPage sfeePage;
 	private CcfSystemEditorPage ceePage;
+	private CcfProjectMappingsEditorPage mappingsPage;
 
 	private IDialogSettings settings = Activator.getDefault().getDialogSettings();
 	
@@ -51,6 +52,7 @@ public class CcfEditor extends FormEditor implements ISaveablePart2 {
 		if (landscape.getType1().equals(Landscape.TYPE_PT) || landscape.getType2().equals(Landscape.TYPE_PT)) {
 			createCeePage();
 		}
+		createMappingsPage();
 		try {
 			String activePage = settings.get(CcfEditorPage.ACTIVE_PAGE);
 			if (activePage != null) {
@@ -141,7 +143,19 @@ public class CcfEditor extends FormEditor implements ISaveablePart2 {
         } catch (Exception e) { 
         	Activator.handleError(e);
         }
-    }    
+    }
+    
+    @SuppressWarnings("unchecked")
+	private void createMappingsPage() {
+        try {
+        	mappingsPage = new CcfProjectMappingsEditorPage(this, "projectMappings", getEditorInput().getName());
+	        int mappingsIndex = addPage(mappingsPage);
+	        setPageText(mappingsIndex, "Project Mappings");
+	        pages.add(mappingsPage);
+        } catch (Exception e) { 
+        	Activator.handleError(e);
+        }
+    }
  
     public void setDirty() {
     	firePropertyChange(EditorPart.PROP_DIRTY); 

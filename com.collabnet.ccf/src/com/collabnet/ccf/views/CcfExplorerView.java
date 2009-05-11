@@ -162,7 +162,12 @@ public class CcfExplorerView extends ViewPart {
 	}
 	
 	public void refresh(Object object) {
-		treeViewer.refresh(object);
+		Object[] expandedElements = treeViewer.getExpandedElements();
+		for (Object obj : expandedElements) {
+			if (obj.equals(object)) {
+				treeViewer.refresh(obj);
+			}
+		}
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -240,7 +245,7 @@ public class CcfExplorerView extends ViewPart {
 				BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
 					public void run() {
 						try {
-							synchronizationStatuses = getDataProvider().getSynchronizationStatuses(projectMappings);
+							synchronizationStatuses = getDataProvider().getSynchronizationStatuses(projectMappings.getLandscape(), projectMappings);
 						} catch (Exception e) {
 							synchronizationStatuses = new SynchronizationStatus[0];
 							Activator.handleError(e);
