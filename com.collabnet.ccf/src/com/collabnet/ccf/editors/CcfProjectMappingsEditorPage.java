@@ -10,11 +10,13 @@ import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnPixelData;
 import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.IOpenListener;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.OpenEvent;
@@ -24,6 +26,9 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerSorter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.DragSourceListener;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -58,6 +63,7 @@ import com.collabnet.ccf.dialogs.NewProjectMappingDialog;
 import com.collabnet.ccf.model.Landscape;
 import com.collabnet.ccf.model.ProjectMappings;
 import com.collabnet.ccf.model.SynchronizationStatus;
+import com.collabnet.ccf.views.ActiveViewSelectionDragAdapter;
 import com.collabnet.ccf.views.CcfExplorerView;
 
 public class CcfProjectMappingsEditorPage extends CcfEditorPage implements IProjectMappingsChangeListener {
@@ -165,6 +171,9 @@ public class CcfProjectMappingsEditorPage extends CcfEditorPage implements IProj
 		if (sortReversed) table1.setSortDirection(SWT.DOWN);
 		else table1.setSortDirection(SWT.UP);
 		table1.setSortColumn(table1.getColumn(sortIndex));
+		
+		Transfer[] dragTypes = new Transfer[] { LocalSelectionTransfer.getTransfer() };		
+		tableViewer1.addDragSupport(DND.DROP_COPY | DND.DROP_DEFAULT, dragTypes, getDragSourceListener(tableViewer1));
 
 		Section direction2Section = toolkit.createSection(composite, Section.TITLE_BAR | Section.TWISTIE | Section.EXPANDED);
         td = new TableWrapData(TableWrapData.FILL_GRAB);
@@ -227,6 +236,8 @@ public class CcfProjectMappingsEditorPage extends CcfEditorPage implements IProj
 		if (sortReversed) table2.setSortDirection(SWT.DOWN);
 		else table2.setSortDirection(SWT.UP);
 		table2.setSortColumn(table2.getColumn(sortIndex));
+
+		tableViewer2.addDragSupport(DND.DROP_COPY | DND.DROP_DEFAULT, dragTypes, getDragSourceListener(tableViewer2));
         
         toolkit.paintBordersFor(direction1SectionClient);
         toolkit.paintBordersFor(direction2SectionClient);
@@ -247,6 +258,18 @@ public class CcfProjectMappingsEditorPage extends CcfEditorPage implements IProj
 		
 		getSite().setSelectionProvider(tableViewer1);
 		getSite().setSelectionProvider(tableViewer2);
+	}
+
+	private DragSourceListener getDragSourceListener(TableViewer tableViewer) {
+		DragSourceListener dragSourceListener1 = new ActiveViewSelectionDragAdapter(tableViewer) {
+			@Override
+			protected boolean isDragable(ISelection selection) {
+				if (selection == null || selection.isEmpty()) return false;
+				IStructuredSelection structuredSelection = (IStructuredSelection)selection;
+				return structuredSelection.size() == 1;
+			}			
+		};
+		return dragSourceListener1;
 	}
 	
 	private void createMenus(final TableViewer tableViewer) {
