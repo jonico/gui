@@ -77,15 +77,13 @@ public class CcfProjectMappingsEditorPage extends CcfEditorPage implements IProj
 	private CcfDataProvider dataProvider = new CcfDataProvider();
 	private SynchronizationStatus[] direction1Mappings;
 	private SynchronizationStatus[] direction2Mappings;
-	
-	private static List<IProjectMappingsChangeListener> changeListeners = new ArrayList<IProjectMappingsChangeListener>();
-	
+
 	public final static String DIRECTION1_SECTION_STATE = "CcfProjectMappingsEditorPage.direction1SectionExpanded";
 	public final static String DIRECTION2_SECTION_STATE = "CcfProjectMappingsEditorPage.direction2SectionExpanded";
 
 	public CcfProjectMappingsEditorPage(FormEditor editor, String id, String title) {
 		super(editor, id, title);
-		CcfProjectMappingsEditorPage.changeListeners.add(this);
+		Activator.addChangeListener(this);
 	}
 	
 	@Override
@@ -316,7 +314,7 @@ public class CcfProjectMappingsEditorPage extends CcfEditorPage implements IProj
 	
 	@Override
 	public void dispose() {
-		CcfProjectMappingsEditorPage.changeListeners.remove(this);
+		Activator.removeChangeListener(this);
 		super.dispose();
 	}
 
@@ -427,12 +425,6 @@ public class CcfProjectMappingsEditorPage extends CcfEditorPage implements IProj
 		ProjectMappingsSorter sorter = (ProjectMappingsSorter)tableViewer.getSorter();
 		settings.put("projectMappings." + tableViewer.getTable().getData() + ".sortColumn", column);
 		settings.put("projectMappings." + tableViewer.getTable().getData() + ".sortReversed", sorter.isReversed());
-	}
-	
-	public static void notifyChanged(ProjectMappings projectMappings) {
-		for (IProjectMappingsChangeListener listener : CcfProjectMappingsEditorPage.changeListeners) {
-			listener.changed(projectMappings);
-		}
 	}
 	
 	public void changed(ProjectMappings projectMappings) {

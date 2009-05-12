@@ -17,12 +17,10 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.widgets.Display;
 
 import com.collabnet.ccf.Activator;
-import com.collabnet.ccf.editors.CcfProjectMappingsEditorPage;
 import com.collabnet.ccf.model.Landscape;
 import com.collabnet.ccf.model.Patient;
 import com.collabnet.ccf.model.ProjectMappings;
 import com.collabnet.ccf.model.SynchronizationStatus;
-import com.collabnet.ccf.views.CcfExplorerView;
 
 public class CcfDataProvider {	
 	private IPreferenceStore store = Activator.getDefault().getPreferenceStore();
@@ -184,55 +182,6 @@ public class CcfDataProvider {
 	public Patient[] getPatients(Landscape landscape, Filter[] filters) throws SQLException, ClassNotFoundException {
 		Filter[][] filterGroups = { filters };
 		return getPatients(landscape, filterGroups);
-//		
-//		Connection connection = null;
-//		Statement stmt = null;
-//		ResultSet rs = null;
-//		Patient[] patients = null;
-//		try {
-//			connection = getConnection(landscape);
-//			stmt = connection.createStatement();
-//			rs = stmt.executeQuery(Filter.getQuery(SQL_HOSPITAL_SELECT, filters));
-//			patients = getPatients(rs, landscape);
-//		}
-//		catch (SQLException e) {
-//			Activator.handleError(e);
-//			throw e;
-//		}
-//		catch (ClassNotFoundException e) {
-//			Activator.handleError(e);
-//			throw e;
-//		}
-//		finally {
-//	        try
-//	        {
-//	            if (rs != null)
-//	                rs.close();
-//	        }
-//	        catch (Exception e)
-//	        {
-//	            Activator.handleError("Could not close ResultSet" ,e);
-//	        }
-//	        try
-//	        {
-//	            if (stmt != null)
-//	                stmt.close();
-//	        }
-//	        catch (Exception e)
-//	        {
-//	        	 Activator.handleError("Could not close Statement" ,e);
-//	        }
-//	        try
-//	        {
-//	            if (connection  != null)
-//	                connection.close();
-//	        }
-//	        catch (SQLException e)
-//	        {
-//	        	 Activator.handleError("Could not close Connection" ,e);
-//	        }			
-//		}
-//		return patients;
 	}
 	
 	public void addSynchronizationStatus(ProjectMappings projectMappings, SynchronizationStatus synchronizationStatus) throws SQLException, ClassNotFoundException {
@@ -485,16 +434,13 @@ public class CcfDataProvider {
 					updateSynchronizationStatuses(status.getLandscape(), updates, filters);
 					// Resume
 					if (!pausedAlready) resumeSynchronization(status);				
-					if (CcfExplorerView.getView() != null) {
-						Display.getDefault().syncExec(new Runnable() {
-							public void run() {
-								if (CcfExplorerView.getView() != null) {
-									CcfExplorerView.getView().refresh(status.getProjectMappings());
-								}
-								CcfProjectMappingsEditorPage.notifyChanged(status.getProjectMappings());
-							}						
-						});
-					}
+
+					Display.getDefault().syncExec(new Runnable() {
+						public void run() {
+							Activator.notifyChanged(status.getProjectMappings());
+						}						
+					});
+
 				} catch (Exception e) {
 					Activator.handleError(e);
 				}

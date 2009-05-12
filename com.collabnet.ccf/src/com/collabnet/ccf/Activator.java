@@ -22,6 +22,7 @@ import org.osgi.service.prefs.Preferences;
 
 import com.collabnet.ccf.db.CcfDataProvider;
 import com.collabnet.ccf.model.Landscape;
+import com.collabnet.ccf.model.ProjectMappings;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -37,6 +38,7 @@ public class Activator extends AbstractUIPlugin {
 	public static final String LANDSCAPE_CONTRIBUTORS = "com.collabnet.ccf.landscapeContributors"; //$NON-NLS-1$	
 	
 	private static ILandscapeContributor[] landscapeContributors;
+	private static List<IProjectMappingsChangeListener> changeListeners = new ArrayList<IProjectMappingsChangeListener>();
 	
 	// Images
 	public static final String IMAGE_ERROR = "error.gif"; //$NON-NLS-1$
@@ -152,6 +154,20 @@ public class Activator extends AbstractUIPlugin {
 		}
 		super.stop(context);
 	}
+	
+	public static void addChangeListener(IProjectMappingsChangeListener listener) {
+		changeListeners.add(listener);
+	}
+	
+	public static void removeChangeListener(IProjectMappingsChangeListener listener) {
+		changeListeners.remove(listener);
+	}
+	
+	public static void notifyChanged(ProjectMappings projectMappings) {
+	for (IProjectMappingsChangeListener listener : Activator.changeListeners) {
+		listener.changed(projectMappings);
+	}
+}
 
 	// Initialize the landscape contributors by searching the registry for users of the
 	// landscape contributors extension point.	

@@ -14,10 +14,8 @@ import org.eclipse.ui.actions.ActionDelegate;
 import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.db.CcfDataProvider;
 import com.collabnet.ccf.dialogs.ResetProjectMappingDialog;
-import com.collabnet.ccf.editors.CcfProjectMappingsEditorPage;
 import com.collabnet.ccf.model.ProjectMappings;
 import com.collabnet.ccf.model.SynchronizationStatus;
-import com.collabnet.ccf.views.CcfExplorerView;
 
 public class ResetSynchronizationStatusAction extends ActionDelegate {
 	private IStructuredSelection fSelection;
@@ -60,10 +58,7 @@ public class ResetSynchronizationStatusAction extends ActionDelegate {
 			}			
 		});
 		for (ProjectMappings projectMappings: projectMappingsList) {
-			if (CcfExplorerView.getView() != null) {
-				CcfExplorerView.getView().refresh(projectMappings);
-			}
-			CcfProjectMappingsEditorPage.notifyChanged(projectMappings);
+			Activator.notifyChanged(projectMappings);
 		}
 	}
 

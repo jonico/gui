@@ -10,11 +10,10 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.actions.ActionDelegate;
 
+import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.dialogs.ChangeProjectMappingDialog;
-import com.collabnet.ccf.editors.CcfProjectMappingsEditorPage;
 import com.collabnet.ccf.model.ProjectMappings;
 import com.collabnet.ccf.model.SynchronizationStatus;
-import com.collabnet.ccf.views.CcfExplorerView;
 
 public class ChangeSynchronizationStatusAction extends ActionDelegate {
 	private IStructuredSelection fSelection;
@@ -38,10 +37,7 @@ public class ChangeSynchronizationStatusAction extends ActionDelegate {
 		}
 		if (mappingsChanged) {
 			for (ProjectMappings projectMappings: projectMappingsList) {
-				if (CcfExplorerView.getView() != null) {
-					CcfExplorerView.getView().refresh(projectMappings);
-				}
-				CcfProjectMappingsEditorPage.notifyChanged(projectMappings);
+				Activator.notifyChanged(projectMappings);
 			}
 		}
 	}

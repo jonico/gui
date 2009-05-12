@@ -32,6 +32,7 @@ import org.eclipse.ui.part.ViewPart;
 
 import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.ILandscapeContributor;
+import com.collabnet.ccf.IProjectMappingsChangeListener;
 import com.collabnet.ccf.actions.ChangeSynchronizationStatusAction;
 import com.collabnet.ccf.actions.EditLandscapeAction;
 import com.collabnet.ccf.actions.EditLogAction;
@@ -43,7 +44,7 @@ import com.collabnet.ccf.model.Logs;
 import com.collabnet.ccf.model.ProjectMappings;
 import com.collabnet.ccf.model.SynchronizationStatus;
 
-public class CcfExplorerView extends ViewPart {
+public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeListener {
 	private static CcfExplorerView view;
 	private TreeViewer treeViewer;
 	private CcfDataProvider dataProvider;
@@ -53,6 +54,7 @@ public class CcfExplorerView extends ViewPart {
 	public CcfExplorerView() {
 		super();
 		view = this;
+		Activator.addChangeListener(this);
 	}
 
 	@Override
@@ -199,6 +201,7 @@ public class CcfExplorerView extends ViewPart {
 	}
 	
 	public void dispose() {
+		Activator.removeChangeListener(this);
 		view = null;
 		super.dispose();
 	}
@@ -289,6 +292,10 @@ public class CcfExplorerView extends ViewPart {
 		public void run() {
 			treeViewer.refresh();
 		}
+	}
+
+	public void changed(ProjectMappings projectMappings) {
+		refresh(projectMappings);
 	}
 
 }
