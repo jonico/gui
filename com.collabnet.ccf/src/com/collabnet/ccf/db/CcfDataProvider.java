@@ -130,7 +130,7 @@ public class CcfDataProvider {
 	
 	private final static String SQL_IDENTITY_MAPPING_DELETE = "DELETE FROM IDENTITY_MAPPING";
 
-	public Patient[] getPatients(Landscape landscape, Filter[] filters) throws SQLException, ClassNotFoundException {
+	public Patient[] getPatients(Landscape landscape, Filter[][] filters) throws SQLException, ClassNotFoundException {
 		Connection connection = null;
 		Statement stmt = null;
 		ResultSet rs = null;
@@ -179,6 +179,60 @@ public class CcfDataProvider {
 	        }			
 		}
 		return patients;
+	}
+	
+	public Patient[] getPatients(Landscape landscape, Filter[] filters) throws SQLException, ClassNotFoundException {
+		Filter[][] filterGroups = { filters };
+		return getPatients(landscape, filterGroups);
+//		
+//		Connection connection = null;
+//		Statement stmt = null;
+//		ResultSet rs = null;
+//		Patient[] patients = null;
+//		try {
+//			connection = getConnection(landscape);
+//			stmt = connection.createStatement();
+//			rs = stmt.executeQuery(Filter.getQuery(SQL_HOSPITAL_SELECT, filters));
+//			patients = getPatients(rs, landscape);
+//		}
+//		catch (SQLException e) {
+//			Activator.handleError(e);
+//			throw e;
+//		}
+//		catch (ClassNotFoundException e) {
+//			Activator.handleError(e);
+//			throw e;
+//		}
+//		finally {
+//	        try
+//	        {
+//	            if (rs != null)
+//	                rs.close();
+//	        }
+//	        catch (Exception e)
+//	        {
+//	            Activator.handleError("Could not close ResultSet" ,e);
+//	        }
+//	        try
+//	        {
+//	            if (stmt != null)
+//	                stmt.close();
+//	        }
+//	        catch (Exception e)
+//	        {
+//	        	 Activator.handleError("Could not close Statement" ,e);
+//	        }
+//	        try
+//	        {
+//	            if (connection  != null)
+//	                connection.close();
+//	        }
+//	        catch (SQLException e)
+//	        {
+//	        	 Activator.handleError("Could not close Connection" ,e);
+//	        }			
+//		}
+//		return patients;
 	}
 	
 	public void addSynchronizationStatus(ProjectMappings projectMappings, SynchronizationStatus synchronizationStatus) throws SQLException, ClassNotFoundException {

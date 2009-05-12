@@ -13,19 +13,26 @@ import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.preference.PreferenceDialog;
+import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnPixelData;
 import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.IOpenListener;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.OpenEvent;
 import org.eclipse.jface.viewers.TableLayout;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerDropAdapter;
 import org.eclipse.jface.viewers.ViewerSorter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.DropTargetEvent;
+import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.swt.dnd.TransferData;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -46,6 +53,7 @@ import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.eclipse.ui.part.ViewPart;
 
 import com.collabnet.ccf.Activator;
+import com.collabnet.ccf.actions.HospitalAction;
 import com.collabnet.ccf.actions.HospitalEditAction;
 import com.collabnet.ccf.db.CcfDataProvider;
 import com.collabnet.ccf.db.Filter;
@@ -66,7 +74,7 @@ public class HospitalView extends ViewPart {
 	private static HospitalView view;
 	private static String contentDescription;
 	private static Landscape landscape;
-	private static Filter[]	filters;
+	private static Filter[][] filters;
 	private static boolean filtering;
 	private static boolean filtersActive = true;
 	
@@ -227,11 +235,18 @@ public class HospitalView extends ViewPart {
 		return view;
 	}
 	
-	public static void setFilters(Filter[] filters, boolean filtering) {
+	public static void setFilters(Filter[][] filters, boolean filtering, String description) {
 		HospitalView.filters = filters;
 		HospitalView.filtering = filtering;
-		if (filtering) contentDescription = "(Filters Active)";
-		else contentDescription = "";
+		if (filtering) {
+			if (description == null) {
+				contentDescription = "(Filters Active)";
+			} else {
+				contentDescription = description;
+			}
+		} else {
+			contentDescription = "";
+		}
 	}
 	
 	public static void setLandscape(Landscape landscape) {
@@ -283,6 +298,10 @@ public class HospitalView extends ViewPart {
 				action.run(null);
 			}			
 		});
+		
+		Transfer[] dropTypes = { LocalSelectionTransfer.getTransfer() };
+		tableViewer.addDropSupport(DND.DROP_COPY | DND.DROP_DEFAULT, dropTypes,
+				new HospitalDropAdapter(tableViewer));
 		
 		return tableViewer;
 	}
@@ -388,7 +407,7 @@ public class HospitalView extends ViewPart {
 				else setContentDescription(contentDescription);
 				try {
 					if (filtering) patients = dataProvider.getPatients(landscape, filters);
-					else patients = dataProvider.getPatients(landscape, null);
+					else patients = dataProvider.getPatients(landscape, (Filter[])null);
 					hospitalLoaded = true;
 				} catch (Exception e) {
 					setContentDescription("Could not connect to database.  See error log.");
@@ -429,10 +448,16 @@ public class HospitalView extends ViewPart {
 		updateFilterList(filterList, CcfDataProvider.HOSPITAL_ARTIFACT_TYPE, true);
 		updateFilterList(filterList, CcfDataProvider.HOSPITAL_GENERIC_ARTIFACT, true);
 		if (filterList.size() > 0) {
-			filters = new Filter[filterList.size()];
-			filterList.toArray(filters);
+			
+			Filter[] previousFilters = new Filter[filterList.size()];
+			filterList.toArray(previousFilters);
+			Filter[][] filterGroups = { previousFilters };
+			
+//			filters = new Filter[filterList.size()];
+//			filterList.toArray(filters);
 			filtering = filtersActive;
-			setFilters(filters, filtering);
+//			setFilters(filters, filtering);
+			setFilters(filterGroups, filtering, null);
 		}
 	}
 	
@@ -794,7 +819,12 @@ public class HospitalView extends ViewPart {
 			if (dialog.open() == HospitalFilterDialog.OK) {
 				filtering = dialog.isFiltering();
 				filtersActive = dialog.filtersActive();
-				setFilters(dialog.getFilters(), filtering);
+				
+//				Filter[][] filterGroups = { dialog.getFilters() };
+//				
+//				setFilters(filterGroups, filtering);
+				
+				setFilters(dialog.getFilters(), filtering, null);
 				getPatients();
 			}
 		}
@@ -821,6 +851,58 @@ public class HospitalView extends ViewPart {
 			PreferenceDialog pref = PreferencesUtil.createPreferenceDialogOn(Display.getDefault().getActiveShell(), CcfPreferencePage.ID, null, null);
 			if (pref != null) pref.open();			
 		}
-	}		
+	}
+	
+	class HospitalDropAdapter extends ViewerDropAdapter {
+		
+		protected HospitalDropAdapter(Viewer viewer) {
+			super(viewer);
+			setFeedbackEnabled(true);
+		}
+
+		@Override
+		public boolean performDrop(Object arg0) {
+			return true;
+		}
+
+		@Override
+		public boolean validateDrop(Object arg0, int arg1, TransferData arg2) {
+			return true;
+		}
+		
+		@Override
+		public void drop(DropTargetEvent event) {
+			if (event.data instanceof IStructuredSelection) {
+				IStructuredSelection selection = (IStructuredSelection)event.data;
+				HospitalAction action = new HospitalAction();
+				action.selectionChanged(null, selection);
+				action.run(null);		
+			}
+		}
+		
+		public void dragEnter(DropTargetEvent event) {
+			if (event.detail == DND.DROP_DEFAULT) {
+				if ((event.operations & DND.DROP_COPY) != 0) {
+					event.detail = DND.DROP_COPY;
+				} else {
+					event.detail = DND.DROP_NONE;
+				}
+			}
+		}
+		
+		public void dragOver(DropTargetEvent event) {
+			event.feedback = DND.FEEDBACK_SELECT | DND.FEEDBACK_SCROLL;
+		}
+		
+		public void dragOperationChanged(DropTargetEvent event) {
+			if ((event.detail == DND.DROP_DEFAULT) || (event.operations & DND.DROP_COPY) != 0) {
+
+				event.detail = DND.DROP_COPY;
+			} else {
+				event.detail = DND.DROP_NONE;
+			}
+		}
+		
+	}
 
 }

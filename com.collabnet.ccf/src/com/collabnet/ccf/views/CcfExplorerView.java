@@ -8,12 +8,17 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.viewers.IOpenListener;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.OpenEvent;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.custom.BusyIndicator;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.DragSourceListener;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -97,6 +102,20 @@ public class CcfExplorerView extends ViewPart {
 		
 		createMenus();
 		createToolbar();
+		
+		Transfer[] dragTypes = new Transfer[] { LocalSelectionTransfer.getTransfer() };
+		
+		DragSourceListener dragSourceListener = new ActiveViewSelectionDragAdapter(treeViewer) {
+			@Override
+			protected boolean isDragable(ISelection selection) {
+				if (selection == null || selection.isEmpty()) return false;
+				IStructuredSelection structuredSelection = (IStructuredSelection)selection;
+				if (structuredSelection.size() > 1) return false;
+				Object selectedObject = structuredSelection.getFirstElement();
+				return (selectedObject instanceof Landscape || selectedObject instanceof SynchronizationStatus);
+			}			
+		};
+		treeViewer.addDragSupport(DND.DROP_COPY | DND.DROP_DEFAULT, dragTypes, dragSourceListener);
 		
 		getSite().setSelectionProvider(treeViewer);
 	}

@@ -36,7 +36,33 @@ public class HospitalAction extends ActionDelegate {
 				try {
 					HospitalView.setLandscape(landscape);
 					if (status == null) {
-						HospitalView.setFilters(null, true);
+						
+// TODO: Support for OR filtering.
+						
+//						Filter sourceSystemFilter1 = new Filter(CcfDataProvider.HOSPITAL_SOURCE_SYSTEM_KIND, landscape.getType1(), true, Filter.FILTER_TYPE_LIKE);
+//						Filter targetSystemFilter1 = new Filter(CcfDataProvider.HOSPITAL_SOURCE_SYSTEM_KIND, landscape.getType2(), true, Filter.FILTER_TYPE_LIKE);
+//						
+//						Filter[] orGroup1 = { sourceSystemFilter1, targetSystemFilter1 };
+//						
+//						Filter sourceSystemFilter2 = new Filter(CcfDataProvider.HOSPITAL_SOURCE_SYSTEM_KIND, landscape.getType2(), true, Filter.FILTER_TYPE_LIKE);
+//						Filter targetSystemFilter2 = new Filter(CcfDataProvider.HOSPITAL_SOURCE_SYSTEM_KIND, landscape.getType1(), true, Filter.FILTER_TYPE_LIKE);
+//						
+//						Filter[] orGroup2 = { sourceSystemFilter2, targetSystemFilter2 };
+						
+//						Filter[][] filterGroups = { orGroup1, orGroup2 };
+						
+						String adaptorName = null;
+						if (landscape.getType1().equals(Landscape.TYPE_PT) || landscape.getType2().equals(Landscape.TYPE_PT)) {
+							adaptorName = Landscape.TYPE_PT;
+						} else {
+							adaptorName = "SFEE";
+						}
+						
+						Filter adaptorNameFilter = new Filter(CcfDataProvider.HOSPITAL_ADAPTOR_NAME, adaptorName, true, Filter.FILTER_TYPE_LIKE);
+						Filter[] filters = { adaptorNameFilter };
+						Filter[][] filterGroups = { filters };
+						
+						HospitalView.setFilters(filterGroups, true, landscape.getDescription());
 					} else {
 						String sourceSystemKind;
 						if (status.isPaused()) sourceSystemKind = status.getSourceSystemKind().substring(0, 2);
@@ -46,7 +72,10 @@ public class HospitalAction extends ActionDelegate {
 						Filter targetSystemFilter = new Filter(CcfDataProvider.HOSPITAL_TARGET_SYSTEM_KIND, status.getTargetSystemKind(), true, Filter.FILTER_TYPE_LIKE);
 						Filter targetRepositoryFilter = new Filter(CcfDataProvider.HOSPITAL_TARGET_REPOSITORY_ID, status.getTargetRepositoryId(), true);
 						Filter[] filters = { sourceSystemFilter, sourceRepositoryFilter, targetSystemFilter, targetRepositoryFilter };
-						HospitalView.setFilters(filters, true);
+						
+						Filter[][] filterGroups = { filters };
+						
+						HospitalView.setFilters(filterGroups, true, status.toString());
 					}
 					HospitalView hospitalView = (HospitalView)Activator.getDefault().getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(HospitalView.ID);
 					hospitalView.refresh();

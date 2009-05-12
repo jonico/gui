@@ -20,7 +20,7 @@ import com.collabnet.ccf.db.CcfDataProvider;
 import com.collabnet.ccf.db.Filter;
 
 public class HospitalFilterDialog extends CcfDialog {
-	private Filter[] filters;
+	private Filter[][] filters;
 	private boolean filtersActive;
 	
 	private Button filtersActiveButton;
@@ -76,7 +76,7 @@ public class HospitalFilterDialog extends CcfDialog {
 	private Combo reprocessedCombo;
 	private Combo fixedCombo;
 
-	public HospitalFilterDialog(Shell shell, Filter[] filters, boolean filtersActive) {
+	public HospitalFilterDialog(Shell shell, Filter[][] filters, boolean filtersActive) {
 		super(shell, "HospitalFilterDialog");
 		this.filters = filters;
 		this.filtersActive = filtersActive;
@@ -368,18 +368,23 @@ public class HospitalFilterDialog extends CcfDialog {
 		updateFilterList(filterList, CcfDataProvider.HOSPITAL_GENERIC_ARTIFACT, true, genericArtifactText, genericArtifactCombo, settings);			
 		if (reprocessedCombo.getText().length() > 0) {
 			Filter filter = new Filter(CcfDataProvider.HOSPITAL_REPROCESSED, reprocessedCombo.getText(), false, Filter.FILTER_TYPE_EQUAL);
-			filterList.add(filter);	
+			filterList.add(filter);		
 			settings.put(Filter.HOSPITAL_FILTER_VALUE + CcfDataProvider.HOSPITAL_REPROCESSED, filter.getValue());
 			settings.put(Filter.HOSPITAL_FILTER_TYPE + CcfDataProvider.HOSPITAL_REPROCESSED, filter.getFilterType());
 		}
 		if (fixedCombo.getText().length() > 0) {
 			Filter filter = new Filter(CcfDataProvider.HOSPITAL_FIXED, fixedCombo.getText(), false, Filter.FILTER_TYPE_EQUAL);
-			filterList.add(filter);	
+			filterList.add(filter);			
 			settings.put(Filter.HOSPITAL_FILTER_VALUE + CcfDataProvider.HOSPITAL_FIXED, filter.getValue());
 			settings.put(Filter.HOSPITAL_FILTER_TYPE + CcfDataProvider.HOSPITAL_FIXED, filter.getFilterType());
 		}
-		filters = new Filter[filterList.size()];
-		filterList.toArray(filters);
+//		filters = new Filter[filterList.size()][];
+//		filterList.toArray(filters);
+		
+		Filter[] filterArray = new Filter[filterList.size()];
+		filterList.toArray(filterArray);
+		filters = new Filter[][] { filterArray };
+		
 		super.okPressed();
 	}
 	
@@ -387,13 +392,13 @@ public class HospitalFilterDialog extends CcfDialog {
 		if (text.getText().trim().length() > 0) {
 			int filterType = getFilterType(combo);
 			Filter filter = new Filter(columnName, text.getText().trim(), stringValue, filterType);
-			filterList.add(filter);
+			filterList.add(filter);						
 			settings.put(Filter.HOSPITAL_FILTER_VALUE + columnName, filter.getValue());
 			settings.put(Filter.HOSPITAL_FILTER_TYPE + columnName, filter.getFilterType());
 		}
 	}
 
-	public Filter[] getFilters() {
+	public Filter[][] getFilters() {
 		return filters;
 	}
 	
@@ -407,6 +412,11 @@ public class HospitalFilterDialog extends CcfDialog {
 	
 	private void initializeValues() {
 		filtersActiveButton.setSelection(filtersActive);
+		
+		Filter[] filters;
+		if (this.filters == null) filters = null;
+		else filters = this.filters[0];
+		
 		if (filters != null) {
 			for (int i = 0; i < filters.length; i++) {
 				if (filters[i].getColumnName().equals(CcfDataProvider.HOSPITAL_ERROR_CODE)) {
