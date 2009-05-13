@@ -203,7 +203,7 @@
                menubarPath="group.a"
                icon="icons/hospitalView.gif"
                id="com.collabnet.ccf.actions.HospitalAction">
-         </action>
+         </action>          
          <action
                label="Edit field mappings"
                class="com.collabnet.ccf.actions.EditWiringsAction"
@@ -245,7 +245,13 @@
                class="com.collabnet.ccf.actions.ChangeSynchronizationStatusAction"
                menubarPath="group.d"
                id="com.collabnet.ccf.actions.ChangeSynchronizationStatusAction">
-         </action>                                                                                              
+         </action>
+         <action
+               label="Create reverse mapping..."
+               class="com.collabnet.ccf.actions.ReverseSynchronizationStatusAction"
+               menubarPath="group.d"
+               id="com.collabnet.ccf.actions.ReverseSynchronizationStatusAction">
+         </action>                                                                                                                
       </objectContribution>
       
       <objectContribution

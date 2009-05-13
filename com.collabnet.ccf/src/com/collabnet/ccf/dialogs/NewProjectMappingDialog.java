@@ -32,6 +32,8 @@ public class NewProjectMappingDialog extends CcfDialog {
 	private ProjectMappings projectMappings;
 	private int direction = -1;
 	
+	private SynchronizationStatus reverseStatus;
+	
 	private Button system1ToSystem2Button;
 	private Button system2ToSystem1Button;
 	private Button bothButton;
@@ -57,6 +59,11 @@ public class NewProjectMappingDialog extends CcfDialog {
 	public NewProjectMappingDialog(Shell shell, ProjectMappings projectMappings) {
 		super(shell, "NewProjectMappingDialog");
 		this.projectMappings = projectMappings;
+	}
+	
+	public NewProjectMappingDialog(Shell shell, ProjectMappings projectMappings, SynchronizationStatus reverseStatus) {
+		this(shell, projectMappings);
+		this.reverseStatus = reverseStatus;
 	}
 	
 	protected Control createDialogArea(Composite parent) {
@@ -199,6 +206,8 @@ public class NewProjectMappingDialog extends CcfDialog {
 		if (previousResolutionPriority == null || system1ToSystem2ConflictResolutionCombo.indexOf(previousResolutionPriority) == -1) system1ToSystem2ConflictResolutionCombo.setText(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_ALWAYS_IGNORE);
 		else system1ToSystem2ConflictResolutionCombo.setText(previousResolutionPriority);
 
+		if (reverseStatus != null) initializeReverseValues();
+		
 		ModifyListener modifyListener = new ModifyListener() {
 			public void modifyText(ModifyEvent me) {
 				okButton.setEnabled(canFinish());
@@ -212,6 +221,72 @@ public class NewProjectMappingDialog extends CcfDialog {
 		setComboEnablement();
 		
 		return composite;
+	}
+	
+	private void initializeReverseValues() {
+		qcDomainText.setText(getQcDomain());
+		qcProjectText.setText(getQcProject());
+		trackerText.setText(getTrackerId());
+		bothButton.setSelection(false);
+		if (reverseStatus.getSourceSystemKind().startsWith(Landscape.TYPE_QC)) {
+			system2ToSystem1Button.setSelection(true);
+			system1ToSystem2Button.setSelection(false);
+			system1ToSystem2ConflictResolutionCombo.setText(SynchronizationStatus.getConflictResolutionDescription(reverseStatus.getConflictResolutionPriority()));
+			if (reverseStatus.getConflictResolutionPriority().equals(SynchronizationStatus.CONFLICT_RESOLUTION_ALWAYS_IGNORE)) {
+				system2ToSystem1ConflictResolutionCombo.setText(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_ALWAYS_OVERRIDE);
+			}
+			else if (reverseStatus.getConflictResolutionPriority().equals(SynchronizationStatus.CONFLICT_RESOLUTION_ALWAYS_OVERRIDE)) {
+				system2ToSystem1ConflictResolutionCombo.setText(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_ALWAYS_IGNORE);
+			} else {
+				system2ToSystem1ConflictResolutionCombo.setText(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_QUARANTINE_ARTIFACT);
+			}
+		} else {
+			system2ToSystem1Button.setSelection(false);
+			system1ToSystem2Button.setSelection(true);	
+			system2ToSystem1ConflictResolutionCombo.setText(SynchronizationStatus.getConflictResolutionDescription(reverseStatus.getConflictResolutionPriority()));
+			if (reverseStatus.getConflictResolutionPriority().equals(SynchronizationStatus.CONFLICT_RESOLUTION_ALWAYS_IGNORE)) {
+				system1ToSystem2ConflictResolutionCombo.setText(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_ALWAYS_OVERRIDE);
+			}
+			else if (reverseStatus.getConflictResolutionPriority().equals(SynchronizationStatus.CONFLICT_RESOLUTION_ALWAYS_OVERRIDE)) {
+				system1ToSystem2ConflictResolutionCombo.setText(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_ALWAYS_IGNORE);
+			} else {
+				system1ToSystem2ConflictResolutionCombo.setText(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_QUARANTINE_ARTIFACT);
+			}		
+		}
+	}
+	
+	private String getTrackerId() {
+		String trackerId;
+		if (reverseStatus.getSourceSystemKind().startsWith(Landscape.TYPE_QC)) {
+			trackerId = reverseStatus.getTargetRepositoryId();
+		} else {
+			trackerId = reverseStatus.getSourceRepositoryId();
+		}
+		return trackerId;
+	}
+	
+	private String getQcDomain() {
+		String repositoryId;
+		if (reverseStatus.getSourceSystemKind().startsWith(Landscape.TYPE_QC)) {
+			repositoryId = reverseStatus.getSourceRepositoryId();
+		} else {
+			repositoryId = reverseStatus.getTargetRepositoryId();
+		}
+		int index = repositoryId.indexOf("-");
+		if (index == -1) return "";
+		else return repositoryId.substring(0, index);
+	}
+	
+	private String getQcProject() {
+		String repositoryId;
+		if (reverseStatus.getSourceSystemKind().startsWith(Landscape.TYPE_QC)) {
+			repositoryId = reverseStatus.getSourceRepositoryId();
+		} else {
+			repositoryId = reverseStatus.getTargetRepositoryId();
+		}
+		int index = repositoryId.indexOf("-");
+		if (index == -1) return "";
+		else return repositoryId.substring(index + 1);
 	}
 	
 	@Override
@@ -299,7 +374,7 @@ public class NewProjectMappingDialog extends CcfDialog {
         Button button = super.createButton(parent, id, label, defaultButton);
 		if (id == IDialogConstants.OK_ID) {
 			okButton = button;
-			okButton.setEnabled(false);
+			if (reverseStatus == null) okButton.setEnabled(false);
 		}
         return button;
     }
