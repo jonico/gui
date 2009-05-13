@@ -14,7 +14,8 @@ public class CancelReplayHospitalAction extends ReplayHospitalAction {
 
 	@Override
 	public boolean isEnabled(Patient patient) {
-		return patient.getErrorCode().equals("replay");
+		String errorCode = patient.getErrorCode();
+		return errorCode != null && patient.getErrorCode().equals("replay");
 	}
 
 	@Override
