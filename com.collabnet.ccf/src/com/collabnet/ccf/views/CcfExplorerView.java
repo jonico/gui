@@ -277,7 +277,16 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 				return synchronizationStatuses;
 			}
 			else if (parentElement instanceof Logs) {
-				return ((Logs)parentElement).getLandscape().getLogs((Logs)parentElement);
+				Logs logs = (Logs)parentElement;
+				switch (logs.getType()) {
+				case Logs.TYPE_FOLDER:
+					Logs logs1 = new Logs(logs.getLandscape(), Logs.TYPE_1_2);
+					Logs logs2 = new Logs(logs.getLandscape(), Logs.TYPE_2_1);
+					Logs[] logsArray = { logs1, logs2 };
+					return logsArray;
+				default:
+					return logs.getLandscape().getLogs(logs);
+				}
 			}
 			return new Object[0];
 		}

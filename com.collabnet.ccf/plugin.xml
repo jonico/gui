@@ -182,6 +182,18 @@
       </objectContribution> 
       
       <objectContribution
+            objectClass="com.collabnet.ccf.model.Logs"
+            id="com.collabnet.ccf.model.Logs">
+         <action
+               label="Refresh"
+               class="com.collabnet.ccf.actions.RefreshAction"
+               icon="icons/refresh.gif"
+               menubarPath="group.b"
+               id="com.collabnet.ccf.actions.RefreshAction">
+         </action>                                                              
+      </objectContribution>       
+      
+      <objectContribution
             objectClass="com.collabnet.ccf.model.SynchronizationStatus"
             id="com.collabnet.ccf.model.SynchronizationStatus">  
          <action

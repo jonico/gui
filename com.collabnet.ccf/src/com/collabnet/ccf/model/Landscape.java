@@ -3,7 +3,6 @@ package com.collabnet.ccf.model;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
@@ -366,15 +365,8 @@ public class Landscape implements IPropertySource {
 	}
 	
 	public Log[] getLogs(Logs logs) {
-		Log[] logs1 = getLogs1(logs);
-		Log[] logs2 = getLogs2(logs);
-		List<Log> logList = new ArrayList<Log>();
-		for (Log log : logs1) logList.add(log);
-		for (Log log : logs2) logList.add(log);
-		Log[] logArray = new Log[logList.size()];
-		logList.toArray(logArray);
-		Arrays.sort(logArray);
-		return logArray;
+		if (logs.getType() == Logs.TYPE_1_2) return getLogs1(logs);
+		else return getLogs2(logs);
 	}
 	
 	public static String getTypeDescription(String type) {
