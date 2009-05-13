@@ -34,6 +34,9 @@ public class Landscape implements IPropertySource {
 	private File logsFolder2;
 	private File xsltFolder1;
 	private File xsltFolder2;
+	private File libFolder;
+	private File log4jFile;
+	private File log4jRenameFile;
 	
 	public final static String TYPE_QC = "QC";
 	public final static String TYPE_TF = "TF";
@@ -334,6 +337,46 @@ public class Landscape implements IPropertySource {
 		File configurationFolder = new File(config);
 		File xsltFolder = new File(configurationFolder.getParent(), "xslt");
 		return xsltFolder;
+	}
+	
+	public File getLog4jFile() {
+		if (log4jFile == null) {
+			libFolder = getLibFolder();
+			if (libFolder != null) {
+				log4jFile = new File(libFolder, "log4j.xml");
+			}
+		}
+		return log4jFile;
+	}
+	
+	public File getLog4jRenameFile() {
+		if (log4jRenameFile == null) {
+			libFolder = getLibFolder();
+			if (libFolder != null) {
+				log4jRenameFile = new File(libFolder, "log4j.xml.rename_me");
+			}
+		}
+		return log4jRenameFile;
+	}
+	
+	private File getLibFolder() {
+		if (libFolder == null) {
+			File configurationFolder = new File(getConfigurationFolder());
+			File parent = configurationFolder.getParentFile();
+			if (parent != null) {
+				parent = parent.getParentFile();
+				if (parent != null) {
+					parent = parent.getParentFile();
+					if (parent != null) {
+						parent = parent.getParentFile();
+						if (parent != null) {
+							libFolder = new File(parent, "lib");
+						}
+					}
+				}
+			}			
+		}
+		return libFolder;
 	}
 	
 	public Log[] getLogs1(Logs logs) {

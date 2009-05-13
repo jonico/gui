@@ -160,7 +160,13 @@
                class="com.collabnet.ccf.actions.EditLandscapeAction"
                menubarPath="group.b"
                id="com.collabnet.ccf.actions.EditLandscapeAction">
-         </action>                                                                        
+         </action> 
+         <action
+               label="Edit CCF log settings"
+               class="com.collabnet.ccf.actions.EditLog4jAction"
+               menubarPath="group.c"
+               id="com.collabnet.ccf.actions.EditLog4jAction">
+         </action>                                                                                             
       </objectContribution>
       
       <objectContribution

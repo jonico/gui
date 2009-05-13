@@ -63,7 +63,7 @@ public class EditWiringsAction extends ActionDelegate {
 				try {
 					page.openEditor(input, id);
 				} catch (PartInitException e) {
-					MessageDialog.openError(Display.getDefault().getActiveShell(), "Edit Wirings", "Unable to open editor:\n\n" + e.getMessage());
+					MessageDialog.openError(Display.getDefault().getActiveShell(), "Edit Field Mappings", "Unable to open editor:\n\n" + e.getMessage());
 					Activator.handleError(e);
 					return;
 				}
