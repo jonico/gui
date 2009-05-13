@@ -9,6 +9,8 @@ import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.properties.PropertyDescriptor;
 
+import com.collabnet.ccf.Activator;
+
 @SuppressWarnings("unchecked")
 public class SynchronizationStatus implements IPropertySource, Comparable {
 	private String sourceSystemId;
@@ -202,57 +204,17 @@ public class SynchronizationStatus implements IPropertySource, Comparable {
 		targetRepositoryId + ".xsl").replaceAll(":", "-");
 	}
 	
-	private String getSampleXslFileName() {
-		String srcSysId = null;
-		String srcRepoId = null;
-		String tgtSysId = null;
-		String tgtRepoId = null;
-		
-		if (sourceSystemKind.equals(Landscape.TYPE_QC)) {
-			srcSysId = "QCSYSTEM";
-			srcRepoId = "QCDOMAIN-QCPROJECT";
-		}
-		else if (sourceSystemKind.equals(Landscape.TYPE_TF)) {
-			srcSysId = "SFEESYSTEM";
-			srcRepoId = "SFEETRACKER";
-		}
-		else if (sourceSystemKind.equals(Landscape.TYPE_PT)) {
-			srcSysId = "CEESYSTEM";
-			srcRepoId = "CEEPROJECT-PTISSUETYPE";
-		}	
-		
-		if (targetSystemKind.equals(Landscape.TYPE_QC)) {
-			tgtSysId = "QCSYSTEM";
-			tgtRepoId = "QCDOMAIN-QCPROJECT";
-		}
-		else if (targetSystemKind.equals(Landscape.TYPE_TF)) {
-			tgtSysId = "SFEESYSTEM";
-			tgtRepoId = "SFEETRACKER";
-		}
-		else if (targetSystemKind.equals(Landscape.TYPE_PT)) {
-			tgtSysId = "CEESYSTEM";
-			tgtRepoId = "CEEPROJECT-PTISSUETYPE";
-		}				
-		
-		String sampleFile = srcSysId + "+" +
-		srcRepoId + "+" +
-		tgtSysId + "+" +
-		tgtRepoId + ".xsl";
-		
-		return sampleFile;
-	}
-	
 	public File getSampleXslFile() {
 		if (sampleXslFile == null) {
 			File xsltFolder = null;
-			if (sourceSystemKind.equals(landscape.getType1())) {
+			if (sourceSystemKind.startsWith(landscape.getType1())) {
 				xsltFolder = landscape.getXsltFolder2();
 			}
-			if (sourceSystemKind.equals(landscape.getType2())) {
+			else if (sourceSystemKind.startsWith(landscape.getType2())) {
 				xsltFolder = landscape.getXsltFolder1();
 			}
 			if (xsltFolder != null) {
-				sampleXslFile = new File(xsltFolder, getSampleXslFileName());
+				sampleXslFile = new File(xsltFolder, Activator.SAMPLE_XSL_FILE_NAME);
 			}
 		}
 		
