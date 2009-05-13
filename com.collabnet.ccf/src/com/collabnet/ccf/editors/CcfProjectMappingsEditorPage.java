@@ -326,7 +326,7 @@ public class CcfProjectMappingsEditorPage extends CcfEditorPage implements IProj
 					List<SynchronizationStatus> direction1List = new ArrayList<SynchronizationStatus>();
 					List<SynchronizationStatus> direction2List = new ArrayList<SynchronizationStatus>();
 					for (SynchronizationStatus status : projectMappings) {
-						if (status.getSourceSystemId().equals(getLandscape().getId2())) {
+						if (status.getSourceSystemKind().startsWith(getLandscape().getType2())) {
 							direction1List.add(status);
 						} else {
 							direction2List.add(status);
