@@ -80,7 +80,7 @@ public class ReplayHospitalAction extends ActionDelegate {
 
 	public boolean isEnabled(Patient patient) {
 		String errorCode = patient.getErrorCode();
-		return (errorCode != null && patient.getErrorCode().equals("replay") && patient.getOriginatingComponent().endsWith("Writer"));
+		return (errorCode != null && !patient.getErrorCode().equals("replay") && patient.getOriginatingComponent().endsWith("Writer"));
 	}	
 	
 	public String getUpdateValue() {
