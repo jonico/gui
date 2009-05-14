@@ -12,7 +12,6 @@ import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.IDialogSettings;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.PreferenceDialog;
 import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.viewers.ArrayContentProvider;
@@ -57,6 +56,8 @@ import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.actions.IdentityMappingAction;
 import com.collabnet.ccf.db.CcfDataProvider;
 import com.collabnet.ccf.db.Filter;
+import com.collabnet.ccf.dialogs.HospitalFilterDialog;
+import com.collabnet.ccf.dialogs.IdentityMappingFilterDialog;
 import com.collabnet.ccf.model.IdentityMapping;
 import com.collabnet.ccf.model.Landscape;
 import com.collabnet.ccf.preferences.CcfPreferencePage;
@@ -768,17 +769,13 @@ public class IdentityMappingView extends ViewPart {
 			setToolTipText("Filters...");
 		}
 		public void run() {
-			
-			MessageDialog.openInformation(Display.getDefault().getActiveShell(), "Identity Mapping Filters", "Not yet implemented.");
-			
-// TODO:  Filter dialog
-//			IdentityMappingFilterDialog dialog = new IdentityMappingFilterDialog(Display.getDefault().getActiveShell(), filters, filtersActive);
-//			if (dialog.open() == HospitalFilterDialog.OK) {				
-//				filtering = dialog.isFiltering();
-//				filtersActive = dialog.filtersActive();
-//				setFilters(dialog.getFilters(), filtering, null);
-//				getIdentityMappings();
-//			}
+			IdentityMappingFilterDialog dialog = new IdentityMappingFilterDialog(Display.getDefault().getActiveShell(), filters, filtersActive);
+			if (dialog.open() == HospitalFilterDialog.OK) {				
+				filtering = dialog.isFiltering();
+				filtersActive = dialog.filtersActive();
+				setFilters(dialog.getFilters(), filtering, null);
+				getIdentityMappings();
+			}
 		}
 	}
 	
