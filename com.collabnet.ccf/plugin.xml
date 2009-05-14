@@ -151,6 +151,17 @@
       </objectContribution>
       
       <objectContribution
+            objectClass="com.collabnet.ccf.model.IdentityMapping"
+            id="com.collabnet.ccf.model.IdentityMapping">                                                     
+         <action
+               label="Delete..."
+               menubarPath="group.a"
+               class="com.collabnet.ccf.actions.DeleteIdentityMappingAction"
+               id="com.collabnet.ccf.actions.DeleteIdentityMappingAction">
+         </action>                                                                         
+      </objectContribution>      
+      
+      <objectContribution
             objectClass="com.collabnet.ccf.model.Landscape"
             id="com.collabnet.ccf.model.Landscape">
          <action
