@@ -17,6 +17,7 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.widgets.Display;
 
 import com.collabnet.ccf.Activator;
+import com.collabnet.ccf.model.IdentityMapping;
 import com.collabnet.ccf.model.Landscape;
 import com.collabnet.ccf.model.Patient;
 import com.collabnet.ccf.model.ProjectMappings;
@@ -74,6 +75,35 @@ public class CcfDataProvider {
 	public final static String SYNCHRONIZATION_STATUS_TARGET_SYSTEM_TIMEZONE = "TARGET_SYSTEM_TIMEZONE";
 	public final static String SYNCHRONIZATION_STATUS_SOURCE_SYSTEM_ENCODING = "SOURCE_SYSTEM_ENCODING";
 	public final static String SYNCHRONIZATION_STATUS_TARGET_SYSTEM_ENCODING = "TARGET_SYSTEM_ENCODING";
+
+	// IDENTITY_MAPPING Columns
+	public final static String IDENTITY_MAPPING_SOURCE_SYSTEM_ID = "SOURCE_SYSTEM_ID";
+	public final static String IDENTITY_MAPPING_SOURCE_REPOSITORY_ID = "SOURCE_REPOSITORY_ID";
+	public final static String IDENTITY_MAPPING_TARGET_SYSTEM_ID = "TARGET_SYSTEM_ID";
+	public final static String IDENTITY_MAPPING_TARGET_REPOSITORY_ID = "TARGET_REPOSITORY_ID";
+	public final static String IDENTITY_MAPPING_SOURCE_SYSTEM_KIND = "SOURCE_SYSTEM_KIND";
+	public final static String IDENTITY_MAPPING_SOURCE_REPOSITORY_KIND = "SOURCE_REPOSITORY_KIND";
+	public final static String IDENTITY_MAPPING_TARGET_SYSTEM_KIND = "TARGET_SYSTEM_KIND";
+	public final static String IDENTITY_MAPPING_TARGET_REPOSITORY_KIND = "TARGET_REPOSITORY_KIND";
+	public final static String IDENTITY_MAPPING_SOURCE_ARTIFACT_ID = "SOURCE_ARTIFACT_ID";
+	public final static String IDENTITY_MAPPING_TARGET_ARTIFACT_ID = "TARGET_ARTIFACT_ID";
+	public final static String IDENTITY_MAPPING_SOURCE_LAST_MODIFICATION_TIME = "SOURCE_LAST_MODIFICATION_TIME";
+	public final static String IDENTITY_MAPPING_TARGET_LAST_MODIFICATION_TIME = "TARGET_LAST_MODIFICATION_TIME";
+	public final static String IDENTITY_MAPPING_SOURCE_ARTIFACT_VERSION = "SOURCE_ARTIFACT_VERSION";
+	public final static String IDENTITY_MAPPING_TARGET_ARTIFACT_VERSION = "TARGET_ARTIFACT_VERSION";
+	public final static String IDENTITY_MAPPING_ARTIFACT_TYPE = "ARTIFACT_TYPE";	
+	public final static String IDENTITY_MAPPING_DEP_CHILD_SOURCE_ARTIFACT_ID = "DEP_CHILD_SOURCE_ARTIFACT_ID";	
+	public final static String IDENTITY_MAPPING_DEP_CHILD_SOURCE_REPOSITORY_ID = "DEP_CHILD_SOURCE_REPOSITORY_ID";
+	public final static String IDENTITY_MAPPING_DEP_CHILD_SOURCE_REPOSITORY_KIND = "DEP_CHILD_SOURCE_REPOSITORY_KIND";
+	public final static String IDENTITY_MAPPING_DEP_CHILD_TARGET_ARTIFACT_ID = "DEP_CHILD_TARGET_ARTIFACT_ID";	
+	public final static String IDENTITY_MAPPING_DEP_CHILD_TARGET_REPOSITORY_ID = "DEP_CHILD_TARGET_REPOSITORY_ID";
+	public final static String IDENTITY_MAPPING_DEP_CHILD_TARGET_REPOSITORY_KIND = "DEP_CHILD_TARGET_REPOSITORY_KIND";	
+	public final static String IDENTITY_MAPPING_DEP_PARENT_SOURCE_ARTIFACT_ID = "DEP_PARENT_SOURCE_ARTIFACT_ID";	
+	public final static String IDENTITY_MAPPING_DEP_PARENT_SOURCE_REPOSITORY_ID = "DEP_PARENT_SOURCE_REPOSITORY_ID";
+	public final static String IDENTITY_MAPPING_DEP_PARENT_SOURCE_REPOSITORY_KIND = "DEP_PARENT_SOURCE_REPOSITORY_KIND";
+	public final static String IDENTITY_MAPPING_DEP_PARENT_TARGET_ARTIFACT_ID = "DEP_PARENT_TARGET_ARTIFACT_ID";	
+	public final static String IDENTITY_MAPPING_DEP_PARENT_TARGET_REPOSITORY_ID = "DEP_PARENT_TARGET_REPOSITORY_ID";
+	public final static String IDENTITY_MAPPING_DEP_PARENT_TARGET_REPOSITORY_KIND = "DEP_PARENT_TARGET_REPOSITORY_KIND";
 	
 	public final static String DEFAULT_HOSPITAL_COLUMNS = HOSPITAL_TIMESTAMP + "," +
 	HOSPITAL_ADAPTOR_NAME + "," +
@@ -83,6 +113,13 @@ public class CcfDataProvider {
 	HOSPITAL_ERROR_CODE + "," +
 	HOSPITAL_EXCEPTION_MESSAGE + "," +
 	HOSPITAL_CAUSE_EXCEPTION_MESSAGE;
+	
+	public final static String DEFAULT_IDENTITY_MAPPING_COLUMNS = IDENTITY_MAPPING_SOURCE_ARTIFACT_ID + "," +
+	IDENTITY_MAPPING_TARGET_ARTIFACT_ID + "," +
+	IDENTITY_MAPPING_SOURCE_LAST_MODIFICATION_TIME + "," +
+	IDENTITY_MAPPING_TARGET_LAST_MODIFICATION_TIME + "," +
+	IDENTITY_MAPPING_SOURCE_ARTIFACT_VERSION + "," +
+	IDENTITY_MAPPING_TARGET_ARTIFACT_VERSION;
 	
 	public final static String HOSPITAL_COLUMNS = HOSPITAL_ID + "," +
 	                                              HOSPITAL_TIMESTAMP + "," +
@@ -115,6 +152,34 @@ public class CcfDataProvider {
 	                                              HOSPITAL_ARTIFACT_TYPE + "," +
 	                                              HOSPITAL_GENERIC_ARTIFACT;
 	
+	public final static String IDENTITY_MAPPING_COLUMNS = IDENTITY_MAPPING_SOURCE_SYSTEM_ID + "," +
+    IDENTITY_MAPPING_SOURCE_REPOSITORY_ID + "," +
+    IDENTITY_MAPPING_TARGET_SYSTEM_ID + "," +
+    IDENTITY_MAPPING_TARGET_REPOSITORY_ID + "," +
+    IDENTITY_MAPPING_SOURCE_SYSTEM_KIND + "," +
+    IDENTITY_MAPPING_SOURCE_REPOSITORY_KIND + "," +	 
+    IDENTITY_MAPPING_TARGET_SYSTEM_KIND + "," +
+    IDENTITY_MAPPING_TARGET_REPOSITORY_KIND + "," +	 
+    IDENTITY_MAPPING_SOURCE_ARTIFACT_ID + "," +
+    IDENTITY_MAPPING_TARGET_ARTIFACT_ID + "," +
+    IDENTITY_MAPPING_SOURCE_LAST_MODIFICATION_TIME + "," +
+    IDENTITY_MAPPING_TARGET_LAST_MODIFICATION_TIME + "," +
+    IDENTITY_MAPPING_SOURCE_ARTIFACT_VERSION + "," +
+    IDENTITY_MAPPING_TARGET_ARTIFACT_VERSION + "," +
+    IDENTITY_MAPPING_ARTIFACT_TYPE + "," +
+    IDENTITY_MAPPING_DEP_CHILD_SOURCE_ARTIFACT_ID + "," +
+    IDENTITY_MAPPING_DEP_CHILD_SOURCE_REPOSITORY_ID + "," +
+    IDENTITY_MAPPING_DEP_CHILD_SOURCE_REPOSITORY_KIND + "," +
+    IDENTITY_MAPPING_DEP_CHILD_TARGET_ARTIFACT_ID + "," +
+    IDENTITY_MAPPING_DEP_CHILD_TARGET_REPOSITORY_ID + "," +
+    IDENTITY_MAPPING_DEP_CHILD_TARGET_REPOSITORY_KIND + "," +
+    IDENTITY_MAPPING_DEP_PARENT_SOURCE_ARTIFACT_ID + "," +
+    IDENTITY_MAPPING_DEP_PARENT_SOURCE_REPOSITORY_ID + "," +
+    IDENTITY_MAPPING_DEP_PARENT_SOURCE_REPOSITORY_KIND + "," +
+    IDENTITY_MAPPING_DEP_PARENT_TARGET_ARTIFACT_ID + "," +
+    IDENTITY_MAPPING_DEP_PARENT_TARGET_REPOSITORY_ID + "," +
+    IDENTITY_MAPPING_DEP_PARENT_TARGET_REPOSITORY_KIND;
+	
 	public final static String HOSPITAL_REPLAY = "replay";
 	
 	private final static String SQL_HOSPITAL_SELECT = "SELECT * FROM HOSPITAL";
@@ -126,6 +191,8 @@ public class CcfDataProvider {
 	private final static String SQL_SYNCHRONIZATION_STATUS_DELETE = "DELETE FROM SYNCHRONIZATION_STATUS";
 	private final static String SQL_SYNCHRONIZATION_STATUS_INSERT = "INSERT INTO SYNCHRONIZATION_STATUS";
 	
+	private final static String SQL_IDENTITY_MAPPING_SELECT = "SELECT * FROM IDENTITY_MAPPING";
+	private final static String SQL_IDENTITY_MAPPING_UPDATE = "UPDATE IDENTITY_MAPPING";
 	private final static String SQL_IDENTITY_MAPPING_DELETE = "DELETE FROM IDENTITY_MAPPING";
 
 	public Patient[] getPatients(Landscape landscape, Filter[][] filters) throws SQLException, ClassNotFoundException {
@@ -182,6 +249,62 @@ public class CcfDataProvider {
 	public Patient[] getPatients(Landscape landscape, Filter[] filters) throws SQLException, ClassNotFoundException {
 		Filter[][] filterGroups = { filters };
 		return getPatients(landscape, filterGroups);
+	}
+	
+	public IdentityMapping[] getIdentityMappings(Landscape landscape, Filter[][] filters) throws SQLException, ClassNotFoundException {
+		Connection connection = null;
+		Statement stmt = null;
+		ResultSet rs = null;
+		IdentityMapping[] identityMappings = null;
+		try {
+			connection = getConnection(landscape);
+			stmt = connection.createStatement();
+			rs = stmt.executeQuery(Filter.getQuery(SQL_IDENTITY_MAPPING_SELECT, filters));
+			identityMappings = getIdentityMappings(rs, landscape);
+		}
+		catch (SQLException e) {
+			Activator.handleError(e);
+			throw e;
+		}
+		catch (ClassNotFoundException e) {
+			Activator.handleError(e);
+			throw e;
+		}
+		finally {
+	        try
+	        {
+	            if (rs != null)
+	                rs.close();
+	        }
+	        catch (Exception e)
+	        {
+	            Activator.handleError("Could not close ResultSet" ,e);
+	        }
+	        try
+	        {
+	            if (stmt != null)
+	                stmt.close();
+	        }
+	        catch (Exception e)
+	        {
+	        	 Activator.handleError("Could not close Statement" ,e);
+	        }
+	        try
+	        {
+	            if (connection  != null)
+	                connection.close();
+	        }
+	        catch (SQLException e)
+	        {
+	        	 Activator.handleError("Could not close Connection" ,e);
+	        }			
+		}
+		return identityMappings;
+	}
+	
+	public IdentityMapping[] getIdentityMappings(Landscape landscape, Filter[] filters) throws SQLException, ClassNotFoundException {
+		Filter[][] filterGroups = { filters };
+		return getIdentityMappings(landscape, filterGroups);
 	}
 	
 	public void addSynchronizationStatus(ProjectMappings projectMappings, SynchronizationStatus synchronizationStatus) throws SQLException, ClassNotFoundException {
@@ -370,6 +493,10 @@ public class CcfDataProvider {
 	
 	public int updatePatients(Landscape landscape, Update[] updates, Filter[] filters) throws SQLException, ClassNotFoundException {
 		return update(SQL_HOSPITAL_UPDATE, landscape, updates, filters);
+	}
+	
+	public int updateIdentityMappings(Landscape landscape, Update[] updates, Filter[] filters) throws SQLException, ClassNotFoundException {
+		return update(SQL_IDENTITY_MAPPING_UPDATE, landscape, updates, filters);
 	}
 	
 	public int updateSynchronizationStatuses(Landscape landscape, Update[] updates, Filter[] filters) throws SQLException, ClassNotFoundException {
@@ -626,6 +753,45 @@ public class CcfDataProvider {
 		SynchronizationStatus[] statusArray = new SynchronizationStatus[synchonizationStatuses.size()];
 		synchonizationStatuses.toArray(statusArray);
 		return statusArray;
+	}
+	
+	private IdentityMapping[] getIdentityMappings(ResultSet rs, Landscape landscape) throws SQLException {
+		List<IdentityMapping> identityMappings = new ArrayList<IdentityMapping>();
+		while (rs.next()) {
+			IdentityMapping identityMapping = new IdentityMapping();
+			identityMapping.setSourceSystemId(rs.getString(IDENTITY_MAPPING_SOURCE_SYSTEM_ID));
+			identityMapping.setSourceRepositoryId(rs.getString(IDENTITY_MAPPING_SOURCE_REPOSITORY_ID));
+			identityMapping.setTargetSystemId(rs.getString(IDENTITY_MAPPING_TARGET_SYSTEM_ID));
+			identityMapping.setTargetRepositoryId(rs.getString(IDENTITY_MAPPING_TARGET_REPOSITORY_ID));
+			identityMapping.setSourceSystemKind(rs.getString(IDENTITY_MAPPING_SOURCE_SYSTEM_KIND));
+			identityMapping.setSourceRepositoryKind(rs.getString(IDENTITY_MAPPING_SOURCE_REPOSITORY_KIND));
+			identityMapping.setTargetSystemKind(rs.getString(IDENTITY_MAPPING_TARGET_SYSTEM_KIND));
+			identityMapping.setTargetRepositoryKind(rs.getString(IDENTITY_MAPPING_TARGET_REPOSITORY_KIND));
+			identityMapping.setSourceArtifactId(rs.getString(IDENTITY_MAPPING_SOURCE_ARTIFACT_ID));
+			identityMapping.setTargetArtifactId(rs.getString(IDENTITY_MAPPING_TARGET_ARTIFACT_ID));
+			identityMapping.setSourceLastModificationTime(rs.getTimestamp(IDENTITY_MAPPING_SOURCE_LAST_MODIFICATION_TIME));
+			identityMapping.setTargetLastModificationTime(rs.getTimestamp(IDENTITY_MAPPING_TARGET_LAST_MODIFICATION_TIME));
+			identityMapping.setSourceArtifactVersion(rs.getString(IDENTITY_MAPPING_SOURCE_ARTIFACT_VERSION));
+			identityMapping.setTargetArtifactVersion(rs.getString(IDENTITY_MAPPING_TARGET_ARTIFACT_VERSION));
+			identityMapping.setArtifactType(rs.getString(IDENTITY_MAPPING_ARTIFACT_TYPE));
+			identityMapping.setChildSourceArtifactId(rs.getString(IDENTITY_MAPPING_DEP_CHILD_SOURCE_ARTIFACT_ID));
+			identityMapping.setChildSourceRepositoryId(rs.getString(IDENTITY_MAPPING_DEP_CHILD_SOURCE_REPOSITORY_ID));
+			identityMapping.setChildSourceRepositoryKind(rs.getString(IDENTITY_MAPPING_DEP_CHILD_SOURCE_REPOSITORY_KIND));
+			identityMapping.setChildTargetArtifactId(rs.getString(IDENTITY_MAPPING_DEP_CHILD_TARGET_ARTIFACT_ID));
+			identityMapping.setChildTargetRepositoryId(rs.getString(IDENTITY_MAPPING_DEP_CHILD_TARGET_REPOSITORY_ID));
+			identityMapping.setChildTargetRepositoryKind(rs.getString(IDENTITY_MAPPING_DEP_CHILD_TARGET_REPOSITORY_KIND));			
+			identityMapping.setParentSourceArtifactId(rs.getString(IDENTITY_MAPPING_DEP_PARENT_SOURCE_ARTIFACT_ID));
+			identityMapping.setParentSourceRepositoryId(rs.getString(IDENTITY_MAPPING_DEP_PARENT_SOURCE_REPOSITORY_ID));
+			identityMapping.setParentSourceRepositoryKind(rs.getString(IDENTITY_MAPPING_DEP_PARENT_SOURCE_REPOSITORY_KIND));
+			identityMapping.setParentTargetArtifactId(rs.getString(IDENTITY_MAPPING_DEP_PARENT_TARGET_ARTIFACT_ID));
+			identityMapping.setParentTargetRepositoryId(rs.getString(IDENTITY_MAPPING_DEP_PARENT_TARGET_REPOSITORY_ID));
+			identityMapping.setParentTargetRepositoryKind(rs.getString(IDENTITY_MAPPING_DEP_PARENT_TARGET_REPOSITORY_KIND));			
+			identityMapping.setLandscape(landscape);
+			identityMappings.add(identityMapping);
+		}
+		IdentityMapping[] identityMappingArray = new IdentityMapping[identityMappings.size()];
+		identityMappings.toArray(identityMappingArray);
+		return identityMappingArray;
 	}
 
 }

@@ -67,6 +67,7 @@ public class Activator extends AbstractUIPlugin {
 	public static final String PREFERENCES_DATABASE_PASSWORD = "pref_db_password"; //$NON-NLS-1$
 	public static final String PREFERENCES_AUTOCONNECT = "pref_autoconnect"; //$NON-NLS-1$
 	public static final String PREFERENCES_HOSPITAL_COLUMNS = "hospital_columns"; //$NON-NLS-1$
+	public static final String PREFERENCES_IDENTITY_MAPPING_COLUMNS = "identity_mapping_columns"; //$NON-NLS-1$
 	public static final String PREFERENCES_RESET_DELAY = "pref_reset_delay"; //$NON-NLS-1$
 	
 	// CCF Properties
@@ -114,6 +115,7 @@ public class Activator extends AbstractUIPlugin {
 	public static final String DATABASE_DEFAULT_PASSWORD = ""; //$NON-NLS-1$
 	public static final boolean DEFAULT_AUTOCONNECT = false;
 	public static final String DEFAULT_HOSPITAL_COLUMNS = CcfDataProvider.DEFAULT_HOSPITAL_COLUMNS;
+	public static final String DEFAULT_IDENTITY_MAPPING_COLUMNS = CcfDataProvider.DEFAULT_IDENTITY_MAPPING_COLUMNS;
 	
 	public static final String DEFAULT_JMX_PORT_PT2QC = "8082";
 	public static final String DEFAULT_JMX_PORT_QC2PT = "8083";

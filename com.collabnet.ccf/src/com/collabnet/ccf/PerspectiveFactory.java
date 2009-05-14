@@ -6,6 +6,7 @@ import org.eclipse.ui.IPerspectiveFactory;
 
 import com.collabnet.ccf.views.CcfExplorerView;
 import com.collabnet.ccf.views.HospitalView;
+import com.collabnet.ccf.views.IdentityMappingView;
 
 public class PerspectiveFactory implements IPerspectiveFactory {
 
@@ -37,6 +38,7 @@ public class PerspectiveFactory implements IPerspectiveFactory {
 				0.75f,
 				factory.getEditorArea());
 		bottom.addView(HospitalView.ID);
+		bottom.addPlaceholder(IdentityMappingView.ID);
 	}
 
 }

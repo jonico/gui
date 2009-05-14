@@ -19,6 +19,11 @@ public class Filter {
 	public final static String HOSPITAL_FILTER_VALUE = "hospitalFilter.value."; //$NON-NLS-1$
 	public final static String HOSPITAL_FILTER_TYPE = "hospitalFilter.type."; //$NON-NLS-1$
 	
+	public final static String IDENTITY_MAPPING_FILTERS_SET = "identityMappingFilters.set"; //$NON-NLS-1$
+	public final static String IDENTITY_MAPPING_FILTERS_ACTIVE = "identityMappingFilters.active"; //$NON-NLS-1$
+	public final static String IDENTITY_MAPPING_FILTER_VALUE = "identityMappingFilter.value."; //$NON-NLS-1$
+	public final static String IDENTITY_MAPPING_FILTER_TYPE = "identityMappingFilter.type."; //$NON-NLS-1$
+	
 	public Filter(String columnName, String value, boolean stringValue, int filterType) {
 		this.columnName = columnName;
 		this.filterType = filterType;

@@ -55,7 +55,12 @@
             class="com.collabnet.ccf.preferences.HospitalPreferencePage"
             id="com.collabnet.ccf.preferences.hospital"
             category="com.collabnet.ccf.preferences"
-            name="Hospital"/>            
+            name="Hospital"/>  
+      <page
+            class="com.collabnet.ccf.preferences.IdentityMappingPreferencePage"
+            id="com.collabnet.ccf.preferences.identityMapping"
+            category="com.collabnet.ccf.preferences"
+            name="IdentityMapping"/>                               
    </extension>
 
    <extension
@@ -77,7 +82,14 @@
             category="com.collabnet.desktop"
             class="com.collabnet.ccf.views.HospitalView"
             id="com.collabnet.ccf.views.HospitalView">
-      </view>      
+      </view>
+      <view
+            name="Identity Mapping"
+            icon="icons/identityMappingView.gif"
+            category="com.collabnet.desktop"
+            class="com.collabnet.ccf.views.IdentityMappingView"
+            id="com.collabnet.ccf.views.IdentityMappingView">
+      </view>                  
    </extension>
    
    <extension
@@ -142,6 +154,14 @@
             objectClass="com.collabnet.ccf.model.Landscape"
             id="com.collabnet.ccf.model.Landscape">
          <action
+               label="Show Identity Mapping"
+               class="com.collabnet.ccf.actions.IdentityMappingAction"
+               enablesFor="1"
+               menubarPath="group.a"
+               icon="icons/identityMappingView.gif"
+               id="com.collabnet.ccf.actions.IdentityMappingAction">
+         </action>                          
+         <action
                label="Show Hospital"
                class="com.collabnet.ccf.actions.HospitalAction"
                enablesFor="1"
@@ -201,7 +221,15 @@
       
       <objectContribution
             objectClass="com.collabnet.ccf.model.SynchronizationStatus"
-            id="com.collabnet.ccf.model.SynchronizationStatus">  
+            id="com.collabnet.ccf.model.SynchronizationStatus">
+         <action
+               label="Show Identity Mapping"
+               class="com.collabnet.ccf.actions.IdentityMappingAction"
+               enablesFor="1"
+               menubarPath="group.a"
+               icon="icons/identityMappingView.gif"
+               id="com.collabnet.ccf.actions.IdentityMappingAction">
+         </action>                  
          <action
                label="Show Hospital"
                class="com.collabnet.ccf.actions.HospitalAction"
