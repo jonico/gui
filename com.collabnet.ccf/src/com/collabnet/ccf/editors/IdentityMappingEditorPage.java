@@ -1,5 +1,7 @@
 package com.collabnet.ccf.editors;
 
+import java.sql.Timestamp;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -58,12 +60,14 @@ public class IdentityMappingEditorPage extends FormPage {
 	private Text sourceSystemKindText;
 	private Text sourceRepositoryKindText;
 	private Text sourceArtifactIdText;
+	private Text sourceLastModificationText;
 	private Text sourceArtifactVersionText;
 	
 	private Text targetRepositoryIdText;
 	private Text targetSystemKindText;
 	private Text targetRepositoryKindText;
 	private Text targetArtifactIdText;
+	private Text targetLastModificationText;
 	private Text targetArtifactVersionText;
 	
 	private Text childSourceRepositoryIdText;
@@ -86,12 +90,14 @@ public class IdentityMappingEditorPage extends FormPage {
 	private String sourceSystemKind;
 	private String sourceRepositoryKind;
 	private String sourceArtifactId;
+	private String sourceLastModification;
 	private String sourceArtifactVersion;
 	
 	private String targetRepositoryId;
 	private String targetSystemKind;
 	private String targetRepositoryKind;
 	private String targetArtifactId;
+	private String targetLastModification;
 	private String targetArtifactVersion;
 	
 	private String childSourceRepositoryId;
@@ -107,6 +113,8 @@ public class IdentityMappingEditorPage extends FormPage {
 	private String parentTargetRepositoryId;
 	private String parentTargetRepositoryKind;
 	private String parentTargetArtifactId;
+	
+	private boolean saveError;
 	
 	public final static String SOURCE_SECTION_STATE = "IdentityMappingEditorPage.sourceSectionExpanded";
 	public final static String TARGET_SECTION_STATE = "IdentityMappingEditorPage.targetSectionExpanded";
@@ -144,12 +152,24 @@ public class IdentityMappingEditorPage extends FormPage {
 		sourceArtifactId = getIdentityMapping().getSourceArtifactId();
 		sourceArtifactVersion = getIdentityMapping().getSourceArtifactVersion();
 		
+		if (getIdentityMapping().getSourceLastModificationTime() == null) {
+			sourceLastModification = "";
+		} else {
+			sourceLastModification = getIdentityMapping().getSourceLastModificationTime().toString();
+		}
+		
 		targetRepositoryId = getIdentityMapping().getTargetRepositoryId();
 		targetSystemKind = getIdentityMapping().getTargetSystemKind();
 		targetRepositoryKind = getIdentityMapping().getTargetRepositoryKind();
 		targetArtifactId = getIdentityMapping().getTargetArtifactId();
 		targetArtifactVersion = getIdentityMapping().getTargetArtifactVersion();
 
+		if (getIdentityMapping().getTargetLastModificationTime() == null) {
+			targetLastModification = "";
+		} else {
+			targetLastModification = getIdentityMapping().getTargetLastModificationTime().toString();
+		}
+		
 		childSourceRepositoryId = getIdentityMapping().getChildSourceRepositoryId();
 		childSourceRepositoryKind = getIdentityMapping().getChildSourceRepositoryKind();
 		childSourceArtifactId = getIdentityMapping().getChildSourceArtifactId();
@@ -239,12 +259,14 @@ public class IdentityMappingEditorPage extends FormPage {
 		sourceSystemKindText.addModifyListener(modifyListener);
 		sourceRepositoryKindText.addModifyListener(modifyListener);
 		sourceArtifactIdText.addModifyListener(modifyListener);
+		sourceLastModificationText.addModifyListener(modifyListener);
 		sourceArtifactVersionText.addModifyListener(modifyListener);
 		
 		targetRepositoryIdText.addModifyListener(modifyListener);
 		targetSystemKindText.addModifyListener(modifyListener);
 		targetRepositoryKindText.addModifyListener(modifyListener);
 		targetArtifactIdText.addModifyListener(modifyListener);
+		targetLastModificationText.addModifyListener(modifyListener);
 		targetArtifactVersionText.addModifyListener(modifyListener);
 		
 		childSourceRepositoryIdText.addModifyListener(modifyListener);
@@ -276,12 +298,14 @@ public class IdentityMappingEditorPage extends FormPage {
 		sourceSystemKindText.addFocusListener(focusListener);
 		sourceRepositoryKindText.addFocusListener(focusListener);
 		sourceArtifactIdText.addFocusListener(focusListener);
+		sourceLastModificationText.addFocusListener(focusListener);
 		sourceArtifactVersionText.addFocusListener(focusListener);
 		
 		targetRepositoryIdText.addFocusListener(focusListener);
 		targetSystemKindText.addFocusListener(focusListener);
 		targetRepositoryKindText.addFocusListener(focusListener);
 		targetArtifactIdText.addFocusListener(focusListener);
+		targetLastModificationText.addFocusListener(focusListener);
 		targetArtifactVersionText.addFocusListener(focusListener);
 		
 		childSourceRepositoryIdText.addFocusListener(focusListener);
@@ -347,6 +371,11 @@ public class IdentityMappingEditorPage extends FormPage {
         gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
         sourceArtifactIdText.setLayoutData(gd);
         
+        toolkit.createLabel(sourceSectionClient, "Last modification:");
+        sourceLastModificationText = toolkit.createText(sourceSectionClient, sourceLastModification, SWT.BORDER);
+        gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
+        sourceLastModificationText.setLayoutData(gd);        
+        
         toolkit.createLabel(sourceSectionClient, "Artifact version:");
         String artifactVersion = getIdentityMapping().getSourceArtifactVersion();
         if (artifactVersion == null) artifactVersion = "";
@@ -403,6 +432,11 @@ public class IdentityMappingEditorPage extends FormPage {
         targetArtifactIdText = toolkit.createText(targetSectionClient, artifactId, SWT.BORDER);
         gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
         targetArtifactIdText.setLayoutData(gd);
+        
+        toolkit.createLabel(targetSectionClient, "Last modification:");
+        targetLastModificationText = toolkit.createText(targetSectionClient, targetLastModification, SWT.BORDER);
+        gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
+        targetLastModificationText.setLayoutData(gd);     
         
         toolkit.createLabel(targetSectionClient, "Artifact version:");
         String artifactVersion = getIdentityMapping().getTargetArtifactVersion();
@@ -542,6 +576,7 @@ public class IdentityMappingEditorPage extends FormPage {
 	
 	@Override
 	public void doSave(IProgressMonitor monitor) {
+		saveError = false;
 		BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
 			public void run() {
 				Filter sourceRepositoryIdFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_SOURCE_REPOSITORY_ID, sourceRepositoryId, true);
@@ -554,12 +589,14 @@ public class IdentityMappingEditorPage extends FormPage {
 				Update sourceSystemKindUpdate = new Update(CcfDataProvider.IDENTITY_MAPPING_SOURCE_SYSTEM_KIND, sourceSystemKindText.getText().trim());
 				Update sourceRepositoryKindUpdate = new Update(CcfDataProvider.IDENTITY_MAPPING_SOURCE_REPOSITORY_KIND, sourceRepositoryKindText.getText().trim());
 				Update sourceArtifactIdUpdate = new Update(CcfDataProvider.IDENTITY_MAPPING_SOURCE_ARTIFACT_ID, sourceArtifactIdText.getText().trim());
+				Update sourceLastModificationUpdate = new Update(CcfDataProvider.IDENTITY_MAPPING_SOURCE_LAST_MODIFICATION_TIME, sourceLastModificationText.getText().trim());
 				Update sourceArtifactVersionUpdate = new Update(CcfDataProvider.IDENTITY_MAPPING_SOURCE_ARTIFACT_VERSION, sourceArtifactVersionText.getText().trim());
 				
 				Update targetRepositoryIdUpdate = new Update(CcfDataProvider.IDENTITY_MAPPING_TARGET_REPOSITORY_ID, targetRepositoryIdText.getText().trim());
 				Update targetSystemKindUpdate = new Update(CcfDataProvider.IDENTITY_MAPPING_TARGET_SYSTEM_KIND, targetSystemKindText.getText().trim());
 				Update targetRepositoryKindUpdate = new Update(CcfDataProvider.IDENTITY_MAPPING_TARGET_REPOSITORY_KIND, targetRepositoryKindText.getText().trim());
 				Update targetArtifactIdUpdate = new Update(CcfDataProvider.IDENTITY_MAPPING_TARGET_ARTIFACT_ID, targetArtifactIdText.getText().trim());
+				Update targetLastModificationUpdate = new Update(CcfDataProvider.IDENTITY_MAPPING_TARGET_LAST_MODIFICATION_TIME, targetLastModificationText.getText().trim());			
 				Update targetArtifactVersionUpdate = new Update(CcfDataProvider.IDENTITY_MAPPING_TARGET_ARTIFACT_VERSION, targetArtifactVersionText.getText().trim());
 
 				Update artifactTypeUpdate = new Update(CcfDataProvider.IDENTITY_MAPPING_ARTIFACT_TYPE, artifactTypeText.getText().trim());
@@ -583,11 +620,13 @@ public class IdentityMappingEditorPage extends FormPage {
 						sourceSystemKindUpdate,
 						sourceRepositoryKindUpdate,
 						sourceArtifactIdUpdate,
+						sourceLastModificationUpdate,
 						sourceArtifactVersionUpdate,
 						targetRepositoryIdUpdate,
 						targetSystemKindUpdate,
 						targetRepositoryKindUpdate,
 						targetArtifactIdUpdate,
+						targetLastModificationUpdate,
 						targetArtifactVersionUpdate,
 						artifactTypeUpdate,
 						childSourceArtifactIdUpdate,
@@ -607,22 +646,27 @@ public class IdentityMappingEditorPage extends FormPage {
 				try {
 					dataProvider.updateIdentityMappings(getIdentityMapping().getLandscape(), updates, filters);
 				} catch (Exception e) {
+					saveError = true;
 					Activator.handleError(e);
 					MessageDialog.openError(Display.getDefault().getActiveShell(), "Save Identity Mapping", e.getMessage());
 				}
 			}			
 		});
 		
+		if (saveError) return;
+		
 		sourceRepositoryId = sourceRepositoryIdText.getText().trim();
 		sourceSystemKind = sourceSystemKindText.getText().trim();
 		sourceRepositoryKind = sourceRepositoryKindText.getText().trim();
 		sourceArtifactId = sourceArtifactIdText.getText().trim();
+		sourceLastModification = sourceLastModificationText.getText().trim();
 		sourceArtifactVersion = sourceArtifactVersionText.getText().trim();
 		
 		targetRepositoryId = targetRepositoryIdText.getText().trim();
 		targetSystemKind = targetSystemKindText.getText().trim();
 		targetRepositoryKind = targetRepositoryKindText.getText().trim();
 		targetArtifactId = targetArtifactIdText.getText().trim();
+		targetLastModification = targetLastModificationText.getText().trim();
 		targetArtifactVersion = targetArtifactVersionText.getText().trim();
 		
 		artifactType = artifactTypeText.getText().trim();
@@ -644,7 +688,20 @@ public class IdentityMappingEditorPage extends FormPage {
 	
 	@Override
 	public boolean canLeaveThePage() {
-		// TODO: Validation
+		if (sourceLastModificationText.getText().trim().length() > 0) {
+			Timestamp timestamp = null;
+			try {
+				timestamp = Timestamp.valueOf(sourceLastModificationText.getText().trim());
+			} catch (Exception e) {}
+			if (timestamp == null) return false;
+		}
+		if (targetLastModificationText.getText().trim().length() > 0) {
+			Timestamp timestamp = null;
+			try {
+				timestamp = Timestamp.valueOf(targetLastModificationText.getText().trim());
+			} catch (Exception e) {}
+			if (timestamp == null) return false;
+		}
 		return true;
 	}
 	
@@ -654,11 +711,13 @@ public class IdentityMappingEditorPage extends FormPage {
 		!sourceSystemKindText.getText().trim().equals(sourceSystemKind) ||
 		!sourceRepositoryKindText.getText().trim().equals(sourceRepositoryKind) ||
 		!sourceArtifactIdText.getText().trim().equals(sourceArtifactId) ||
+		!sourceLastModificationText.getText().trim().equals(sourceLastModification) ||
 		!sourceArtifactVersionText.getText().trim().equals(sourceArtifactVersion) ||
 		!targetRepositoryIdText.getText().trim().equals(targetRepositoryId)	||
 		!targetSystemKindText.getText().trim().equals(targetSystemKind) ||
 		!targetRepositoryKindText.getText().trim().equals(targetRepositoryKind) ||
 		!targetArtifactIdText.getText().trim().equals(targetArtifactId) ||	
+		!targetLastModificationText.getText().trim().equals(targetLastModification) ||
 		!targetArtifactVersionText.getText().trim().equals(targetArtifactVersion) ||
 		!artifactTypeText.getText().trim().equals(artifactType) ||
 		!childSourceArtifactIdText.getText().trim().equals(childSourceArtifactId) ||
