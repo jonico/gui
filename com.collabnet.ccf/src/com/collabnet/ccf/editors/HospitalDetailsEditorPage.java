@@ -1,5 +1,7 @@
 package com.collabnet.ccf.editors;
 
+import java.sql.Timestamp;
+
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -100,35 +102,44 @@ public class HospitalDetailsEditorPage extends HospitalEditorPage {
         toolkit.createLabel(sourceSectionClient, "Repository ID:");
         String repositoryId = getPatient().getSourceRepositoryId();
         if (repositoryId == null) repositoryId = "";
-        Text repositoryIdText = toolkit.createText(sourceSectionClient, repositoryId, SWT.BORDER | SWT.READ_ONLY | SWT.MULTI);
+        Text repositoryIdText = toolkit.createText(sourceSectionClient, repositoryId, SWT.BORDER | SWT.READ_ONLY);
         GridData gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
         repositoryIdText.setLayoutData(gd);
 
         toolkit.createLabel(sourceSectionClient, "System kind:");
         String systemKind = getPatient().getSourceSystemKind();
         if (systemKind == null) systemKind = "";
-        Text systemKindText = toolkit.createText(sourceSectionClient, systemKind, SWT.BORDER | SWT.READ_ONLY | SWT.MULTI);
+        Text systemKindText = toolkit.createText(sourceSectionClient, systemKind, SWT.BORDER | SWT.READ_ONLY);
         gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
         systemKindText.setLayoutData(gd);
         
         toolkit.createLabel(sourceSectionClient, "Repository kind:");
         String repositoryKind = getPatient().getSourceRepositoryKind();
         if (repositoryKind == null) repositoryKind = "";
-        Text repositoryKindText = toolkit.createText(sourceSectionClient, repositoryKind, SWT.BORDER | SWT.READ_ONLY | SWT.MULTI);
+        Text repositoryKindText = toolkit.createText(sourceSectionClient, repositoryKind, SWT.BORDER | SWT.READ_ONLY);
         gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
         repositoryKindText.setLayoutData(gd);
         
         toolkit.createLabel(sourceSectionClient, "Artifact ID:");
         String artifactId = getPatient().getSourceArtifactId();
         if (artifactId == null) artifactId = "";
-        Text artifactIdText = toolkit.createText(sourceSectionClient, artifactId, SWT.BORDER | SWT.READ_ONLY | SWT.MULTI);
+        Text artifactIdText = toolkit.createText(sourceSectionClient, artifactId, SWT.BORDER | SWT.READ_ONLY);
         gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
         artifactIdText.setLayoutData(gd);
+        
+        toolkit.createLabel(sourceSectionClient, "Last modification:");
+        Timestamp timestamp = getPatient().getSourceLastModificationTime();
+        String lastModification;
+        if (timestamp == null) lastModification = "";
+        else lastModification = timestamp.toString();
+        Text lastModificationText = toolkit.createText(sourceSectionClient, lastModification, SWT.BORDER | SWT.READ_ONLY);
+        gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
+        lastModificationText.setLayoutData(gd);
         
         toolkit.createLabel(sourceSectionClient, "Artifact version:");
         String artifactVersion = getPatient().getSourceArtifactVersion();
         if (artifactVersion == null) artifactVersion = "";
-        Text artifactVersionText = toolkit.createText(sourceSectionClient, artifactVersion, SWT.BORDER | SWT.READ_ONLY | SWT.MULTI);
+        Text artifactVersionText = toolkit.createText(sourceSectionClient, artifactVersion, SWT.BORDER | SWT.READ_ONLY);
         gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
         artifactVersionText.setLayoutData(gd);
         
@@ -157,35 +168,44 @@ public class HospitalDetailsEditorPage extends HospitalEditorPage {
         toolkit.createLabel(targetSectionClient, "Repository ID:");
         String repositoryId = getPatient().getTargetRepositoryId();
         if (repositoryId == null) repositoryId = "";
-        Text repositoryIdText = toolkit.createText(targetSectionClient, repositoryId, SWT.BORDER | SWT.READ_ONLY | SWT.MULTI);
+        Text repositoryIdText = toolkit.createText(targetSectionClient, repositoryId, SWT.BORDER | SWT.READ_ONLY);
         GridData gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
         repositoryIdText.setLayoutData(gd);
         
         toolkit.createLabel(targetSectionClient, "System kind:");
         String systemKind = getPatient().getTargetSystemKind();
         if (systemKind == null) systemKind = "";
-        Text systemKindText = toolkit.createText(targetSectionClient, systemKind, SWT.BORDER | SWT.READ_ONLY | SWT.MULTI);
+        Text systemKindText = toolkit.createText(targetSectionClient, systemKind, SWT.BORDER | SWT.READ_ONLY);
         gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
         systemKindText.setLayoutData(gd);
         
         toolkit.createLabel(targetSectionClient, "Repository kind:");
         String repositoryKind = getPatient().getTargetRepositoryKind();
         if (repositoryKind == null) repositoryKind = "";
-        Text repositoryKindText = toolkit.createText(targetSectionClient, repositoryKind, SWT.BORDER | SWT.READ_ONLY | SWT.MULTI);
+        Text repositoryKindText = toolkit.createText(targetSectionClient, repositoryKind, SWT.BORDER | SWT.READ_ONLY);
         gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
         repositoryKindText.setLayoutData(gd);
         
         toolkit.createLabel(targetSectionClient, "Artifact ID:");
         String artifactId = getPatient().getTargetArtifactId();
         if (artifactId == null) artifactId = "";
-        Text artifactIdText = toolkit.createText(targetSectionClient, artifactId, SWT.BORDER | SWT.READ_ONLY | SWT.MULTI);
+        Text artifactIdText = toolkit.createText(targetSectionClient, artifactId, SWT.BORDER | SWT.READ_ONLY);
         gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
         artifactIdText.setLayoutData(gd);
+        
+        toolkit.createLabel(targetSectionClient, "Last modification:");
+        Timestamp timestamp = getPatient().getTargetLastModificationTime();
+        String lastModification;
+        if (timestamp == null) lastModification = "";
+        else lastModification = timestamp.toString();
+        Text lastModificationText = toolkit.createText(targetSectionClient, lastModification, SWT.BORDER | SWT.READ_ONLY);
+        gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
+        lastModificationText.setLayoutData(gd);
         
         toolkit.createLabel(targetSectionClient, "Artifact version:");
         String artifactVersion = getPatient().getTargetArtifactVersion();
         if (artifactVersion == null) artifactVersion = "";
-        Text artifactVersionText = toolkit.createText(targetSectionClient, artifactVersion, SWT.BORDER | SWT.READ_ONLY | SWT.MULTI);
+        Text artifactVersionText = toolkit.createText(targetSectionClient, artifactVersion, SWT.BORDER | SWT.READ_ONLY);
         gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
         artifactVersionText.setLayoutData(gd);
 
@@ -215,35 +235,35 @@ public class HospitalDetailsEditorPage extends HospitalEditorPage {
         toolkit.createLabel(detailsSectionClient, "Adaptor name:");
         String adaptorName = getPatient().getAdaptorName();
         if (adaptorName == null) adaptorName = "";
-        Text adaptorNameText = toolkit.createText(detailsSectionClient, adaptorName, SWT.BORDER | SWT.READ_ONLY | SWT.MULTI);
+        Text adaptorNameText = toolkit.createText(detailsSectionClient, adaptorName, SWT.BORDER | SWT.READ_ONLY);
         GridData gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
         adaptorNameText.setLayoutData(gd);
         
         toolkit.createLabel(detailsSectionClient, "Artifact type:");
         String artifactType = getPatient().getArtifactType();
         if (artifactType == null) artifactType = "";
-        Text artifactTypeText = toolkit.createText(detailsSectionClient, artifactType, SWT.BORDER | SWT.READ_ONLY | SWT.MULTI);
+        Text artifactTypeText = toolkit.createText(detailsSectionClient, artifactType, SWT.BORDER | SWT.READ_ONLY);
         gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
         artifactTypeText.setLayoutData(gd);    
         
         toolkit.createLabel(detailsSectionClient, "Data type:");
         String dataType = getPatient().getDataType();
         if (dataType == null) dataType = "";
-        Text dataTypeText = toolkit.createText(detailsSectionClient, dataType, SWT.BORDER | SWT.READ_ONLY | SWT.MULTI);
+        Text dataTypeText = toolkit.createText(detailsSectionClient, dataType, SWT.BORDER | SWT.READ_ONLY);
         gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
         dataTypeText.setLayoutData(gd);
         
         toolkit.createLabel(detailsSectionClient, "Data:");
         String data = getPatient().getData();
         if (data == null) data = "";
-        Text dataText = toolkit.createText(detailsSectionClient, data, SWT.BORDER | SWT.READ_ONLY | SWT.MULTI);
+        Text dataText = toolkit.createText(detailsSectionClient, data, SWT.BORDER | SWT.READ_ONLY);
         gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
         dataText.setLayoutData(gd);
         
         toolkit.createLabel(detailsSectionClient, "Originating component:");
         String component = getPatient().getOriginatingComponent();
         if (component == null) component = "";
-        Text componentText = toolkit.createText(detailsSectionClient, component, SWT.BORDER | SWT.READ_ONLY | SWT.MULTI);
+        Text componentText = toolkit.createText(detailsSectionClient, component, SWT.BORDER | SWT.READ_ONLY);
         gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
         componentText.setLayoutData(gd);
         
