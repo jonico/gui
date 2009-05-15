@@ -349,6 +349,18 @@ public class IdentityMapping implements IPropertySource {
 		this.landscape = landscape;
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof IdentityMapping) {
+			IdentityMapping compareTo = (IdentityMapping)obj;
+			return compareTo.getSourceRepositoryId().equals(sourceRepositoryId) &&
+			compareTo.getTargetRepositoryId().equals(targetRepositoryId) &&
+			compareTo.getSourceArtifactId().equals(sourceArtifactId) &&
+			compareTo.getArtifactType().equals(artifactType);
+		}
+		return super.equals(obj);
+	}
+
 	public Object getEditableValue() {
 		return sourceArtifactId + " => " + targetArtifactId;
 	}

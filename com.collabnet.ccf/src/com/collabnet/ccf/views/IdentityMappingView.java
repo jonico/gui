@@ -54,6 +54,7 @@ import org.eclipse.ui.part.ViewPart;
 
 import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.actions.IdentityMappingAction;
+import com.collabnet.ccf.actions.IdentityMappingEditAction;
 import com.collabnet.ccf.db.CcfDataProvider;
 import com.collabnet.ccf.db.Filter;
 import com.collabnet.ccf.dialogs.HospitalFilterDialog;
@@ -289,7 +290,9 @@ public class IdentityMappingView extends ViewPart {
 		
 		tableViewer.addOpenListener(new IOpenListener() {
 			public void open(OpenEvent evt) {
-				// TODO: Edit option
+				IdentityMappingEditAction action = new IdentityMappingEditAction();
+				action.selectionChanged(null, tableViewer.getSelection());
+				action.run(null);
 			}			
 		});
 		

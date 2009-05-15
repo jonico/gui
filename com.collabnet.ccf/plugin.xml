@@ -152,10 +152,16 @@
       
       <objectContribution
             objectClass="com.collabnet.ccf.model.IdentityMapping"
-            id="com.collabnet.ccf.model.IdentityMapping">                                                     
+            id="com.collabnet.ccf.model.IdentityMapping">  
+         <action
+               label="Edit Details"
+               menubarPath="group.a"
+               class="com.collabnet.ccf.actions.IdentityMappingEditAction"
+               id="com.collabnet.ccf.actions.IdentityMappingEditAction">
+         </action>                                                               
          <action
                label="Delete..."
-               menubarPath="group.a"
+               menubarPath="group.b"
                class="com.collabnet.ccf.actions.DeleteIdentityMappingAction"
                id="com.collabnet.ccf.actions.DeleteIdentityMappingAction">
          </action>                                                                         
@@ -336,7 +342,15 @@
             contributorClass="com.collabnet.ccf.editors.HospitalActionBarContributor"
             class="com.collabnet.ccf.editors.HospitalEditor"
             id="com.collabnet.ccf.editors.HospitalEditor">
-      </editor>                 
+      </editor>
+      <editor
+            name="Identity Mapping Editor"
+            default="false"
+            icon="icons/identityMappingView.gif"
+            contributorClass="com.collabnet.ccf.editors.IdentityMappingActionBarContributor"
+            class="com.collabnet.ccf.editors.IdentityMappingEditor"
+            id="com.collabnet.ccf.editors.IdentityMappingEditor">
+      </editor>                                
    </extension>
 
 </plugin>

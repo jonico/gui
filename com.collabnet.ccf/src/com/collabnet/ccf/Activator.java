@@ -58,6 +58,7 @@ public class Activator extends AbstractUIPlugin {
 	public static final String IMAGE_HOSPITAL_ENTRY_REPLAY = "hospitalEntryReplay.gif"; //$NON-NLS-1$
 	public static final String IMAGE_SYNC_STATUS_ENTRY = "sync_status_entry.gif"; //$NON-NLS-1$
 	public static final String IMAGE_SYNC_STATUS_ENTRY_PAUSED = "sync_status_entry_paused.gif"; //$NON-NLS-1$
+	public static final String IMAGE_IDENTITY_MAPPING = "identityMappingView.gif"; //$NON-NLS-1$
 	
 	// Preferences
 	public static final String PREFERENCES_DATABASE_DESCRIPTION = "pref_db_description"; //$NON-NLS-1$
@@ -359,6 +360,7 @@ public class Activator extends AbstractUIPlugin {
 		createImageDescriptor(IMAGE_LOGS);
 		createImageDescriptor(IMAGE_LOG);
 		createImageDescriptor(IMAGE_ERROR);
+		createImageDescriptor(IMAGE_IDENTITY_MAPPING);
 	}
 	
 	protected void initializeImageRegistry(ImageRegistry reg) {
@@ -380,5 +382,6 @@ public class Activator extends AbstractUIPlugin {
 		reg.put(IMAGE_LOGS, getImageDescriptor(IMAGE_LOGS));
 		reg.put(IMAGE_LOG, getImageDescriptor(IMAGE_LOG));
 		reg.put(IMAGE_ERROR, getImageDescriptor(IMAGE_ERROR));
+		reg.put(IMAGE_IDENTITY_MAPPING, getImageDescriptor(IMAGE_IDENTITY_MAPPING));
 	}
 }
