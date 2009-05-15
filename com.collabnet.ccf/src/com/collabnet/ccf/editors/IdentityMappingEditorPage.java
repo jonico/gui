@@ -115,7 +115,7 @@ public class IdentityMappingEditorPage extends FormPage {
 	private String parentTargetArtifactId;
 	
 	private boolean saveError;
-	
+
 	public final static String SOURCE_SECTION_STATE = "IdentityMappingEditorPage.sourceSectionExpanded";
 	public final static String TARGET_SECTION_STATE = "IdentityMappingEditorPage.targetSectionExpanded";
 	public final static String CHILD_SECTION_STATE = "IdentityMappingEditorPage.childSectionExpanded";
@@ -732,6 +732,10 @@ public class IdentityMappingEditorPage extends FormPage {
 		!parentTargetArtifactIdText.getText().trim().equals(parentTargetArtifactId) ||
 		!parentTargetRepositoryIdText.getText().trim().equals(parentTargetRepositoryId) ||
 		!parentTargetRepositoryKindText.getText().trim().equals(parentTargetRepositoryKind);	
+	}
+	
+	public boolean isSaveError() {
+		return saveError;
 	}
 	
 	public IdentityMapping getIdentityMapping() {

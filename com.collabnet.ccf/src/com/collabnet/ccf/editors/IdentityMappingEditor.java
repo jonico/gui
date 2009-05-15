@@ -50,6 +50,9 @@ public class IdentityMappingEditor extends FormEditor implements ISaveablePart2 
 	@Override
 	public void doSave(IProgressMonitor monitor) {
 		detailsPage.doSave(monitor);
+		if (detailsPage.isSaveError()) {
+			monitor.setCanceled(true);
+		}
 		setDirty();
 		if (IdentityMappingView.getView() != null) {
 			IdentityMappingView.getView().refresh();
