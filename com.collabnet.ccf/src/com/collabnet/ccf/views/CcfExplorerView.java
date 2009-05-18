@@ -8,6 +8,7 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.viewers.IOpenListener;
 import org.eclipse.jface.viewers.ISelection;
@@ -15,6 +16,8 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.OpenEvent;
 import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DragSourceListener;
@@ -48,6 +51,13 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 	private static CcfExplorerView view;
 	private TreeViewer treeViewer;
 	private CcfDataProvider dataProvider;
+	private CcfComparator ccfComparator = new CcfComparator();
+	private IDialogSettings settings = Activator.getDefault().getDialogSettings();
+	
+	public static final String PROJECT_MAPPING_SORT_ORDER = "CcfExplorerView.projectMappingSort";
+	public static final int SORT_BY_SOURCE_REPOSITORY = 0;
+	public static final int SORT_BY_TARGET_REPOSITORY = 1;	
+	public static final int SORT_BY_QC_REPOSITORY = 2;
 	
 	public static final String ID = "com.collabnet.ccf.views.CcfExplorerView";
 
@@ -67,9 +77,16 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 		parent.setLayout(layout);
 		
 		treeViewer = new TreeViewer(parent);
-		
+
 		treeViewer.setLabelProvider(new LandscapeLabelProvider());
 		treeViewer.setContentProvider(new LandscapeContentProvider());
+		
+		int sortOrder = 0;
+		try {
+			sortOrder = settings.getInt(PROJECT_MAPPING_SORT_ORDER);
+		} catch (Exception e) {}
+		ccfComparator.setSortOrder(sortOrder);	
+		treeViewer.setComparator(ccfComparator);
 		
 		treeViewer.setUseHashlookup(true);
 		GridData layoutData = new GridData();
@@ -134,10 +151,39 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 		treeViewer.getControl().setMenu(menu);
 		getSite().registerContextMenu(menuMgr, treeViewer);
 		
-		IMenuManager barMenuManager = getViewSite().getActionBars().getMenuManager();
-		NewLandscapeAction newLandscapeAction = new NewLandscapeAction("New CCF Landscape...");
-		barMenuManager.add(newLandscapeAction);
-//		barMenuManager.setRemoveAllWhenShown(true);
+		final IMenuManager barMenuManager = getViewSite().getActionBars().getMenuManager();
+		barMenuManager.setRemoveAllWhenShown(true);		
+		barMenuManager.addMenuListener(new IMenuListener() {
+            public void menuAboutToShow(IMenuManager menu) {
+        		NewLandscapeAction newLandscapeAction = new NewLandscapeAction("New CCF Landscape...");
+        		barMenuManager.add(newLandscapeAction);  
+        		barMenuManager.add(new Separator());
+        		MenuManager sortMenu = new MenuManager("Sort project mappings by");
+        		SortAction bySourceAction = new SortAction("Source repository", SORT_BY_SOURCE_REPOSITORY);
+        		SortAction byTargetAction = new SortAction("Target repository", SORT_BY_TARGET_REPOSITORY);
+        		SortAction byQcAction = new SortAction("Quality Center repository", SORT_BY_QC_REPOSITORY);
+        		sortMenu.add(bySourceAction);
+        		sortMenu.add(byTargetAction);
+        		sortMenu.add(byQcAction);
+        		switch (ccfComparator.getSortOrder()) {
+				case SORT_BY_SOURCE_REPOSITORY:
+					bySourceAction.setChecked(true);
+					break;
+				case SORT_BY_TARGET_REPOSITORY:
+					byTargetAction.setChecked(true);
+					break;
+				case SORT_BY_QC_REPOSITORY:
+					byQcAction.setChecked(true);
+					break;					
+				default:
+					bySourceAction.setChecked(true);
+					break;
+				}
+        		barMenuManager.add(sortMenu);
+            }
+		});
+   		NewLandscapeAction newLandscapeAction = new NewLandscapeAction("New CCF Landscape...");
+		barMenuManager.add(newLandscapeAction);  	
 	}
 	
 	private void fillContextMenu(IMenuManager manager) {
@@ -189,6 +235,15 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 				treeViewer.refresh(obj);
 			}
 		}
+	}
+	
+	public void refreshProjectMappings() {
+		Object[] expandedElements = treeViewer.getExpandedElements();
+		for (Object obj : expandedElements) {
+			if (obj instanceof ProjectMappings) {
+				treeViewer.refresh(obj);
+			}
+		}		
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -305,6 +360,74 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 
 	public void changed(ProjectMappings projectMappings) {
 		refresh(projectMappings);
+	}
+	
+	class CcfComparator extends ViewerComparator {
+		private int sortOrder = SORT_BY_SOURCE_REPOSITORY;
+
+		public void setSortOrder(int sortOrder) {
+			this.sortOrder = sortOrder;
+		}
+		
+		public int getSortOrder() {
+			return sortOrder;
+		}
+
+		@Override
+		public int compare(Viewer viewer, Object e1, Object e2) {
+			if (e1 instanceof SynchronizationStatus && e2 instanceof SynchronizationStatus) {
+				SynchronizationStatus s1 = (SynchronizationStatus)e1;
+				SynchronizationStatus s2 = (SynchronizationStatus)e2;
+				String cmp1;
+				String cmp2;
+				
+				switch (sortOrder) {
+				case SORT_BY_SOURCE_REPOSITORY:
+					cmp1 = s1.toString();
+					cmp2 = s2.toString();					
+					break;
+				case SORT_BY_TARGET_REPOSITORY:
+					cmp1 = s1.getTargetRepositoryId() + s1.getSourceRepositoryId();
+					cmp2 = s2.getTargetRepositoryId() + s2.getSourceRepositoryId();	
+					break;
+				case SORT_BY_QC_REPOSITORY:
+					if (s1.getSourceSystemKind().startsWith("QC")) {
+						cmp1 = s1.getSourceRepositoryId() + s1.getTargetRepositoryId();
+					} else {
+						cmp1 = s1.getTargetRepositoryId() + s1.getSourceRepositoryId();
+					}
+					if (s2.getSourceSystemKind().startsWith("QC")) {
+						cmp2 = s2.getSourceRepositoryId() + s2.getTargetRepositoryId();
+					} else {
+						cmp2 = s2.getTargetRepositoryId() + s2.getSourceRepositoryId();
+					}
+					break;					
+				default:
+					cmp1 = s1.toString();
+					cmp2 = s2.toString();		
+					break;
+				}
+				return cmp1.compareTo(cmp2);				
+			}
+			return 0;
+		}
+	
+	}
+	
+	class SortAction extends Action {
+		private int order;
+
+		public SortAction(String text, int order) {
+			super(text, Action.AS_CHECK_BOX);
+			this.order = order;
+		}
+		
+		public void run() {
+			settings.put(PROJECT_MAPPING_SORT_ORDER, order);
+			ccfComparator.setSortOrder(order);
+			refreshProjectMappings();
+		}
+		
 	}
 
 }
