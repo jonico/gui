@@ -1,5 +1,8 @@
 package com.collabnet.ccf.dialogs;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -40,7 +43,7 @@ public class NewProjectMappingDialog extends CcfDialog {
 	
 	private Text trackerText;
 	private Text qcProjectText;
-	private Text qcDomainText;
+	private Combo qcDomainCombo;
 
 	private Label system1ToSystem2ConflictResolutionLabel;
 	private Combo system1ToSystem2ConflictResolutionCombo;
@@ -55,7 +58,8 @@ public class NewProjectMappingDialog extends CcfDialog {
 	private static final String PREVIOUS_DIRECTION = "NewProjectMappingDialog.direction";
 	private static final String PREVIOUS_SYSTEM1_SYSTEM2_CONFLICT_RESOLUTION_PRIORITY = "NewProjectMappingDialog.conflictResolutionPriority12";
 	private static final String PREVIOUS_SYSTEM2_SYSTEM1_CONFLICT_RESOLUTION_PRIORITY = "NewProjectMappingDialog.conflictResolutionPriority21";
-	
+	private static final String PREVIOUS_QC_DOMAIN = "NewProjectMappingDialog.previousDomain.";
+	private static final String PREVIOUS_QC_DOMAIN_COUNT = "NewProjectMappingDialog.previousDomainCount";
 	public NewProjectMappingDialog(Shell shell, ProjectMappings projectMappings) {
 		super(shell, "NewProjectMappingDialog");
 		this.projectMappings = projectMappings;
@@ -143,10 +147,16 @@ public class NewProjectMappingDialog extends CcfDialog {
 		
 		Label domainLabel = new Label(qcGroup, SWT.NONE);
 		domainLabel.setText("Domain:");
-		
-		qcDomainText = new Text(qcGroup, SWT.BORDER);
+
+		qcDomainCombo = new Combo(qcGroup, SWT.BORDER);
 		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
-		qcDomainText.setLayoutData(gd);	
+		qcDomainCombo.setLayoutData(gd);	
+		
+		String[] previousDomains = getPreviousDomains();
+		for (String domain : previousDomains) {
+			qcDomainCombo.add(domain);
+		}
+		if (previousDomains.length > 0) qcDomainCombo.setText(previousDomains[0]);
 		
 		Label projectLabel = new Label(qcGroup, SWT.NONE);
 		projectLabel.setText("Project:");
@@ -216,7 +226,13 @@ public class NewProjectMappingDialog extends CcfDialog {
 		
 		trackerText.addModifyListener(modifyListener);
 		qcProjectText.addModifyListener(modifyListener);
-		qcDomainText.addModifyListener(modifyListener);
+		qcDomainCombo.addModifyListener(modifyListener);
+		
+		qcDomainCombo.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent se) {
+				okButton.setEnabled(canFinish());
+			}			
+		});
 		
 		setComboEnablement();
 		
@@ -224,7 +240,7 @@ public class NewProjectMappingDialog extends CcfDialog {
 	}
 	
 	private void initializeReverseValues() {
-		qcDomainText.setText(getQcDomain());
+		qcDomainCombo.setText(getQcDomain());
 		qcProjectText.setText(getQcProject());
 		trackerText.setText(getTrackerId());
 		bothButton.setSelection(false);
@@ -297,7 +313,7 @@ public class NewProjectMappingDialog extends CcfDialog {
 		if (system1ToSystem2Button.getSelection() || bothButton.getSelection()) {
 			settings.put(PREVIOUS_SYSTEM1_SYSTEM2_CONFLICT_RESOLUTION_PRIORITY, system1ToSystem2ConflictResolutionCombo.getText());
 			status.setConflictResolutionPriority(SynchronizationStatus.CONFLICT_RESOLUTIONS[system1ToSystem2ConflictResolutionCombo.getSelectionIndex()]);
-			status.setSourceRepositoryId(qcDomainText.getText().trim() + "-" + qcProjectText.getText().trim());
+			status.setSourceRepositoryId(qcDomainCombo.getText().trim() + "-" + qcProjectText.getText().trim());
 			status.setTargetRepositoryId(trackerText.getText().trim());
 			
 			status.setSourceSystemId(projectMappings.getLandscape().getId1());			
@@ -320,7 +336,7 @@ public class NewProjectMappingDialog extends CcfDialog {
 		if (system2ToSystem1Button.getSelection() || bothButton.getSelection()) {
 			settings.put(PREVIOUS_SYSTEM2_SYSTEM1_CONFLICT_RESOLUTION_PRIORITY, system2ToSystem1ConflictResolutionCombo.getText());
 			status.setConflictResolutionPriority(SynchronizationStatus.CONFLICT_RESOLUTIONS[system2ToSystem1ConflictResolutionCombo.getSelectionIndex()]);
-			status.setTargetRepositoryId(qcDomainText.getText().trim() + "-" + qcProjectText.getText().trim());
+			status.setTargetRepositoryId(qcDomainCombo.getText().trim() + "-" + qcProjectText.getText().trim());
 			status.setSourceRepositoryId(trackerText.getText().trim());	
 			
 			status.setSourceSystemId(projectMappings.getLandscape().getId2());
@@ -340,11 +356,48 @@ public class NewProjectMappingDialog extends CcfDialog {
 			createMapping(status);
 		}
 		if (addError) return;
+		saveDomainSelection();
 		super.okPressed();
 	}
 	
 	public void setDirection(int direction) {
 		this.direction = direction;
+	}
+	
+	private void saveDomainSelection() {
+		String[] domains = qcDomainCombo.getItems();
+		List<String> domainList = new ArrayList<String>();
+		domainList.add(qcDomainCombo.getText().trim());
+		int count = 0;
+		for (int i = 0; i < domains.length; i++) {
+			if (!domains[i].equals(qcDomainCombo.getText().trim())) {
+				domainList.add(domains[i]);
+				count++;
+				if (count == 9) break;
+			}
+		}
+		settings.put(PREVIOUS_QC_DOMAIN_COUNT, domainList.size());
+		count = 0;
+		for (String domain : domainList) {
+			settings.put(PREVIOUS_QC_DOMAIN + count++, domain);
+		}
+	}
+	
+	private String[] getPreviousDomains() {
+		List<String> domainList = new ArrayList<String>();
+		int count = 0;
+		try {
+			count = settings.getInt(PREVIOUS_QC_DOMAIN_COUNT);
+		} catch (Exception e) {}
+		if (count > 0) {
+			for (int i = 0; i < count; i++) {
+				String domain = settings.get(PREVIOUS_QC_DOMAIN + i);
+				if (domain != null) domainList.add(domain);
+			}
+		}
+		String[] domains = new String[domainList.size()];
+		domainList.toArray(domains);
+		return domains;
 	}
 
 	private void createMapping(final SynchronizationStatus status) {
@@ -382,7 +435,7 @@ public class NewProjectMappingDialog extends CcfDialog {
 	private boolean canFinish() {
 		return trackerText.getText().trim().length() > 0 &&
 		qcProjectText.getText().trim().length() > 0 &&
-		qcDomainText.getText().trim().length() > 0;
+		qcDomainCombo.getText().trim().length() > 0;
 	}
 
 }
