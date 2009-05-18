@@ -9,6 +9,7 @@ import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.IDialogSettings;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.viewers.IOpenListener;
 import org.eclipse.jface.viewers.ISelection;
@@ -110,6 +111,17 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 					}
 					else if (selection.getFirstElement() instanceof SynchronizationStatus) {
 						action = new ChangeSynchronizationStatusAction();
+					}
+					else if (selection.getFirstElement() instanceof Exception) {
+						Exception exception = (Exception)selection.getFirstElement();
+						StringBuffer errorMessage = new StringBuffer("An unexpected error occurred.  Review error log for more details.");
+						if (exception.getLocalizedMessage() != null) {
+							errorMessage.append("\n\n" + exception.getLocalizedMessage());
+						}
+						if (exception.getCause() != null && exception.getCause().getLocalizedMessage() != null) {
+							errorMessage.append("\n\nCause:\n\n" + exception.getCause().getLocalizedMessage());
+						}
+						MessageDialog.openError(Display.getCurrent().getActiveShell(), "Exception", errorMessage.toString());					
 					}
 					if (action != null) {
 						action.selectionChanged(null, selection);
@@ -282,24 +294,29 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 				else
 					return Activator.getImage(Activator.IMAGE_SYNC_STATUS_ENTRY);
 			}
+			else if (element instanceof Exception) return Activator.getImage(Activator.IMAGE_ERROR);
 			else return super.getImage(element);
 		}
 		
 		public String getText(Object element) {
 			if (element instanceof Landscape) return ((Landscape) element).getDescription();
+			else if (element instanceof Exception) {
+				if (((Exception)element).getMessage() == null) return super.getText(element);
+				else return ((Exception)element).getMessage();
+			}
 			else return super.getText(element);
 		}
 	}
 	
 	class LandscapeContentProvider extends WorkbenchContentProvider {
-		private SynchronizationStatus[] synchronizationStatuses;
+		private Object[] synchronizationStatuses;
 		
 		public Object getParent(Object element) {
 			return null;
 		}
 		
 		public boolean hasChildren(Object element) {
-			if (element instanceof SynchronizationStatus || element instanceof Log) return false;
+			if (element instanceof SynchronizationStatus || element instanceof Log || element instanceof Exception) return false;
 			return true;
 		}
 		
@@ -324,7 +341,9 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 						try {
 							synchronizationStatuses = getDataProvider().getSynchronizationStatuses(projectMappings.getLandscape(), projectMappings);
 						} catch (Exception e) {
-							synchronizationStatuses = new SynchronizationStatus[0];
+//							synchronizationStatuses = new SynchronizationStatus[0];
+							synchronizationStatuses = new Object[1];
+							synchronizationStatuses[0] = e;
 							Activator.handleError(e);
 						}
 					}					

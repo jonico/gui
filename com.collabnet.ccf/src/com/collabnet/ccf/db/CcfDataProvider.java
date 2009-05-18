@@ -195,7 +195,7 @@ public class CcfDataProvider {
 	private final static String SQL_IDENTITY_MAPPING_UPDATE = "UPDATE IDENTITY_MAPPING";
 	private final static String SQL_IDENTITY_MAPPING_DELETE = "DELETE FROM IDENTITY_MAPPING";
 
-	public Patient[] getPatients(Landscape landscape, Filter[][] filters) throws SQLException, ClassNotFoundException {
+	public Patient[] getPatients(Landscape landscape, Filter[][] filters) throws Exception {
 		Connection connection = null;
 		Statement stmt = null;
 		ResultSet rs = null;
@@ -206,11 +206,7 @@ public class CcfDataProvider {
 			rs = stmt.executeQuery(Filter.getQuery(SQL_HOSPITAL_SELECT, filters));
 			patients = getPatients(rs, landscape);
 		}
-		catch (SQLException e) {
-			Activator.handleError(e);
-			throw e;
-		}
-		catch (ClassNotFoundException e) {
+		catch (Exception e) {
 			Activator.handleError(e);
 			throw e;
 		}
@@ -246,12 +242,12 @@ public class CcfDataProvider {
 		return patients;
 	}
 	
-	public Patient[] getPatients(Landscape landscape, Filter[] filters) throws SQLException, ClassNotFoundException {
+	public Patient[] getPatients(Landscape landscape, Filter[] filters) throws Exception {
 		Filter[][] filterGroups = { filters };
 		return getPatients(landscape, filterGroups);
 	}
 	
-	public IdentityMapping getIdentityMapping(IdentityMapping identityMapping) throws SQLException, ClassNotFoundException  {
+	public IdentityMapping getIdentityMapping(IdentityMapping identityMapping) throws Exception  {
 		Filter sourceRepositoryIdFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_SOURCE_REPOSITORY_ID, identityMapping.getSourceRepositoryId(), true);
 		Filter targetRepositoryIdFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_TARGET_REPOSITORY_ID, identityMapping.getTargetRepositoryId(), true);
 		Filter sourceArtifactIdFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_SOURCE_ARTIFACT_ID, identityMapping.getSourceArtifactId(), true);
@@ -266,7 +262,7 @@ public class CcfDataProvider {
 		return identityMapping;
 	}
 	
-	public IdentityMapping[] getIdentityMappings(Landscape landscape, Filter[][] filters) throws SQLException, ClassNotFoundException {
+	public IdentityMapping[] getIdentityMappings(Landscape landscape, Filter[][] filters) throws Exception {
 		Connection connection = null;
 		Statement stmt = null;
 		ResultSet rs = null;
@@ -277,11 +273,7 @@ public class CcfDataProvider {
 			rs = stmt.executeQuery(Filter.getQuery(SQL_IDENTITY_MAPPING_SELECT, filters));
 			identityMappings = getIdentityMappings(rs, landscape);
 		}
-		catch (SQLException e) {
-			Activator.handleError(e);
-			throw e;
-		}
-		catch (ClassNotFoundException e) {
+		catch (Exception e) {
 			Activator.handleError(e);
 			throw e;
 		}
@@ -317,12 +309,12 @@ public class CcfDataProvider {
 		return identityMappings;
 	}
 	
-	public IdentityMapping[] getIdentityMappings(Landscape landscape, Filter[] filters) throws SQLException, ClassNotFoundException {
+	public IdentityMapping[] getIdentityMappings(Landscape landscape, Filter[] filters) throws Exception {
 		Filter[][] filterGroups = { filters };
 		return getIdentityMappings(landscape, filterGroups);
 	}
 	
-	public void addSynchronizationStatus(ProjectMappings projectMappings, SynchronizationStatus synchronizationStatus) throws SQLException, ClassNotFoundException {
+	public void addSynchronizationStatus(ProjectMappings projectMappings, SynchronizationStatus synchronizationStatus) throws Exception {
 		Connection connection = null;
 		Statement stmt = null;	
 		try {
@@ -359,11 +351,7 @@ public class CcfDataProvider {
 			}	
 			stmt.executeUpdate(insertStatement.toString());
 		}
-		catch (SQLException e) {
-			Activator.handleError(e);
-			throw e;
-		}
-		catch (ClassNotFoundException e) {
+		catch (Exception e) {
 			Activator.handleError(e);
 			throw e;
 		}
@@ -389,7 +377,7 @@ public class CcfDataProvider {
 		}	
 	}
 	
-	public SynchronizationStatus[] getSynchronizationStatuses(Landscape landscape, ProjectMappings projectMappings)  throws SQLException, ClassNotFoundException {
+	public SynchronizationStatus[] getSynchronizationStatuses(Landscape landscape, ProjectMappings projectMappings)  throws Exception {
 		Filter filter1 = new Filter(SYNCHRONIZATION_STATUS_SOURCE_SYSTEM_KIND, landscape.getType1(), true, Filter.FILTER_TYPE_LIKE);
 		Filter filter2 = new Filter(SYNCHRONIZATION_STATUS_TARGET_SYSTEM_KIND, landscape.getType2(), true, Filter.FILTER_TYPE_LIKE);
 		Filter[] orGroup1 = { filter1, filter2 };
@@ -404,7 +392,7 @@ public class CcfDataProvider {
 		return statuses;
 	}
 	
-	public SynchronizationStatus[] getSynchronizationStatuses(Landscape landscape, ProjectMappings projectMappings, Filter[][] filters) throws SQLException, ClassNotFoundException {
+	public SynchronizationStatus[] getSynchronizationStatuses(Landscape landscape, ProjectMappings projectMappings, Filter[][] filters) throws Exception {
 		Connection connection = null;
 		Statement stmt = null;
 		ResultSet rs = null;
@@ -415,11 +403,7 @@ public class CcfDataProvider {
 			rs = stmt.executeQuery(Filter.getQuery(SQL_SYNCHRONIZATION_STATUS_SELECT, filters));
 			statuses = getSynchronizationStatuses(rs, landscape, projectMappings);
 		}
-		catch (SQLException e) {
-			Activator.handleError(e);
-			throw e;
-		}
-		catch (ClassNotFoundException e) {
+		catch (Exception e) {
 			Activator.handleError(e);
 			throw e;
 		}
@@ -455,19 +439,19 @@ public class CcfDataProvider {
 		return statuses;
 	}
 	
-	public void deletePatients(Landscape landscape, Filter[] filters) throws  SQLException, ClassNotFoundException {
+	public void deletePatients(Landscape landscape, Filter[] filters) throws  Exception {
 		delete(SQL_HOSPITAL_DELETE, landscape, filters);
 	}
 	
-	public void deleteSynchronizationStatuses(Landscape landscape, Filter[] filters) throws  SQLException, ClassNotFoundException {
+	public void deleteSynchronizationStatuses(Landscape landscape, Filter[] filters) throws Exception {
 		delete(SQL_SYNCHRONIZATION_STATUS_DELETE, landscape, filters);
 	}
 	
-	public void deleteIdentityMappings(Landscape landscape, Filter[] filters) throws  SQLException, ClassNotFoundException {
+	public void deleteIdentityMappings(Landscape landscape, Filter[] filters) throws Exception {
 		delete(SQL_IDENTITY_MAPPING_DELETE, landscape, filters);
 	}
 	
-	private void delete(String sql, Landscape landscape, Filter[] filters) throws  SQLException, ClassNotFoundException {
+	private void delete(String sql, Landscape landscape, Filter[] filters) throws  Exception {
 		Connection connection = null;
 		Statement stmt = null;	
 		try {
@@ -476,11 +460,7 @@ public class CcfDataProvider {
 			String deleteStatement = Filter.getQuery(sql, filters);
 			stmt.executeUpdate(deleteStatement);
 		}
-		catch (SQLException e) {
-			Activator.handleError(e);
-			throw e;
-		}
-		catch (ClassNotFoundException e) {
+		catch (Exception e) {
 			Activator.handleError(e);
 			throw e;
 		}
@@ -506,19 +486,19 @@ public class CcfDataProvider {
 		}
 	}
 	
-	public int updatePatients(Landscape landscape, Update[] updates, Filter[] filters) throws SQLException, ClassNotFoundException {
+	public int updatePatients(Landscape landscape, Update[] updates, Filter[] filters) throws Exception {
 		return update(SQL_HOSPITAL_UPDATE, landscape, updates, filters);
 	}
 	
-	public int updateIdentityMappings(Landscape landscape, Update[] updates, Filter[] filters) throws SQLException, ClassNotFoundException {
+	public int updateIdentityMappings(Landscape landscape, Update[] updates, Filter[] filters) throws Exception {
 		return update(SQL_IDENTITY_MAPPING_UPDATE, landscape, updates, filters);
 	}
 	
-	public int updateSynchronizationStatuses(Landscape landscape, Update[] updates, Filter[] filters) throws SQLException, ClassNotFoundException {
+	public int updateSynchronizationStatuses(Landscape landscape, Update[] updates, Filter[] filters) throws Exception {
 		return update(SQL_SYNCHRONIZATION_STATUS_UPDATE, landscape, updates, filters);
 	}
 	
-	public void pauseSynchronization(SynchronizationStatus status) throws  SQLException, ClassNotFoundException {
+	public void pauseSynchronization(SynchronizationStatus status) throws Exception {
 		Filter sourceSystemFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_SOURCE_SYSTEM_ID, status.getSourceSystemId(), true);
 		Filter sourceRepositoryFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_SOURCE_REPOSITORY_ID, status.getSourceRepositoryId(), true);
 		Filter targetSystemFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_TARGET_SYSTEM_ID, status.getTargetSystemId(), true);
@@ -530,7 +510,7 @@ public class CcfDataProvider {
 		status.setSourceSystemKind(status.getSourceSystemKind() + "_paused");
 	}
 	
-	public void resumeSynchronization(SynchronizationStatus status) throws  SQLException, ClassNotFoundException {
+	public void resumeSynchronization(SynchronizationStatus status) throws Exception {
 		int index = status.getSourceSystemKind().indexOf("_paused");
 		if (index != -1) {
 			Filter sourceSystemFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_SOURCE_SYSTEM_ID, status.getSourceSystemId(), true);
@@ -545,11 +525,11 @@ public class CcfDataProvider {
 		}
 	}
 	
-	public void resetSynchronizationStatus(SynchronizationStatus status) throws SQLException, ClassNotFoundException {
+	public void resetSynchronizationStatus(SynchronizationStatus status) throws Exception {
 		resetSynchronizationStatus(status, Timestamp.valueOf("1999-01-01 00:00:00.0"));
 	}
 	
-	public void resetSynchronizationStatus(final SynchronizationStatus status, final Timestamp timestamp) throws SQLException, ClassNotFoundException {
+	public void resetSynchronizationStatus(final SynchronizationStatus status, final Timestamp timestamp) throws Exception {
 		// Pause first so that changes are not overlaid.
 		final boolean pausedAlready = status.isPaused();
 		if (!pausedAlready) pauseSynchronization(status);
@@ -609,7 +589,7 @@ public class CcfDataProvider {
 		thread.start();
 	}
 	
-	public void deleteIdentityMappings(SynchronizationStatus status) throws SQLException, ClassNotFoundException {
+	public void deleteIdentityMappings(SynchronizationStatus status) throws Exception {
 		pauseSynchronization(status);
 		
 		Filter sourceSystemFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_SOURCE_SYSTEM_ID, status.getSourceSystemId(), true);
@@ -622,7 +602,7 @@ public class CcfDataProvider {
 		resumeSynchronization(status);
 	}
 	
-	private int update(String sql, Landscape landscape, Update[] updates, Filter[] filters) throws SQLException, ClassNotFoundException {
+	private int update(String sql, Landscape landscape, Update[] updates, Filter[] filters) throws Exception {
 		Connection connection = null;
 		Statement stmt = null;
 		int rowsUpdated = 0;
@@ -633,11 +613,7 @@ public class CcfDataProvider {
 			updateStatement = Filter.getQuery(updateStatement, filters);
 			rowsUpdated = stmt.executeUpdate(updateStatement);
 		}
-		catch (SQLException e) {
-			Activator.handleError(e);
-			throw e;
-		}
-		catch (ClassNotFoundException e) {
+		catch (Exception e) {
 			Activator.handleError(e);
 			throw e;
 		}
@@ -664,9 +640,9 @@ public class CcfDataProvider {
 		return rowsUpdated;
 	}
 	
-	private Connection getConnection(Landscape landscape) throws ClassNotFoundException, SQLException {
+	private Connection getConnection(Landscape landscape) throws Exception {
 		if (landscape == null) return getConnection();
-		Connection connection = null;
+//		Connection connection = null;
 		String configurationFolder = landscape.getConfigurationFolder();
 		File folder = new File(configurationFolder);
 		File propertiesFile = new File(folder, "ccf.properties");
@@ -686,8 +662,9 @@ public class CcfDataProvider {
 			return getConnection(driver, url, user, password);
 		} catch (Exception e) {
 			Activator.handleError(e);
+			throw new Exception("Unable to connect to database", e);
 		}
-		return connection;
+//		return connection;
 	}
 
 	private Connection getConnection() throws ClassNotFoundException, SQLException {
