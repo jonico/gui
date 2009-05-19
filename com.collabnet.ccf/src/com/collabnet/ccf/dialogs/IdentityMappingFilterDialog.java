@@ -25,6 +25,8 @@ public class IdentityMappingFilterDialog extends CcfDialog {
 	
 	private Button filtersActiveButton;
 
+	private Text sourceSystemIdText;
+	private Combo sourceSystemIdCombo;
 	private Text sourceRepositoryIdText;
 	private Combo sourceRepositoryIdCombo;
 	private Text sourceSystemKindText;
@@ -36,6 +38,8 @@ public class IdentityMappingFilterDialog extends CcfDialog {
 	private Text sourceArtifactVersionText;
 	private Combo sourceArtifactVersionCombo;
 
+	private Text targetSystemIdText;
+	private Combo targetSystemIdCombo;
 	private Text targetRepositoryIdText;
 	private Combo targetRepositoryIdCombo;
 	private Text targetSystemKindText;
@@ -99,6 +103,13 @@ public class IdentityMappingFilterDialog extends CcfDialog {
 		sourceGroup.setLayout(sourceLayout);
 		data = new GridData(GridData.FILL_BOTH);
 		sourceGroup.setLayoutData(data);
+		
+		Label sourceSystemIdLabel = new Label(sourceGroup, SWT.NONE);
+		sourceSystemIdLabel.setText("System ID:");
+		sourceSystemIdText = new Text(sourceGroup, SWT.BORDER);
+		data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
+		sourceSystemIdText.setLayoutData(data);
+		sourceSystemIdCombo = createCombo(sourceGroup);
 
 		Label sourceRepositoryIdLabel = new Label(sourceGroup, SWT.NONE);
 		sourceRepositoryIdLabel.setText("Repository ID:");
@@ -142,6 +153,13 @@ public class IdentityMappingFilterDialog extends CcfDialog {
 		targetGroup.setLayout(targetLayout);
 		data = new GridData(GridData.FILL_BOTH);
 		targetGroup.setLayoutData(data);
+		
+		Label targetSystemIdLabel = new Label(targetGroup, SWT.NONE);
+		targetSystemIdLabel.setText("System ID:");
+		targetSystemIdText = new Text(targetGroup, SWT.BORDER);
+		data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
+		targetSystemIdText.setLayoutData(data);
+		targetSystemIdCombo = createCombo(targetGroup);
 
 		Label targetRepositoryIdLabel = new Label(targetGroup, SWT.NONE);
 		targetRepositoryIdLabel.setText("Repository ID:");
@@ -315,11 +333,13 @@ public class IdentityMappingFilterDialog extends CcfDialog {
 		filtersActive = filtersActiveButton.getSelection();
 		settings.put(Filter.IDENTITY_MAPPING_FILTERS_ACTIVE, filtersActive);
 		List<Filter> filterList = new ArrayList<Filter>();
+		updateFilterList(filterList, CcfDataProvider.IDENTITY_MAPPING_SOURCE_SYSTEM_ID, true, sourceSystemIdText, sourceSystemIdCombo, settings);
 		updateFilterList(filterList, CcfDataProvider.IDENTITY_MAPPING_SOURCE_REPOSITORY_ID, true, sourceRepositoryIdText, sourceRepositoryIdCombo, settings);
 		updateFilterList(filterList, CcfDataProvider.IDENTITY_MAPPING_SOURCE_SYSTEM_KIND, true, sourceSystemKindText, sourceSystemKindCombo, settings);
 		updateFilterList(filterList, CcfDataProvider.IDENTITY_MAPPING_SOURCE_REPOSITORY_KIND, true, sourceRepositoryKindText, sourceRepositoryKindCombo, settings);
 		updateFilterList(filterList, CcfDataProvider.IDENTITY_MAPPING_SOURCE_ARTIFACT_ID, true, sourceArtifactIdText, sourceArtifactIdCombo, settings);
 		updateFilterList(filterList, CcfDataProvider.IDENTITY_MAPPING_SOURCE_ARTIFACT_VERSION, true, sourceArtifactVersionText, sourceArtifactVersionCombo, settings);
+		updateFilterList(filterList, CcfDataProvider.IDENTITY_MAPPING_TARGET_SYSTEM_ID, true, targetSystemIdText, targetSystemIdCombo, settings);
 		updateFilterList(filterList, CcfDataProvider.IDENTITY_MAPPING_TARGET_REPOSITORY_ID, true, targetRepositoryIdText, targetRepositoryIdCombo, settings);
 		updateFilterList(filterList, CcfDataProvider.IDENTITY_MAPPING_TARGET_SYSTEM_KIND, true, targetSystemKindText, targetSystemKindCombo, settings);
 		updateFilterList(filterList, CcfDataProvider.IDENTITY_MAPPING_TARGET_REPOSITORY_KIND, true, targetRepositoryKindText, targetRepositoryKindCombo, settings);
@@ -388,7 +408,11 @@ public class IdentityMappingFilterDialog extends CcfDialog {
 		
 		if (filters != null) {
 			for (int i = 0; i < filters.length; i++) {
-				if (filters[i].getColumnName().equals(CcfDataProvider.IDENTITY_MAPPING_SOURCE_REPOSITORY_ID)) {
+				if (filters[i].getColumnName().equals(CcfDataProvider.IDENTITY_MAPPING_SOURCE_SYSTEM_ID)) {
+					sourceSystemIdText.setText(filters[i].getValue());
+					setComboSelection(sourceSystemIdCombo, filters[i]);
+				}
+			    else if (filters[i].getColumnName().equals(CcfDataProvider.IDENTITY_MAPPING_SOURCE_REPOSITORY_ID)) {
 					sourceRepositoryIdText.setText(filters[i].getValue());
 					setComboSelection(sourceRepositoryIdCombo, filters[i]);
 				}
@@ -407,7 +431,11 @@ public class IdentityMappingFilterDialog extends CcfDialog {
 				else if (filters[i].getColumnName().equals(CcfDataProvider.IDENTITY_MAPPING_SOURCE_ARTIFACT_VERSION)) {
 					sourceArtifactVersionText.setText(filters[i].getValue());
 					setComboSelection(sourceArtifactVersionCombo, filters[i]);
-				}		
+				}
+				else if (filters[i].getColumnName().equals(CcfDataProvider.IDENTITY_MAPPING_TARGET_SYSTEM_ID)) {
+					targetSystemIdText.setText(filters[i].getValue());
+					setComboSelection(targetSystemIdCombo, filters[i]);
+				}
 				else if (filters[i].getColumnName().equals(CcfDataProvider.IDENTITY_MAPPING_TARGET_REPOSITORY_ID)) {
 					targetRepositoryIdText.setText(filters[i].getValue());
 					setComboSelection(targetRepositoryIdCombo, filters[i]);

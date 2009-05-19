@@ -39,17 +39,12 @@ public class IdentityMappingAction extends ActionDelegate {
 						// TODO: Landscape filtering
 						IdentityMappingView.setFilters(null, true, landscape.getDescription());
 					} else {
-						String sourceSystemKind;
-						if (status.isPaused()) sourceSystemKind = status.getSourceSystemKind().substring(0, 2);
-						else sourceSystemKind = status.getSourceSystemKind();
-						Filter sourceSystemFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_SOURCE_SYSTEM_KIND, sourceSystemKind, true, Filter.FILTER_TYPE_LIKE);
+						Filter sourceSystemFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_SOURCE_SYSTEM_ID, status.getSourceSystemId(), true);
 						Filter sourceRepositoryFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_SOURCE_REPOSITORY_ID, status.getSourceRepositoryId(), true);
-						Filter targetSystemFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_TARGET_SYSTEM_KIND, status.getTargetSystemKind(), true, Filter.FILTER_TYPE_LIKE);
+						Filter targetSystemFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_TARGET_SYSTEM_ID, status.getTargetSystemId(), true);						
 						Filter targetRepositoryFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_TARGET_REPOSITORY_ID, status.getTargetRepositoryId(), true);
-						Filter[] filters = { sourceSystemFilter, sourceRepositoryFilter, targetSystemFilter, targetRepositoryFilter };
-						
+						Filter[] filters = { sourceSystemFilter, sourceRepositoryFilter, targetSystemFilter, targetRepositoryFilter };					
 						Filter[][] filterGroups = { filters };
-						
 						IdentityMappingView.setFilters(filterGroups, true, status.toString());
 					}
 					IdentityMappingView identityMappingView = (IdentityMappingView)Activator.getDefault().getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(IdentityMappingView.ID);
