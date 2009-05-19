@@ -96,13 +96,21 @@ public class CcfCcfEditorPage extends CcfEditorPage {
 	
 	private void createControls(Composite composite) {
 		description = getLandscape().getDescription();
+		if (description == null) description = "";
 		url = getLandscape().getDatabaseUrl();
+		if (url == null) url = "";
 		driver = getLandscape().getDatabaseDriver();
+		if (driver == null) driver = "";
 		user = getLandscape().getDatabaseUser();
+		if (user == null) user = "";
 		password = getLandscape().getDatabasePassword();
+		if (password == null) password = "";
 		template = getLandscape().getLogMessageTemplate1();
+		if (template == null) template = "";
 		jmxPort1 = getLandscape().getJmxPort1();
+		if (jmxPort1 == null) jmxPort1 = "";
 		jmxPort2 = getLandscape().getJmxPort2();
+		if (jmxPort2 == null) jmxPort2 = "";
 		
 		Label headerImageLabel = new Label(composite, SWT.NONE);
 		headerImageLabel.setImage(Activator.getImage(getLandscape()));
