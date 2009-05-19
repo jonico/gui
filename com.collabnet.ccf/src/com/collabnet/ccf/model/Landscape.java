@@ -155,6 +155,24 @@ public class Landscape implements IPropertySource {
 		return password;
 	}
 	
+	public String getCcfHost1() {
+		String hostName = null;
+		ccfProperties1 = getCcfProperties1();
+		if (ccfProperties1 != null) {
+			hostName = ccfProperties1.getProperty(Activator.PROPERTIES_CCF_HOST_NAME, "http://localhost");
+		}
+		return hostName;
+	}
+	
+	public String getCcfHost2() {
+		String hostName = null;
+		ccfProperties2 = getCcfProperties2();
+		if (ccfProperties2 != null) {
+			hostName = ccfProperties2.getProperty(Activator.PROPERTIES_CCF_HOST_NAME, "http://localhost");
+		}
+		return hostName;
+	}		
+	
 	public String getJmxPort1() {
 		String port = null;
 		ccfProperties1 = getCcfProperties1();
@@ -162,6 +180,24 @@ public class Landscape implements IPropertySource {
 			port = ccfProperties1.getProperty(Activator.PROPERTIES_CCF_JMX_PORT);
 		}
 		return port;
+	}
+	
+	public String getJmxUrl1() {
+		StringBuffer url = new StringBuffer(getCcfHost1());
+		String port = getJmxPort1();
+		if (port != null && port.length() > 0) {
+			url.append(":" + port);
+		}
+		return url.toString();
+	}
+	
+	public String getJmxUrl2() {
+		StringBuffer url = new StringBuffer(getCcfHost2());
+		String port = getJmxPort2();
+		if (port != null && port.length() > 0) {
+			url.append(":" + port);
+		}
+		return url.toString();
 	}
 	
 	public String getJmxPort2() {

@@ -40,6 +40,7 @@ import com.collabnet.ccf.IProjectMappingsChangeListener;
 import com.collabnet.ccf.actions.ChangeSynchronizationStatusAction;
 import com.collabnet.ccf.actions.EditLandscapeAction;
 import com.collabnet.ccf.actions.EditLogAction;
+import com.collabnet.ccf.actions.JmxBrowserAction;
 import com.collabnet.ccf.actions.NewLandscapeAction;
 import com.collabnet.ccf.db.CcfDataProvider;
 import com.collabnet.ccf.model.Landscape;
@@ -203,10 +204,20 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 		NewLandscapeAction newLandscapeAction = new NewLandscapeAction("CCF Landscape");
 		sub.add(newLandscapeAction);
 		sub.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
-		manager.add(sub);		
+		manager.add(sub);	
+		
+		manager.add(new Separator());
 		
 		IStructuredSelection selection = (IStructuredSelection)treeViewer.getSelection();
 		if (selection.size() == 1 && selection.getFirstElement() instanceof Landscape) {
+			
+			MenuManager jmxMenu = new MenuManager("Open JMX console in browser", IWorkbenchActionConstants.GROUP_ADD); //$NON-NLS-1$
+			JmxBrowserAction jmxToQcAction = new JmxBrowserAction((Landscape)selection.getFirstElement(), JmxBrowserAction.TO_QC);
+			jmxMenu.add(jmxToQcAction);
+			JmxBrowserAction jmxFromQcAction = new JmxBrowserAction((Landscape)selection.getFirstElement(), JmxBrowserAction.FROM_QC);
+			jmxMenu.add(jmxFromQcAction);			
+			manager.add(jmxMenu);
+			
 			ILandscapeContributor landscapeContributor = null;
 			try {
 				landscapeContributor = Activator.getLandscapeContributor((Landscape)selection.getFirstElement());

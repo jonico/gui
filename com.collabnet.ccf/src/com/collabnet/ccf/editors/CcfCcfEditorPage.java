@@ -52,7 +52,9 @@ public class CcfCcfEditorPage extends CcfEditorPage {
 	private Text userText;
 	private Text passwordText;
 	
+	private Text host1Text;
 	private Text jmxPort1Text;
+	private Text host2Text;
 	private Text jmxPort2Text;
 	
 	private Text templateText;
@@ -63,7 +65,9 @@ public class CcfCcfEditorPage extends CcfEditorPage {
 	private String user;
 	private String password;
 	
+	private String ccfHost1;
 	private String jmxPort1;
+	private String ccfHost2;
 	private String jmxPort2;
 	
 	private String template;
@@ -111,6 +115,8 @@ public class CcfCcfEditorPage extends CcfEditorPage {
 		if (jmxPort1 == null) jmxPort1 = "";
 		jmxPort2 = getLandscape().getJmxPort2();
 		if (jmxPort2 == null) jmxPort2 = "";
+		ccfHost1 = getLandscape().getCcfHost1();
+		ccfHost2 = getLandscape().getCcfHost2();
 		
 		Label headerImageLabel = new Label(composite, SWT.NONE);
 		headerImageLabel.setImage(Activator.getImage(getLandscape()));
@@ -202,18 +208,18 @@ public class CcfCcfEditorPage extends CcfEditorPage {
 			}			
 		});
 		
-		Section jmxSection = toolkit.createSection(composite, Section.TITLE_BAR | Section.TWISTIE | Section.EXPANDED);
+		Section hostSection = toolkit.createSection(composite, Section.TITLE_BAR | Section.TWISTIE | Section.EXPANDED);
         td = new TableWrapData(TableWrapData.FILL_GRAB);
         td.colspan = 4;
-        jmxSection.setLayoutData(td);
-        jmxSection.setText("JMX Ports");
-        Composite jmxSectionClient = toolkit.createComposite(jmxSection); 
+        hostSection.setLayoutData(td);
+        hostSection.setText("CCF Hosts");
+        Composite hostSectionClient = toolkit.createComposite(hostSection); 
         GridLayout jmxLayout = new GridLayout();
         jmxLayout.numColumns = 2;
         jmxLayout.verticalSpacing = 10;
-        jmxSectionClient.setLayout(jmxLayout);
-        jmxSection.setClient(jmxSectionClient);
-        jmxSection.addExpansionListener(new ExpansionAdapter() {
+        hostSectionClient.setLayout(jmxLayout);
+        hostSection.setClient(hostSectionClient);
+        hostSection.addExpansionListener(new ExpansionAdapter() {
             public void expansionStateChanged(ExpansionEvent e) {
                 form.reflow(true);
                 if (e.getState()) getDialogSettings().put(JMX_SECTION_STATE, STATE_EXPANDED);
@@ -221,14 +227,24 @@ public class CcfCcfEditorPage extends CcfEditorPage {
             }
         });	
         
-		toolkit.createLabel(jmxSectionClient, getLandscape().getType2() + " => " + getLandscape().getType1() + " port:");
-		jmxPort1Text = toolkit.createText(jmxSectionClient, jmxPort1);
+		toolkit.createLabel(hostSectionClient, getLandscape().getType2() + " => " + getLandscape().getType1() + " host name:");
+		host1Text = toolkit.createText(hostSectionClient, ccfHost1);
+		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
+		host1Text.setLayoutData(gd);
+        
+		toolkit.createLabel(hostSectionClient, getLandscape().getType2() + " => " + getLandscape().getType1() + " JMX port:");
+		jmxPort1Text = toolkit.createText(hostSectionClient, jmxPort1);
 		gd = new GridData();
 		gd.widthHint = 100;
 		jmxPort1Text.setLayoutData(gd);
 		
-		toolkit.createLabel(jmxSectionClient, getLandscape().getType1() + " => " + getLandscape().getType2() + " port:");
-		jmxPort2Text = toolkit.createText(jmxSectionClient, jmxPort2);
+		toolkit.createLabel(hostSectionClient, getLandscape().getType1() + " => " + getLandscape().getType2() + " host name:");
+		host2Text = toolkit.createText(hostSectionClient, ccfHost2);
+		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
+		host2Text.setLayoutData(gd);
+		
+		toolkit.createLabel(hostSectionClient, getLandscape().getType1() + " => " + getLandscape().getType2() + " JMX port:");
+		jmxPort2Text = toolkit.createText(hostSectionClient, jmxPort2);
 		gd = new GridData();
 		gd.widthHint = 100;
 		jmxPort2Text.setLayoutData(gd);
@@ -282,14 +298,14 @@ public class CcfCcfEditorPage extends CcfEditorPage {
 		insertButton.setEnabled(false);
 		
         toolkit.paintBordersFor(databaseSectionClient);
-        toolkit.paintBordersFor(jmxSectionClient);
+        toolkit.paintBordersFor(hostSectionClient);
         toolkit.paintBordersFor(templateSectionClient);
         
         String expansionState = getDialogSettings().get(DATABASE_SECTION_STATE);
         databaseSection.setExpanded(expansionState == null  || expansionState.equals(STATE_EXPANDED));
         
         expansionState = getDialogSettings().get(JMX_SECTION_STATE);
-        jmxSection.setExpanded(expansionState == null  || expansionState.equals(STATE_EXPANDED));
+        hostSection.setExpanded(expansionState == null  || expansionState.equals(STATE_EXPANDED));
         
         expansionState = getDialogSettings().get(TEMPLATE_SECTION_STATE);
         templateSection.setExpanded(expansionState == null  || expansionState.equals(STATE_EXPANDED));
@@ -311,7 +327,9 @@ public class CcfCcfEditorPage extends CcfEditorPage {
 		userText.addModifyListener(modifyListener);
 		passwordText.addModifyListener(modifyListener);
 		jmxPort1Text.addModifyListener(modifyListener);
+		host1Text.addModifyListener(modifyListener);
 		jmxPort2Text.addModifyListener(modifyListener);
+		host2Text.addModifyListener(modifyListener);
 		templateText.addModifyListener(modifyListener);
 		
 		FocusListener focusListener = new FocusAdapter() {
@@ -331,7 +349,9 @@ public class CcfCcfEditorPage extends CcfEditorPage {
 		userText.addFocusListener(focusListener);
 		passwordText.addFocusListener(focusListener);
 		jmxPort1Text.addFocusListener(focusListener);
+		host1Text.addFocusListener(focusListener);
 		jmxPort2Text.addFocusListener(focusListener);
+		host2Text.addFocusListener(focusListener);
 		templateText.addFocusListener(focusListener);
 	}
 	
@@ -376,7 +396,9 @@ public class CcfCcfEditorPage extends CcfEditorPage {
 		!userText.getText().trim().equals(user) ||
 		!passwordText.getText().trim().equals(password) ||
 		!jmxPort1Text.getText().trim().equals(jmxPort1)	 ||
+		!host1Text.getText().trim().equals(ccfHost1) ||
 		!jmxPort2Text.getText().trim().equals(jmxPort2) ||
+		!host2Text.getText().trim().equals(ccfHost2) ||
 		!templateText.getText().trim().equals(template);
 	}
 	
@@ -401,7 +423,9 @@ public class CcfCcfEditorPage extends CcfEditorPage {
 		user = userText.getText().trim();
 		password = passwordText.getText().trim();
 		jmxPort1 = jmxPort1Text.getText().trim();
+		ccfHost1 = host1Text.getText().trim();
 		jmxPort2 = jmxPort2Text.getText().trim();
+		ccfHost2 = host2Text.getText().trim();
 		template = templateText.getText().trim();
 	}
 	
@@ -434,12 +458,14 @@ public class CcfCcfEditorPage extends CcfEditorPage {
 			properties.setProperty(Activator.PROPERTIES_CCF_LOG_MESSAGE_TEMPLATE, getLogMessageTemplate());
 			if (propertiesFile1 != null) {
 				properties.setProperty(Activator.PROPERTIES_CCF_JMX_PORT, getJmxPort1());
+				properties.setProperty(Activator.PROPERTIES_CCF_HOST_NAME, getHostName1());
 				FileOutputStream outputStream = new FileOutputStream(propertiesFile1);
 				properties.store(outputStream, null);
 				outputStream.close();
 			}
 			if (propertiesFile2 != null) {
 				properties.setProperty(Activator.PROPERTIES_CCF_JMX_PORT, getJmxPort2());
+				properties.setProperty(Activator.PROPERTIES_CCF_HOST_NAME, getHostName2());
 				FileOutputStream outputStream = new FileOutputStream(propertiesFile2);
 				properties.store(outputStream, null);
 				outputStream.close();
@@ -475,6 +501,14 @@ public class CcfCcfEditorPage extends CcfEditorPage {
 	
 	public String getJmxPort2() {
 		return jmxPort2Text.getText().trim();
+	}
+	
+	public String getHostName1() {
+		return host1Text.getText().trim();
+	}
+	
+	public String getHostName2() {
+		return host2Text.getText().trim();
 	}
 	
 	public String getLogMessageTemplate() {

@@ -78,6 +78,7 @@ public class Activator extends AbstractUIPlugin {
 	public static final String PROPERTIES_CCF_PASSWORD = "ccf.db.password"; //$NON-NLS-1$
 	public static final String PROPERTIES_CCF_LOG_MESSAGE_TEMPLATE = "ccf.logMessageTemplate"; //$NON-NLS-1$
 	public static final String PROPERTIES_CCF_JMX_PORT = "ccf.jmxPort"; //$NON-NLS-1$
+	public static final String PROPERTIES_CCF_HOST_NAME = "ccf.ccfHostName"; //$NON-NLS-1$
 
 	public static final String PROPERTIES_SYSTEM_TIMEZONE = "gui.system.timezone"; //$NON-NLS-1$
 	public static final String PROPERTIES_SYSTEM_ENCODING = "gui.system.encoding"; //$NON-NLS-1$
