@@ -73,8 +73,14 @@ public class IdentityMappingView extends ViewPart {
 	private IdentityMapping[] identityMappings;
 	private boolean identityMappingsLoaded;
 	
+	private static Action forwardAction = new FilterNavigationAction(FilterNavigationAction.FORWARD);
+	private static Action backwardAction = new FilterNavigationAction(FilterNavigationAction.BACKWARD);
+	
 	public static final String ID = "com.collabnet.ccf.views.IdentityMappingView";
 
+	private static List<PreviousFilter> previousFilters = new ArrayList<PreviousFilter>();
+	private static int filterIndex = -1;
+	
 	private static IdentityMappingView view;
 	private static String contentDescription;
 	private static Landscape landscape;
@@ -233,6 +239,10 @@ public class IdentityMappingView extends ViewPart {
 	}
 	
 	public static void setFilters(Filter[][] filters, boolean filtering, String description) {
+		setFilters(filters, filtering, description, true);
+	}
+	
+	public static void setFilters(Filter[][] filters, boolean filtering, String description, boolean updateFilterList) {
 		IdentityMappingView.filters = filters;
 		IdentityMappingView.filtering = filtering;
 		if (filtering) {
@@ -244,6 +254,12 @@ public class IdentityMappingView extends ViewPart {
 		} else {
 			contentDescription = "";
 		}
+		if (updateFilterList) {
+			PreviousFilter previousFilter = new PreviousFilter(filters, filtering, description);
+			previousFilters.add(previousFilter);
+			filterIndex = previousFilters.size() - 1;
+		}
+		setFilterNavigationEnablement();
 	}
 	
 	public static void setLandscape(Landscape landscape) {
@@ -370,7 +386,13 @@ public class IdentityMappingView extends ViewPart {
 	private void createToolbar() {
 		IToolBarManager toolbarManager = getViewSite().getActionBars().getToolBarManager();
 		toolbarManager.add(new RefreshAction());
+		toolbarManager.add(new Separator());
 		toolbarManager.add(new FilterAction());
+		backwardAction.setEnabled(false);
+		toolbarManager.add(backwardAction);
+		forwardAction.setEnabled(false);
+		toolbarManager.add(forwardAction);
+		toolbarManager.add(new Separator());
 		toolbarManager.add(new ConnectionAction());
 	}
 	
@@ -449,7 +471,7 @@ public class IdentityMappingView extends ViewPart {
 			Filter[][] filterGroups = { previousFilters };
 
 			filtering = filtersActive;
-			setFilters(filterGroups, filtering, null);
+			setFilters(filterGroups, filtering, null, false);
 		}
 	}
 	
@@ -459,6 +481,11 @@ public class IdentityMappingView extends ViewPart {
 			Filter filter = new Filter(columnName, filterValue, stringValue, settings.getInt(Filter.IDENTITY_MAPPING_FILTER_TYPE + columnName));
 			filterList.add(filter);			
 		}
+	}
+	
+	private static void setFilterNavigationEnablement() {
+		backwardAction.setEnabled(filterIndex > 0);
+		forwardAction.setEnabled(filterIndex != -1 && filterIndex < previousFilters.size() - 1);
 	}
 	
 	public static void setSelectedColumns() {
@@ -780,6 +807,66 @@ public class IdentityMappingView extends ViewPart {
 				getIdentityMappings();
 			}
 		}
+	}
+	
+	static class FilterNavigationAction extends Action {
+		public int type;
+		public final static int FORWARD = 0;
+		public final static int BACKWARD = 1;
+		
+		public FilterNavigationAction(int type) {
+			super();
+			this.type = type;
+			switch (type) {
+			case FORWARD:
+				setImageDescriptor(Activator.getDefault().getImageDescriptor(Activator.IMAGE_FORWARD));
+				setToolTipText("Next Filter");				
+				break;
+			case BACKWARD:
+				setImageDescriptor(Activator.getDefault().getImageDescriptor(Activator.IMAGE_BACKWARD));
+				setToolTipText("Previous Filter");				
+				break;
+			default:
+				break;
+			}
+		}
+		public void run() {
+			switch (type) {
+			case FORWARD:
+				filterIndex++;
+				break;
+			case BACKWARD:
+				filterIndex--;
+				break;
+			default:
+				break;
+			}
+			PreviousFilter previousFilter = previousFilters.get(filterIndex);
+			setFilters(previousFilter.getFilters(), previousFilter.isFiltering(), previousFilter.getDescription(), false);
+			getView().refresh();
+		}
+	}
+	
+	static class PreviousFilter {
+		Filter[][] filters;
+		boolean filtering;
+		String description;
+		
+		public PreviousFilter(Filter[][] filters, boolean filtering, String description) {
+			this.description = description;
+			this.filtering = filtering;
+			this.filters = filters;
+		}
+		
+		public Filter[][] getFilters() {
+			return filters;
+		}
+		public boolean isFiltering() {
+			return filtering;
+		}
+		public String getDescription() {
+			return description;
+		}	
 	}
 	
 	class ArrangeColumnsAction extends Action {

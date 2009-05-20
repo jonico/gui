@@ -52,6 +52,8 @@ public class Activator extends AbstractUIPlugin {
 	public static final String IMAGE_LANDSCAPE_QC_TF = "landscape_QC_TF.gif"; //$NON-NLS-1$
 	public static final String IMAGE_REFRESH = "refresh.gif"; //$NON-NLS-1$
 	public static final String IMAGE_FILTERS = "filters.gif"; //$NON-NLS-1$
+	public static final String IMAGE_FORWARD = "forward_nav.gif"; //$NON-NLS-1$
+	public static final String IMAGE_BACKWARD = "nav_backward.gif"; //$NON-NLS-1$
 	public static final String IMAGE_DATABASE_CONNECTION = "dbConnection.gif"; //$NON-NLS-1$
 	public static final String IMAGE_HOSPITAL_ENTRY = "hospitalEntry.gif"; //$NON-NLS-1$
 	public static final String IMAGE_HOSPITAL_ENTRY_FIXED = "hospitalEntryFixed.gif"; //$NON-NLS-1$
@@ -346,6 +348,8 @@ public class Activator extends AbstractUIPlugin {
 		imageDescriptors = new Hashtable<String, ImageDescriptor>(40);
 		createImageDescriptor(IMAGE_REFRESH);
 		createImageDescriptor(IMAGE_FILTERS);
+		createImageDescriptor(IMAGE_FORWARD);
+		createImageDescriptor(IMAGE_BACKWARD);
 		createImageDescriptor(IMAGE_DATABASE_CONNECTION);
 		createImageDescriptor(IMAGE_HOSPITAL_ENTRY);
 		createImageDescriptor(IMAGE_HOSPITAL_ENTRY_FIXED);
@@ -368,6 +372,8 @@ public class Activator extends AbstractUIPlugin {
 		super.initializeImageRegistry(reg);
 		reg.put(IMAGE_REFRESH, getImageDescriptor(IMAGE_REFRESH));
 		reg.put(IMAGE_FILTERS, getImageDescriptor(IMAGE_FILTERS));
+		reg.put(IMAGE_FORWARD, getImageDescriptor(IMAGE_FORWARD));
+		reg.put(IMAGE_BACKWARD, getImageDescriptor(IMAGE_BACKWARD));
 		reg.put(IMAGE_DATABASE_CONNECTION, getImageDescriptor(IMAGE_DATABASE_CONNECTION));
 		reg.put(IMAGE_HOSPITAL_ENTRY, getImageDescriptor(IMAGE_HOSPITAL_ENTRY));
 		reg.put(IMAGE_HOSPITAL_ENTRY_FIXED, getImageDescriptor(IMAGE_HOSPITAL_ENTRY_FIXED));
