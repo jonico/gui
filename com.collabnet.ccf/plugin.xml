@@ -154,14 +154,21 @@
             objectClass="com.collabnet.ccf.model.IdentityMapping"
             id="com.collabnet.ccf.model.IdentityMapping">  
          <action
-               label="Edit Details"
+               label="Edit details"
                menubarPath="group.a"
                class="com.collabnet.ccf.actions.IdentityMappingEditAction"
                id="com.collabnet.ccf.actions.IdentityMappingEditAction">
-         </action>                                                               
+         </action> 
+         <action
+               label="Show reverse mappings"
+               menubarPath="group.b"
+               enablesFor = "1"
+               class="com.collabnet.ccf.actions.ReverseIdentityMappingAction"
+               id="com.collabnet.ccf.actions.ReverseIdentityMappingAction">
+         </action>                                                                           
          <action
                label="Delete..."
-               menubarPath="group.b"
+               menubarPath="group.c"
                class="com.collabnet.ccf.actions.DeleteIdentityMappingAction"
                id="com.collabnet.ccf.actions.DeleteIdentityMappingAction">
          </action>                                                                         
