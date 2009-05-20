@@ -262,6 +262,21 @@ public class CcfDataProvider {
 		return identityMapping;
 	}
 	
+	public IdentityMapping getReverseIdentityMapping(IdentityMapping identityMapping) throws Exception  {
+		Filter sourceRepositoryIdFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_SOURCE_REPOSITORY_ID, identityMapping.getTargetRepositoryId(), true);
+		Filter targetRepositoryIdFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_TARGET_REPOSITORY_ID, identityMapping.getSourceRepositoryId(), true);
+		Filter sourceArtifactIdFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_SOURCE_ARTIFACT_ID, identityMapping.getTargetArtifactId(), true);
+		Filter artifactTypeFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_ARTIFACT_TYPE, identityMapping.getArtifactType(), true);
+		Filter[] filters = { sourceRepositoryIdFilter, targetRepositoryIdFilter, sourceArtifactIdFilter, artifactTypeFilter };
+		
+		IdentityMapping[] identityMappings = getIdentityMappings(identityMapping.getLandscape(), filters);
+		if (identityMappings != null && identityMappings.length == 1) {
+			return identityMappings[0];
+		}
+		
+		return identityMapping;
+	}
+	
 	public IdentityMapping[] getIdentityMappings(Landscape landscape, Filter[][] filters) throws Exception {
 		Connection connection = null;
 		Statement stmt = null;

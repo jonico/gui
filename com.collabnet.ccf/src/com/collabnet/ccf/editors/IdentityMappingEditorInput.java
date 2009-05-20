@@ -8,9 +8,11 @@ import com.collabnet.ccf.model.IdentityMapping;
 
 public class IdentityMappingEditorInput implements IEditorInput {
 	private IdentityMapping identityMapping;
+	private IdentityMapping reverseIdentityMapping;
 
-	public IdentityMappingEditorInput(IdentityMapping identityMapping) {
+	public IdentityMappingEditorInput(IdentityMapping identityMapping, IdentityMapping reverseIdentityMapping) {
 		this.identityMapping = identityMapping;
+		this.reverseIdentityMapping = reverseIdentityMapping;
 	}
 
 	public boolean exists() {
@@ -22,7 +24,8 @@ public class IdentityMappingEditorInput implements IEditorInput {
 	}
 
 	public String getName() {
-		return identityMapping.getEditableValue().toString();
+//		return identityMapping.getEditableValue().toString();
+		return identityMapping.getSourceArtifactId() + "/" + identityMapping.getTargetArtifactId();
 	}
 
 	public IPersistableElement getPersistable() {
@@ -40,6 +43,10 @@ public class IdentityMappingEditorInput implements IEditorInput {
 
 	public IdentityMapping getIdentityMapping() {
 		return identityMapping;
+	}
+	
+	public IdentityMapping getReverseIdentityMapping() {
+		return reverseIdentityMapping;
 	}
 
 	@Override

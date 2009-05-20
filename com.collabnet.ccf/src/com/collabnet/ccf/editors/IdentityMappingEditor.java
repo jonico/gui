@@ -16,8 +16,10 @@ import com.collabnet.ccf.views.IdentityMappingView;
 
 public class IdentityMappingEditor extends FormEditor implements ISaveablePart2 {
 	private IdentityMapping identityMapping;
+	private IdentityMapping reverseIdentityMapping;
 	
 	private IdentityMappingEditorPage detailsPage;
+	private IdentityMappingEditorPage reversePage;
 	
 	public final static String ID = "com.collabnet.ccf.editors.IdentityMappingEditor";
 	
@@ -32,16 +34,23 @@ public class IdentityMappingEditor extends FormEditor implements ISaveablePart2 
         setPartName(input.getName());
         setTitleImage(Activator.getImage(Activator.IMAGE_IDENTITY_MAPPING));
         identityMapping = ((IdentityMappingEditorInput)input).getIdentityMapping();
+        reverseIdentityMapping = ((IdentityMappingEditorInput)input).getReverseIdentityMapping();
     }
 
 	@SuppressWarnings("unchecked")
 	@Override
 	protected void addPages() {
        try {
-        	detailsPage = new IdentityMappingEditorPage(this, "details", getEditorInput().getName());
+        	detailsPage = new IdentityMappingEditorPage(this, "details", getEditorInput().getName(), identityMapping);
 	        int detailsIndex = addPage(detailsPage);
-	        setPageText(detailsIndex, "Identity Mapping Details");
+	        setPageText(detailsIndex, identityMapping.getEditableValue().toString());
 	        pages.add(detailsPage);
+	        if (reverseIdentityMapping != null) {
+	           	reversePage = new IdentityMappingEditorPage(this, "reverse", getEditorInput().getName(), reverseIdentityMapping);
+		        int reverseIndex = addPage(reversePage);
+		        setPageText(reverseIndex, reverseIdentityMapping.getEditableValue().toString());
+		        pages.add(reversePage);
+	        }
         } catch (Exception e) { 
         	Activator.handleError(e);
         }
@@ -52,6 +61,13 @@ public class IdentityMappingEditor extends FormEditor implements ISaveablePart2 
 		detailsPage.doSave(monitor);
 		if (detailsPage.isSaveError()) {
 			monitor.setCanceled(true);
+		} else {
+			if (reversePage != null) {
+				reversePage.doSave(monitor);
+				if (reversePage.isSaveError()) {
+					monitor.setCanceled(true);
+				}
+			}
 		}
 		setDirty();
 		if (IdentityMappingView.getView() != null) {

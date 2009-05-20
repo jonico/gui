@@ -37,6 +37,8 @@ import com.collabnet.ccf.db.Update;
 import com.collabnet.ccf.model.IdentityMapping;
 
 public class IdentityMappingEditorPage extends FormPage {
+	private IdentityMapping identityMapping;
+	
 	private ScrolledForm form;
 	private FormToolkit toolkit;
 	private IDialogSettings settings = Activator.getDefault().getDialogSettings();
@@ -128,12 +130,9 @@ public class IdentityMappingEditorPage extends FormPage {
 	public final static String STATE_CONTRACTED = "C";
 	public final static String STATE_EXPANDED = "E";
 
-	public IdentityMappingEditorPage(String id, String title) {
-		super(id, title);
-	}
-
-	public IdentityMappingEditorPage(FormEditor editor, String id, String title) {
+	public IdentityMappingEditorPage(FormEditor editor, String id, String title, IdentityMapping identityMapping) {
 		super(editor, id, title);
+		this.identityMapping = identityMapping;
 	}
 	
 	@Override
@@ -625,6 +624,7 @@ public class IdentityMappingEditorPage extends FormPage {
 	
 	@Override
 	public void doSave(IProgressMonitor monitor) {
+		if (sourceSystemIdText == null) return;
 		saveError = false;
 		BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
 			public void run() {
@@ -796,7 +796,7 @@ public class IdentityMappingEditorPage extends FormPage {
 	}
 	
 	public IdentityMapping getIdentityMapping() {
-		return ((IdentityMappingEditorInput)getEditorInput()).getIdentityMapping();
+		return identityMapping;
 	}
 
 }

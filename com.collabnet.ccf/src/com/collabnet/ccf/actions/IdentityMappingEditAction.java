@@ -28,7 +28,8 @@ public class IdentityMappingEditAction extends ActionDelegate {
 				try {
 					// Make sure we have latest.
 					identityMapping = dataProvider.getIdentityMapping(identityMapping);
-					IdentityMappingEditorInput editorInput = new IdentityMappingEditorInput(identityMapping);
+					IdentityMapping reverseMapping = dataProvider.getReverseIdentityMapping(identityMapping);
+					IdentityMappingEditorInput editorInput = new IdentityMappingEditorInput(identityMapping, reverseMapping);
 					IWorkbenchPage page = Activator.getDefault().getWorkbench().getActiveWorkbenchWindow().getActivePage();
 					page.openEditor(editorInput, IdentityMappingEditor.ID);
 				} catch (Exception e) {
