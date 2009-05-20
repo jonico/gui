@@ -18,6 +18,10 @@
       Apache License, Version 2.0
    </license>
 
+   <url>
+      <update label="CollabNet Connector Framework Updates" url="http://ccf.open.collab.net/update-site"/>
+   </url>
+
    <requires>
       <import plugin="org.eclipse.ui"/>
       <import plugin="org.eclipse.core.runtime"/>
