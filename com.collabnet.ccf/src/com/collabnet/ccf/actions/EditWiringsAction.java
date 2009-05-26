@@ -37,6 +37,9 @@ public class EditWiringsAction extends ActionDelegate {
 				SynchronizationStatus status = (SynchronizationStatus)object;
 				File xslFile = status.getXslFile();
 				if (!xslFile.exists()) {
+					if (!MessageDialog.openQuestion(Display.getDefault().getActiveShell(), "Edit Field Mappings", "File " + xslFile.getName() + " does not exist.\n\nDo you wish to create it by copying sample.xsl?")) {
+						return;
+					}
 					try {
 						xslFile.createNewFile();
 						File sampleFile = status.getSampleXslFile();
@@ -44,7 +47,7 @@ public class EditWiringsAction extends ActionDelegate {
 							copyFile(sampleFile, xslFile);
 						}
 					} catch (IOException e) {
-						MessageDialog.openError(Display.getDefault().getActiveShell(), "Edit Wirings", "Unable to create file " + xslFile.getName() + ":\n\n" + e.getMessage());
+						MessageDialog.openError(Display.getDefault().getActiveShell(), "Edit Field Mappings", "Unable to create file " + xslFile.getName() + ":\n\n" + e.getMessage());
 						Activator.handleError(e);
 						return;
 					}
