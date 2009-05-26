@@ -25,7 +25,7 @@ import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.editors.ExternalFileEditorInput;
 import com.collabnet.ccf.model.SynchronizationStatus;
 
-public class EditWiringsAction extends ActionDelegate {
+public class EditFieldMappingsAction extends ActionDelegate {
 	private IStructuredSelection fSelection;
 	
 	@SuppressWarnings("unchecked")

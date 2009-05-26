@@ -264,9 +264,9 @@
          </action>          
          <action
                label="Edit field mappings"
-               class="com.collabnet.ccf.actions.EditWiringsAction"
+               class="com.collabnet.ccf.actions.EditFieldMappingsAction"
                menubarPath="group.b"
-               id="com.collabnet.ccf.actions.EditWiringsAction">
+               id="com.collabnet.ccf.actions.EditFieldMappingsAction">
          </action>                      
          <action
                label="Delete identity mappings"
