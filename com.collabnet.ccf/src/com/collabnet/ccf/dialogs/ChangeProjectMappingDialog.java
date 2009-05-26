@@ -31,6 +31,8 @@ public class ChangeProjectMappingDialog extends CcfDialog {
 	private SynchronizationStatus status;
 	
 	private Text trackerText;
+	private Text ptProjectText;
+	private Text ptIssueTypeText;
 	private Text qcProjectText;
 	private Text qcDomainText;
 	
@@ -87,18 +89,29 @@ public class ChangeProjectMappingDialog extends CcfDialog {
 		otherGroup.setLayoutData(gd);	
 		if (status.getLandscape().getType1().equals(Landscape.TYPE_PT) || status.getLandscape().getType2().equals(Landscape.TYPE_PT)) {
 			otherGroup.setText(Landscape.TYPE_DESCRIPTION_PT + ":");
+			Label ptProjectLabel = new Label(otherGroup, SWT.NONE);
+			ptProjectLabel.setText("Project:");			
+			ptProjectText = new Text(otherGroup, SWT.BORDER);
+			gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
+			ptProjectText.setLayoutData(gd);
+			ptProjectText.setText(getPtProject());
+			
+			Label ptIssueTypeLabel = new Label(otherGroup, SWT.NONE);
+			ptIssueTypeLabel.setText("Issue type:");			
+			ptIssueTypeText = new Text(otherGroup, SWT.BORDER);
+			gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
+			ptIssueTypeText.setLayoutData(gd);
+			ptIssueTypeText.setText(getPtIssueType());
 		} else {
 			otherGroup.setText(Landscape.TYPE_DESCRIPTION_TF + ":");
+			Label trackerLabel = new Label(otherGroup, SWT.NONE);
+			trackerLabel.setText("Tracker ID:");			
+			trackerText = new Text(otherGroup, SWT.BORDER);
+			gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
+			trackerText.setLayoutData(gd);
+			trackerText.setText(getTrackerId());
 		}
-		
-		Label trackerLabel = new Label(otherGroup, SWT.NONE);
-		trackerLabel.setText("Tracker ID:");
-		
-		trackerText = new Text(otherGroup, SWT.BORDER);
-		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
-		trackerText.setLayoutData(gd);
-		trackerText.setText(getTrackerId());
-		
+
 		Label conflictResolutionPriorityLabel = new Label(composite, SWT.NONE);
 		conflictResolutionPriorityLabel.setText("Conflict resolution priority:");
 		
@@ -121,7 +134,11 @@ public class ChangeProjectMappingDialog extends CcfDialog {
 			}			
 		};
 
-		trackerText.addModifyListener(modifyListener);
+		if (trackerText != null) trackerText.addModifyListener(modifyListener);
+		if (ptProjectText != null) {
+			ptProjectText.addModifyListener(modifyListener);
+			ptIssueTypeText.addModifyListener(modifyListener);
+		}
 		qcProjectText.addModifyListener(modifyListener);
 		qcDomainText.addModifyListener(modifyListener);
 		
@@ -146,11 +163,19 @@ public class ChangeProjectMappingDialog extends CcfDialog {
 					String targetRepository;
 					
 					if (status.getSourceSystemKind().startsWith(Landscape.TYPE_QC)) {
-						targetRepository = trackerText.getText().trim();
+						if (status.getTargetSystemKind().startsWith(Landscape.TYPE_PT)) {
+							targetRepository = ptProjectText.getText().trim() + ":" + ptIssueTypeText.getText().trim();
+						} else {
+							targetRepository = trackerText.getText().trim();
+						}
 						sourceRepository = qcDomainText.getText().trim() + "-" + qcProjectText.getText().trim();
 					} else {
 						targetRepository = qcDomainText.getText().trim() + "-" + qcProjectText.getText().trim();
-						sourceRepository = trackerText.getText().trim();
+						if (status.getSourceSystemKind().startsWith(Landscape.TYPE_PT)) {
+							sourceRepository = ptProjectText.getText().trim() + ":" + ptIssueTypeText.getText().trim();
+						} else {
+							sourceRepository = trackerText.getText().trim();
+						}
 					}					
 					
 					Update sourceRepositoryUpdate = new Update(CcfDataProvider.SYNCHRONIZATION_STATUS_SOURCE_REPOSITORY_ID, sourceRepository);
@@ -179,7 +204,9 @@ public class ChangeProjectMappingDialog extends CcfDialog {
     }
 
 	private boolean canFinish() {
-		return trackerText.getText().trim().length() > 0 &&
+		return (trackerText == null || trackerText.getText().trim().length() > 0) &&
+		(ptProjectText == null || ptProjectText.getText().trim().length() > 0) &&
+		(ptIssueTypeText == null || ptIssueTypeText.getText().trim().length() > 0) &&
 		qcProjectText.getText().trim().length() > 0 &&
 		qcDomainText.getText().trim().length() > 0;
 	}
@@ -214,6 +241,30 @@ public class ChangeProjectMappingDialog extends CcfDialog {
 			repositoryId = status.getTargetRepositoryId();
 		}
 		int index = repositoryId.indexOf("-");
+		if (index == -1) return "";
+		else return repositoryId.substring(index + 1);
+	}
+	
+	private String getPtProject() {
+		String repositoryId;
+		if (status.getSourceSystemKind().startsWith(Landscape.TYPE_PT)) {
+			repositoryId = status.getSourceRepositoryId();
+		} else {
+			repositoryId = status.getTargetRepositoryId();
+		}
+		int index = repositoryId.indexOf(":");
+		if (index == -1) return "";
+		else return repositoryId.substring(0, index);
+	}
+	
+	private String getPtIssueType() {
+		String repositoryId;
+		if (status.getSourceSystemKind().startsWith(Landscape.TYPE_PT)) {
+			repositoryId = status.getSourceRepositoryId();
+		} else {
+			repositoryId = status.getTargetRepositoryId();
+		}
+		int index = repositoryId.indexOf(":");
 		if (index == -1) return "";
 		else return repositoryId.substring(index + 1);
 	}

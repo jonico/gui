@@ -42,6 +42,8 @@ public class NewProjectMappingDialog extends CcfDialog {
 	private Button bothButton;
 	
 	private Text trackerText;
+	private Text ptProjectText;
+	private Text ptIssueTypeText;
 	private Text qcProjectText;
 	private Combo qcDomainCombo;
 
@@ -174,17 +176,25 @@ public class NewProjectMappingDialog extends CcfDialog {
 		otherGroup.setLayoutData(gd);	
 		if (projectMappings.getLandscape().getType1().equals(Landscape.TYPE_PT) || projectMappings.getLandscape().getType2().equals(Landscape.TYPE_PT)) {
 			otherGroup.setText(Landscape.TYPE_DESCRIPTION_PT + ":");
+			Label ptProjectLabel = new Label(otherGroup, SWT.NONE);
+			ptProjectLabel.setText("Project:");			
+			ptProjectText = new Text(otherGroup, SWT.BORDER);
+			gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
+			ptProjectText.setLayoutData(gd);
+			
+			Label ptIssueTypeLabel = new Label(otherGroup, SWT.NONE);
+			ptIssueTypeLabel.setText("Issue type:");			
+			ptIssueTypeText = new Text(otherGroup, SWT.BORDER);
+			gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
+			ptIssueTypeText.setLayoutData(gd);
 		} else {
 			otherGroup.setText(Landscape.TYPE_DESCRIPTION_TF + ":");
-		}
-		
-		Label trackerLabel = new Label(otherGroup, SWT.NONE);
-		trackerLabel.setText("Tracker ID:");
-		
-		trackerText = new Text(otherGroup, SWT.BORDER);
-		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
-		trackerText.setLayoutData(gd);
-		
+			Label trackerLabel = new Label(otherGroup, SWT.NONE);
+			trackerLabel.setText("Tracker ID:");			
+			trackerText = new Text(otherGroup, SWT.BORDER);
+			gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
+			trackerText.setLayoutData(gd);
+		}		
 		Group conflictGroup = new Group(composite, SWT.NULL);
 		GridLayout conflictLayout = new GridLayout();
 		conflictLayout.numColumns = 2;
@@ -224,7 +234,11 @@ public class NewProjectMappingDialog extends CcfDialog {
 			}			
 		};
 		
-		trackerText.addModifyListener(modifyListener);
+		if (trackerText != null) trackerText.addModifyListener(modifyListener);
+		if (ptProjectText != null) {
+			ptProjectText.addModifyListener(modifyListener);
+			ptIssueTypeText.addModifyListener(modifyListener);
+		}
 		qcProjectText.addModifyListener(modifyListener);
 		qcDomainCombo.addModifyListener(modifyListener);
 		
@@ -242,7 +256,13 @@ public class NewProjectMappingDialog extends CcfDialog {
 	private void initializeReverseValues() {
 		qcDomainCombo.setText(getQcDomain());
 		qcProjectText.setText(getQcProject());
-		trackerText.setText(getTrackerId());
+		if (trackerText != null) {
+			trackerText.setText(getTrackerId());
+		}
+		if (ptProjectText != null) {
+			ptProjectText.setText(getPtProject());
+			ptIssueTypeText.setText(getPtIssueType());
+		}
 		bothButton.setSelection(false);
 		if (reverseStatus.getSourceSystemKind().startsWith(Landscape.TYPE_QC)) {
 			system2ToSystem1Button.setSelection(true);
@@ -305,6 +325,30 @@ public class NewProjectMappingDialog extends CcfDialog {
 		else return repositoryId.substring(index + 1);
 	}
 	
+	private String getPtProject() {
+		String repositoryId;
+		if (reverseStatus.getSourceSystemKind().startsWith(Landscape.TYPE_PT)) {
+			repositoryId = reverseStatus.getSourceRepositoryId();
+		} else {
+			repositoryId = reverseStatus.getTargetRepositoryId();
+		}
+		int index = repositoryId.indexOf(":");
+		if (index == -1) return "";
+		else return repositoryId.substring(0, index);
+	}
+	
+	private String getPtIssueType() {
+		String repositoryId;
+		if (reverseStatus.getSourceSystemKind().startsWith(Landscape.TYPE_PT)) {
+			repositoryId = reverseStatus.getSourceRepositoryId();
+		} else {
+			repositoryId = reverseStatus.getTargetRepositoryId();
+		}
+		int index = repositoryId.indexOf(":");
+		if (index == -1) return "";
+		else return repositoryId.substring(index + 1);
+	}
+	
 	@Override
 	protected void okPressed() {
 		addError = false;
@@ -314,7 +358,11 @@ public class NewProjectMappingDialog extends CcfDialog {
 			settings.put(PREVIOUS_SYSTEM1_SYSTEM2_CONFLICT_RESOLUTION_PRIORITY, system1ToSystem2ConflictResolutionCombo.getText());
 			status.setConflictResolutionPriority(SynchronizationStatus.CONFLICT_RESOLUTIONS[system1ToSystem2ConflictResolutionCombo.getSelectionIndex()]);
 			status.setSourceRepositoryId(qcDomainCombo.getText().trim() + "-" + qcProjectText.getText().trim());
-			status.setTargetRepositoryId(trackerText.getText().trim());
+			if (trackerText == null) {
+				status.setTargetRepositoryId(ptProjectText.getText().trim() + ":" + ptIssueTypeText.getText().trim());
+			} else {
+				status.setTargetRepositoryId(trackerText.getText().trim());
+			}
 			
 			status.setSourceSystemId(projectMappings.getLandscape().getId1());			
 			status.setTargetSystemId(projectMappings.getLandscape().getId2());			
@@ -337,7 +385,11 @@ public class NewProjectMappingDialog extends CcfDialog {
 			settings.put(PREVIOUS_SYSTEM2_SYSTEM1_CONFLICT_RESOLUTION_PRIORITY, system2ToSystem1ConflictResolutionCombo.getText());
 			status.setConflictResolutionPriority(SynchronizationStatus.CONFLICT_RESOLUTIONS[system2ToSystem1ConflictResolutionCombo.getSelectionIndex()]);
 			status.setTargetRepositoryId(qcDomainCombo.getText().trim() + "-" + qcProjectText.getText().trim());
-			status.setSourceRepositoryId(trackerText.getText().trim());	
+			if (trackerText == null) {
+				status.setSourceRepositoryId(ptProjectText.getText().trim() + ":" + ptIssueTypeText.getText().trim());
+			} else {
+				status.setSourceRepositoryId(trackerText.getText().trim());	
+			}
 			
 			status.setSourceSystemId(projectMappings.getLandscape().getId2());
 			status.setTargetSystemId(projectMappings.getLandscape().getId1());
@@ -433,7 +485,9 @@ public class NewProjectMappingDialog extends CcfDialog {
     }
 	
 	private boolean canFinish() {
-		return trackerText.getText().trim().length() > 0 &&
+		return (trackerText == null || trackerText.getText().trim().length() > 0) &&
+		(ptProjectText == null || ptProjectText.getText().trim().length() > 0) &&
+		(ptIssueTypeText == null || ptIssueTypeText.getText().trim().length() > 0) &&
 		qcProjectText.getText().trim().length() > 0 &&
 		qcDomainCombo.getText().trim().length() > 0;
 	}
