@@ -183,7 +183,7 @@ public class NewProjectMappingDialog extends CcfDialog {
 			ptProjectText.setLayoutData(gd);
 			
 			Label ptIssueTypeLabel = new Label(otherGroup, SWT.NONE);
-			ptIssueTypeLabel.setText("Issue type:");			
+			ptIssueTypeLabel.setText("Artifact type:");			
 			ptIssueTypeText = new Text(otherGroup, SWT.BORDER);
 			gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
 			ptIssueTypeText.setLayoutData(gd);

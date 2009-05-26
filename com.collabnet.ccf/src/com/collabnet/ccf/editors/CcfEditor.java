@@ -138,7 +138,7 @@ public class CcfEditor extends FormEditor implements ISaveablePart2 {
         try {
         	ceePage = new CcfSystemEditorPage(this, "cee", getEditorInput().getName(), CcfSystemEditorPage.PT);
 	        int ceeIndex = addPage(ceePage);
-	        setPageText(ceeIndex, "CEE Properties");
+	        setPageText(ceeIndex, "Project Tracker Properties");
 	        pages.add(ceePage);
         } catch (Exception e) { 
         	Activator.handleError(e);

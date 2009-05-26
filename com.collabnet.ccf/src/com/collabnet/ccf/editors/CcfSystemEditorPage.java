@@ -114,7 +114,7 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 			initializeTeamForgeValues();
 			break;
 		case PT:
-			headerLabel.setText("CEE Properties");
+			headerLabel.setText("Project Tracker Properties");
 			properties = getLandscape().getCeeProperties();
 			initializeCeeValues();
 			break;			

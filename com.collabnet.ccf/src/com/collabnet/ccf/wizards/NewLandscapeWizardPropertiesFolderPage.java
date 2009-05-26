@@ -54,7 +54,7 @@ public class NewLandscapeWizardPropertiesFolderPage extends WizardPage {
 			fileGroup1.setText("TeamForge => QC config.xml:");
 			break;
 		case TYPE_PT:
-			fileGroup1.setText("CEE => QC config.xml:");
+			fileGroup1.setText("PT => QC config.xml:");
 			break;
 		default:
 			break;
@@ -81,7 +81,7 @@ public class NewLandscapeWizardPropertiesFolderPage extends WizardPage {
 					d.setText("Select TeamForge => QC config.xml file");
 					break;
 				case TYPE_PT:
-					d.setText("Select CEE => QC config.xml file");
+					d.setText("Select PT => QC config.xml file");
 					break;
 				default:
 					break;
@@ -110,7 +110,7 @@ public class NewLandscapeWizardPropertiesFolderPage extends WizardPage {
 			fileGroup2.setText("QC => TeamForge config.xml:");
 			break;
 		case TYPE_PT:
-			fileGroup2.setText("QC => CEE config.xml:");
+			fileGroup2.setText("QC => PT config.xml:");
 			break;
 		default:
 			break;
@@ -137,7 +137,7 @@ public class NewLandscapeWizardPropertiesFolderPage extends WizardPage {
 					d.setText("Select QC => TeamForge config.xml file");
 					break;
 				case TYPE_PT:
-					d.setText("Select QC => CEE config.xml file");
+					d.setText("Select QC => PT config.xml file");
 					break;
 				default:
 					break;
@@ -201,7 +201,7 @@ public class NewLandscapeWizardPropertiesFolderPage extends WizardPage {
 					errorMessage = "TeamForge => QC config.xml does not exist";
 					break;
 				case TYPE_PT:
-					errorMessage = "CEE => QC config.xml does not exist";
+					errorMessage = "PT => QC config.xml does not exist";
 					break;
 				default:
 					errorMessage = "File does not exist";
@@ -237,7 +237,7 @@ public class NewLandscapeWizardPropertiesFolderPage extends WizardPage {
 					errorMessage = "QC => TeamForge config.xml does not exist";
 					break;
 				case TYPE_PT:
-					errorMessage = "QC => CEE config.xml does not exist";
+					errorMessage = "QC => PT config.xml does not exist";
 					break;
 				default:
 					errorMessage = "File does not exist";
