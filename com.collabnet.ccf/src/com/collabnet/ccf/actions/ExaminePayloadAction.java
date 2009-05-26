@@ -20,9 +20,8 @@ import org.eclipse.ui.IEditorDescriptor;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorRegistry;
-import org.eclipse.ui.IPartListener2;
+import org.eclipse.ui.IPropertyListener;
 import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.actions.ActionDelegate;
 
@@ -64,10 +63,11 @@ public class ExaminePayloadAction extends ActionDelegate {
 						}
 						try {
 							final IEditorPart editorPart = page.openEditor(input, id);
-							IPartListener2 closeListener = new IPartListener2() {
-								
-								public void partClosed(IWorkbenchPartReference partRef) {
-									if (partRef.getPart(false) == editorPart) {
+							editorPart.addPropertyListener(new IPropertyListener() {
+
+								public void propertyChanged(Object arg0,
+										int arg1) {
+									if (!editorPart.isDirty()) {
 										try {
 											final String updatedPayload = readFileAsString(tempFile.getAbsolutePath());
 											BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
@@ -89,20 +89,11 @@ public class ExaminePayloadAction extends ActionDelegate {
 											});
 										} catch (IOException e) {
 											Activator.handleError(e);
-										}
+										}										
 									}
-								}							
+								}
 								
-								public void partActivated(IWorkbenchPartReference partRef) {}
-								public void partBroughtToTop(IWorkbenchPartReference partRef) {}
-								public void partDeactivated(IWorkbenchPartReference partRef) {}
-								public void partHidden(IWorkbenchPartReference partRef) {}
-								public void partInputChanged(IWorkbenchPartReference partRef) {}
-								public void partOpened(IWorkbenchPartReference partRef) {}
-								public void partVisible(IWorkbenchPartReference partRef) {}
-								
-							};
-							page.addPartListener(closeListener);
+							});
 						} catch (PartInitException e) {
 							Activator.handleError("Examine Hospital Payload", e);
 							break;
