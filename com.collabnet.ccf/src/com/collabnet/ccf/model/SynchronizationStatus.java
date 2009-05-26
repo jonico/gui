@@ -197,7 +197,7 @@ public class SynchronizationStatus implements IPropertySource, Comparable {
 		this.targetSystemEncoding = targetSystemEncoding;
 	}
 	
-	private String getXslFileName() {
+	public String getXslFileName() {
 		return (sourceSystemId + "+" +
 		sourceRepositoryId + "+" +
 		targetSystemId + "+" +

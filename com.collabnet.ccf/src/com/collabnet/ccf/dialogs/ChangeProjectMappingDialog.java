@@ -36,6 +36,9 @@ public class ChangeProjectMappingDialog extends CcfDialog {
 	private Text qcProjectText;
 	private Text qcDomainText;
 	
+	private String oldXslFileName;
+	private String newXslFileName;
+	
 	private Combo conflictResolutionCombo;
 	
 	private Button okButton;
@@ -45,6 +48,7 @@ public class ChangeProjectMappingDialog extends CcfDialog {
 	public ChangeProjectMappingDialog(Shell shell, SynchronizationStatus status) {
 		super(shell, "ChangeProjectMappingDialog");
 		this.status = status;
+		oldXslFileName = status.getXslFileName();
 	}
 	
 	protected Control createDialogArea(Composite parent) {
@@ -176,13 +180,18 @@ public class ChangeProjectMappingDialog extends CcfDialog {
 						} else {
 							sourceRepository = trackerText.getText().trim();
 						}
-					}					
+					}
 					
 					Update sourceRepositoryUpdate = new Update(CcfDataProvider.SYNCHRONIZATION_STATUS_SOURCE_REPOSITORY_ID, sourceRepository);
 					Update targetRepositoryUpdate = new Update(CcfDataProvider.SYNCHRONIZATION_STATUS_TARGET_REPOSITORY_ID, targetRepository);
 					Update conflictResolutionPriorityUpdate = new Update(CcfDataProvider.SYNCHRONIZATION_STATUS_CONFLICT_RESOLUTION_PRIORITY, SynchronizationStatus.CONFLICT_RESOLUTIONS[conflictResolutionCombo.getSelectionIndex()]);
 					Update[] updates = { sourceRepositoryUpdate, targetRepositoryUpdate, conflictResolutionPriorityUpdate };						
 					dataProvider.updateSynchronizationStatuses(landscape, updates, filters);
+
+					status.setSourceRepositoryId(sourceRepository);
+					status.setTargetRepositoryId(targetRepository);	
+					newXslFileName = status.getXslFileName();
+				
 				} catch (Exception e) {
 					Activator.handleError(e);
 					changeError = true;
@@ -192,6 +201,18 @@ public class ChangeProjectMappingDialog extends CcfDialog {
 		});
 		if (changeError) return;
 		super.okPressed();
+	}
+	
+	public boolean isXslFileNameChanged() {
+		return !newXslFileName.equals(oldXslFileName);
+	}
+	
+	public String getOldXslFileName() {
+		return oldXslFileName;
+	}
+	
+	public String getNewXslFileName() {
+		return newXslFileName;
 	}
 	
 	protected Button createButton(Composite parent, int id, String label, boolean defaultButton) {
