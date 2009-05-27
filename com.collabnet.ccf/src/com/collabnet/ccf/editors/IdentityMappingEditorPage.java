@@ -91,20 +91,34 @@ public class IdentityMappingEditorPage extends FormPage {
 	private String artifactType;
 	
 	private String sourceSystemId;
+	private boolean sourceSystemIdChanged;
 	private String sourceRepositoryId;
+	private boolean sourceRepositoryIdChanged;
 	private String sourceSystemKind;
+	private boolean sourceSystemKindChanged;
 	private String sourceRepositoryKind;
+	private boolean sourceRepositoryKindChanged;
 	private String sourceArtifactId;
+	private boolean sourceArtifactIdChanged;
 	private String sourceLastModification;
+	private boolean sourceLastModificationChanged;
 	private String sourceArtifactVersion;
+	private boolean sourceArtifactVersionChanged;
 	
 	private String targetSystemId;
+	private boolean targetSystemIdChanged;
 	private String targetRepositoryId;
+	private boolean targetRepositoryIdChanged;
 	private String targetSystemKind;
+	private boolean targetSystemKindChanged;
 	private String targetRepositoryKind;
+	private boolean targetRepositoryKindChanged;
 	private String targetArtifactId;
+	private boolean targetArtifactIdChanged;
 	private String targetLastModification;
+	private boolean targetLastModificationChanged;
 	private String targetArtifactVersion;
+	private boolean targetArtifactVersionChanged;
 	
 	private String childSourceRepositoryId;
 	private String childSourceRepositoryKind;
@@ -708,37 +722,78 @@ public class IdentityMappingEditorPage extends FormPage {
 		
 		if (saveError) return;
 		
+		sourceSystemIdChanged = !sourceSystemIdText.getText().trim().equals(sourceSystemId);
 		sourceSystemId = sourceSystemIdText.getText().trim();
+		identityMapping.setSourceSystemId(sourceSystemId);
+		sourceRepositoryIdChanged = !sourceRepositoryIdText.getText().trim().equals(sourceRepositoryId);
 		sourceRepositoryId = sourceRepositoryIdText.getText().trim();
+		identityMapping.setSourceRepositoryId(sourceRepositoryId);
+		sourceSystemKindChanged = !sourceSystemKindText.getText().trim().equals(sourceSystemKind);
 		sourceSystemKind = sourceSystemKindText.getText().trim();
+		identityMapping.setSourceSystemKind(sourceSystemKind);
+		sourceRepositoryKindChanged = !sourceRepositoryKindText.getText().trim().equals(sourceRepositoryKind);
 		sourceRepositoryKind = sourceRepositoryKindText.getText().trim();
+		identityMapping.setSourceRepositoryKind(sourceRepositoryKind);
+		sourceArtifactIdChanged = !sourceArtifactIdText.getText().trim().equals(sourceArtifactId);
 		sourceArtifactId = sourceArtifactIdText.getText().trim();
+		identityMapping.setSourceArtifactId(sourceArtifactId);
+		sourceLastModificationChanged = !sourceLastModificationText.getText().trim().equals(sourceLastModification);
 		sourceLastModification = sourceLastModificationText.getText().trim();
+		identityMapping.setSourceLastModificationTime(Timestamp.valueOf(sourceLastModification));
+		sourceArtifactVersionChanged = !sourceArtifactVersionText.getText().trim().equals(sourceArtifactVersion);
 		sourceArtifactVersion = sourceArtifactVersionText.getText().trim();
+		identityMapping.setSourceArtifactVersion(sourceArtifactVersion);
 		
+		targetSystemIdChanged = !targetSystemIdText.getText().trim().equals(targetSystemId);
 		targetSystemId = targetSystemIdText.getText().trim();
+		identityMapping.setTargetSystemId(targetSystemId);
+		targetRepositoryIdChanged = !targetRepositoryIdText.getText().trim().equals(targetRepositoryId);
 		targetRepositoryId = targetRepositoryIdText.getText().trim();
+		identityMapping.setTargetRepositoryId(targetRepositoryId);
+		targetSystemKindChanged = !targetSystemKindText.getText().trim().equals(targetSystemKind);
 		targetSystemKind = targetSystemKindText.getText().trim();
+		identityMapping.setTargetSystemKind(targetSystemKind);
+		targetRepositoryKindChanged = !targetRepositoryKindText.getText().trim().equals(targetRepositoryKind);
 		targetRepositoryKind = targetRepositoryKindText.getText().trim();
+		identityMapping.setTargetRepositoryKind(targetRepositoryKind);
+		targetArtifactIdChanged = !targetArtifactIdText.getText().trim().equals(targetArtifactId);
 		targetArtifactId = targetArtifactIdText.getText().trim();
+		identityMapping.setTargetArtifactId(targetArtifactId);
+		targetLastModificationChanged = !targetLastModificationText.getText().trim().equals(targetLastModification);		
 		targetLastModification = targetLastModificationText.getText().trim();
+		identityMapping.setTargetLastModificationTime(Timestamp.valueOf(targetLastModification));
+		targetArtifactVersionChanged = !targetArtifactVersionText.getText().trim().equals(targetArtifactVersion);
 		targetArtifactVersion = targetArtifactVersionText.getText().trim();
+		identityMapping.setTargetArtifactVersion(targetArtifactVersion);
 		
 		artifactType = artifactTypeText.getText().trim();
+		identityMapping.setArtifactType(artifactType);
 		
 		childSourceRepositoryId = childSourceRepositoryIdText.getText().trim();
+		identityMapping.setChildSourceRepositoryId(childSourceRepositoryId);
 		childSourceRepositoryKind = childSourceRepositoryKindText.getText().trim();
+		identityMapping.setChildSourceRepositoryKind(childSourceRepositoryKind);
 		childSourceArtifactId = childSourceArtifactIdText.getText().trim();
+		identityMapping.setChildSourceArtifactId(childSourceArtifactId);
 		childTargetRepositoryId = childTargetRepositoryIdText.getText().trim();
+		identityMapping.setChildTargetRepositoryId(childTargetRepositoryId);
 		childTargetRepositoryKind = childTargetRepositoryKindText.getText().trim();
+		identityMapping.setChildTargetRepositoryKind(childTargetRepositoryKind);
 		childTargetArtifactId = childTargetArtifactIdText.getText().trim();
+		identityMapping.setChildTargetArtifactId(childTargetArtifactId);
 		
 		parentSourceRepositoryId = parentSourceRepositoryIdText.getText().trim();
+		identityMapping.setParentSourceRepositoryId(parentSourceRepositoryId);
 		parentSourceRepositoryKind = parentSourceRepositoryKindText.getText().trim();
+		identityMapping.setParentSourceRepositoryKind(parentSourceRepositoryKind);
 		parentSourceArtifactId = parentSourceArtifactIdText.getText().trim();
+		identityMapping.setParentSourceArtifactId(parentSourceArtifactId);
 		parentTargetRepositoryId = parentTargetRepositoryIdText.getText().trim();
+		identityMapping.setParentTargetRepositoryId(parentTargetRepositoryId);
 		parentTargetRepositoryKind = parentTargetRepositoryKindText.getText().trim();
+		identityMapping.setParentTargetRepositoryKind(parentTargetRepositoryKind);
 		parentTargetArtifactId = parentTargetArtifactIdText.getText().trim();
+		identityMapping.setParentTargetArtifactId(parentTargetArtifactId);
 	}
 	
 	@Override
@@ -797,6 +852,120 @@ public class IdentityMappingEditorPage extends FormPage {
 	
 	public IdentityMapping getIdentityMapping() {
 		return identityMapping;
+	}
+
+	public boolean isSourceSystemIdChanged() {
+		return sourceSystemIdChanged;
+	}
+
+	public void setSourceSystemIdChanged(boolean sourceSystemIdChanged) {
+		this.sourceSystemIdChanged = sourceSystemIdChanged;
+	}
+
+	public boolean isSourceRepositoryIdChanged() {
+		return sourceRepositoryIdChanged;
+	}
+
+	public void setSourceRepositoryIdChanged(boolean sourceRepositoryIdChanged) {
+		this.sourceRepositoryIdChanged = sourceRepositoryIdChanged;
+	}
+
+	public boolean isSourceSystemKindChanged() {
+		return sourceSystemKindChanged;
+	}
+
+	public void setSourceSystemKindChanged(boolean sourceSystemKindChanged) {
+		this.sourceSystemKindChanged = sourceSystemKindChanged;
+	}
+
+	public boolean isSourceRepositoryKindChanged() {
+		return sourceRepositoryKindChanged;
+	}
+
+	public void setSourceRepositoryKindChanged(boolean sourceRepositoryKindChanged) {
+		this.sourceRepositoryKindChanged = sourceRepositoryKindChanged;
+	}
+
+	public boolean isSourceArtifactIdChanged() {
+		return sourceArtifactIdChanged;
+	}
+
+	public void setSourceArtifactIdChanged(boolean sourceArtifactIdChanged) {
+		this.sourceArtifactIdChanged = sourceArtifactIdChanged;
+	}
+
+	public boolean isSourceLastModificationChanged() {
+		return sourceLastModificationChanged;
+	}
+
+	public void setSourceLastModificationChanged(
+			boolean sourceLastModificationChanged) {
+		this.sourceLastModificationChanged = sourceLastModificationChanged;
+	}
+
+	public boolean isSourceArtifactVersionChanged() {
+		return sourceArtifactVersionChanged;
+	}
+
+	public void setSourceArtifactVersionChanged(boolean sourceArtifactVersionChanged) {
+		this.sourceArtifactVersionChanged = sourceArtifactVersionChanged;
+	}
+
+	public boolean isTargetSystemIdChanged() {
+		return targetSystemIdChanged;
+	}
+
+	public void setTargetSystemIdChanged(boolean targetSystemIdChanged) {
+		this.targetSystemIdChanged = targetSystemIdChanged;
+	}
+
+	public boolean isTargetRepositoryIdChanged() {
+		return targetRepositoryIdChanged;
+	}
+
+	public void setTargetRepositoryIdChanged(boolean targetRepositoryIdChanged) {
+		this.targetRepositoryIdChanged = targetRepositoryIdChanged;
+	}
+
+	public boolean isTargetSystemKindChanged() {
+		return targetSystemKindChanged;
+	}
+
+	public void setTargetSystemKindChanged(boolean targetSystemKindChanged) {
+		this.targetSystemKindChanged = targetSystemKindChanged;
+	}
+
+	public boolean isTargetRepositoryKindChanged() {
+		return targetRepositoryKindChanged;
+	}
+
+	public void setTargetRepositoryKindChanged(boolean targetRepositoryKindChanged) {
+		this.targetRepositoryKindChanged = targetRepositoryKindChanged;
+	}
+
+	public boolean isTargetArtifactIdChanged() {
+		return targetArtifactIdChanged;
+	}
+
+	public void setTargetArtifactIdChanged(boolean targetArtifactIdChanged) {
+		this.targetArtifactIdChanged = targetArtifactIdChanged;
+	}
+
+	public boolean isTargetLastModificationChanged() {
+		return targetLastModificationChanged;
+	}
+
+	public void setTargetLastModificationChanged(
+			boolean targetLastModificationChanged) {
+		this.targetLastModificationChanged = targetLastModificationChanged;
+	}
+
+	public boolean isTargetArtifactVersionChanged() {
+		return targetArtifactVersionChanged;
+	}
+
+	public void setTargetArtifactVersionChanged(boolean targetArtifactVersionChanged) {
+		this.targetArtifactVersionChanged = targetArtifactVersionChanged;
 	}
 
 }

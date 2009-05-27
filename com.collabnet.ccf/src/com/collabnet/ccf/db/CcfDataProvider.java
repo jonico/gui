@@ -273,8 +273,8 @@ public class CcfDataProvider {
 		if (identityMappings != null && identityMappings.length == 1) {
 			return identityMappings[0];
 		}
-		
-		return identityMapping;
+
+		return null;
 	}
 	
 	public IdentityMapping[] getIdentityMappings(Landscape landscape, Filter[][] filters) throws Exception {
