@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -194,7 +195,15 @@ public class CcfDataProvider {
 	private final static String SQL_IDENTITY_MAPPING_SELECT = "SELECT * FROM IDENTITY_MAPPING";
 	private final static String SQL_IDENTITY_MAPPING_UPDATE = "UPDATE IDENTITY_MAPPING";
 	private final static String SQL_IDENTITY_MAPPING_DELETE = "DELETE FROM IDENTITY_MAPPING";
+	
+	private final static String SQL_IDENTITY_MAPPING_CONSISTENCY_CHECK_MULTIPLE_SOURCE_TO_ONE_TARGET = SQL_IDENTITY_MAPPING_SELECT + " WHERE TARGET_ARTIFACT_ID IN (SELECT TARGET_ARTIFACT_ID FROM IDENTITY_MAPPING WHERE SOURCE_REPOSITORY_ID = ? GROUP BY TARGET_ARTIFACT_ID HAVING COUNT(SOURCE_ARTIFACT_ID)>1) AND SOURCE_REPOSITORY_ID = ? ORDER BY TARGET_ARTIFACT_ID";
+	private final static String SQL_IDENTITY_MAPPING_CONSISTENCY_CHECK_MULTIPLE_TARGET_TO_ONE_SOURCE = SQL_IDENTITY_MAPPING_SELECT + " WHERE SOURCE_ARTIFACT_ID IN (SELECT SOURCE_ARTIFACT_ID FROM IDENTITY_MAPPING WHERE SOURCE_REPOSITORY_ID = ? GROUP BY SOURCE_ARTIFACT_ID HAVING COUNT(TARGET_ARTIFACT_ID)>1) AND SOURCE_REPOSITORY_ID = ? ORDER BY TARGET_ARTIFACT_ID";
+	private final static String SQL_IDENTITY_MAPPING_CONSISTENCY_CHECK_ONE_WAY = SQL_IDENTITY_MAPPING_SELECT + " WHERE SOURCE_REPOSITORY_ID = ? AND SOURCE_ARTIFACT_ID NOT IN (SELECT TARGET_ARTIFACT_ID FROM IDENTITY_MAPPING WHERE TARGET_REPOSITORY_ID = ?)";
 
+	private final static int IDENTITY_MAPPING_CONSISTENCY_CHECK_MULTIPLE_SOURCE_TO_ONE_TARGET = 0;
+	private final static int IDENTITY_MAPPING_CONSISTENCY_CHECK_MULTIPLE_TARGET_TO_ONE_SOURCE = 1;
+	private final static int IDENTITY_MAPPING_CONSISTENCY_CHECK_ONE_WAY = 2;
+	
 	public Patient[] getPatients(Landscape landscape, Filter[][] filters) throws Exception {
 		Connection connection = null;
 		Statement stmt = null;
@@ -275,6 +284,82 @@ public class CcfDataProvider {
 		}
 
 		return null;
+	}
+	
+	private IdentityMapping[] getIdentityMappingConsistencyCheckViolations(Landscape landscape, String repository, int type) throws Exception {
+		Connection connection = null;
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+		IdentityMapping[] identityMappings = null;
+		try {
+			String query = null;
+			switch (type) {
+			case IDENTITY_MAPPING_CONSISTENCY_CHECK_MULTIPLE_SOURCE_TO_ONE_TARGET:
+				query = SQL_IDENTITY_MAPPING_CONSISTENCY_CHECK_MULTIPLE_SOURCE_TO_ONE_TARGET;
+				break;
+			case IDENTITY_MAPPING_CONSISTENCY_CHECK_MULTIPLE_TARGET_TO_ONE_SOURCE:
+				query = SQL_IDENTITY_MAPPING_CONSISTENCY_CHECK_MULTIPLE_TARGET_TO_ONE_SOURCE;
+				break;
+			case IDENTITY_MAPPING_CONSISTENCY_CHECK_ONE_WAY:
+				query = SQL_IDENTITY_MAPPING_CONSISTENCY_CHECK_ONE_WAY;
+				break;
+			default:
+				break;
+			}
+			if (query == null) return null;
+			connection = getConnection(landscape);
+			stmt = connection.prepareStatement(query);
+			stmt.setString(1, repository);
+			stmt.setString(2, repository);	
+			rs = stmt.executeQuery();			
+			identityMappings = getIdentityMappings(rs, landscape);
+		}
+		catch (Exception e) {
+			Activator.handleError(e);
+			throw e;
+		}
+		finally {
+	        try
+	        {
+	            if (rs != null)
+	                rs.close();
+	        }
+	        catch (Exception e)
+	        {
+	            Activator.handleError("Could not close ResultSet" ,e);
+	        }
+	        try
+	        {
+	            if (stmt != null)
+	                stmt.close();
+	        }
+	        catch (Exception e)
+	        {
+	        	 Activator.handleError("Could not close Statement" ,e);
+	        }
+	        try
+	        {
+	            if (connection  != null)
+	                connection.close();
+	        }
+	        catch (SQLException e)
+	        {
+	        	 Activator.handleError("Could not close Connection" ,e);
+	        }			
+		}
+		return identityMappings;		
+	}
+	
+	public IdentityMapping[] getMultipleSourceToOneTargetIdentityMappings(Landscape landscape, String repository) throws Exception {
+		return getIdentityMappingConsistencyCheckViolations(landscape, repository, IDENTITY_MAPPING_CONSISTENCY_CHECK_MULTIPLE_SOURCE_TO_ONE_TARGET);
+	}
+	
+	public IdentityMapping[] getMultipleTargetToOneSourceIdentityMappings(Landscape landscape, String repository) throws Exception {
+		return getIdentityMappingConsistencyCheckViolations(landscape, repository, IDENTITY_MAPPING_CONSISTENCY_CHECK_MULTIPLE_TARGET_TO_ONE_SOURCE);
+	}
+	
+	public IdentityMapping[] getOneWayIdentityMappings(Landscape landscape, String repository) throws Exception {
+		return getIdentityMappingConsistencyCheckViolations(landscape, repository, IDENTITY_MAPPING_CONSISTENCY_CHECK_ONE_WAY);
 	}
 	
 	public IdentityMapping[] getIdentityMappings(Landscape landscape, Filter[][] filters) throws Exception {
