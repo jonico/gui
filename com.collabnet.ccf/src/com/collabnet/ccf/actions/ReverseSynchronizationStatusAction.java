@@ -8,6 +8,7 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.actions.ActionDelegate;
 
+import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.dialogs.NewProjectMappingDialog;
 import com.collabnet.ccf.model.ProjectMappings;
 import com.collabnet.ccf.model.SynchronizationStatus;
@@ -26,7 +27,7 @@ public class ReverseSynchronizationStatusAction extends ActionDelegate {
 				ProjectMappings projectMappings = status.getProjectMappings();
 				NewProjectMappingDialog dialog = new NewProjectMappingDialog(Display.getDefault().getActiveShell(), projectMappings, status);
 				if (dialog.open() == NewProjectMappingDialog.OK && CcfExplorerView.getView() != null) {
-					CcfExplorerView.getView().refresh(projectMappings);
+					Activator.notifyChanged(projectMappings);
 				}
 			}
 		}

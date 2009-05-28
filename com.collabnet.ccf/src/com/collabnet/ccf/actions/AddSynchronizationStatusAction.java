@@ -8,6 +8,7 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.actions.ActionDelegate;
 
+import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.dialogs.NewProjectMappingDialog;
 import com.collabnet.ccf.model.ProjectMappings;
 import com.collabnet.ccf.views.CcfExplorerView;
@@ -24,7 +25,7 @@ public class AddSynchronizationStatusAction extends ActionDelegate {
 				ProjectMappings projectMappings = (ProjectMappings)object;
 				NewProjectMappingDialog dialog = new NewProjectMappingDialog(Display.getDefault().getActiveShell(), projectMappings);
 				if (dialog.open() == NewProjectMappingDialog.OK && CcfExplorerView.getView() != null) {
-					CcfExplorerView.getView().refresh(projectMappings);
+					Activator.notifyChanged(projectMappings);
 				}
 			}
 		}
