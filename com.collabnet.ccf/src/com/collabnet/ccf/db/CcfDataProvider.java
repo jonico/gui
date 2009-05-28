@@ -19,6 +19,7 @@ import org.eclipse.swt.widgets.Display;
 
 import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.model.IdentityMapping;
+import com.collabnet.ccf.model.InconsistentIdentityMapping;
 import com.collabnet.ccf.model.Landscape;
 import com.collabnet.ccf.model.Patient;
 import com.collabnet.ccf.model.ProjectMappings;
@@ -286,7 +287,7 @@ public class CcfDataProvider {
 		return null;
 	}
 	
-	private IdentityMapping[] getIdentityMappingConsistencyCheckViolations(Landscape landscape, String repository, int type) throws Exception {
+	public IdentityMapping[] getIdentityMappingConsistencyCheckViolations(Landscape landscape, String repository, int type) throws Exception {
 		Connection connection = null;
 		PreparedStatement stmt = null;
 		ResultSet rs = null;
@@ -312,7 +313,7 @@ public class CcfDataProvider {
 			stmt.setString(1, repository);
 			stmt.setString(2, repository);	
 			rs = stmt.executeQuery();			
-			identityMappings = getIdentityMappings(rs, landscape);
+			identityMappings = getIdentityMappings(rs, landscape, type);
 		}
 		catch (Exception e) {
 			Activator.handleError(e);
@@ -371,7 +372,7 @@ public class CcfDataProvider {
 			connection = getConnection(landscape);
 			stmt = connection.createStatement();
 			rs = stmt.executeQuery(Filter.getQuery(SQL_IDENTITY_MAPPING_SELECT, filters));
-			identityMappings = getIdentityMappings(rs, landscape);
+			identityMappings = getIdentityMappings(rs, landscape, InconsistentIdentityMapping.UNKNOWN);
 		}
 		catch (Exception e) {
 			Activator.handleError(e);
@@ -847,10 +848,15 @@ public class CcfDataProvider {
 		return statusArray;
 	}
 	
-	private IdentityMapping[] getIdentityMappings(ResultSet rs, Landscape landscape) throws SQLException {
+	private IdentityMapping[] getIdentityMappings(ResultSet rs, Landscape landscape, int inconsistencyFlag) throws SQLException {
 		List<IdentityMapping> identityMappings = new ArrayList<IdentityMapping>();
 		while (rs.next()) {
-			IdentityMapping identityMapping = new IdentityMapping();
+			IdentityMapping identityMapping;
+			if (inconsistencyFlag == InconsistentIdentityMapping.UNKNOWN) {
+				identityMapping = new IdentityMapping();
+			} else {
+				identityMapping = new InconsistentIdentityMapping(inconsistencyFlag);
+			}
 			identityMapping.setSourceSystemId(rs.getString(IDENTITY_MAPPING_SOURCE_SYSTEM_ID));
 			identityMapping.setSourceRepositoryId(rs.getString(IDENTITY_MAPPING_SOURCE_REPOSITORY_ID));
 			identityMapping.setTargetSystemId(rs.getString(IDENTITY_MAPPING_TARGET_SYSTEM_ID));

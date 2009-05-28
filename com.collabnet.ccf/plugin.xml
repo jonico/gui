@@ -89,7 +89,14 @@
             category="com.collabnet.desktop"
             class="com.collabnet.ccf.views.IdentityMappingView"
             id="com.collabnet.ccf.views.IdentityMappingView">
-      </view>                  
+      </view> 
+      <view
+            name="Identity Mapping Consistency Checks"
+            icon="icons/consistency_check_view.gif"
+            category="com.collabnet.desktop"
+            class="com.collabnet.ccf.views.IdentityMappingConsistencyCheckView"
+            id="com.collabnet.ccf.views.IdentityMappingConsistencyCheckView">
+      </view>                       
    </extension>
    
    <extension
@@ -176,15 +183,7 @@
       
       <objectContribution
             objectClass="com.collabnet.ccf.model.Landscape"
-            id="com.collabnet.ccf.model.Landscape">
-         <action
-               label="Show Identity Mapping"
-               class="com.collabnet.ccf.actions.IdentityMappingAction"
-               enablesFor="1"
-               menubarPath="group.a"
-               icon="icons/identityMappingView.gif"
-               id="com.collabnet.ccf.actions.IdentityMappingAction">
-         </action>                          
+            id="com.collabnet.ccf.model.Landscape">                   
          <action
                label="Show Hospital"
                class="com.collabnet.ccf.actions.HospitalAction"
@@ -192,23 +191,39 @@
                menubarPath="group.a"
                icon="icons/hospitalView.gif"
                id="com.collabnet.ccf.actions.HospitalAction">
-         </action>                        
+         </action>
+         <action
+               label="Check Identity Mapping consistency"
+               class="com.collabnet.ccf.actions.IdentityMappingConsistencyAction"
+               enablesFor="1"
+               menubarPath="group.b"
+               icon="icons/consistency_check_view.gif"
+               id="com.collabnet.ccf.actions.IdentityMappingConsistencyAction">
+         </action>                         
+         <action
+               label="Show Identity Mapping"
+               class="com.collabnet.ccf.actions.IdentityMappingAction"
+               enablesFor="1"
+               menubarPath="group.b"
+               icon="icons/identityMappingView.gif"
+               id="com.collabnet.ccf.actions.IdentityMappingAction">
+         </action>                                    
          <action
                label="Delete landscape"
                class="com.collabnet.ccf.actions.DeleteLandscapeAction"
-               menubarPath="group.b"
+               menubarPath="group.c"
                id="com.collabnet.ccf.actions.DeleteLandscapeAction">
          </action> 
          <action
                label="Edit landscape"
                class="com.collabnet.ccf.actions.EditLandscapeAction"
-               menubarPath="group.b"
+               menubarPath="group.c"
                id="com.collabnet.ccf.actions.EditLandscapeAction">
          </action> 
          <action
                label="Edit CCF log settings"
                class="com.collabnet.ccf.actions.EditLog4jAction"
-               menubarPath="group.c"
+               menubarPath="group.d"
                id="com.collabnet.ccf.actions.EditLog4jAction">
          </action>                                                                                             
       </objectContribution>
