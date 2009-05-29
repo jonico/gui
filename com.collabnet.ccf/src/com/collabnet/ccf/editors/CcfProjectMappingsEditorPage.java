@@ -3,6 +3,7 @@ package com.collabnet.ccf.editors;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
@@ -16,10 +17,14 @@ import org.eclipse.jface.viewers.ColumnPixelData;
 import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.IOpenListener;
+import org.eclipse.jface.viewers.IPostSelectionProvider;
 import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.OpenEvent;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TableLayout;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
@@ -31,6 +36,8 @@ import org.eclipse.swt.dnd.DragSourceListener;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -254,8 +261,32 @@ public class CcfProjectMappingsEditorPage extends CcfEditorPage implements IProj
 		createMenus(tableViewer1);
 		createMenus(tableViewer2);
 		
-		getSite().setSelectionProvider(tableViewer1);
-		getSite().setSelectionProvider(tableViewer2);
+		final SelectionProviderIntermediate selectionProvider = new SelectionProviderIntermediate();
+		selectionProvider.setSelectionProviderDelegate(tableViewer1);
+		
+		getSite().setSelectionProvider(selectionProvider);
+		
+		FocusListener focusListener = new FocusListener() {
+
+			public void focusGained(FocusEvent fe) {
+				if (fe.getSource() == tableViewer1.getTable())
+					selectionProvider.setSelectionProviderDelegate(tableViewer1);
+				else
+					selectionProvider.setSelectionProviderDelegate(tableViewer2);
+			}
+
+			public void focusLost(FocusEvent fe) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+		};
+		
+		tableViewer1.getTable().addFocusListener(focusListener);
+		tableViewer2.getTable().addFocusListener(focusListener);
+		
+//		getSite().setSelectionProvider(tableViewer1);
+//		getSite().setSelectionProvider(tableViewer2);
 	}
 
 	private DragSourceListener getDragSourceListener(TableViewer tableViewer) {
@@ -587,6 +618,99 @@ public class CcfProjectMappingsEditorPage extends CcfEditorPage implements IProj
 		public void setReversed(boolean newReversed) {
 			reversed = newReversed;
 		}		
+	}
+	
+	public class SelectionProviderIntermediate implements IPostSelectionProvider {
+
+		private final ListenerList selectionListeners = new ListenerList();
+
+		private final ListenerList postSelectionListeners = new ListenerList();
+
+		private ISelectionProvider delegate;
+
+		private ISelectionChangedListener selectionListener = new ISelectionChangedListener() {
+			public void selectionChanged(SelectionChangedEvent event) {
+				if (event.getSelectionProvider() == delegate) {
+					fireSelectionChanged(event.getSelection());
+				}
+			}
+		};
+
+		private ISelectionChangedListener postSelectionListener = new ISelectionChangedListener() {
+			public void selectionChanged(SelectionChangedEvent event) {
+				if (event.getSelectionProvider() == delegate) {
+					firePostSelectionChanged(event.getSelection());
+				}
+			}
+		};
+
+		public void setSelectionProviderDelegate(ISelectionProvider newDelegate) {
+			if (delegate == newDelegate) {
+				return;
+			}
+			if (delegate != null) {
+				delegate.removeSelectionChangedListener(selectionListener);
+				if (delegate instanceof IPostSelectionProvider) {
+					((IPostSelectionProvider)delegate).removePostSelectionChangedListener(postSelectionListener);
+				}
+			}
+			delegate = newDelegate;
+			if (newDelegate != null) {
+				newDelegate.addSelectionChangedListener(selectionListener);
+				if (newDelegate instanceof IPostSelectionProvider) {
+					((IPostSelectionProvider)newDelegate).addPostSelectionChangedListener(postSelectionListener);
+				}
+				fireSelectionChanged(newDelegate.getSelection());
+				firePostSelectionChanged(newDelegate.getSelection());
+			}
+		}
+
+		protected void fireSelectionChanged(ISelection selection) {
+			fireSelectionChanged(selectionListeners, selection);
+		}
+
+		protected void firePostSelectionChanged(ISelection selection) {
+			fireSelectionChanged(postSelectionListeners, selection);
+		}
+
+		private void fireSelectionChanged(ListenerList list, ISelection selection) {
+			SelectionChangedEvent event = new SelectionChangedEvent(delegate, selection);
+			Object[] listeners = list.getListeners();
+			for (int i = 0; i < listeners.length; i++) {
+				ISelectionChangedListener listener = (ISelectionChangedListener) listeners[i];
+				listener.selectionChanged(event);
+			}
+		}
+
+		public void addSelectionChangedListener(ISelectionChangedListener listener) {
+			selectionListeners.add(listener);
+		}
+
+		public void removeSelectionChangedListener(
+				ISelectionChangedListener listener) {
+			selectionListeners.remove(listener);
+		}
+
+		public void addPostSelectionChangedListener(
+				ISelectionChangedListener listener) {
+			postSelectionListeners.add(listener);
+		}
+
+		public void removePostSelectionChangedListener(
+				ISelectionChangedListener listener) {
+			postSelectionListeners.remove(listener);
+		}
+
+		public ISelection getSelection() {
+			return delegate == null ? null : delegate.getSelection();
+		}
+
+		public void setSelection(ISelection selection) {
+			if (delegate != null) {
+				delegate.setSelection(selection);
+			}
+		}
+
 	}
 
 }
