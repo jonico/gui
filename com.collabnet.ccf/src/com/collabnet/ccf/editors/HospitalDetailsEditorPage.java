@@ -4,8 +4,12 @@ import java.sql.Timestamp;
 
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
@@ -266,6 +270,29 @@ public class HospitalDetailsEditorPage extends HospitalEditorPage {
         Text componentText = toolkit.createText(detailsSectionClient, component, SWT.BORDER | SWT.READ_ONLY);
         gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
         componentText.setLayoutData(gd);
+        
+        Composite fixedGroup = toolkit.createComposite(detailsSectionClient);
+		GridLayout fixedLayout = new GridLayout();
+		fixedLayout.numColumns = 2;
+		fixedGroup.setLayout(fixedLayout);
+		gd = new GridData(GridData.FILL_BOTH);
+		gd.horizontalSpan = 2;
+		fixedGroup.setLayoutData(gd);
+		
+		final Button reprocessedButton = toolkit.createButton(fixedGroup, "Reprocessed", SWT.CHECK);
+		reprocessedButton.setSelection(getPatient().isReprocessed());
+		
+		final Button fixedButton = toolkit.createButton(fixedGroup, "Fixed", SWT.CHECK);
+		fixedButton.setSelection(getPatient().isFixed());
+
+		SelectionListener buttonListener = new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent se) {
+				reprocessedButton.setSelection(getPatient().isReprocessed());
+				fixedButton.setSelection(getPatient().isFixed());
+			}			
+		};
+		reprocessedButton.addSelectionListener(buttonListener);
+		fixedButton.addSelectionListener(buttonListener);
         
 	}
 

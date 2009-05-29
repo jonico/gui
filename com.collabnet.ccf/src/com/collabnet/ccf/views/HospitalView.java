@@ -488,6 +488,11 @@ public class HospitalView extends ViewPart {
 		public Image getColumnImage(Object element, int columnIndex) {
 			if (columnIndex == 0) {
 				Patient patient = (Patient)element;
+				
+				if (patient.isReprocessed() && !patient.isFixed()) {
+					return Activator.getImage(Activator.IMAGE_HOSPITAL_ENTRY_REPLAY_FAILED);
+				}
+				
 				String errorCode = patient.getErrorCode();
 				if (patient.isFixed()) return Activator.getImage(Activator.IMAGE_HOSPITAL_ENTRY_FIXED);
 				else if (errorCode != null && errorCode.equals("replay")) return Activator.getImage(Activator.IMAGE_HOSPITAL_ENTRY_REPLAY);
