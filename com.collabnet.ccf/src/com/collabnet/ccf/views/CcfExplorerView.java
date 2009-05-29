@@ -10,7 +10,9 @@ import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.util.LocalSelectionTransfer;
+import org.eclipse.jface.viewers.IFontProvider;
 import org.eclipse.jface.viewers.IOpenListener;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -19,10 +21,13 @@ import org.eclipse.jface.viewers.OpenEvent;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerComparator;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DragSourceListener;
 import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -55,6 +60,7 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 	private CcfDataProvider dataProvider;
 	private CcfComparator ccfComparator = new CcfComparator();
 	private IDialogSettings settings = Activator.getDefault().getDialogSettings();
+	private Font italicFont;
 	
 	public static final String PROJECT_MAPPING_SORT_ORDER = "CcfExplorerView.projectMappingSort";
 	public static final int SORT_BY_SOURCE_REPOSITORY = 0;
@@ -281,6 +287,7 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 	public void dispose() {
 		Activator.removeChangeListener(this);
 		view = null;
+		if (italicFont != null) italicFont.dispose();
 		super.dispose();
 	}
 	
@@ -293,16 +300,14 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 		return view;
 	}
 	
-	class LandscapeLabelProvider extends LabelProvider {
+	class LandscapeLabelProvider extends LabelProvider implements IFontProvider {
 		public Image getImage(Object element) {
 			if (element instanceof Landscape) return Activator.getImage((Landscape)element);
 			else if (element instanceof ProjectMappings) return Activator.getImage(Activator.IMAGE_PROJECT_MAPPINGS);
 			else if (element instanceof Logs) return Activator.getImage(Activator.IMAGE_LOGS);
 			else if (element instanceof Log) return Activator.getImage(Activator.IMAGE_LOG);
 			else if (element instanceof SynchronizationStatus) {
-				if (((SynchronizationStatus)element).getHospitalEntries() > 0)
-					return Activator.getImage(Activator.IMAGE_SYNC_STATUS_ENTRY_WITH_HOSPITAL_ENTRIES);
-				else if (((SynchronizationStatus)element).isPaused())
+				if (((SynchronizationStatus)element).isPaused())
 					return Activator.getImage(Activator.IMAGE_SYNC_STATUS_ENTRY_PAUSED);
 				else
 					return Activator.getImage(Activator.IMAGE_SYNC_STATUS_ENTRY);
@@ -318,6 +323,24 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 				else return ((Exception)element).getMessage();
 			}
 			else return super.getText(element);
+		}
+
+		public Font getFont(Object obj) {
+			if (obj instanceof SynchronizationStatus) {
+				SynchronizationStatus synchronizationStatus = (SynchronizationStatus)obj;
+				if (synchronizationStatus.getHospitalEntries() > 0) {
+					if (italicFont == null) {
+						Font defaultFont = JFaceResources.getDefaultFont();
+				        FontData[] data = defaultFont.getFontData();
+				        for (int i = 0; i < data.length; i++) {
+				          data[i].setStyle(SWT.ITALIC);
+				        }
+				        italicFont = new Font(treeViewer.getControl().getDisplay(), data);
+					}
+			        return italicFont;
+				}
+			}
+			return null;
 		}
 	}
 	

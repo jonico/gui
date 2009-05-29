@@ -15,6 +15,7 @@ import com.collabnet.ccf.db.CcfDataProvider;
 import com.collabnet.ccf.db.Filter;
 import com.collabnet.ccf.db.Update;
 import com.collabnet.ccf.model.Patient;
+import com.collabnet.ccf.views.CcfExplorerView;
 import com.collabnet.ccf.views.HospitalView;
 
 public class MarkFixedAction extends ActionDelegate {
@@ -68,6 +69,9 @@ public class MarkFixedAction extends ActionDelegate {
 		});
 		if (patientsUpdated && HospitalView.getView() != null) {
 			HospitalView.getView().refresh();
+		}
+		if (patientsUpdated && CcfExplorerView.getView() != null && Activator.getDefault().getPreferenceStore().getBoolean(Activator.PREFERENCES_SHOW_HOSPITAL_COUNT)) {
+			CcfExplorerView.getView().refreshProjectMappings();
 		}
 	}	
 	

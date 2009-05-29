@@ -282,7 +282,7 @@ public class SynchronizationStatus implements IPropertySource, Comparable {
 	}
 	
 	public String toString() {
-		if (hospitalEntries > 0) return sourceRepositoryId + " => " + targetRepositoryId + " (Hospital entries: " + hospitalEntries + ")";
+		if (hospitalEntries > 0) return sourceRepositoryId + " => " + targetRepositoryId + " (" + hospitalEntries + ")";
 		else return sourceRepositoryId + " => " + targetRepositoryId;
 	}
 	
