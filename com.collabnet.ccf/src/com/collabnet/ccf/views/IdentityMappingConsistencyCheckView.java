@@ -156,7 +156,7 @@ public class IdentityMappingConsistencyCheckView extends ViewPart implements IPr
 		treeViewer.expandAll();
 	}
 
-	public IdentityMappingConsistencyCheckView getView() {
+	public static IdentityMappingConsistencyCheckView getView() {
 		return view;
 	}
 	
@@ -274,7 +274,7 @@ public class IdentityMappingConsistencyCheckView extends ViewPart implements IPr
 				BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
 					public void run() {
 						try {
-							inconsistentIdentityMappings = getDataProvider().getIdentityMappingConsistencyCheckViolations(consistencyCheck.getLandscape(), consistencyCheck.getRepository(), consistencyCheck.getType());
+							inconsistentIdentityMappings = getDataProvider().getIdentityMappingConsistencyCheckViolations(consistencyCheck);
 						} catch (Exception e) {
 							inconsistentIdentityMappings = new Object[1];
 							inconsistentIdentityMappings[0] = e;

@@ -158,6 +158,17 @@
       </objectContribution>
       
       <objectContribution
+            objectClass="com.collabnet.ccf.model.InconsistentIdentityMapping"
+            id="com.collabnet.ccf.model.InconsistentIdentityMapping">                                                     
+         <action
+               label="Create reverse mapping"
+               menubarPath="group.c"
+               class="com.collabnet.ccf.actions.CreateReverseIdentityMappingAction"
+               id="com.collabnet.ccf.actions.CreateReverseIdentityMappingAction">
+         </action>                                                                         
+      </objectContribution>            
+      
+      <objectContribution
             objectClass="com.collabnet.ccf.model.IdentityMapping"
             id="com.collabnet.ccf.model.IdentityMapping">  
          <action

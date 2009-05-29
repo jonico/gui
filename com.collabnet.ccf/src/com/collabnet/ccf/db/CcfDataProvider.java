@@ -19,6 +19,7 @@ import org.eclipse.swt.widgets.Display;
 
 import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.model.IdentityMapping;
+import com.collabnet.ccf.model.IdentityMappingConsistencyCheck;
 import com.collabnet.ccf.model.InconsistentIdentityMapping;
 import com.collabnet.ccf.model.Landscape;
 import com.collabnet.ccf.model.Patient;
@@ -196,11 +197,12 @@ public class CcfDataProvider {
 	private final static String SQL_IDENTITY_MAPPING_SELECT = "SELECT * FROM IDENTITY_MAPPING";
 	private final static String SQL_IDENTITY_MAPPING_UPDATE = "UPDATE IDENTITY_MAPPING";
 	private final static String SQL_IDENTITY_MAPPING_DELETE = "DELETE FROM IDENTITY_MAPPING";
+	private final static String SQL_IDENTITY_MAPPING_INSERT = "INSERT INTO IDENTITY_MAPPING (" + IDENTITY_MAPPING_COLUMNS + ") VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 	
 	private final static String SQL_IDENTITY_MAPPING_CONSISTENCY_CHECK_MULTIPLE_SOURCE_TO_ONE_TARGET = SQL_IDENTITY_MAPPING_SELECT + " WHERE TARGET_ARTIFACT_ID IN (SELECT TARGET_ARTIFACT_ID FROM IDENTITY_MAPPING WHERE SOURCE_REPOSITORY_ID = ? GROUP BY TARGET_ARTIFACT_ID HAVING COUNT(SOURCE_ARTIFACT_ID)>1) AND SOURCE_REPOSITORY_ID = ? ORDER BY TARGET_ARTIFACT_ID";
 	private final static String SQL_IDENTITY_MAPPING_CONSISTENCY_CHECK_MULTIPLE_TARGET_TO_ONE_SOURCE = SQL_IDENTITY_MAPPING_SELECT + " WHERE SOURCE_ARTIFACT_ID IN (SELECT SOURCE_ARTIFACT_ID FROM IDENTITY_MAPPING WHERE SOURCE_REPOSITORY_ID = ? GROUP BY SOURCE_ARTIFACT_ID HAVING COUNT(TARGET_ARTIFACT_ID)>1) AND SOURCE_REPOSITORY_ID = ? ORDER BY TARGET_ARTIFACT_ID";
 	private final static String SQL_IDENTITY_MAPPING_CONSISTENCY_CHECK_ONE_WAY = SQL_IDENTITY_MAPPING_SELECT + " WHERE SOURCE_REPOSITORY_ID = ? AND SOURCE_ARTIFACT_ID NOT IN (SELECT TARGET_ARTIFACT_ID FROM IDENTITY_MAPPING WHERE TARGET_REPOSITORY_ID = ?)";
-
+	
 	private final static int IDENTITY_MAPPING_CONSISTENCY_CHECK_MULTIPLE_SOURCE_TO_ONE_TARGET = 0;
 	private final static int IDENTITY_MAPPING_CONSISTENCY_CHECK_MULTIPLE_TARGET_TO_ONE_SOURCE = 1;
 	private final static int IDENTITY_MAPPING_CONSISTENCY_CHECK_ONE_WAY = 2;
@@ -287,14 +289,76 @@ public class CcfDataProvider {
 		return null;
 	}
 	
-	public IdentityMapping[] getIdentityMappingConsistencyCheckViolations(Landscape landscape, String repository, int type) throws Exception {
+	public void createReverseIdentityMapping(Landscape landscape, IdentityMapping identityMapping) throws Exception {
+		Connection connection = null;
+		PreparedStatement stmt = null;
+		try {
+			String insert = SQL_IDENTITY_MAPPING_INSERT;
+			connection = getConnection(landscape);
+			stmt = connection.prepareStatement(insert);
+			stmt.setString(1, identityMapping.getTargetSystemId());
+			stmt.setString(2, identityMapping.getTargetRepositoryId());	
+			stmt.setString(3, identityMapping.getSourceSystemId());
+			stmt.setString(4, identityMapping.getSourceRepositoryId());
+			stmt.setString(5, identityMapping.getTargetSystemKind());
+			stmt.setString(6, identityMapping.getTargetRepositoryKind());	
+			stmt.setString(7, identityMapping.getSourceSystemKind());
+			stmt.setString(8, identityMapping.getSourceRepositoryKind());	
+			stmt.setString(9, identityMapping.getTargetArtifactId());
+			stmt.setString(10, identityMapping.getSourceArtifactId());	
+			stmt.setTimestamp(11, identityMapping.getTargetLastModificationTime());
+			stmt.setTimestamp(12, identityMapping.getSourceLastModificationTime());	
+			stmt.setString(13, identityMapping.getTargetArtifactVersion());
+			stmt.setString(14, identityMapping.getSourceArtifactVersion());	
+			stmt.setString(15, identityMapping.getArtifactType());
+			stmt.setString(16, identityMapping.getChildTargetArtifactId());
+			stmt.setString(17, identityMapping.getChildTargetRepositoryId());
+			stmt.setString(18, identityMapping.getChildTargetRepositoryKind());	
+			stmt.setString(19, identityMapping.getChildSourceArtifactId());
+			stmt.setString(20, identityMapping.getChildSourceRepositoryId());
+			stmt.setString(21, identityMapping.getChildSourceRepositoryKind());			
+			stmt.setString(22, identityMapping.getParentTargetArtifactId());
+			stmt.setString(23, identityMapping.getParentTargetRepositoryId());
+			stmt.setString(24, identityMapping.getParentTargetRepositoryKind());	
+			stmt.setString(25, identityMapping.getParentSourceArtifactId());
+			stmt.setString(26, identityMapping.getParentSourceRepositoryId());
+			stmt.setString(27, identityMapping.getParentSourceRepositoryKind());	
+			stmt.executeUpdate();	
+		}
+		catch (Exception e) {
+			Activator.handleError(e);
+			throw e;
+		}
+		finally {
+	        try
+	        {
+	            if (stmt != null)
+	                stmt.close();
+	        }
+	        catch (Exception e)
+	        {
+	        	 Activator.handleError("Could not close Statement" ,e);
+	        }
+	        try
+	        {
+	            if (connection  != null)
+	                connection.close();
+	        }
+	        catch (SQLException e)
+	        {
+	        	 Activator.handleError("Could not close Connection" ,e);
+	        }			
+		}			
+	}
+	
+	public IdentityMapping[] getIdentityMappingConsistencyCheckViolations(IdentityMappingConsistencyCheck consistencyCheck) throws Exception {
 		Connection connection = null;
 		PreparedStatement stmt = null;
 		ResultSet rs = null;
 		IdentityMapping[] identityMappings = null;
 		try {
 			String query = null;
-			switch (type) {
+			switch (consistencyCheck.getType()) {
 			case IDENTITY_MAPPING_CONSISTENCY_CHECK_MULTIPLE_SOURCE_TO_ONE_TARGET:
 				query = SQL_IDENTITY_MAPPING_CONSISTENCY_CHECK_MULTIPLE_SOURCE_TO_ONE_TARGET;
 				break;
@@ -308,12 +372,12 @@ public class CcfDataProvider {
 				break;
 			}
 			if (query == null) return null;
-			connection = getConnection(landscape);
+			connection = getConnection(consistencyCheck.getLandscape());
 			stmt = connection.prepareStatement(query);
-			stmt.setString(1, repository);
-			stmt.setString(2, repository);	
+			stmt.setString(1, consistencyCheck.getRepository());
+			stmt.setString(2, consistencyCheck.getRepository());	
 			rs = stmt.executeQuery();			
-			identityMappings = getIdentityMappings(rs, landscape, type);
+			identityMappings = getIdentityMappings(rs, consistencyCheck.getLandscape(), consistencyCheck);
 		}
 		catch (Exception e) {
 			Activator.handleError(e);
@@ -351,17 +415,17 @@ public class CcfDataProvider {
 		return identityMappings;		
 	}
 	
-	public IdentityMapping[] getMultipleSourceToOneTargetIdentityMappings(Landscape landscape, String repository) throws Exception {
-		return getIdentityMappingConsistencyCheckViolations(landscape, repository, IDENTITY_MAPPING_CONSISTENCY_CHECK_MULTIPLE_SOURCE_TO_ONE_TARGET);
-	}
-	
-	public IdentityMapping[] getMultipleTargetToOneSourceIdentityMappings(Landscape landscape, String repository) throws Exception {
-		return getIdentityMappingConsistencyCheckViolations(landscape, repository, IDENTITY_MAPPING_CONSISTENCY_CHECK_MULTIPLE_TARGET_TO_ONE_SOURCE);
-	}
-	
-	public IdentityMapping[] getOneWayIdentityMappings(Landscape landscape, String repository) throws Exception {
-		return getIdentityMappingConsistencyCheckViolations(landscape, repository, IDENTITY_MAPPING_CONSISTENCY_CHECK_ONE_WAY);
-	}
+//	public IdentityMapping[] getMultipleSourceToOneTargetIdentityMappings(Landscape landscape, String repository) throws Exception {
+//		return getIdentityMappingConsistencyCheckViolations(landscape, repository, IDENTITY_MAPPING_CONSISTENCY_CHECK_MULTIPLE_SOURCE_TO_ONE_TARGET);
+//	}
+//	
+//	public IdentityMapping[] getMultipleTargetToOneSourceIdentityMappings(Landscape landscape, String repository) throws Exception {
+//		return getIdentityMappingConsistencyCheckViolations(landscape, repository, IDENTITY_MAPPING_CONSISTENCY_CHECK_MULTIPLE_TARGET_TO_ONE_SOURCE);
+//	}
+//	
+//	public IdentityMapping[] getOneWayIdentityMappings(Landscape landscape, String repository) throws Exception {
+//		return getIdentityMappingConsistencyCheckViolations(landscape, repository, IDENTITY_MAPPING_CONSISTENCY_CHECK_ONE_WAY);
+//	}
 	
 	public IdentityMapping[] getIdentityMappings(Landscape landscape, Filter[][] filters) throws Exception {
 		Connection connection = null;
@@ -372,7 +436,7 @@ public class CcfDataProvider {
 			connection = getConnection(landscape);
 			stmt = connection.createStatement();
 			rs = stmt.executeQuery(Filter.getQuery(SQL_IDENTITY_MAPPING_SELECT, filters));
-			identityMappings = getIdentityMappings(rs, landscape, InconsistentIdentityMapping.UNKNOWN);
+			identityMappings = getIdentityMappings(rs, landscape, null);
 		}
 		catch (Exception e) {
 			Activator.handleError(e);
@@ -848,14 +912,14 @@ public class CcfDataProvider {
 		return statusArray;
 	}
 	
-	private IdentityMapping[] getIdentityMappings(ResultSet rs, Landscape landscape, int inconsistencyFlag) throws SQLException {
+	private IdentityMapping[] getIdentityMappings(ResultSet rs, Landscape landscape, IdentityMappingConsistencyCheck consistencyCheck) throws SQLException {
 		List<IdentityMapping> identityMappings = new ArrayList<IdentityMapping>();
 		while (rs.next()) {
 			IdentityMapping identityMapping;
-			if (inconsistencyFlag == InconsistentIdentityMapping.UNKNOWN) {
+			if (consistencyCheck == null) {
 				identityMapping = new IdentityMapping();
 			} else {
-				identityMapping = new InconsistentIdentityMapping(inconsistencyFlag);
+				identityMapping = new InconsistentIdentityMapping(consistencyCheck);
 			}
 			identityMapping.setSourceSystemId(rs.getString(IDENTITY_MAPPING_SOURCE_SYSTEM_ID));
 			identityMapping.setSourceRepositoryId(rs.getString(IDENTITY_MAPPING_SOURCE_REPOSITORY_ID));

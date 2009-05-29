@@ -1,6 +1,8 @@
 package com.collabnet.ccf.actions;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
@@ -14,6 +16,9 @@ import com.collabnet.ccf.db.CcfDataProvider;
 import com.collabnet.ccf.db.Filter;
 import com.collabnet.ccf.dialogs.DeleteIdentityMappingDialog;
 import com.collabnet.ccf.model.IdentityMapping;
+import com.collabnet.ccf.model.IdentityMappingConsistencyCheck;
+import com.collabnet.ccf.model.InconsistentIdentityMapping;
+import com.collabnet.ccf.views.IdentityMappingConsistencyCheckView;
 import com.collabnet.ccf.views.IdentityMappingView;
 
 public class DeleteIdentityMappingAction extends ActionDelegate {
@@ -22,6 +27,7 @@ public class DeleteIdentityMappingAction extends ActionDelegate {
 	
 	@SuppressWarnings("unchecked")
 	public void run(IAction action) {
+		final List<IdentityMappingConsistencyCheck> consistencyChecks = new ArrayList<IdentityMappingConsistencyCheck>();
 		DeleteIdentityMappingDialog dialog = new DeleteIdentityMappingDialog(Display.getDefault().getActiveShell());
 		if (dialog.open() == DeleteIdentityMappingDialog.CANCEL) return;
 		final boolean deleteReverse = dialog.isDeleteReverse();
@@ -49,6 +55,11 @@ public class DeleteIdentityMappingAction extends ActionDelegate {
 						}
 						try {
 							dataProvider.deleteIdentityMappings(identityMapping.getLandscape(), filters);
+							if (identityMapping instanceof InconsistentIdentityMapping) {
+								if (!consistencyChecks.contains(((InconsistentIdentityMapping)identityMapping).getConsistencyCheck())) {
+									consistencyChecks.add(((InconsistentIdentityMapping)identityMapping).getConsistencyCheck());
+								}
+							}
 							if (reverseFilters != null) {
 								dataProvider.deleteIdentityMappings(identityMapping.getLandscape(), reverseFilters);
 							}
@@ -63,6 +74,11 @@ public class DeleteIdentityMappingAction extends ActionDelegate {
 		});
 		if (identityMappingsDeleted && IdentityMappingView.getView() != null) {
 			IdentityMappingView.getView().refresh();
+		}
+		if (IdentityMappingConsistencyCheckView.getView() != null) {
+			for (IdentityMappingConsistencyCheck consistencyCheck : consistencyChecks) {
+				IdentityMappingConsistencyCheckView.getView().refresh(consistencyCheck);
+			}
 		}
 	}	
 	
