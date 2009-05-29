@@ -189,6 +189,8 @@ public class CcfDataProvider {
 	private final static String SQL_HOSPITAL_UPDATE = "UPDATE HOSPITAL";
 	private final static String SQL_HOSPITAL_DELETE = "DELETE FROM HOSPITAL";
 	
+	private final static String SQL_HOSPITAL_COUNT = "SELECT SOURCE_SYSTEM_ID, SOURCE_REPOSITORY_ID, TARGET_SYSTEM_ID, TARGET_REPOSITORY_ID, COUNT(*) AS \"HOSPITAL_ENTRIES\" FROM HOSPITAL GROUP BY SOURCE_SYSTEM_ID, SOURCE_REPOSITORY_ID, TARGET_SYSTEM_ID, TARGET_REPOSITORY_ID";
+	
 	private final static String SQL_SYNCHRONIZATION_STATUS_SELECT = "SELECT * FROM SYNCHRONIZATION_STATUS";
 	private final static String SQL_SYNCHRONIZATION_STATUS_UPDATE = "UPDATE SYNCHRONIZATION_STATUS";
 	private final static String SQL_SYNCHRONIZATION_STATUS_DELETE = "DELETE FROM SYNCHRONIZATION_STATUS";
@@ -415,18 +417,6 @@ public class CcfDataProvider {
 		return identityMappings;		
 	}
 	
-//	public IdentityMapping[] getMultipleSourceToOneTargetIdentityMappings(Landscape landscape, String repository) throws Exception {
-//		return getIdentityMappingConsistencyCheckViolations(landscape, repository, IDENTITY_MAPPING_CONSISTENCY_CHECK_MULTIPLE_SOURCE_TO_ONE_TARGET);
-//	}
-//	
-//	public IdentityMapping[] getMultipleTargetToOneSourceIdentityMappings(Landscape landscape, String repository) throws Exception {
-//		return getIdentityMappingConsistencyCheckViolations(landscape, repository, IDENTITY_MAPPING_CONSISTENCY_CHECK_MULTIPLE_TARGET_TO_ONE_SOURCE);
-//	}
-//	
-//	public IdentityMapping[] getOneWayIdentityMappings(Landscape landscape, String repository) throws Exception {
-//		return getIdentityMappingConsistencyCheckViolations(landscape, repository, IDENTITY_MAPPING_CONSISTENCY_CHECK_ONE_WAY);
-//	}
-	
 	public IdentityMapping[] getIdentityMappings(Landscape landscape, Filter[][] filters) throws Exception {
 		Connection connection = null;
 		Statement stmt = null;
@@ -555,6 +545,66 @@ public class CcfDataProvider {
 		SynchronizationStatus[] statuses = getSynchronizationStatuses(landscape, projectMappings, filters);
 		Arrays.sort(statuses);
 		return statuses;
+	}
+	
+	public List<SynchronizationStatus> getHospitalCounts(Landscape landscape) throws Exception {
+		List<SynchronizationStatus> hospitalCounts = new ArrayList<SynchronizationStatus>();
+		Connection connection = null;
+		Statement stmt = null;
+		ResultSet rs = null;		
+		try {
+			connection = getConnection(landscape);
+			stmt = connection.createStatement();
+			rs = stmt.executeQuery(SQL_HOSPITAL_COUNT);
+			while (rs.next()) {
+				String sourceSystemId = rs.getString(HOSPITAL_SOURCE_SYSTEM_ID);
+				String sourceRepositoryId = rs.getString(HOSPITAL_SOURCE_REPOSITORY_ID);
+				String targetSystemId = rs.getString(HOSPITAL_TARGET_SYSTEM_ID);
+				String targetRepositoryId = rs.getString(HOSPITAL_TARGET_REPOSITORY_ID);
+				int count = rs.getInt("HOSPITAL_ENTRIES");
+				SynchronizationStatus status = new SynchronizationStatus();
+				status.setSourceSystemId(sourceSystemId);
+				status.setSourceRepositoryId(sourceRepositoryId);
+				status.setTargetSystemId(targetSystemId);
+				status.setTargetRepositoryId(targetRepositoryId);
+				status.setHospitalEntries(count);
+				hospitalCounts.add(status);
+			}
+		}
+		catch (Exception e) {
+			Activator.handleError(e);
+			throw e;
+		}
+		finally {
+	        try
+	        {
+	            if (rs != null)
+	                rs.close();
+	        }
+	        catch (Exception e)
+	        {
+	            Activator.handleError("Could not close ResultSet" ,e);
+	        }
+	        try
+	        {
+	            if (stmt != null)
+	                stmt.close();
+	        }
+	        catch (Exception e)
+	        {
+	        	 Activator.handleError("Could not close Statement" ,e);
+	        }
+	        try
+	        {
+	            if (connection  != null)
+	                connection.close();
+	        }
+	        catch (SQLException e)
+	        {
+	        	 Activator.handleError("Could not close Connection" ,e);
+	        }			
+		}
+		return hospitalCounts;
 	}
 	
 	public SynchronizationStatus[] getSynchronizationStatuses(Landscape landscape, ProjectMappings projectMappings, Filter[][] filters) throws Exception {
@@ -884,6 +934,17 @@ public class CcfDataProvider {
 	}
 	
 	private SynchronizationStatus[] getSynchronizationStatuses(ResultSet rs, Landscape landscape, ProjectMappings projectMappings) throws SQLException {
+		
+		List<SynchronizationStatus> hospitalCounts = null;
+		boolean showHospitalCounts = store.getBoolean(Activator.PREFERENCES_SHOW_HOSPITAL_COUNT);
+		if (showHospitalCounts) {
+			try {
+				hospitalCounts = getHospitalCounts(landscape);
+			} catch (Exception e) {
+				Activator.handleError(e);
+			}
+		}
+		
 		List<SynchronizationStatus> synchonizationStatuses = new ArrayList<SynchronizationStatus>();
 		while (rs.next()) {
 			SynchronizationStatus status = new SynchronizationStatus();
@@ -905,6 +966,12 @@ public class CcfDataProvider {
 			status.setTargetSystemEncoding(rs.getString(SYNCHRONIZATION_STATUS_TARGET_SYSTEM_ENCODING));			
 			status.setProjectMappings(projectMappings);
 			status.setLandscape(landscape);
+			
+			if (hospitalCounts != null) {
+				int index = hospitalCounts.indexOf(status);
+				if (index != -1) status.setHospitalEntries(hospitalCounts.get(index).getHospitalEntries());
+			}
+			
 			synchonizationStatuses.add(status);
 		}
 		SynchronizationStatus[] statusArray = new SynchronizationStatus[synchonizationStatuses.size()];

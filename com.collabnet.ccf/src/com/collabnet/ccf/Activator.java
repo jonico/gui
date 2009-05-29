@@ -61,6 +61,7 @@ public class Activator extends AbstractUIPlugin {
 	public static final String IMAGE_HOSPITAL_ENTRY_REPLAY_FAILED = "hospitalEntryReplayFailed.gif"; //$NON-NLS-1$
 	public static final String IMAGE_SYNC_STATUS_ENTRY = "sync_status_entry.gif"; //$NON-NLS-1$
 	public static final String IMAGE_SYNC_STATUS_ENTRY_PAUSED = "sync_status_entry_paused.gif"; //$NON-NLS-1$
+	public static final String IMAGE_SYNC_STATUS_ENTRY_WITH_HOSPITAL_ENTRIES = "sync_status_entry_with_hospital_entries.gif"; //$NON-NLS-1$
 	public static final String IMAGE_IDENTITY_MAPPING = "identityMappingView.gif"; //$NON-NLS-1$
 	public static final String IMAGE_MULTIPLE_SOURCE = "multiple_source.gif"; //$NON-NLS-1$
 	public static final String IMAGE_MULTIPLE_TARGET = "multiple_target.gif"; //$NON-NLS-1$
@@ -76,6 +77,7 @@ public class Activator extends AbstractUIPlugin {
 	public static final String PREFERENCES_HOSPITAL_COLUMNS = "hospital_columns"; //$NON-NLS-1$
 	public static final String PREFERENCES_IDENTITY_MAPPING_COLUMNS = "identity_mapping_columns"; //$NON-NLS-1$
 	public static final String PREFERENCES_RESET_DELAY = "pref_reset_delay"; //$NON-NLS-1$
+	public static final String PREFERENCES_SHOW_HOSPITAL_COUNT = "pref_show_hospital_count"; //$NON-NLS-1$
 	
 	// CCF Properties
 	public static final String PROPERTIES_CCF_URL = "ccf.db.url"; //$NON-NLS-1$
@@ -124,6 +126,7 @@ public class Activator extends AbstractUIPlugin {
 	public static final boolean DEFAULT_AUTOCONNECT = false;
 	public static final String DEFAULT_HOSPITAL_COLUMNS = CcfDataProvider.DEFAULT_HOSPITAL_COLUMNS;
 	public static final String DEFAULT_IDENTITY_MAPPING_COLUMNS = CcfDataProvider.DEFAULT_IDENTITY_MAPPING_COLUMNS;
+	public static final boolean DEFAULT_SHOW_HOSPITAL_COUNT = true;
 	
 	public static final String DEFAULT_JMX_PORT_PT2QC = "8082";
 	public static final String DEFAULT_JMX_PORT_QC2PT = "8083";
@@ -361,6 +364,7 @@ public class Activator extends AbstractUIPlugin {
 		createImageDescriptor(IMAGE_HOSPITAL_ENTRY_REPLAY_FAILED);
 		createImageDescriptor(IMAGE_SYNC_STATUS_ENTRY);
 		createImageDescriptor(IMAGE_SYNC_STATUS_ENTRY_PAUSED);
+		createImageDescriptor(IMAGE_SYNC_STATUS_ENTRY_WITH_HOSPITAL_ENTRIES);
 		createImageDescriptor(IMAGE_NEW_LANDSCAPE);
 		createImageDescriptor(IMAGE_NEW_LANDSCAPE_WIZBAN);
 		createImageDescriptor(IMAGE_LANDSCAPE);
@@ -389,6 +393,7 @@ public class Activator extends AbstractUIPlugin {
 		reg.put(IMAGE_HOSPITAL_ENTRY_REPLAY_FAILED, getImageDescriptor(IMAGE_HOSPITAL_ENTRY_REPLAY_FAILED));
 		reg.put(IMAGE_SYNC_STATUS_ENTRY, getImageDescriptor(IMAGE_SYNC_STATUS_ENTRY));
 		reg.put(IMAGE_SYNC_STATUS_ENTRY_PAUSED, getImageDescriptor(IMAGE_SYNC_STATUS_ENTRY_PAUSED));
+		reg.put(IMAGE_SYNC_STATUS_ENTRY_WITH_HOSPITAL_ENTRIES, getImageDescriptor(IMAGE_SYNC_STATUS_ENTRY_WITH_HOSPITAL_ENTRIES));
 		reg.put(IMAGE_NEW_LANDSCAPE, getImageDescriptor(IMAGE_NEW_LANDSCAPE));
 		reg.put(IMAGE_NEW_LANDSCAPE_WIZBAN, getImageDescriptor(IMAGE_NEW_LANDSCAPE_WIZBAN));
 		reg.put(IMAGE_LANDSCAPE, getImageDescriptor(IMAGE_LANDSCAPE));

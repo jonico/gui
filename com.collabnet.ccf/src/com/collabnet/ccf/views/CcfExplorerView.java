@@ -300,7 +300,9 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 			else if (element instanceof Logs) return Activator.getImage(Activator.IMAGE_LOGS);
 			else if (element instanceof Log) return Activator.getImage(Activator.IMAGE_LOG);
 			else if (element instanceof SynchronizationStatus) {
-				if (((SynchronizationStatus)element).isPaused())
+				if (((SynchronizationStatus)element).getHospitalEntries() > 0)
+					return Activator.getImage(Activator.IMAGE_SYNC_STATUS_ENTRY_WITH_HOSPITAL_ENTRIES);
+				else if (((SynchronizationStatus)element).isPaused())
 					return Activator.getImage(Activator.IMAGE_SYNC_STATUS_ENTRY_PAUSED);
 				else
 					return Activator.getImage(Activator.IMAGE_SYNC_STATUS_ENTRY);

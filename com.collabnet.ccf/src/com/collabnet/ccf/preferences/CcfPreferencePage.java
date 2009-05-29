@@ -22,6 +22,7 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
 import com.collabnet.ccf.Activator;
+import com.collabnet.ccf.views.CcfExplorerView;
 import com.collabnet.ccf.views.HospitalView;
 
 public class CcfPreferencePage extends PreferencePage implements IWorkbenchPreferencePage {
@@ -31,6 +32,7 @@ public class CcfPreferencePage extends PreferencePage implements IWorkbenchPrefe
 	private Text userText;
 	private Text passwordText;
 	private Button autoConnectButton;
+	private Button hospitalCountButton;
 	
 	private Text resetDelayText;
 	
@@ -135,6 +137,12 @@ public class CcfPreferencePage extends PreferencePage implements IWorkbenchPrefe
 		gd.widthHint = 75;
 		resetDelayText.setLayoutData(gd);
 		
+		hospitalCountButton = new Button(composite, SWT.CHECK);
+		hospitalCountButton.setText("Show hospital entry count for project mappings in CCF Explorer");
+		gd = new GridData();
+		gd.horizontalSpan = 2;
+		hospitalCountButton.setLayoutData(gd);
+		
 		initializeValues();
 		
 		return composite;
@@ -146,6 +154,7 @@ public class CcfPreferencePage extends PreferencePage implements IWorkbenchPrefe
 			!(driverText.getText().trim().equals(store.getString(Activator.PREFERENCES_DATABASE_DRIVER))) ||
 			!(userText.getText().trim().equals(store.getString(Activator.PREFERENCES_DATABASE_USER))) ||
 			!(passwordText.getText().trim().equals(store.getString(Activator.PREFERENCES_DATABASE_PASSWORD)));			
+		boolean showHospitalChanged = store.getBoolean(Activator.PREFERENCES_SHOW_HOSPITAL_COUNT) != hospitalCountButton.getSelection();
 		store.setValue(Activator.PREFERENCES_DATABASE_DESCRIPTION, descriptionCombo.getText().trim());
 		store.setValue(Activator.PREFERENCES_DATABASE_URL, urlText.getText().trim());
 		store.setValue(Activator.PREFERENCES_DATABASE_DRIVER, driverText.getText().trim());
@@ -160,6 +169,10 @@ public class CcfPreferencePage extends PreferencePage implements IWorkbenchPrefe
 		if (needsRefresh && HospitalView.getView() != null && HospitalView.getView().isHospitalLoaded()) {
 			HospitalView.getView().refresh();
 		}
+		store.setValue(Activator.PREFERENCES_SHOW_HOSPITAL_COUNT, hospitalCountButton.getSelection());
+		if (showHospitalChanged && CcfExplorerView.getView() != null) {
+			CcfExplorerView.getView().refreshProjectMappings();
+		}
 		return super.performOk();
 	}
 	
@@ -171,6 +184,7 @@ public class CcfPreferencePage extends PreferencePage implements IWorkbenchPrefe
 		passwordText.setText(Activator.DATABASE_DEFAULT_PASSWORD);
 		autoConnectButton.setSelection(Activator.DEFAULT_AUTOCONNECT);
 		resetDelayText.setText(Integer.toString(Activator.DEFAULT_RESET_DELAY));
+		hospitalCountButton.setSelection(Activator.DEFAULT_SHOW_HOSPITAL_COUNT);
 		super.performDefaults();
 	}
 
@@ -186,6 +200,7 @@ public class CcfPreferencePage extends PreferencePage implements IWorkbenchPrefe
 		passwordText.setText(store.getString(Activator.PREFERENCES_DATABASE_PASSWORD));
 		autoConnectButton.setSelection(store.getBoolean(Activator.PREFERENCES_AUTOCONNECT));
 		resetDelayText.setText(Integer.toString(store.getInt(Activator.PREFERENCES_RESET_DELAY)));
+		hospitalCountButton.setSelection(store.getBoolean(Activator.PREFERENCES_SHOW_HOSPITAL_COUNT));
 	}
 
 }

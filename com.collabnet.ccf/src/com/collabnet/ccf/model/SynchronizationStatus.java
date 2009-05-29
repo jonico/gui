@@ -33,7 +33,8 @@ public class SynchronizationStatus implements IPropertySource, Comparable {
 	private ProjectMappings projectMappings;
 	private File xslFile;
 	private File sampleXslFile;
-	
+	private int hospitalEntries;
+
 	public static final String CONFLICT_RESOLUTION_ALWAYS_IGNORE = "alwaysIgnore"; //$NON-NLS-1$
 	public static final String CONFLICT_RESOLUTION_ALWAYS_OVERRIDE = "alwaysOverride"; //$NON-NLS-1$
 	public static final String CONFLICT_RESOLUTION_QUARANTINE_ARTIFACT = "quarantineArtifact"; //$NON-NLS-1$
@@ -197,6 +198,26 @@ public class SynchronizationStatus implements IPropertySource, Comparable {
 		this.targetSystemEncoding = targetSystemEncoding;
 	}
 	
+	public int getHospitalEntries() {
+		return hospitalEntries;
+	}
+	
+	public void setHospitalEntries(int hospitalEntries) {
+		this.hospitalEntries = hospitalEntries;
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof SynchronizationStatus) {
+			SynchronizationStatus compareTo = (SynchronizationStatus)obj;
+			return sourceSystemId.equals(compareTo.getSourceSystemId()) &&
+					sourceRepositoryId.equals(compareTo.getSourceRepositoryId()) &&
+					targetSystemId.equals(compareTo.getTargetSystemId()) &&
+					targetRepositoryId.equals(compareTo.getTargetRepositoryId());
+		}
+		return super.equals(obj);
+	}
+	
 	public String getXslFileName() {
 		return (sourceSystemId + "+" +
 		sourceRepositoryId + "+" +
@@ -261,7 +282,8 @@ public class SynchronizationStatus implements IPropertySource, Comparable {
 	}
 	
 	public String toString() {
-		return sourceRepositoryId + " => " + targetRepositoryId;
+		if (hospitalEntries > 0) return sourceRepositoryId + " => " + targetRepositoryId + " (Hospital entries: " + hospitalEntries + ")";
+		else return sourceRepositoryId + " => " + targetRepositoryId;
 	}
 	
 	public static String getConflictResolutionDescription(String code) {
