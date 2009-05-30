@@ -333,7 +333,7 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 						Font defaultFont = JFaceResources.getDefaultFont();
 				        FontData[] data = defaultFont.getFontData();
 				        for (int i = 0; i < data.length; i++) {
-				          data[i].setStyle(SWT.ITALIC);
+				          data[i].setStyle(SWT.ITALIC | SWT.BOLD);
 				        }
 				        italicFont = new Font(treeViewer.getControl().getDisplay(), data);
 					}
