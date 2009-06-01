@@ -1,6 +1,8 @@
 package com.collabnet.ccf.views;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
@@ -48,6 +50,7 @@ import com.collabnet.ccf.actions.EditLogAction;
 import com.collabnet.ccf.actions.JmxBrowserAction;
 import com.collabnet.ccf.actions.NewLandscapeAction;
 import com.collabnet.ccf.db.CcfDataProvider;
+import com.collabnet.ccf.dialogs.ProjectMappingFilterDialog;
 import com.collabnet.ccf.model.Landscape;
 import com.collabnet.ccf.model.Log;
 import com.collabnet.ccf.model.Logs;
@@ -245,6 +248,7 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 	private void createToolbar() {
 		IToolBarManager toolbarManager = getViewSite().getActionBars().getToolBarManager();		
 		toolbarManager.add(new RefreshAction());
+		toolbarManager.add(new FilterAction());
 		toolbarManager.add(new Separator());
 		toolbarManager.add(new NewLandscapeAction("New CCF Landscape..."));
 	}
@@ -375,9 +379,8 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 				BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
 					public void run() {
 						try {
-							synchronizationStatuses = getDataProvider().getSynchronizationStatuses(projectMappings.getLandscape(), projectMappings);
+							synchronizationStatuses = getFilteredSynchronizationStatuses(getDataProvider().getSynchronizationStatuses(projectMappings.getLandscape(), projectMappings));
 						} catch (Exception e) {
-//							synchronizationStatuses = new SynchronizationStatus[0];
 							synchronizationStatuses = new Object[1];
 							synchronizationStatuses[0] = e;
 							Activator.handleError(e);
@@ -399,6 +402,52 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 				}
 			}
 			return new Object[0];
+		}
+		
+		private SynchronizationStatus[] getFilteredSynchronizationStatuses(SynchronizationStatus[] statuses) {
+			setContentDescription("");
+			if (!settings.getBoolean("ProjectMappingFilter.filtersSet") || !settings.getBoolean("ProjectMappingFilter.filtersActive")) return statuses;
+			boolean hospitalEntriesOnly = false;
+			try {
+				hospitalEntriesOnly = settings.getBoolean("ProjectMappingFilter.hospitalOnly");
+			} catch (Exception e) {}
+			String sourceRepository = settings.get("ProjectMappingFilter.sourceRepository");
+			String sourceRepositoryCompare = settings.get("ProjectMappingFilter.sourceRepositoryCompare");
+			String targetRepository = settings.get("ProjectMappingFilter.targetRepository");
+			String targetRepositoryCompare = settings.get("ProjectMappingFilter.targetRepositoryCompare");		
+			if (!hospitalEntriesOnly && isEmpty(sourceRepository) && isEmpty(targetRepository)) return statuses;
+
+			setContentDescription("(Filters Active)");
+			List<SynchronizationStatus> filteredStatuses = new ArrayList<SynchronizationStatus>();			
+			boolean showHospitalCount = Activator.getDefault().getPreferenceStore().getBoolean(Activator.PREFERENCES_SHOW_HOSPITAL_COUNT);
+			for (SynchronizationStatus status : statuses) {
+				if (showHospitalCount && hospitalEntriesOnly) {
+					if (status.getHospitalEntries() == 0) continue;
+				}
+				if (!isEmpty(sourceRepository)) {
+					if (sourceRepositoryCompare.equals("contains")) {
+						if (status.getSourceRepositoryId().indexOf(sourceRepository) == -1) continue;
+					} else {
+						if (!status.getSourceRepositoryId().equals(sourceRepository)) continue;
+					}
+				}
+				if (!isEmpty(targetRepository)) {
+					if (targetRepositoryCompare.equals("contains")) {
+						if (status.getTargetRepositoryId().indexOf(targetRepository) == -1) continue;
+					} else {
+						if (!status.getTargetRepositoryId().equals(targetRepository)) continue;
+					}
+				}				
+				filteredStatuses.add(status);
+			}
+			
+			SynchronizationStatus[] filteredStatusArray = new SynchronizationStatus[filteredStatuses.size()];
+			filteredStatuses.toArray(filteredStatusArray);
+			return filteredStatusArray;
+		}
+		
+		private boolean isEmpty(String string) {
+			return string == null || string.trim().length() == 0;
 		}
 	}
 	
@@ -483,6 +532,18 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 			refreshProjectMappings();
 		}
 		
+	}
+	
+	class FilterAction extends Action {
+		public FilterAction() {
+			super();
+			setImageDescriptor(Activator.getDefault().getImageDescriptor(Activator.IMAGE_FILTERS));
+			setToolTipText("Filters...");
+		}
+		public void run() {
+			ProjectMappingFilterDialog dialog = new ProjectMappingFilterDialog(Display.getDefault().getActiveShell());
+			dialog.open();
+		}
 	}
 
 }
