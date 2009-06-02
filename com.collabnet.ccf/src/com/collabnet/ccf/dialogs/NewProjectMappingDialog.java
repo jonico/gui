@@ -1,5 +1,7 @@
 package com.collabnet.ccf.dialogs;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -379,6 +381,7 @@ public class NewProjectMappingDialog extends CcfDialog {
 				status.setTargetSystemEncoding(projectMappings.getLandscape().getEncoding2());
 			}
 			createMapping(status);
+			createFieldMappingFile(status);
 			if (addError) return;
 		}
 		if (system2ToSystem1Button.getSelection() || bothButton.getSelection()) {
@@ -406,6 +409,7 @@ public class NewProjectMappingDialog extends CcfDialog {
 				status.setTargetSystemEncoding(projectMappings.getLandscape().getEncoding1());
 			}
 			createMapping(status);
+			createFieldMappingFile(status);
 		}
 		if (addError) return;
 		saveDomainSelection();
@@ -466,6 +470,25 @@ public class NewProjectMappingDialog extends CcfDialog {
 				}
 			}			
 		});
+	}
+	
+	private void createFieldMappingFile(final SynchronizationStatus status) {
+		status.setLandscape(projectMappings.getLandscape());
+		status.clearXslInfo();
+		File xslFile = status.getXslFile();
+		if (!xslFile.exists()) {
+			try {
+				xslFile.createNewFile();
+				File sampleFile = status.getSampleXslFile();
+				if (sampleFile != null && sampleFile.exists()) {
+					CcfDataProvider.copyFile(sampleFile, xslFile);
+				}
+			} catch (IOException e) {
+				MessageDialog.openError(Display.getDefault().getActiveShell(), "New Project Mapping", "Unable to create field mapping file " + xslFile.getName() + ":\n\n" + e.getMessage());
+				Activator.handleError(e);
+				return;
+			}
+		}
 	}
 	
 	private void setComboEnablement() {

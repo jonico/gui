@@ -259,6 +259,11 @@ public class SynchronizationStatus implements IPropertySource, Comparable {
 		return xslFile;
 	}
 	
+	public void clearXslInfo() {
+		sampleXslFile = null;
+		xslFile = null;
+	}
+	
 	public Landscape getLandscape() {
 		return landscape;
 	}

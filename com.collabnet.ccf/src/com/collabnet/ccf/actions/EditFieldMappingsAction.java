@@ -1,8 +1,6 @@
 package com.collabnet.ccf.actions;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Iterator;
 
@@ -22,6 +20,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.actions.ActionDelegate;
 
 import com.collabnet.ccf.Activator;
+import com.collabnet.ccf.db.CcfDataProvider;
 import com.collabnet.ccf.editors.ExternalFileEditorInput;
 import com.collabnet.ccf.model.SynchronizationStatus;
 
@@ -44,7 +43,7 @@ public class EditFieldMappingsAction extends ActionDelegate {
 						xslFile.createNewFile();
 						File sampleFile = status.getSampleXslFile();
 						if (sampleFile != null && sampleFile.exists()) {
-							copyFile(sampleFile, xslFile);
+							CcfDataProvider.copyFile(sampleFile, xslFile);
 						}
 					} catch (IOException e) {
 						MessageDialog.openError(Display.getDefault().getActiveShell(), "Edit Field Mappings", "Unable to create file " + xslFile.getName() + ":\n\n" + e.getMessage());
@@ -74,23 +73,6 @@ public class EditFieldMappingsAction extends ActionDelegate {
 		}	
 	}
 	
-	private void copyFile(File fromFile, File toFile) throws IOException {
-		FileInputStream from = null;
-		FileOutputStream to = null;
-		try {
-			from = new FileInputStream(fromFile);
-			to = new FileOutputStream(toFile);
-			byte[] buffer = new byte[4096];
-			int bytes_read;
-			while ((bytes_read = from.read(buffer)) != -1)
-				to.write(buffer, 0, bytes_read);
-		}
-		finally {
-			if (from != null) try { from.close(); } catch (IOException e) {}
-			if (to != null) try { to.close(); } catch (IOException e) {}
-		}
-	}
-
 	public void selectionChanged(IAction action, ISelection sel) {
 		if (sel instanceof IStructuredSelection) {
 			fSelection= (IStructuredSelection) sel;
