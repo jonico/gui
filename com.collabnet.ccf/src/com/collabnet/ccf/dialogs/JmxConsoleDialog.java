@@ -16,7 +16,10 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.CCFJMXMonitorBean;
+import com.collabnet.ccf.db.CcfDataProvider;
+import com.collabnet.ccf.db.Filter;
 import com.collabnet.ccf.model.Landscape;
 
 public class JmxConsoleDialog extends CcfDialog {
@@ -28,12 +31,14 @@ public class JmxConsoleDialog extends CcfDialog {
 	private Button aliveButton1;
 	private Text uptimeText1;
 	private Text memoryConsumptionText1;
+	private Text hospitalCountText1;
 	private Button restartButton1;
 	private Button refreshButton1;
 	
 	private Button aliveButton2;
 	private Text uptimeText2;
 	private Text memoryConsumptionText2;
+	private Text hospitalCountText2;
 	private Button restartButton2;
 	private Button refreshButton2;
 	
@@ -42,6 +47,8 @@ public class JmxConsoleDialog extends CcfDialog {
 	
 	private int port1;
 	private int port2;
+	
+	private CcfDataProvider dataProvider;
 
 	public JmxConsoleDialog(Shell shell, Landscape landscape) {
 		super(shell, "JmxConsoleDialog");
@@ -105,6 +112,12 @@ public class JmxConsoleDialog extends CcfDialog {
 		data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
 		memoryConsumptionText1.setLayoutData(data);
 		
+		Label hospitalCountLabel1 = new Label(group1, SWT.NONE);
+		hospitalCountLabel1.setText("Hospital entries:");
+		hospitalCountText1 = new Text(group1, SWT.BORDER | SWT.READ_ONLY);
+		data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
+		hospitalCountText1.setLayoutData(data);
+		
 		Composite refreshGroup1 = new Composite(group1, SWT.NULL);
 		GridLayout refresh1Layout = new GridLayout();
 		refresh1Layout.numColumns = 2;
@@ -154,6 +167,12 @@ public class JmxConsoleDialog extends CcfDialog {
 		memoryConsumptionText2 = new Text(group2, SWT.BORDER | SWT.READ_ONLY);
 		data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
 		memoryConsumptionText2.setLayoutData(data);
+		
+		Label hospitalCountLabel2 = new Label(group2, SWT.NONE);
+		hospitalCountLabel2.setText("Hospital entries:");
+		hospitalCountText2 = new Text(group2, SWT.BORDER | SWT.READ_ONLY);
+		data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
+		hospitalCountText2.setLayoutData(data);
 		
 		Composite refreshGroup2 = new Composite(group2, SWT.NULL);
 		GridLayout refresh2Layout = new GridLayout();
@@ -230,6 +249,10 @@ public class JmxConsoleDialog extends CcfDialog {
 		if (memoryConsumption == null) memoryConsumptionText1.setText("");
 		else memoryConsumptionText1.setText(memoryConsumption);
 		restartButton1.setEnabled(running1);
+		
+		int hospitalEntries = getHospitalCount(landscape.getType1());
+		if (hospitalEntries == 0) hospitalCountText1.setText("");
+		else hospitalCountText1.setText(Integer.toString(hospitalEntries));
 	}
 	
 	private void getMonitor2Info() {
@@ -241,6 +264,10 @@ public class JmxConsoleDialog extends CcfDialog {
 		if (memoryConsumption == null) memoryConsumptionText2.setText("");
 		else memoryConsumptionText2.setText(memoryConsumption);		
 		restartButton2.setEnabled(running2);
+		
+		int hospitalEntries = getHospitalCount(landscape.getType2());
+		if (hospitalEntries == 0) hospitalCountText2.setText("");
+		else hospitalCountText2.setText(Integer.toString(hospitalEntries));
 	}
 	
 	private void restart(CCFJMXMonitorBean monitor) {
@@ -270,6 +297,33 @@ public class JmxConsoleDialog extends CcfDialog {
 			return hours + ":" + minutes + ":" + seconds;
 		}
 		return "";
+	}
+	
+	private int getHospitalCount(String target) {
+		String targetType = null;
+		if (target.equals(Landscape.TYPE_QC)) {
+			targetType = landscape.getType1();
+		} else {
+			targetType = landscape.getType2();
+		}
+		Filter targetTypeFilter = new Filter(CcfDataProvider.HOSPITAL_TARGET_SYSTEM_KIND, targetType, true, Filter.FILTER_TYPE_LIKE);
+		Filter fixedFilter = new Filter(CcfDataProvider.HOSPITAL_FIXED, "false", false, Filter.FILTER_TYPE_EQUAL);
+		Filter[] filters = { targetTypeFilter, fixedFilter };
+		Filter[][] filterGroups = { filters };
+		int hospitalCount= 0;
+		try {
+			hospitalCount = getDataProvider().getPatients(landscape, filterGroups).length;
+		} catch (Exception e) {
+			Activator.handleError(e);
+		}
+		return hospitalCount;
+	}
+	
+	private CcfDataProvider getDataProvider() {
+		if (dataProvider == null) {
+			dataProvider = new CcfDataProvider();
+		}
+		return dataProvider;
 	}
 
 }
