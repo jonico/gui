@@ -28,11 +28,13 @@ public class JmxConsoleDialog extends CcfDialog {
 	private Button aliveButton1;
 	private Text uptimeText1;
 	private Text memoryConsumptionText1;
+	private Button restartButton1;
 	private Button refreshButton1;
 	
 	private Button aliveButton2;
 	private Text uptimeText2;
 	private Text memoryConsumptionText2;
+	private Button restartButton2;
 	private Button refreshButton2;
 	
 	private boolean running1;
@@ -105,11 +107,16 @@ public class JmxConsoleDialog extends CcfDialog {
 		
 		Composite refreshGroup1 = new Composite(group1, SWT.NULL);
 		GridLayout refresh1Layout = new GridLayout();
-		refresh1Layout.numColumns = 1;
+		refresh1Layout.numColumns = 2;
 		refreshGroup1.setLayout(refresh1Layout);
 		data = new GridData(GridData.HORIZONTAL_ALIGN_CENTER);
 		data.horizontalSpan = 2;
 		refreshGroup1.setLayoutData(data);
+		
+		restartButton1 = new Button(refreshGroup1, SWT.PUSH);
+		restartButton1.setText("Restart");
+		data = new GridData(GridData.HORIZONTAL_ALIGN_CENTER);
+		restartButton1.setLayoutData(data);
 		
 		refreshButton1 = new Button(refreshGroup1, SWT.PUSH);
 		refreshButton1.setText("Refresh");
@@ -150,11 +157,16 @@ public class JmxConsoleDialog extends CcfDialog {
 		
 		Composite refreshGroup2 = new Composite(group2, SWT.NULL);
 		GridLayout refresh2Layout = new GridLayout();
-		refresh2Layout.numColumns = 1;
+		refresh2Layout.numColumns = 2;
 		refreshGroup2.setLayout(refresh2Layout);
 		data = new GridData(GridData.HORIZONTAL_ALIGN_CENTER);
 		data.horizontalSpan = 2;
 		refreshGroup2.setLayoutData(data);
+		
+		restartButton2 = new Button(refreshGroup2, SWT.PUSH);
+		restartButton2.setText("Restart");
+		data = new GridData(GridData.HORIZONTAL_ALIGN_CENTER);
+		restartButton2.setLayoutData(data);
 		
 		refreshButton2 = new Button(refreshGroup2, SWT.PUSH);
 		refreshButton2.setText("Refresh");
@@ -189,7 +201,13 @@ public class JmxConsoleDialog extends CcfDialog {
 							getMonitor2Info();
 						}			
 					});					
-				}				
+				}	
+				if (se.getSource() == restartButton1) {
+					restart(monitor1);
+				}
+				if (se.getSource() == restartButton2) {
+					restart(monitor2);
+				}
 			}			
 		};
 		
@@ -197,6 +215,8 @@ public class JmxConsoleDialog extends CcfDialog {
 		aliveButton2.addSelectionListener(selectionListener);
 		refreshButton1.addSelectionListener(selectionListener);
 		refreshButton2.addSelectionListener(selectionListener);
+		restartButton1.addSelectionListener(selectionListener);
+		restartButton2.addSelectionListener(selectionListener);
 		
 		return composite;
 	}
@@ -209,6 +229,7 @@ public class JmxConsoleDialog extends CcfDialog {
 		String memoryConsumption = monitor1.getCCFMemoryConsumption();
 		if (memoryConsumption == null) memoryConsumptionText1.setText("");
 		else memoryConsumptionText1.setText(memoryConsumption);
+		restartButton1.setEnabled(running1);
 	}
 	
 	private void getMonitor2Info() {
@@ -219,6 +240,13 @@ public class JmxConsoleDialog extends CcfDialog {
 		String memoryConsumption = monitor2.getCCFMemoryConsumption();
 		if (memoryConsumption == null) memoryConsumptionText2.setText("");
 		else memoryConsumptionText2.setText(memoryConsumption);		
+		restartButton2.setEnabled(running2);
+	}
+	
+	private void restart(CCFJMXMonitorBean monitor) {
+		monitor.restartCCFInstance();
+		if (monitor == monitor1) getMonitor1Info();
+		if (monitor == monitor2) getMonitor2Info();
 	}
 	
 	private String getTime(Long milliseconds) {
