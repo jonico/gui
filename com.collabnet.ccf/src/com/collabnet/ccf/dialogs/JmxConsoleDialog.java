@@ -57,11 +57,11 @@ public class JmxConsoleDialog extends CcfDialog {
 		}
 		
 		monitor1 = new CCFJMXMonitorBean();
-		monitor1.setHostName(landscape.getCcfHost1());
+		monitor1.setHostName(landscape.getHostName1());
 		monitor1.setRmiPort(port1);
 		
 		monitor2 = new CCFJMXMonitorBean();
-		monitor2.setHostName(landscape.getCcfHost2());
+		monitor2.setHostName(landscape.getHostName2());
 		monitor2.setRmiPort(port2);
 		
 		getShell().setText("JMX Console");
