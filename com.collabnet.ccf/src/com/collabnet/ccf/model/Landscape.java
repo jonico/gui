@@ -155,6 +155,24 @@ public class Landscape implements IPropertySource {
 		return password;
 	}
 	
+	public String getHostName1() {
+		String hostName = getCcfHost1();
+		int index = hostName.indexOf("//");
+		if (index != -1) {
+			hostName = hostName.substring(index + 2);
+		}
+		return hostName;
+	}
+	
+	public String getHostName2() {
+		String hostName = getCcfHost2();
+		int index = hostName.indexOf("//");
+		if (index != -1) {
+			hostName = hostName.substring(index + 2);
+		}
+		return hostName;
+	}
+	
 	public String getCcfHost1() {
 		String hostName = null;
 		ccfProperties1 = getCcfProperties1();

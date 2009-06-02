@@ -48,6 +48,7 @@ import com.collabnet.ccf.actions.ChangeSynchronizationStatusAction;
 import com.collabnet.ccf.actions.EditLandscapeAction;
 import com.collabnet.ccf.actions.EditLogAction;
 import com.collabnet.ccf.actions.JmxBrowserAction;
+import com.collabnet.ccf.actions.JmxConsoleAction;
 import com.collabnet.ccf.actions.NewLandscapeAction;
 import com.collabnet.ccf.db.CcfDataProvider;
 import com.collabnet.ccf.dialogs.ProjectMappingFilterDialog;
@@ -219,6 +220,8 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 		
 		IStructuredSelection selection = (IStructuredSelection)treeViewer.getSelection();
 		if (selection.size() == 1 && selection.getFirstElement() instanceof Landscape) {
+			
+			manager.add(new JmxConsoleAction((Landscape)selection.getFirstElement()));
 			
 			MenuManager jmxMenu = new MenuManager("Open JMX console in browser", IWorkbenchActionConstants.GROUP_ADD); //$NON-NLS-1$
 			JmxBrowserAction jmxToQcAction = new JmxBrowserAction((Landscape)selection.getFirstElement(), JmxBrowserAction.TO_QC);
