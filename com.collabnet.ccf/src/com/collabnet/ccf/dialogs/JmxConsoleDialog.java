@@ -30,14 +30,24 @@ public class JmxConsoleDialog extends CcfDialog {
 	
 	private Button aliveButton1;
 	private Text uptimeText1;
+	private Text extractionTimeText1;
+	private Text updateTimeText1;
 	private Text memoryConsumptionText1;
+	private Text artifactsShippedText1;
+	private Text exceptionsCaughtText1;
+	private Text artifactsQuarantinedText1;
 	private Text hospitalCountText1;
 	private Button restartButton1;
 	private Button refreshButton1;
 	
 	private Button aliveButton2;
 	private Text uptimeText2;
+	private Text extractionTimeText2;
+	private Text updateTimeText2;
 	private Text memoryConsumptionText2;
+	private Text artifactsShippedText2;
+	private Text exceptionsCaughtText2;
+	private Text artifactsQuarantinedText2;
 	private Text hospitalCountText2;
 	private Button restartButton2;
 	private Button refreshButton2;
@@ -106,11 +116,41 @@ public class JmxConsoleDialog extends CcfDialog {
 		data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
 		uptimeText1.setLayoutData(data);
 		
+		Label extractionTimeLabel1 = new Label(group1, SWT.NONE);
+		extractionTimeLabel1.setText("Artifact extraction time:");
+		extractionTimeText1 = new Text(group1, SWT.BORDER | SWT.READ_ONLY);
+		data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
+		extractionTimeText1.setLayoutData(data);
+		
+		Label updateTimeLabel1 = new Label(group1, SWT.NONE);
+		updateTimeLabel1.setText("Artifact update time:");
+		updateTimeText1 = new Text(group1, SWT.BORDER | SWT.READ_ONLY);
+		data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
+		updateTimeText1.setLayoutData(data);
+		
 		Label memoryConsumptionLabel1 = new Label(group1, SWT.NONE);
 		memoryConsumptionLabel1.setText("Memory consumption:");
 		memoryConsumptionText1 = new Text(group1, SWT.BORDER | SWT.READ_ONLY);
 		data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
 		memoryConsumptionText1.setLayoutData(data);
+		
+		Label artifactsShippedLabel1 = new Label(group1, SWT.NONE);
+		artifactsShippedLabel1.setText("Artifacts shipped:");
+		artifactsShippedText1 = new Text(group1, SWT.BORDER | SWT.READ_ONLY);
+		data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
+		artifactsShippedText1.setLayoutData(data);
+		
+		Label exceptionsCaughtLabel1 = new Label(group1, SWT.NONE);
+		exceptionsCaughtLabel1.setText("Exceptions caught:");
+		exceptionsCaughtText1 = new Text(group1, SWT.BORDER | SWT.READ_ONLY);
+		data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
+		exceptionsCaughtText1.setLayoutData(data);
+		
+		Label artifactsQuarantinedLabel1 = new Label(group1, SWT.NONE);
+		artifactsQuarantinedLabel1.setText("Artifacts quarantined:");
+		artifactsQuarantinedText1 = new Text(group1, SWT.BORDER | SWT.READ_ONLY);
+		data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
+		artifactsQuarantinedText1.setLayoutData(data);
 		
 		Label hospitalCountLabel1 = new Label(group1, SWT.NONE);
 		hospitalCountLabel1.setText("Hospital entries:");
@@ -162,11 +202,41 @@ public class JmxConsoleDialog extends CcfDialog {
 		data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
 		uptimeText2.setLayoutData(data);
 		
+		Label extractionTimeLabel2 = new Label(group2, SWT.NONE);
+		extractionTimeLabel2.setText("Artifact extraction time:");
+		extractionTimeText2 = new Text(group2, SWT.BORDER | SWT.READ_ONLY);
+		data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
+		extractionTimeText2.setLayoutData(data);
+		
+		Label updateTimeLabel2 = new Label(group2, SWT.NONE);
+		updateTimeLabel2.setText("Artifact update time:");
+		updateTimeText2 = new Text(group2, SWT.BORDER | SWT.READ_ONLY);
+		data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
+		updateTimeText2.setLayoutData(data);
+		
 		Label memoryConsumptionLabel2 = new Label(group2, SWT.NONE);
 		memoryConsumptionLabel2.setText("Memory consumption:");
 		memoryConsumptionText2 = new Text(group2, SWT.BORDER | SWT.READ_ONLY);
 		data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
 		memoryConsumptionText2.setLayoutData(data);
+		
+		Label artifactsShippedLabel2 = new Label(group2, SWT.NONE);
+		artifactsShippedLabel2.setText("Artifacts shipped:");
+		artifactsShippedText2 = new Text(group2, SWT.BORDER | SWT.READ_ONLY);
+		data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
+		artifactsShippedText2.setLayoutData(data);
+		
+		Label exceptionsCaughtLabel2 = new Label(group2, SWT.NONE);
+		exceptionsCaughtLabel2.setText("Exceptions caught:");
+		exceptionsCaughtText2 = new Text(group2, SWT.BORDER | SWT.READ_ONLY);
+		data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
+		exceptionsCaughtText2.setLayoutData(data);
+		
+		Label artifactsQuarantinedLabel2 = new Label(group2, SWT.NONE);
+		artifactsQuarantinedLabel2.setText("Artifacts quarantined:");
+		artifactsQuarantinedText2 = new Text(group2, SWT.BORDER | SWT.READ_ONLY);
+		data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
+		artifactsQuarantinedText2.setLayoutData(data);
 		
 		Label hospitalCountLabel2 = new Label(group2, SWT.NONE);
 		hospitalCountLabel2.setText("Hospital entries:");
@@ -245,10 +315,35 @@ public class JmxConsoleDialog extends CcfDialog {
 		aliveButton1.setSelection(running1);
 		Long uptime = monitor1.getCCFUptime();
 		uptimeText1.setText(getTime(uptime));
+		String readerMetricsName = null;
+		String writerMetricsName = null;
+		String extractionTime = null;
+		String updateTime = null;
+		if (landscape.getType2().equals(Landscape.TYPE_QC)) readerMetricsName = CCFJMXMonitorBean.QCREADER_METRICS;
+		else if (landscape.getType2().equals(Landscape.TYPE_TF)) readerMetricsName = CCFJMXMonitorBean.TFREADER_METRICS;
+		else if (landscape.getType2().equals(Landscape.TYPE_PT)) readerMetricsName = CCFJMXMonitorBean.PTREADER_METRICS;
+		if (landscape.getType1().equals(Landscape.TYPE_QC)) writerMetricsName = CCFJMXMonitorBean.QCWRITER_METRICS;
+		else if (landscape.getType1().equals(Landscape.TYPE_TF)) writerMetricsName = CCFJMXMonitorBean.TFWRITER_METRICS;
+		else if (landscape.getType1().equals(Landscape.TYPE_PT)) writerMetricsName = CCFJMXMonitorBean.PTWRITER_METRICS;		
+		extractionTime = monitor1.getArtifactExtractionProcessingTime(readerMetricsName);
+		updateTime = monitor1.getArtifactUpdateProcessingTime(writerMetricsName);
+		if (extractionTime == null) extractionTimeText1.setText("");
+		else extractionTimeText1.setText(extractionTime);
+		if (updateTime == null) updateTimeText1.setText("");
+		else updateTimeText1.setText(updateTime);
 		String memoryConsumption = monitor1.getCCFMemoryConsumption();
 		if (memoryConsumption == null) memoryConsumptionText1.setText("");
 		else memoryConsumptionText1.setText(memoryConsumption);
 		restartButton1.setEnabled(running1);
+		String artifactsShipped = monitor1.getNumberOfArtifactsShipped(readerMetricsName);
+		if (artifactsShipped == null) artifactsShippedText1.setText("");
+		else artifactsQuarantinedText1.setText(artifactsShipped);
+		String exceptionsCaught = monitor1.getNumberOfCCFExceptionsCaught();
+		if (exceptionsCaught == null) exceptionsCaughtText1.setText("");
+		else exceptionsCaughtText1.setText(exceptionsCaught);
+		String artifactsQuarantined = monitor1.getNumberOfArtifactsQuarantined();
+		if (artifactsQuarantined == null) artifactsQuarantinedText1.setText("");
+		else artifactsQuarantinedText1.setText(artifactsQuarantined);
 		
 		int hospitalEntries = getHospitalCount(landscape.getType1());
 		if (hospitalEntries == 0) hospitalCountText1.setText("");
@@ -257,13 +352,38 @@ public class JmxConsoleDialog extends CcfDialog {
 	
 	private void getMonitor2Info() {
 		running2 = monitor2.isAlive();
-		aliveButton2.setSelection(running2);
+		aliveButton2.setSelection(running1);
 		Long uptime = monitor2.getCCFUptime();
 		uptimeText2.setText(getTime(uptime));
+		String readerMetricsName = null;
+		String writerMetricsName = null;
+		String extractionTime = null;
+		String updateTime = null;
+		if (landscape.getType1().equals(Landscape.TYPE_QC)) readerMetricsName = CCFJMXMonitorBean.QCREADER_METRICS;
+		else if (landscape.getType1().equals(Landscape.TYPE_TF)) readerMetricsName = CCFJMXMonitorBean.TFREADER_METRICS;
+		else if (landscape.getType1().equals(Landscape.TYPE_PT)) readerMetricsName = CCFJMXMonitorBean.PTREADER_METRICS;
+		if (landscape.getType2().equals(Landscape.TYPE_QC)) writerMetricsName = CCFJMXMonitorBean.QCWRITER_METRICS;
+		else if (landscape.getType2().equals(Landscape.TYPE_TF)) writerMetricsName = CCFJMXMonitorBean.TFWRITER_METRICS;
+		else if (landscape.getType2().equals(Landscape.TYPE_PT)) writerMetricsName = CCFJMXMonitorBean.PTWRITER_METRICS;		
+		extractionTime = monitor2.getArtifactExtractionProcessingTime(readerMetricsName);
+		updateTime = monitor2.getArtifactUpdateProcessingTime(writerMetricsName);
+		if (extractionTime == null) extractionTimeText2.setText("");
+		else extractionTimeText2.setText(extractionTime);
+		if (updateTime == null) updateTimeText2.setText("");
+		else updateTimeText2.setText(updateTime);
 		String memoryConsumption = monitor2.getCCFMemoryConsumption();
 		if (memoryConsumption == null) memoryConsumptionText2.setText("");
-		else memoryConsumptionText2.setText(memoryConsumption);		
-		restartButton2.setEnabled(running2);
+		else memoryConsumptionText2.setText(memoryConsumption);
+		restartButton2.setEnabled(running1);
+		String artifactsShipped = monitor2.getNumberOfArtifactsShipped(readerMetricsName);
+		if (artifactsShipped == null) artifactsShippedText2.setText("");
+		else artifactsQuarantinedText2.setText(artifactsShipped);
+		String exceptionsCaught = monitor2.getNumberOfCCFExceptionsCaught();
+		if (exceptionsCaught == null) exceptionsCaughtText2.setText("");
+		else exceptionsCaughtText2.setText(exceptionsCaught);
+		String artifactsQuarantined = monitor2.getNumberOfArtifactsQuarantined();
+		if (artifactsQuarantined == null) artifactsQuarantinedText2.setText("");
+		else artifactsQuarantinedText2.setText(artifactsQuarantined);
 		
 		int hospitalEntries = getHospitalCount(landscape.getType2());
 		if (hospitalEntries == 0) hospitalCountText2.setText("");
