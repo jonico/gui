@@ -81,6 +81,7 @@ public class IdentityMappingConsistencyCheckView extends ViewPart implements IPr
 		layoutData.horizontalAlignment = GridData.FILL;
 		layoutData.verticalAlignment = GridData.FILL;
 		treeViewer.getControl().setLayoutData(layoutData);
+		if (landscape != null) getInconsistencies();
 		treeViewer.setInput(this);
 		treeViewer.setAutoExpandLevel(2);
 		
@@ -208,7 +209,7 @@ public class IdentityMappingConsistencyCheckView extends ViewPart implements IPr
 	}
 	
 	public void refresh() {
-		getInconsistencies();
+		getInconsistencies();	
 		treeViewer.refresh();
 		TreeItem[] items = treeViewer.getTree().getItems();
 		for (TreeItem item : items) {
