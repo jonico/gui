@@ -1,7 +1,23 @@
+/*
+ * Copyright 2009 CollabNet, Inc. ("CollabNet")
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **/
+
 package com.collabnet.ccf;
 
 import java.io.IOException;
-
 import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanException;
@@ -13,18 +29,33 @@ import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 
-
+/**
+ * This class gives us access to the JMX properties of a running CCF instance via RMI
+ * @author jnicolai
+ *
+ */
 public class CCFJMXMonitorBean {
-	private static final String UPTIME = "Uptime";
-	private static final String JAVA_LANG_TYPE_RUNTIME = "java.lang:type=Runtime";
-	private static final String EXIT = "exit";
-	private static final String MEMORY = "Memory";
-	private static final String OPENADAPTOR_ID_SYSTEM_UTIL = "openadaptor:id=SystemUtil";
+	public static final String PROCESS_TIME = "ProcessTime";
+	public static final String OUTPUT_MSGS = "OutputMsgs";
+	public static final String INPUT_MSGS = "InputMsgs";
+	public static final String OPENADAPTOR_ID_EXCEPTION_CONVERTOR_METRICS = "openadaptor:id=ExceptionConvertor-metrics";
+	public static final String UPTIME = "Uptime";
+	public static final String JAVA_LANG_TYPE_RUNTIME = "java.lang:type=Runtime";
+	public static final String EXIT = "exit";
+	public static final String MEMORY = "Memory";
+	public static final String OPENADAPTOR_ID_SYSTEM_UTIL = "openadaptor:id=SystemUtil";
+	public static final String TFREADER_METRICS = "openadaptor:id=TFReader-metrics";
+	public static final String TFWRITER_METRICS = "openadaptor:id=TFWriter-metrics";
+	public static final String QCREADER_METRICS = "openadaptor:id=QCReader-metrics";
+	public static final String QCWRITER_METRICS = "openadaptor:id=QCWriter-metrics";
+	public static final String PTREADER_METRICS = "openadaptor:id=PTReader-metrics";
+	public static final String PTWRITER_METRICS = "openadaptor:id=PTWriter-metrics";
+	
 	public static final String DEFAULT_HOSTNAME = "localhost";
 	public static final int QC2PT_PORT = 9999;
 	public static final int PT2QC_PORT = 10000;
 	public static final int TF2QC_PORT = 10001;
-	public static final int QC2TF_PORT = 10002;
+	public static final int QC2TF_PORT = 10002; 
 	
 	private String hostName=DEFAULT_HOSTNAME;
 	private int rmiPort=QC2TF_PORT;
@@ -170,6 +201,49 @@ public class CCFJMXMonitorBean {
 	 */
 	public String getCCFMemoryConsumption() {
 		return (String) getJMXAttribute(OPENADAPTOR_ID_SYSTEM_UTIL, MEMORY);
+	}
+	
+	/**
+	 * Returns number of exception received by the CCF Exception handler
+	 * @return number of exception received by the CCF Exception handler
+	 */
+	public String getNumberOfCCFExceptionsCaught() {
+		return (String) getJMXAttribute(OPENADAPTOR_ID_EXCEPTION_CONVERTOR_METRICS, INPUT_MSGS);
+	}
+	
+	/**
+	 * Returns number of artifacts quarantined by the CCF Exception handler
+	 * @return number of artifacts quarantined by the CCF Exception handler
+	 */
+	public String getNumberOfArtifactsQuarantined() {
+		return (String) getJMXAttribute(OPENADAPTOR_ID_EXCEPTION_CONVERTOR_METRICS, OUTPUT_MSGS);
+	}
+	
+	/**
+	 * Returns number of artifacts shipped
+	 * @param readerMetricsName name of JMX OA reader metrics name 
+	 * @return
+	 */
+	public String getNumberOfArtifactsShipped(String readerMetricsName) {
+		return (String) getJMXAttribute(readerMetricsName, OUTPUT_MSGS);
+	}
+	
+	/**
+	 * Returns stats about processing time needed to extract artifacts
+	 * @param readerMetricsName name of JMX OA reader metrics name 
+	 * @return
+	 */
+	public String getArtifactExtractionProcessingTime(String readerMetricsName) {
+		return (String) getJMXAttribute(readerMetricsName, PROCESS_TIME);
+	}
+	
+	/**
+	 * Returns stats about
+	 * @param writerMetricsName name of JMX OA reader metrics name 
+	 * @return
+	 */
+	public String getArtifactUpdateProcessingTime(String writerMetricsName) {
+		return (String) getJMXAttribute(writerMetricsName, PROCESS_TIME);
 	}
 	
 	/**
