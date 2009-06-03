@@ -1,5 +1,8 @@
 package com.collabnet.ccf.views;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
@@ -33,6 +36,7 @@ import com.collabnet.ccf.actions.IdentityMappingEditAction;
 import com.collabnet.ccf.db.CcfDataProvider;
 import com.collabnet.ccf.model.IdentityMapping;
 import com.collabnet.ccf.model.IdentityMappingConsistencyCheck;
+import com.collabnet.ccf.model.InconsistentIdentityMapping;
 import com.collabnet.ccf.model.Landscape;
 import com.collabnet.ccf.model.ProjectMappings;
 import com.collabnet.ccf.model.SynchronizationStatus;
@@ -42,6 +46,10 @@ public class IdentityMappingConsistencyCheckView extends ViewPart implements IPr
 	
 	private TreeViewer treeViewer;
 	private CcfDataProvider dataProvider;
+	
+	private SynchronizationStatus[] projectMappings;
+	private IdentityMappingConsistencyCheck[] consistencyChecks;
+	private IdentityMapping[] inconsistentIdentityMappings;
 	
 	private static IdentityMappingConsistencyCheckView view;
 	public static final String ID = "com.collabnet.ccf.views.IdentityMappingConsistencyCheckView";
@@ -134,6 +142,58 @@ public class IdentityMappingConsistencyCheckView extends ViewPart implements IPr
 		toolbarManager.add(new RefreshAction());
 		toolbarManager.add(new Separator());
 	}
+	
+	private void getInconsistencies() {
+		if (landscape == null) return;
+		BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
+			public void run() {
+				CcfDataProvider dataProvider = getDataProvider();
+				List<SynchronizationStatus> problemProjectMappings = new ArrayList<SynchronizationStatus>();
+				List<IdentityMappingConsistencyCheck> problemChecks = new ArrayList<IdentityMappingConsistencyCheck>();
+				List<IdentityMapping> problemIdentityMappings = new ArrayList<IdentityMapping>();
+				try {
+					SynchronizationStatus[] allMappings = dataProvider.getSynchronizationStatuses(landscape, null);
+					for (SynchronizationStatus status : allMappings) {
+						IdentityMappingConsistencyCheck multipleSourceCheck = new IdentityMappingConsistencyCheck(status, IdentityMappingConsistencyCheck.MULTIPLE_SOURCE_TO_ONE_TARGET);
+						IdentityMapping[] inconsistentMappings = dataProvider.getIdentityMappingConsistencyCheckViolations(multipleSourceCheck);
+						if (inconsistentMappings.length > 0) {
+							if (!problemProjectMappings.contains(status)) problemProjectMappings.add(status);
+							problemChecks.add(multipleSourceCheck);
+							for (IdentityMapping mapping : inconsistentMappings) {
+								problemIdentityMappings.add(mapping);
+							}
+						}
+						IdentityMappingConsistencyCheck multipleTargetCheck = new IdentityMappingConsistencyCheck(status, IdentityMappingConsistencyCheck.MULTIPLE_TARGET_TO_ONE_SOURCE);
+						inconsistentMappings = dataProvider.getIdentityMappingConsistencyCheckViolations(multipleTargetCheck);
+						if (inconsistentMappings.length > 0) {
+							if (!problemProjectMappings.contains(status)) problemProjectMappings.add(status);
+							problemChecks.add(multipleTargetCheck);
+							for (IdentityMapping mapping : inconsistentMappings) {
+								problemIdentityMappings.add(mapping);
+							}
+						}
+						IdentityMappingConsistencyCheck oneWayCheck = new IdentityMappingConsistencyCheck(status, IdentityMappingConsistencyCheck.ONE_WAY);					
+						inconsistentMappings = dataProvider.getIdentityMappingConsistencyCheckViolations(oneWayCheck);
+						if (inconsistentMappings.length > 0) {
+							if (!problemProjectMappings.contains(status)) problemProjectMappings.add(status);
+							problemChecks.add(oneWayCheck);
+							for (IdentityMapping mapping : inconsistentMappings) {
+								problemIdentityMappings.add(mapping);
+							}
+						}						
+					}
+					projectMappings = new SynchronizationStatus[problemProjectMappings.size()];
+					problemProjectMappings.toArray(projectMappings);
+					consistencyChecks = new IdentityMappingConsistencyCheck[problemChecks.size()];
+					problemChecks.toArray(consistencyChecks);
+					inconsistentIdentityMappings = new IdentityMapping[problemIdentityMappings.size()];
+					problemIdentityMappings.toArray(inconsistentIdentityMappings);
+				} catch (Exception e) {
+					Activator.handleError(e);
+				}
+			}			
+		});
+	}
 
 	@Override
 	public void setFocus() {
@@ -148,6 +208,7 @@ public class IdentityMappingConsistencyCheckView extends ViewPart implements IPr
 	}
 	
 	public void refresh() {
+		getInconsistencies();
 		treeViewer.refresh();
 		TreeItem[] items = treeViewer.getTree().getItems();
 		for (TreeItem item : items) {
@@ -170,6 +231,7 @@ public class IdentityMappingConsistencyCheckView extends ViewPart implements IPr
 	}
 	
 	public void refresh(Object object) {
+		getInconsistencies();
 		Object[] expandedElements = treeViewer.getExpandedElements();
 		for (Object obj : expandedElements) {
 			if (obj.equals(object)) {
@@ -224,9 +286,6 @@ public class IdentityMappingConsistencyCheckView extends ViewPart implements IPr
 	}	
 	
 	class ConsistencyContentProvider implements ITreeContentProvider {
-		private Object[] synchronizationStatuses;
-		private Object[] inconsistentIdentityMappings;
-
 		public Object getParent(Object element) {
 			if (element instanceof SynchronizationStatus) {
 				return this;
@@ -248,41 +307,29 @@ public class IdentityMappingConsistencyCheckView extends ViewPart implements IPr
 		
 		public Object[] getChildren(Object parentElement) {
 			if (parentElement instanceof IdentityMappingConsistencyCheckView && landscape != null) {
-				BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
-					public void run() {
-						try {
-							synchronizationStatuses = getDataProvider().getSynchronizationStatuses(landscape, null);
-						} catch (Exception e) {
-							synchronizationStatuses = new Object[1];
-							synchronizationStatuses[0] = e;
-							Activator.handleError(e);
-						}
-					}					
-				});
-				return synchronizationStatuses;
+				return projectMappings;
 			}
 			else if (parentElement instanceof SynchronizationStatus) {
-				SynchronizationStatus synchronizationStatus = (SynchronizationStatus)parentElement;
-				IdentityMappingConsistencyCheck multipleSourceCheck = new IdentityMappingConsistencyCheck(synchronizationStatus, IdentityMappingConsistencyCheck.MULTIPLE_SOURCE_TO_ONE_TARGET);
-				IdentityMappingConsistencyCheck multipleTargetCheck = new IdentityMappingConsistencyCheck(synchronizationStatus, IdentityMappingConsistencyCheck.MULTIPLE_TARGET_TO_ONE_SOURCE);
-				IdentityMappingConsistencyCheck oneWayCheck = new IdentityMappingConsistencyCheck(synchronizationStatus, IdentityMappingConsistencyCheck.ONE_WAY);
-				IdentityMappingConsistencyCheck[] consistencyChecks = { multipleSourceCheck, multipleTargetCheck, oneWayCheck };
-				return consistencyChecks;
+				List<IdentityMappingConsistencyCheck> mappingChecks = new ArrayList<IdentityMappingConsistencyCheck>();
+				for (IdentityMappingConsistencyCheck check : consistencyChecks) {
+					if (check.getSynchronizationStatus() == parentElement) {
+						mappingChecks.add(check);
+					}
+				}
+				IdentityMappingConsistencyCheck[] checkArray = new IdentityMappingConsistencyCheck[mappingChecks.size()];
+				mappingChecks.toArray(checkArray);
+				return checkArray;
 			}
 			else if (parentElement instanceof IdentityMappingConsistencyCheck) {
-				final IdentityMappingConsistencyCheck consistencyCheck = (IdentityMappingConsistencyCheck)parentElement;
-				BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
-					public void run() {
-						try {
-							inconsistentIdentityMappings = getDataProvider().getIdentityMappingConsistencyCheckViolations(consistencyCheck);
-						} catch (Exception e) {
-							inconsistentIdentityMappings = new Object[1];
-							inconsistentIdentityMappings[0] = e;
-							Activator.handleError(e);
-						}
-					}					
-				});		
-				return inconsistentIdentityMappings;
+				List<IdentityMapping> checkViolations = new ArrayList<IdentityMapping>();
+				for (IdentityMapping mapping : inconsistentIdentityMappings) {
+					if (((InconsistentIdentityMapping)mapping).getConsistencyCheck() == parentElement) {
+						checkViolations.add(mapping);
+					}
+				}
+				IdentityMapping[] mappingArray = new IdentityMapping[checkViolations.size()];
+				checkViolations.toArray(mappingArray);
+				return mappingArray;			
 			}
 			return new Object[0];
 		}
