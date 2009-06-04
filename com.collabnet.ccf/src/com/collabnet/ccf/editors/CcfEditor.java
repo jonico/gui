@@ -43,7 +43,7 @@ public class CcfEditor extends FormEditor implements ISaveablePart2 {
         setPartName(input.getName());
 		CcfEditorInput ccfEditorInput = (CcfEditorInput)getEditorInput();
 		landscape = ccfEditorInput.getLandscape();	
-		if (landscape != null) {
+		if (landscape != null && landscape.getRole() == Landscape.ROLE_ADMINISTRATOR) {
 			getMonitors();
 		}
         setTitleImage(Activator.getImage(landscape));
@@ -74,12 +74,14 @@ public class CcfEditor extends FormEditor implements ISaveablePart2 {
 	@Override
 	protected void addPages() {
 		createCcfPage();
-		createQcPage();		
-		if (landscape.getType1().equals(Landscape.TYPE_TF) || landscape.getType2().equals(Landscape.TYPE_TF)) {
-			createSfeePage();
-		}		
-		if (landscape.getType1().equals(Landscape.TYPE_PT) || landscape.getType2().equals(Landscape.TYPE_PT)) {
-			createCeePage();
+		if (landscape.getRole() == Landscape.ROLE_ADMINISTRATOR) {
+			createQcPage();		
+			if (landscape.getType1().equals(Landscape.TYPE_TF) || landscape.getType2().equals(Landscape.TYPE_TF)) {
+				createSfeePage();
+			}		
+			if (landscape.getType1().equals(Landscape.TYPE_PT) || landscape.getType2().equals(Landscape.TYPE_PT)) {
+				createCeePage();
+			}
 		}
 		createMappingsPage();
 		try {

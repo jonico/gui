@@ -230,24 +230,23 @@
                class="com.collabnet.ccf.actions.EditLandscapeAction"
                menubarPath="group.c"
                id="com.collabnet.ccf.actions.EditLandscapeAction">
-         </action> 
+         </action>                                                                                    
+      </objectContribution>
+      
+      <objectContribution
+            objectClass="com.collabnet.ccf.model.AdministratorLandscape"
+            id="com.collabnet.ccf.model.AdministratorLandscape">                                                                   
          <action
                label="Edit CCF log settings"
                class="com.collabnet.ccf.actions.EditLog4jAction"
                menubarPath="group.d"
                id="com.collabnet.ccf.actions.EditLog4jAction">
          </action>                                                                                             
-      </objectContribution>
+      </objectContribution>      
       
       <objectContribution
             objectClass="com.collabnet.ccf.model.ProjectMappings"
             id="com.collabnet.ccf.model.ProjectMappings">
-         <action
-               label="Project Mapping"
-               class="com.collabnet.ccf.actions.AddSynchronizationStatusAction"
-               menubarPath="group.add/New"
-               id="com.collabnet.ccf.actions.AddSynchronizationStatusAction">
-         </action> 
          <action
                label="Refresh"
                class="com.collabnet.ccf.actions.RefreshAction"
@@ -255,6 +254,17 @@
                menubarPath="group.b"
                id="com.collabnet.ccf.actions.RefreshAction">
          </action>                                                              
+      </objectContribution> 
+      
+      <objectContribution
+            objectClass="com.collabnet.ccf.model.AdministratorProjectMappings"
+            id="com.collabnet.ccf.model.AdministratorProjectMappings">
+         <action
+               label="Project Mapping"
+               class="com.collabnet.ccf.actions.AddSynchronizationStatusAction"
+               menubarPath="group.add/New"
+               id="com.collabnet.ccf.actions.AddSynchronizationStatusAction">
+         </action>                                                   
       </objectContribution> 
       
       <objectContribution
@@ -289,6 +299,23 @@
                id="com.collabnet.ccf.actions.HospitalAction">
          </action>          
          <action
+               label="Resume synchronization"
+               class="com.collabnet.ccf.actions.ResumeSynchronizationAction"
+               menubarPath="group.c"
+               id="com.collabnet.ccf.actions.ResumeSynchronizationAction">
+         </action>          
+         <action
+               label="Pause synchronization"
+               class="com.collabnet.ccf.actions.PauseSynchronizationAction"
+               menubarPath="group.c"
+               id="com.collabnet.ccf.actions.PauseSynchronizationAction">
+         </action>                                                                                                 
+      </objectContribution>
+      
+      <objectContribution
+            objectClass="com.collabnet.ccf.model.AdministratorSynchronizationStatus"
+            id="com.collabnet.ccf.model.AdministratorSynchronizationStatus">
+         <action
                label="Edit field mappings"
                class="com.collabnet.ccf.actions.EditFieldMappingsAction"
                menubarPath="group.b"
@@ -307,18 +334,6 @@
                id="com.collabnet.ccf.actions.ResetSynchronizationStatusAction">
          </action>
          <action
-               label="Resume synchronization"
-               class="com.collabnet.ccf.actions.ResumeSynchronizationAction"
-               menubarPath="group.c"
-               id="com.collabnet.ccf.actions.ResumeSynchronizationAction">
-         </action>          
-         <action
-               label="Pause synchronization"
-               class="com.collabnet.ccf.actions.PauseSynchronizationAction"
-               menubarPath="group.c"
-               id="com.collabnet.ccf.actions.PauseSynchronizationAction">
-         </action> 
-         <action
                label="Delete project mapping"
                class="com.collabnet.ccf.actions.DeleteSynchronizationStatusAction"
                menubarPath="group.d"
@@ -336,7 +351,7 @@
                menubarPath="group.d"
                id="com.collabnet.ccf.actions.ReverseSynchronizationStatusAction">
          </action>                                                                                                                
-      </objectContribution>
+      </objectContribution>      
       
       <objectContribution
             objectClass="com.collabnet.ccf.model.Log"

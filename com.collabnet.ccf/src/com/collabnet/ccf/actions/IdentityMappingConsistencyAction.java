@@ -5,7 +5,9 @@ import java.util.Iterator;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.actions.ActionDelegate;
+import org.eclipse.ui.part.ViewPart;
 
 import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.model.Landscape;

@@ -67,6 +67,7 @@ import com.collabnet.ccf.IProjectMappingsChangeListener;
 import com.collabnet.ccf.actions.ChangeSynchronizationStatusAction;
 import com.collabnet.ccf.db.CcfDataProvider;
 import com.collabnet.ccf.dialogs.NewProjectMappingDialog;
+import com.collabnet.ccf.model.AdministratorProjectMappings;
 import com.collabnet.ccf.model.Landscape;
 import com.collabnet.ccf.model.ProjectMappings;
 import com.collabnet.ccf.model.SynchronizationStatus;
@@ -152,16 +153,18 @@ public class CcfProjectMappingsEditorPage extends CcfEditorPage implements IProj
 		tableViewer1.setContentProvider(new ArrayContentProvider());
 		tableViewer1.setLabelProvider(new ProjectMappingsLabelProvider());
 		
-		tableViewer1.addOpenListener(new IOpenListener() {
-			public void open(OpenEvent oe) {
-				IStructuredSelection selection = (IStructuredSelection)tableViewer1.getSelection();
-				if (selection != null && selection.size() == 1) {
-					ActionDelegate action = new ChangeSynchronizationStatusAction();
-					action.selectionChanged(null, selection);
-					action.run(null);						
-				}
-			}			
-		});
+		if (getLandscape().getRole() == Landscape.ROLE_ADMINISTRATOR) {
+			tableViewer1.addOpenListener(new IOpenListener() {
+				public void open(OpenEvent oe) {
+					IStructuredSelection selection = (IStructuredSelection)tableViewer1.getSelection();
+					if (selection != null && selection.size() == 1) {
+						ActionDelegate action = new ChangeSynchronizationStatusAction();
+						action.selectionChanged(null, selection);
+						action.run(null);						
+					}
+				}			
+			});
+		}
 		
 		boolean sortReversed = false;
 		int sortIndex = 0;
@@ -217,16 +220,18 @@ public class CcfProjectMappingsEditorPage extends CcfEditorPage implements IProj
 		tableViewer2.setContentProvider(new ArrayContentProvider());
 		tableViewer2.setLabelProvider(new ProjectMappingsLabelProvider());
 		
-		tableViewer2.addOpenListener(new IOpenListener() {
-			public void open(OpenEvent oe) {
-				IStructuredSelection selection = (IStructuredSelection)tableViewer2.getSelection();
-				if (selection != null && selection.size() == 1) {
-					ActionDelegate action = new ChangeSynchronizationStatusAction();
-					action.selectionChanged(null, selection);
-					action.run(null);						
-				}
-			}			
-		});
+		if (getLandscape().getRole() == Landscape.ROLE_ADMINISTRATOR) {
+			tableViewer2.addOpenListener(new IOpenListener() {
+				public void open(OpenEvent oe) {
+					IStructuredSelection selection = (IStructuredSelection)tableViewer2.getSelection();
+					if (selection != null && selection.size() == 1) {
+						ActionDelegate action = new ChangeSynchronizationStatusAction();
+						action.selectionChanged(null, selection);
+						action.run(null);						
+					}
+				}			
+			});
+		}
 		
 		sortReversed = false;
 		sortIndex = 0;
@@ -315,24 +320,31 @@ public class CcfProjectMappingsEditorPage extends CcfEditorPage implements IProj
 	}
 	
 	private void fillContextMenu(IMenuManager manager, final TableViewer tableViewer) {	
-		MenuManager sub = new MenuManager("New", IWorkbenchActionConstants.GROUP_ADD); //$NON-NLS-1$
-		sub.add(new Action("Project Mapping") {	
-			@Override
-			public void run() {
-				ProjectMappings projectMappings = new ProjectMappings(getLandscape());
-				NewProjectMappingDialog dialog = new NewProjectMappingDialog(Display.getDefault().getActiveShell(), projectMappings);
-				if (tableViewer == tableViewer1) dialog.setDirection(0);
-				else dialog.setDirection(1);
-				if (dialog.open() == NewProjectMappingDialog.OK) {
-					refresh();
-					if (CcfExplorerView.getView() != null) {
-						CcfExplorerView.getView().refresh(projectMappings);
+		if (getLandscape().getRole() == Landscape.ROLE_ADMINISTRATOR) {
+			MenuManager sub = new MenuManager("New", IWorkbenchActionConstants.GROUP_ADD); //$NON-NLS-1$
+			sub.add(new Action("Project Mapping") {	
+				@Override
+				public void run() {
+					ProjectMappings projectMappings = null;
+					if (getLandscape().getRole() == Landscape.ROLE_ADMINISTRATOR) {
+						projectMappings = new AdministratorProjectMappings(getLandscape());
+					} else {
+						projectMappings = new ProjectMappings(getLandscape());
+					}
+					NewProjectMappingDialog dialog = new NewProjectMappingDialog(Display.getDefault().getActiveShell(), projectMappings);
+					if (tableViewer == tableViewer1) dialog.setDirection(0);
+					else dialog.setDirection(1);
+					if (dialog.open() == NewProjectMappingDialog.OK) {
+						refresh();
+						if (CcfExplorerView.getView() != null) {
+							CcfExplorerView.getView().refresh(projectMappings);
+						}
 					}
 				}
-			}
-		});
-		sub.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
-		manager.add(sub);		
+			});
+			sub.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
+			manager.add(sub);
+		}
 	}
 	
 	private void refresh() {

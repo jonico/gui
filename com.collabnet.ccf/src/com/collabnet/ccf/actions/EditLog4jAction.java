@@ -34,13 +34,13 @@ public class EditLog4jAction extends ActionDelegate {
 				Landscape landscape = (Landscape)object;
 				File log4jFile = landscape.getLog4jFile();
 				if (log4jFile == null) {
-					MessageDialog.openError(Display.getDefault().getActiveShell(), "Edit CCF Log Settings", "Log seetings file not found.");
+					MessageDialog.openError(Display.getDefault().getActiveShell(), "Edit CCF Log Settings", "Log settings file not found.");
 					return;
 				}
 				if (!log4jFile.exists()) {
 					File log4jRenameFile = landscape.getLog4jRenameFile();
 					if (log4jRenameFile == null || !log4jRenameFile.exists()) {
-						MessageDialog.openError(Display.getDefault().getActiveShell(), "Edit CCF Log Settings", "Log seetings file not found.");
+						MessageDialog.openError(Display.getDefault().getActiveShell(), "Edit CCF Log Settings", "Log settings file not found.");
 						return;						
 					}
 					if (!MessageDialog.openQuestion(Display.getDefault().getActiveShell(), "Edit CCF Log Settings", "File log4j.xml does not exist.  Do you want to rename file log4j.xml.rename_me?")) {

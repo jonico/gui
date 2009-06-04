@@ -16,6 +16,13 @@ import com.collabnet.ccf.Activator;
 
 public class Landscape implements IPropertySource {
 	private String description;
+	private int role;
+	
+	private String databaseUrl;
+	private String databaseDriver;
+	private String databaseUser;
+	private String databasePassword;
+
 	private String type1;
 	private String type2;
 	private String configurationFolder1;
@@ -38,6 +45,9 @@ public class Landscape implements IPropertySource {
 	private File log4jFile;
 	private File log4jRenameFile;
 	
+	public final static int ROLE_ADMINISTRATOR = 0;
+	public final static int ROLE_OPERATOR = 1;
+	
 	public final static String TYPE_QC = "QC";
 	public final static String TYPE_TF = "TF";
 	public final static String TYPE_PT = "PT";
@@ -49,6 +59,8 @@ public class Landscape implements IPropertySource {
 	
 	public static String P_ID_DESCRIPTION = "desc"; //$NON-NLS-1$
 	public static String P_DESCRIPTION = "Description";
+	public static String P_ID_ROLE = "role"; //$NON-NLS-1$
+	public static String P_ROLE = "Role";
 	public static String P_ID_TYPE1 = "type1"; //$NON-NLS-1$
 	public static String P_TYPE1 = "System 1 type";
 	public static String P_ID_TYPE2 = "type2"; //$NON-NLS-1$
@@ -63,6 +75,7 @@ public class Landscape implements IPropertySource {
 	{	
 		descriptors = new ArrayList<PropertyDescriptor>();
 		descriptors.add(new PropertyDescriptor(P_ID_DESCRIPTION, P_DESCRIPTION));
+		descriptors.add(new PropertyDescriptor(P_ID_ROLE, P_ROLE));
 		descriptors.add(new PropertyDescriptor(P_ID_TYPE1, P_TYPE1));
 		descriptors.add(new PropertyDescriptor(P_ID_TYPE2, P_TYPE2));
 		descriptors.add(new PropertyDescriptor(P_ID_FOLDER1, P_FOLDER1));
@@ -74,6 +87,12 @@ public class Landscape implements IPropertySource {
 	}
 	public void setDescription(String description) {
 		this.description = description;
+	}
+	public int getRole() {
+		return role;
+	}
+	public void setRole(int role) {
+		this.role = role;
 	}
 	public String getType1() {
 		return type1;
@@ -119,7 +138,24 @@ public class Landscape implements IPropertySource {
 		this.contributorId = contributorId;
 	}
 	
+	public void setDatabaseUrl(String databaseUrl) {
+		this.databaseUrl = databaseUrl;
+	}
+	
+	public void setDatabaseDriver(String databaseDriver) {
+		this.databaseDriver = databaseDriver;
+	}
+	
+	public void setDatabaseUser(String databaseUser) {
+		this.databaseUser = databaseUser;
+	}
+	
+	public void setDatabasePassword(String databasePassword) {
+		this.databasePassword = databasePassword;
+	}
+	
 	public String getDatabaseUrl() {
+		if (databaseUrl != null) return databaseUrl;
 		String url = null;
 		ccfProperties1 = getCcfProperties1();
 		if (ccfProperties1 != null) {
@@ -129,6 +165,7 @@ public class Landscape implements IPropertySource {
 	}
 	
 	public String getDatabaseDriver() {
+		if (databaseDriver != null) return databaseDriver;
 		String driver = null;
 		ccfProperties1 = getCcfProperties1();
 		if (ccfProperties1 != null) {
@@ -138,6 +175,7 @@ public class Landscape implements IPropertySource {
 	}
 	
 	public String getDatabaseUser() {
+		if (databaseUser != null) return databaseUser;
 		String user = null;
 		ccfProperties1 = getCcfProperties1();
 		if (ccfProperties1 != null) {
@@ -147,6 +185,7 @@ public class Landscape implements IPropertySource {
 	}
 	
 	public String getDatabasePassword() {
+		if (databasePassword != null) return databasePassword;
 		String password = null;
 		ccfProperties1 = getCcfProperties1();
 		if (ccfProperties1 != null) {
@@ -554,6 +593,10 @@ public class Landscape implements IPropertySource {
 	
 	public Object getPropertyValue(Object id) {
 		if (P_ID_DESCRIPTION.equals(id)) return getDescription();
+		if (P_ID_ROLE.equals(id)) {
+			if (role == ROLE_OPERATOR) return "Operator";
+			else return "Administrator";
+		}
 		if (P_ID_TYPE1.equals(id)) return type1;
 		if (P_ID_TYPE2.equals(id)) return type2;
 		if (P_ID_FOLDER1.equals(id)) return configurationFolder1;

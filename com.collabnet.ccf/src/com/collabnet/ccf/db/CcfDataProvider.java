@@ -14,16 +14,17 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Properties;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.widgets.Display;
 
 import com.collabnet.ccf.Activator;
+import com.collabnet.ccf.model.AdministratorSynchronizationStatus;
 import com.collabnet.ccf.model.IdentityMapping;
 import com.collabnet.ccf.model.IdentityMappingConsistencyCheck;
 import com.collabnet.ccf.model.InconsistentIdentityMapping;
 import com.collabnet.ccf.model.Landscape;
+import com.collabnet.ccf.model.OperatorSynchronizationStatus;
 import com.collabnet.ccf.model.Patient;
 import com.collabnet.ccf.model.ProjectMappings;
 import com.collabnet.ccf.model.SynchronizationStatus;
@@ -857,35 +858,8 @@ public class CcfDataProvider {
 		return rowsUpdated;
 	}
 	
-	private Connection getConnection(Landscape landscape) throws Exception {
-		if (landscape == null) return getConnection();
-//		Connection connection = null;
-		String configurationFolder = landscape.getConfigurationFolder();
-		File folder = new File(configurationFolder);
-		File propertiesFile = new File(folder, "ccf.properties");
-		try {
-			FileInputStream inputStream = new FileInputStream(propertiesFile);
-			Properties properties = new Properties();
-			properties.load(inputStream);
-			inputStream.close();
-			String url = properties.getProperty(Activator.PROPERTIES_CCF_URL);
-			String driver = properties.getProperty(Activator.PROPERTIES_CCF_DRIVER);
-			String user = properties.getProperty(Activator.PROPERTIES_CCF_USER);
-			String password = properties.getProperty(Activator.PROPERTIES_CCF_PASSWORD);			
-			store.setValue(Activator.PREFERENCES_DATABASE_URL, url);
-			store.setValue(Activator.PREFERENCES_DATABASE_DRIVER, driver);
-			store.setValue(Activator.PREFERENCES_DATABASE_USER, user);
-			store.setValue(Activator.PREFERENCES_DATABASE_PASSWORD, password);			
-			return getConnection(driver, url, user, password);
-		} catch (Exception e) {
-			Activator.handleError(e);
-			throw new Exception("Unable to connect to database", e);
-		}
-//		return connection;
-	}
-
-	private Connection getConnection() throws ClassNotFoundException, SQLException {
-		return getConnection(store.getString(Activator.PREFERENCES_DATABASE_DRIVER), store.getString(Activator.PREFERENCES_DATABASE_URL), store.getString(Activator.PREFERENCES_DATABASE_USER), store.getString(Activator.PREFERENCES_DATABASE_PASSWORD));
+	private Connection getConnection(Landscape landscape) throws Exception {		
+		return getConnection(landscape.getDatabaseDriver(), landscape.getDatabaseUrl(), landscape.getDatabaseUser(), landscape.getDatabasePassword());
 	}
 	
 	private Connection getConnection(String driver, String url, String user, String password) throws ClassNotFoundException, SQLException {
@@ -949,7 +923,12 @@ public class CcfDataProvider {
 		
 		List<SynchronizationStatus> synchonizationStatuses = new ArrayList<SynchronizationStatus>();
 		while (rs.next()) {
-			SynchronizationStatus status = new SynchronizationStatus();
+			SynchronizationStatus status = null;
+			if (landscape != null && landscape.getRole() == Landscape.ROLE_OPERATOR) {
+				status = new OperatorSynchronizationStatus();
+			} else {
+				status = new AdministratorSynchronizationStatus();
+			}
 			status.setSourceSystemId(rs.getString(SYNCHRONIZATION_STATUS_SOURCE_SYSTEM_ID));
 			status.setSourceRepositoryId(rs.getString(SYNCHRONIZATION_STATUS_SOURCE_REPOSITORY_ID));
 			status.setTargetSystemId(rs.getString(SYNCHRONIZATION_STATUS_TARGET_SYSTEM_ID));

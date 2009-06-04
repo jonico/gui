@@ -17,19 +17,23 @@ import org.eclipse.swt.widgets.Text;
 
 import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.ILandscapeContributor;
+import com.collabnet.ccf.model.Landscape;
 
 public class NewLandscapeWizardMainPage extends WizardPage {
 	private Composite outerContainer;
 	private Text descriptionText;
+	private Button administratorButton;
+	private Button operatorButton;
 	private Group descriptionGroup;
 	private Label descriptionImage;
 	private Label descriptionLabel;
 	private ILandscapeContributor[] landscapeContributors;
 	private ILandscapeContributor selectedLandscapeContributor;
 	private IDialogSettings settings;
-	
-	private static final String LAST_LANDSCAPE_CONTRIBUTOR = "NewLandscapeWizardMainPage.lastLandscapeContributor"; //$NON-NLS-1$
 
+	private static final String LAST_ROLE = "NewLandscapeWizardMainPage.lastRole"; //$NON-NLS-1$
+	private static final String LAST_LANDSCAPE_CONTRIBUTOR = "NewLandscapeWizardMainPage.lastLandscapeContributor"; //$NON-NLS-1$
+	
 	public NewLandscapeWizardMainPage(String pageName, String title, ImageDescriptor titleImage, ILandscapeContributor[] landscapeContributors) {
 		super(pageName, title, titleImage);
 		this.landscapeContributors = landscapeContributors;
@@ -54,6 +58,36 @@ public class NewLandscapeWizardMainPage extends WizardPage {
 		descriptionText = new Text(descriptionGroup, SWT.BORDER);
 		GridData gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
 		descriptionText.setLayoutData(gd);
+		
+		Group roleGroup = new Group(outerContainer, SWT.NONE);
+		roleGroup.setText("Role:");
+		GridLayout roleLayout = new GridLayout();
+		roleLayout.numColumns = 1;
+		roleGroup.setLayout(roleLayout);
+		roleGroup.setLayoutData(
+		new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));
+		
+		administratorButton = new Button(roleGroup, SWT.RADIO);
+		administratorButton.setText("Administrator");
+		operatorButton = new Button(roleGroup, SWT.RADIO);
+		operatorButton.setText("Operator");
+		
+		int lastRole = Landscape.ROLE_ADMINISTRATOR;
+		try {
+			lastRole = settings.getInt(LAST_ROLE);
+		} catch (Exception e) {}
+		if (lastRole == Landscape.ROLE_OPERATOR) operatorButton.setSelection(true);
+		else administratorButton.setSelection(true);
+		
+		SelectionListener roleListener = new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent se) {
+				if (operatorButton.getSelection()) settings.put(LAST_ROLE, Landscape.ROLE_OPERATOR);
+				else settings.put(LAST_ROLE, Landscape.ROLE_ADMINISTRATOR);
+				setPageComplete(true);
+			}		
+		};
+		administratorButton.addSelectionListener(roleListener);
+		operatorButton.addSelectionListener(roleListener);
 		
 		Group landscapeGroup = new Group(outerContainer, SWT.NONE);
 		landscapeGroup.setText("Landscape type:");
@@ -141,6 +175,11 @@ public class NewLandscapeWizardMainPage extends WizardPage {
 			return selectedLandscapeContributor.getName();
 		else
 			return descriptionText.getText().trim();
+	}
+	
+	public int getRole() {
+		if (operatorButton.getSelection()) return Landscape.ROLE_OPERATOR;
+		else return Landscape.ROLE_ADMINISTRATOR;
 	}
 
 }

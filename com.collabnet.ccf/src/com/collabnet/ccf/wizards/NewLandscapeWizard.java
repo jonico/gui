@@ -6,11 +6,13 @@ import org.eclipse.jface.wizard.WizardPage;
 
 import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.ILandscapeContributor;
+import com.collabnet.ccf.model.Database;
 import com.collabnet.ccf.model.Landscape;
 import com.collabnet.ccf.views.CcfExplorerView;
 
 public class NewLandscapeWizard extends Wizard {
 	private NewLandscapeWizardMainPage mainPage;
+	private NewLandscapeWizardDatabasePage databasePage;
 	private ILandscapeContributor[] landscapeContributors;
 	private Landscape newLandscape;
 	
@@ -32,6 +34,9 @@ public class NewLandscapeWizard extends Wizard {
 		mainPage = new NewLandscapeWizardMainPage("main", "Describe landscape", Activator.getDefault().getImageDescriptor(Activator.IMAGE_NEW_LANDSCAPE_WIZBAN), landscapeContributors);
 		addPage(mainPage);
 		
+		databasePage = new NewLandscapeWizardDatabasePage("database", "Database", Activator.getDefault().getImageDescriptor(Activator.IMAGE_NEW_LANDSCAPE_WIZBAN));
+		addPage(databasePage);
+		
 		pages = new WizardPage[landscapeContributors.length][];
 		for (int i = 0; i < landscapeContributors.length; i++) {
 			IWizardPage[] landscapePages = landscapeContributors[i].getWizardPages(true);
@@ -49,15 +54,22 @@ public class NewLandscapeWizard extends Wizard {
 	
 	public IWizardPage getNextPage(IWizardPage page) {
 		if (page instanceof NewLandscapeWizardMainPage) {
-			IWizardPage[] landscapePages = mainPage.getSelectedLandscapeContributor().getWizardPages(false);
-			if (landscapePages != null && landscapePages.length > 0) return landscapePages[0];
-			else return null;
+			if (mainPage.getRole() == Landscape.ROLE_OPERATOR) {
+				return databasePage;
+			} else {
+				IWizardPage[] landscapePages = mainPage.getSelectedLandscapeContributor().getWizardPages(false);
+				if (landscapePages != null && landscapePages.length > 0) return landscapePages[0];
+				else return null;
+			}
 		}		
 		else return mainPage.getSelectedLandscapeContributor().getNextPage(page);
 	}
 	
 	public boolean canFinish() {
 		if (!mainPage.isPageComplete()) return false;
+		if (mainPage.getRole() == Landscape.ROLE_OPERATOR) {
+			return databasePage.isPageComplete();
+		}
 		IWizardPage[] landscapePages;
 		landscapePages = mainPage.getSelectedLandscapeContributor().getWizardPages(false);
 		if (landscapePages == null) return true;
@@ -69,7 +81,15 @@ public class NewLandscapeWizard extends Wizard {
 
 	@Override
 	public boolean performFinish() {
-		boolean landscapeAdded = Activator.getDefault().storeLandscape(mainPage.getDescription().replaceAll("/", "%slash%"), mainPage.getSelectedLandscapeContributor());
+		Database database = null;
+		if (mainPage.getRole() == Landscape.ROLE_OPERATOR) {
+			database = new Database();
+			database.setUrl(databasePage.getUrl());
+			database.setDriver(databasePage.getDriver());
+			database.setUser(databasePage.getUser());
+			database.setPassword(databasePage.getPassword());
+		}
+		boolean landscapeAdded = Activator.getDefault().storeLandscape(mainPage.getDescription().replaceAll("/", "%slash%"), mainPage.getRole(), database, mainPage.getSelectedLandscapeContributor());
 		if (landscapeAdded) {
 			newLandscape = Activator.getDefault().getLandscape(mainPage.getDescription());
 			if (CcfExplorerView.getView() != null) {

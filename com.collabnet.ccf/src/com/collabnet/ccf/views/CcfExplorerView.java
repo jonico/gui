@@ -52,6 +52,7 @@ import com.collabnet.ccf.actions.JmxConsoleAction;
 import com.collabnet.ccf.actions.NewLandscapeAction;
 import com.collabnet.ccf.db.CcfDataProvider;
 import com.collabnet.ccf.dialogs.ProjectMappingFilterDialog;
+import com.collabnet.ccf.model.AdministratorProjectMappings;
 import com.collabnet.ccf.model.Landscape;
 import com.collabnet.ccf.model.Log;
 import com.collabnet.ccf.model.Logs;
@@ -121,7 +122,10 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 						action = new EditLogAction();
 					}
 					else if (selection.getFirstElement() instanceof SynchronizationStatus) {
-						action = new ChangeSynchronizationStatusAction();
+						SynchronizationStatus status = (SynchronizationStatus)selection.getFirstElement();
+						if (status.getLandscape().getRole() == Landscape.ROLE_ADMINISTRATOR) {
+							action = new ChangeSynchronizationStatusAction();
+						}
 					}
 					else if (selection.getFirstElement() instanceof Exception) {
 						Exception exception = (Exception)selection.getFirstElement();
@@ -220,15 +224,17 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 		
 		IStructuredSelection selection = (IStructuredSelection)treeViewer.getSelection();
 		if (selection.size() == 1 && selection.getFirstElement() instanceof Landscape) {
-			
-			manager.add(new JmxConsoleAction((Landscape)selection.getFirstElement()));
-			
-			MenuManager jmxMenu = new MenuManager("Open JMX console in browser", IWorkbenchActionConstants.GROUP_ADD); //$NON-NLS-1$
-			JmxBrowserAction jmxToQcAction = new JmxBrowserAction((Landscape)selection.getFirstElement(), JmxBrowserAction.TO_QC);
-			jmxMenu.add(jmxToQcAction);
-			JmxBrowserAction jmxFromQcAction = new JmxBrowserAction((Landscape)selection.getFirstElement(), JmxBrowserAction.FROM_QC);
-			jmxMenu.add(jmxFromQcAction);			
-			manager.add(jmxMenu);
+			// TODO: Enable console options for operator landscapes.
+			if (((Landscape)selection.getFirstElement()).getRole() == Landscape.ROLE_ADMINISTRATOR) {
+				manager.add(new JmxConsoleAction((Landscape)selection.getFirstElement()));
+				
+				MenuManager jmxMenu = new MenuManager("Open JMX console in browser", IWorkbenchActionConstants.GROUP_ADD); //$NON-NLS-1$
+				JmxBrowserAction jmxToQcAction = new JmxBrowserAction((Landscape)selection.getFirstElement(), JmxBrowserAction.TO_QC);
+				jmxMenu.add(jmxToQcAction);
+				JmxBrowserAction jmxFromQcAction = new JmxBrowserAction((Landscape)selection.getFirstElement(), JmxBrowserAction.FROM_QC);
+				jmxMenu.add(jmxFromQcAction);			
+				manager.add(jmxMenu);
+			}
 			
 			ILandscapeContributor landscapeContributor = null;
 			try {
@@ -372,7 +378,12 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 				return Activator.getDefault().getLandscapes();
 			}
 			else if (parentElement instanceof Landscape) {
-				ProjectMappings projectMappings = new ProjectMappings((Landscape)parentElement);
+				ProjectMappings projectMappings = null;
+				if (((Landscape)parentElement).getRole() == Landscape.ROLE_ADMINISTRATOR) {
+					projectMappings = new AdministratorProjectMappings((Landscape)parentElement);
+				} else {
+					projectMappings = new ProjectMappings((Landscape)parentElement);
+				}
 				Logs logs = new Logs((Landscape)parentElement);
 				Object[] children = { projectMappings, logs };
 				return children;

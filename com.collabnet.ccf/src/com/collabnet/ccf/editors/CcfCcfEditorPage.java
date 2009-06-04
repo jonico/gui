@@ -207,108 +207,117 @@ public class CcfCcfEditorPage extends CcfEditorPage {
 				testConnection(false);
 			}			
 		});
-		
-		Section hostSection = toolkit.createSection(composite, Section.TITLE_BAR | Section.TWISTIE | Section.EXPANDED);
-        td = new TableWrapData(TableWrapData.FILL_GRAB);
-        td.colspan = 4;
-        hostSection.setLayoutData(td);
-        hostSection.setText("CCF Hosts");
-        Composite hostSectionClient = toolkit.createComposite(hostSection); 
-        GridLayout jmxLayout = new GridLayout();
-        jmxLayout.numColumns = 2;
-        jmxLayout.verticalSpacing = 10;
-        hostSectionClient.setLayout(jmxLayout);
-        hostSection.setClient(hostSectionClient);
-        hostSection.addExpansionListener(new ExpansionAdapter() {
-            public void expansionStateChanged(ExpansionEvent e) {
-                form.reflow(true);
-                if (e.getState()) getDialogSettings().put(JMX_SECTION_STATE, STATE_EXPANDED);
-                else getDialogSettings().put(JMX_SECTION_STATE, STATE_CONTRACTED);
-            }
-        });	
-        
-		toolkit.createLabel(hostSectionClient, getLandscape().getType2() + " => " + getLandscape().getType1() + " host name:");
-		host1Text = toolkit.createText(hostSectionClient, ccfHost1);
-		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
-		host1Text.setLayoutData(gd);
-        
-		toolkit.createLabel(hostSectionClient, getLandscape().getType2() + " => " + getLandscape().getType1() + " JMX port:");
-		jmxPort1Text = toolkit.createText(hostSectionClient, jmxPort1);
-		gd = new GridData();
-		gd.widthHint = 100;
-		jmxPort1Text.setLayoutData(gd);
-		
-		toolkit.createLabel(hostSectionClient, getLandscape().getType1() + " => " + getLandscape().getType2() + " host name:");
-		host2Text = toolkit.createText(hostSectionClient, ccfHost2);
-		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
-		host2Text.setLayoutData(gd);
-		
-		toolkit.createLabel(hostSectionClient, getLandscape().getType1() + " => " + getLandscape().getType2() + " JMX port:");
-		jmxPort2Text = toolkit.createText(hostSectionClient, jmxPort2);
-		gd = new GridData();
-		gd.widthHint = 100;
-		jmxPort2Text.setLayoutData(gd);
-		
-		Section templateSection = toolkit.createSection(composite, Section.TITLE_BAR | Section.TWISTIE | Section.EXPANDED);
-        td = new TableWrapData(TableWrapData.FILL_GRAB);
-        td.colspan = 4;
-        templateSection.setLayoutData(td);
-        templateSection.setText("Log Message Template");
-        Composite templateSectionClient = toolkit.createComposite(templateSection); 
-        GridLayout templateLayout = new GridLayout();
-        templateLayout.numColumns = 1;
-        templateLayout.verticalSpacing = 10;
-        templateSectionClient.setLayout(templateLayout);
-        templateSection.setClient(templateSectionClient);
-        templateSection.addExpansionListener(new ExpansionAdapter() {
-            public void expansionStateChanged(ExpansionEvent e) {
-                form.reflow(true);
-                if (e.getState()) getDialogSettings().put(TEMPLATE_SECTION_STATE, STATE_EXPANDED);
-                else getDialogSettings().put(TEMPLATE_SECTION_STATE, STATE_CONTRACTED);
-            }
-        });
-        
-        templateText = toolkit.createText(templateSectionClient, getLandscape().getLogMessageTemplate1(), SWT.BORDER | SWT.MULTI);
-		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
-		gd.heightHint = 175;
-		templateText.setLayoutData(gd);
-		
-		Composite buttonGroup = toolkit.createComposite(templateSectionClient);
-		GridLayout buttonLayout = new GridLayout();
-		buttonLayout.numColumns = 2;
-		buttonGroup.setLayout(buttonLayout);
-		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
-		buttonGroup.setLayoutData(gd);	
-		
-		Button resetButton = toolkit.createButton(buttonGroup, "Restore Default Template", SWT.PUSH);
-		gd = new GridData(GridData.HORIZONTAL_ALIGN_CENTER);
-		resetButton.setLayoutData(gd);
-		resetButton.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent se) {
-				templateText.setText(Activator.DEFAULT_LOG_MESSAGE_TEMPLATE);
-			}			
-		});
-		
-		insertButton = toolkit.createButton(buttonGroup, "Insert Hospital Column...", SWT.PUSH);
-		insertButton.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent se) {
-				insertHospitalColumn();
-			}			
-		});
-		insertButton.setEnabled(false);
+		Composite hostSectionClient = null;
+		Composite templateSectionClient = null;
+		Section hostSection = null;
+		Section templateSection = null;
+		if (getLandscape().getRole() == Landscape.ROLE_ADMINISTRATOR) {
+			hostSection = toolkit.createSection(composite, Section.TITLE_BAR | Section.TWISTIE | Section.EXPANDED);
+	        td = new TableWrapData(TableWrapData.FILL_GRAB);
+	        td.colspan = 4;
+	        hostSection.setLayoutData(td);
+	        hostSection.setText("CCF Hosts");
+	        hostSectionClient = toolkit.createComposite(hostSection); 
+	        GridLayout jmxLayout = new GridLayout();
+	        jmxLayout.numColumns = 2;
+	        jmxLayout.verticalSpacing = 10;
+	        hostSectionClient.setLayout(jmxLayout);
+	        hostSection.setClient(hostSectionClient);
+	        hostSection.addExpansionListener(new ExpansionAdapter() {
+	            public void expansionStateChanged(ExpansionEvent e) {
+	                form.reflow(true);
+	                if (e.getState()) getDialogSettings().put(JMX_SECTION_STATE, STATE_EXPANDED);
+	                else getDialogSettings().put(JMX_SECTION_STATE, STATE_CONTRACTED);
+	            }
+	        });	
+	        
+			toolkit.createLabel(hostSectionClient, getLandscape().getType2() + " => " + getLandscape().getType1() + " host name:");
+			host1Text = toolkit.createText(hostSectionClient, ccfHost1);
+			gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
+			host1Text.setLayoutData(gd);
+	        
+			toolkit.createLabel(hostSectionClient, getLandscape().getType2() + " => " + getLandscape().getType1() + " JMX port:");
+			jmxPort1Text = toolkit.createText(hostSectionClient, jmxPort1);
+			gd = new GridData();
+			gd.widthHint = 100;
+			jmxPort1Text.setLayoutData(gd);
+			
+			toolkit.createLabel(hostSectionClient, getLandscape().getType1() + " => " + getLandscape().getType2() + " host name:");
+			host2Text = toolkit.createText(hostSectionClient, ccfHost2);
+			gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
+			host2Text.setLayoutData(gd);
+			
+			toolkit.createLabel(hostSectionClient, getLandscape().getType1() + " => " + getLandscape().getType2() + " JMX port:");
+			jmxPort2Text = toolkit.createText(hostSectionClient, jmxPort2);
+			gd = new GridData();
+			gd.widthHint = 100;
+			jmxPort2Text.setLayoutData(gd);
+			
+			templateSection = toolkit.createSection(composite, Section.TITLE_BAR | Section.TWISTIE | Section.EXPANDED);
+	        td = new TableWrapData(TableWrapData.FILL_GRAB);
+	        td.colspan = 4;
+	        templateSection.setLayoutData(td);
+	        templateSection.setText("Log Message Template");
+	        templateSectionClient = toolkit.createComposite(templateSection); 
+	        GridLayout templateLayout = new GridLayout();
+	        templateLayout.numColumns = 1;
+	        templateLayout.verticalSpacing = 10;
+	        templateSectionClient.setLayout(templateLayout);
+	        templateSection.setClient(templateSectionClient);
+	        templateSection.addExpansionListener(new ExpansionAdapter() {
+	            public void expansionStateChanged(ExpansionEvent e) {
+	                form.reflow(true);
+	                if (e.getState()) getDialogSettings().put(TEMPLATE_SECTION_STATE, STATE_EXPANDED);
+	                else getDialogSettings().put(TEMPLATE_SECTION_STATE, STATE_CONTRACTED);
+	            }
+	        });
+	        
+	        templateText = toolkit.createText(templateSectionClient, getLandscape().getLogMessageTemplate1(), SWT.BORDER | SWT.MULTI);
+			gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
+			gd.heightHint = 175;
+			templateText.setLayoutData(gd);
+			
+			Composite buttonGroup = toolkit.createComposite(templateSectionClient);
+			GridLayout buttonLayout = new GridLayout();
+			buttonLayout.numColumns = 2;
+			buttonGroup.setLayout(buttonLayout);
+			gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
+			buttonGroup.setLayoutData(gd);	
+			
+			Button resetButton = toolkit.createButton(buttonGroup, "Restore Default Template", SWT.PUSH);
+			gd = new GridData(GridData.HORIZONTAL_ALIGN_CENTER);
+			resetButton.setLayoutData(gd);
+			resetButton.addSelectionListener(new SelectionAdapter() {
+				public void widgetSelected(SelectionEvent se) {
+					templateText.setText(Activator.DEFAULT_LOG_MESSAGE_TEMPLATE);
+				}			
+			});
+			
+			insertButton = toolkit.createButton(buttonGroup, "Insert Hospital Column...", SWT.PUSH);
+			insertButton.addSelectionListener(new SelectionAdapter() {
+				public void widgetSelected(SelectionEvent se) {
+					insertHospitalColumn();
+				}			
+			});
+			insertButton.setEnabled(false);
+		}
 		
         toolkit.paintBordersFor(databaseSectionClient);
-        toolkit.paintBordersFor(hostSectionClient);
-        toolkit.paintBordersFor(templateSectionClient);
+        if (hostSectionClient != null) toolkit.paintBordersFor(hostSectionClient);
+        if (templateSectionClient != null) toolkit.paintBordersFor(templateSectionClient);
         
         String expansionState = getDialogSettings().get(DATABASE_SECTION_STATE);
         databaseSection.setExpanded(expansionState == null  || expansionState.equals(STATE_EXPANDED));
         
-        expansionState = getDialogSettings().get(JMX_SECTION_STATE);
-        hostSection.setExpanded(expansionState == null  || expansionState.equals(STATE_EXPANDED));
+        if (hostSection != null) {
+        	expansionState = getDialogSettings().get(JMX_SECTION_STATE);
+        	hostSection.setExpanded(expansionState == null  || expansionState.equals(STATE_EXPANDED));
+        }
         
-        expansionState = getDialogSettings().get(TEMPLATE_SECTION_STATE);
-        templateSection.setExpanded(expansionState == null  || expansionState.equals(STATE_EXPANDED));
+        if (templateSection != null) {
+        	expansionState = getDialogSettings().get(TEMPLATE_SECTION_STATE);
+        	templateSection.setExpanded(expansionState == null  || expansionState.equals(STATE_EXPANDED));
+        }
         
         ModifyListener modifyListener = new ModifyListener() {
 			public void modifyText(ModifyEvent me) {
@@ -326,11 +335,11 @@ public class CcfCcfEditorPage extends CcfEditorPage {
 		driverText.addModifyListener(modifyListener);
 		userText.addModifyListener(modifyListener);
 		passwordText.addModifyListener(modifyListener);
-		jmxPort1Text.addModifyListener(modifyListener);
-		host1Text.addModifyListener(modifyListener);
-		jmxPort2Text.addModifyListener(modifyListener);
-		host2Text.addModifyListener(modifyListener);
-		templateText.addModifyListener(modifyListener);
+		if (jmxPort1Text != null) jmxPort1Text.addModifyListener(modifyListener);
+		if (host1Text != null) host1Text.addModifyListener(modifyListener);
+		if (jmxPort2Text != null) jmxPort2Text.addModifyListener(modifyListener);
+		if (host2Text != null) host2Text.addModifyListener(modifyListener);
+		if (templateText != null) templateText.addModifyListener(modifyListener);
 		
 		FocusListener focusListener = new FocusAdapter() {
 			public void focusGained(FocusEvent e) {
@@ -348,11 +357,11 @@ public class CcfCcfEditorPage extends CcfEditorPage {
 		driverText.addFocusListener(focusListener);
 		userText.addFocusListener(focusListener);
 		passwordText.addFocusListener(focusListener);
-		jmxPort1Text.addFocusListener(focusListener);
-		host1Text.addFocusListener(focusListener);
-		jmxPort2Text.addFocusListener(focusListener);
-		host2Text.addFocusListener(focusListener);
-		templateText.addFocusListener(focusListener);
+		if (jmxPort1Text != null) jmxPort1Text.addFocusListener(focusListener);
+		if (host1Text != null) host1Text.addFocusListener(focusListener);
+		if (jmxPort2Text != null) jmxPort2Text.addFocusListener(focusListener);
+		if (host2Text != null) host2Text.addFocusListener(focusListener);
+		if (templateText != null) templateText.addFocusListener(focusListener);
 	}
 	
 	@Override
@@ -360,20 +369,24 @@ public class CcfCcfEditorPage extends CcfEditorPage {
 		if (descriptionText.getText().trim().length() == 0 ||
 		urlText.getText().trim().length() == 0 ||
 		driverText.getText().trim().length() == 0) return false;
-		if (jmxPort1Text.getText().trim().length() > 0) {
-			int port = 0;
-			try {
-				port = Integer.parseInt(jmxPort1Text.getText().trim());
-			} catch (Exception e) {}
-			if (port <= 0) return false;			
+		if (jmxPort1Text != null) {
+			if (jmxPort1Text.getText().trim().length() > 0) {
+				int port = 0;
+				try {
+					port = Integer.parseInt(jmxPort1Text.getText().trim());
+				} catch (Exception e) {}
+				if (port <= 0) return false;			
+			}
 		}
-		if (jmxPort2Text.getText().trim().length() > 0) {
-			int port = 0;
-			try {
-				port = Integer.parseInt(jmxPort2Text.getText().trim());
-			} catch (Exception e) {}
-			if (port <= 0) return false;			
-		}		
+		if (jmxPort2Text != null) {
+			if (jmxPort2Text.getText().trim().length() > 0) {
+				int port = 0;
+				try {
+					port = Integer.parseInt(jmxPort2Text.getText().trim());
+				} catch (Exception e) {}
+				if (port <= 0) return false;			
+			}		
+		}
 		return true;
 	}
 
@@ -395,11 +408,11 @@ public class CcfCcfEditorPage extends CcfEditorPage {
 		!driverText.getText().trim().equals(driver) ||
 		!userText.getText().trim().equals(user) ||
 		!passwordText.getText().trim().equals(password) ||
-		!jmxPort1Text.getText().trim().equals(jmxPort1)	 ||
-		!host1Text.getText().trim().equals(ccfHost1) ||
-		!jmxPort2Text.getText().trim().equals(jmxPort2) ||
-		!host2Text.getText().trim().equals(ccfHost2) ||
-		!templateText.getText().trim().equals(template);
+		(jmxPort1Text != null && !jmxPort1Text.getText().trim().equals(jmxPort1)) ||
+		(host1Text != null && !host1Text.getText().trim().equals(ccfHost1)) ||
+		(jmxPort2Text != null && !jmxPort2Text.getText().trim().equals(jmxPort2)) ||
+		(host2Text != null && !host2Text.getText().trim().equals(ccfHost2)) ||
+		(templateText != null && !templateText.getText().trim().equals(template));
 	}
 	
 	@Override
@@ -408,11 +421,16 @@ public class CcfCcfEditorPage extends CcfEditorPage {
 		if (ccfPropertiesUpdated()) {
 			saveCcfProperties();			
 		}
-		if (!descriptionText.getText().trim().equals(getLandscape().getDescription())) {
+		boolean descriptionChanged = !descriptionText.getText().trim().equals(getLandscape().getDescription());
+		if (descriptionChanged || getLandscape().getRole() == Landscape.ROLE_OPERATOR) {
 			getLandscape().setDescription(descriptionText.getText().trim().replaceAll("/", "%slash%"));
+			getLandscape().setDatabaseUrl(urlText.getText().trim());
+			getLandscape().setDatabaseDriver(driverText.getText().trim());
+			getLandscape().setDatabaseUser(userText.getText().trim());
+			getLandscape().setDatabasePassword(passwordText.getText().trim());
 			if (Activator.getDefault().storeLandscape(getLandscape())) {
 				// Delete old node.
-				Activator.getDefault().deleteLandscape(getLandscape());
+				if (descriptionChanged) Activator.getDefault().deleteLandscape(getLandscape());
 			}
 			Landscape landscape = Activator.getDefault().getLandscape(getLandscape().getDescription());
 			if (landscape != null) setLandscape(landscape);
@@ -422,11 +440,11 @@ public class CcfCcfEditorPage extends CcfEditorPage {
 		driver = driverText.getText().trim();
 		user = userText.getText().trim();
 		password = passwordText.getText().trim();
-		jmxPort1 = jmxPort1Text.getText().trim();
-		ccfHost1 = host1Text.getText().trim();
-		jmxPort2 = jmxPort2Text.getText().trim();
-		ccfHost2 = host2Text.getText().trim();
-		template = templateText.getText().trim();
+		if (jmxPort1Text != null) jmxPort1 = jmxPort1Text.getText().trim();
+		if (host1Text != null) ccfHost1 = host1Text.getText().trim();
+		if (jmxPort2Text != null) jmxPort2 = jmxPort2Text.getText().trim();
+		if (host2Text != null) ccfHost2 = host2Text.getText().trim();
+		if (templateText != null) template = templateText.getText().trim();
 	}
 	
 	private void saveCcfProperties() {
@@ -455,21 +473,23 @@ public class CcfCcfEditorPage extends CcfEditorPage {
 			properties.setProperty(Activator.PROPERTIES_CCF_DRIVER, getDriver());
 			properties.setProperty(Activator.PROPERTIES_CCF_USER, getUser());
 			properties.setProperty(Activator.PROPERTIES_CCF_PASSWORD, getPassword());
-			properties.setProperty(Activator.PROPERTIES_CCF_LOG_MESSAGE_TEMPLATE, getLogMessageTemplate());
-			if (propertiesFile1 != null) {
-				properties.setProperty(Activator.PROPERTIES_CCF_JMX_PORT, getJmxPort1());
-				properties.setProperty(Activator.PROPERTIES_CCF_HOST_NAME, getHostName1());
-				FileOutputStream outputStream = new FileOutputStream(propertiesFile1);
-				properties.store(outputStream, null);
-				outputStream.close();
+			if (getLandscape().getRole() == Landscape.ROLE_ADMINISTRATOR) {
+				properties.setProperty(Activator.PROPERTIES_CCF_LOG_MESSAGE_TEMPLATE, getLogMessageTemplate());
+				if (propertiesFile1 != null) {
+					properties.setProperty(Activator.PROPERTIES_CCF_JMX_PORT, getJmxPort1());
+					properties.setProperty(Activator.PROPERTIES_CCF_HOST_NAME, getHostName1());
+					FileOutputStream outputStream = new FileOutputStream(propertiesFile1);
+					properties.store(outputStream, null);
+					outputStream.close();
+				}
+				if (propertiesFile2 != null) {
+					properties.setProperty(Activator.PROPERTIES_CCF_JMX_PORT, getJmxPort2());
+					properties.setProperty(Activator.PROPERTIES_CCF_HOST_NAME, getHostName2());
+					FileOutputStream outputStream = new FileOutputStream(propertiesFile2);
+					properties.store(outputStream, null);
+					outputStream.close();
+				}	
 			}
-			if (propertiesFile2 != null) {
-				properties.setProperty(Activator.PROPERTIES_CCF_JMX_PORT, getJmxPort2());
-				properties.setProperty(Activator.PROPERTIES_CCF_HOST_NAME, getHostName2());
-				FileOutputStream outputStream = new FileOutputStream(propertiesFile2);
-				properties.store(outputStream, null);
-				outputStream.close();
-			}						
 		} catch (Exception e) {
 			Activator.handleError(e);
 		}

@@ -274,7 +274,11 @@ public class SynchronizationStatus implements IPropertySource, Comparable {
 	
 	public ProjectMappings getProjectMappings() {
 		if (projectMappings == null) {
-			projectMappings = new ProjectMappings(landscape);
+			if (landscape != null && landscape.getRole() == Landscape.ROLE_OPERATOR) {
+				projectMappings = new ProjectMappings(landscape);
+			} else {
+				projectMappings = new AdministratorProjectMappings(landscape);
+			}
 		}
 		return projectMappings;
 	}

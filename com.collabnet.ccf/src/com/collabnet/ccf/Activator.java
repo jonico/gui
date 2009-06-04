@@ -21,7 +21,10 @@ import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;
 
 import com.collabnet.ccf.db.CcfDataProvider;
+import com.collabnet.ccf.model.AdministratorLandscape;
+import com.collabnet.ccf.model.Database;
 import com.collabnet.ccf.model.Landscape;
+import com.collabnet.ccf.model.OperatorLandscape;
 import com.collabnet.ccf.model.ProjectMappings;
 
 /**
@@ -50,6 +53,7 @@ public class Activator extends AbstractUIPlugin {
 	public static final String IMAGE_LOG = "log.gif"; //$NON-NLS-1$
 	public static final String IMAGE_LANDSCAPE_QC_PT = "landscape_QC_PT.gif"; //$NON-NLS-1$
 	public static final String IMAGE_LANDSCAPE_QC_TF = "landscape_QC_TF.gif"; //$NON-NLS-1$
+	public static final String IMAGE_LANDSCAPE_OPERATOR = "landscape_operator.gif"; //$NON-NLS-1$
 	public static final String IMAGE_REFRESH = "refresh.gif"; //$NON-NLS-1$
 	public static final String IMAGE_FILTERS = "filters.gif"; //$NON-NLS-1$
 	public static final String IMAGE_FORWARD = "forward_nav.gif"; //$NON-NLS-1$
@@ -227,9 +231,16 @@ public class Activator extends AbstractUIPlugin {
 		return landscapeContributor;
 	}
 	
-	public boolean storeLandscape(String description, ILandscapeContributor landscapeContributor) {
+	public boolean storeLandscape(String description, int role, Database database, ILandscapeContributor landscapeContributor) {
 		Landscape landscape = new Landscape();
 		landscape.setDescription(description);
+		landscape.setRole(role);
+		if (database != null) {
+			landscape.setDatabaseUrl(database.getUrl());
+			landscape.setDatabaseDriver(database.getDriver());
+			landscape.setDatabaseUser(database.getUser());
+			landscape.setDatabasePassword(database.getPassword());
+		}
 		landscape.setType1(landscapeContributor.getType1());
 		landscape.setType2(landscapeContributor.getType2());
 		landscape.setConfigurationFolder1(landscapeContributor.getConfigurationFolder1());
@@ -240,10 +251,18 @@ public class Activator extends AbstractUIPlugin {
 	
 	public boolean storeLandscape(Landscape landscape) {
 		Preferences prefs = getInstancePreferences().node(PREF_CCF_LANDSCAPES_NODE).node(landscape.getDescription().replaceAll("/", "%slash%")); //$NON-NLS-1$ //$NON-NLS-2$
+		prefs.putInt("role", landscape.getRole());
 		prefs.put("type1", landscape.getType1()); //$NON-NLS-1$
 		prefs.put("type2", landscape.getType2()); //$NON-NLS-1$
-		prefs.put("configFolder1", landscape.getConfigurationFolder1()); //$NON-NLS-1$
-		if (landscape.getConfigurationFolder2() != null) prefs.put("configFolder2", landscape.getConfigurationFolder2()); //$NON-NLS-1$
+		if (landscape.getRole() == Landscape.ROLE_ADMINISTRATOR) {
+			prefs.put("configFolder1", landscape.getConfigurationFolder1()); //$NON-NLS-1$
+			if (landscape.getConfigurationFolder2() != null) prefs.put("configFolder2", landscape.getConfigurationFolder2()); //$NON-NLS-1$
+		} else {
+			prefs.put("databaseUrl", landscape.getDatabaseUrl()); //$NON-NLS-1$
+			prefs.put("databaseDriver", landscape.getDatabaseDriver()); //$NON-NLS-1$
+			prefs.put("databaseUser", landscape.getDatabaseUser()); //$NON-NLS-1$
+			prefs.put("databasePassword", landscape.getDatabasePassword()); //$NON-NLS-1$
+		}
 		prefs.put("contributorId", landscape.getContributorId()); //$NON-NLS-1$
 		try {
 			prefs.flush();
@@ -282,8 +301,19 @@ public class Activator extends AbstractUIPlugin {
 			String[] childrenNames = getInstancePreferences().node(PREF_CCF_LANDSCAPES_NODE).childrenNames();
 			for (int i = 0; i < childrenNames.length; i++) {
 				Preferences node = getInstancePreferences().node(PREF_CCF_LANDSCAPES_NODE).node(childrenNames[i]); //$NON-NLS-1$
-				Landscape landscape = new Landscape();
+				Landscape landscape = null;
+				if (node.getInt("role", Landscape.ROLE_ADMINISTRATOR) == Landscape.ROLE_OPERATOR) {
+					landscape = new OperatorLandscape();
+				} else {
+					landscape = new AdministratorLandscape();
+				}
 				landscape.setDescription(childrenNames[i].replaceAll("%slash%", "/")); //$NON-NLS-1$ //$NON-NLS-2$
+				if (landscape.getRole() == Landscape.ROLE_OPERATOR) {
+					landscape.setDatabaseUrl(node.get("databaseUrl", DATABASE_DEFAULT_URL)); //$NON-NLS-1$
+					landscape.setDatabaseDriver(node.get("databaseDriver", DATABASE_DEFAULT_DRIVER)); //$NON-NLS-1$
+					landscape.setDatabaseUser(node.get("databaseUser", DATABASE_DEFAULT_USER)); //$NON-NLS-1$
+					landscape.setDatabasePassword(node.get("databasePassword", DATABASE_DEFAULT_PASSWORD)); //$NON-NLS-1$
+				}
 				landscape.setType1(node.get("type1", "")); //$NON-NLS-1$ //$NON-NLS-2$
 				landscape.setType2(node.get("type2", "")); //$NON-NLS-1$ //$NON-NLS-2$
 				landscape.setConfigurationFolder1(node.get("configFolder1", "")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -346,6 +376,7 @@ public class Activator extends AbstractUIPlugin {
 	}
 	
 	public static Image getImage(Landscape landscape) {
+		if (landscape.getRole() == Landscape.ROLE_OPERATOR) return getImage(IMAGE_LANDSCAPE_OPERATOR);
 		Image image = getImage("landscape_" + landscape.getType1() + "_" + landscape.getType2() + ".gif"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		if (image == null) image = getImage("landscape.gif"); //$NON-NLS-1$
 		return image;
@@ -370,6 +401,7 @@ public class Activator extends AbstractUIPlugin {
 		createImageDescriptor(IMAGE_LANDSCAPE);
 		createImageDescriptor(IMAGE_LANDSCAPE_QC_PT);
 		createImageDescriptor(IMAGE_LANDSCAPE_QC_TF);
+		createImageDescriptor(IMAGE_LANDSCAPE_OPERATOR);
 		createImageDescriptor(IMAGE_PROJECT_MAPPINGS);
 		createImageDescriptor(IMAGE_LOGS);
 		createImageDescriptor(IMAGE_LOG);
@@ -399,6 +431,7 @@ public class Activator extends AbstractUIPlugin {
 		reg.put(IMAGE_LANDSCAPE, getImageDescriptor(IMAGE_LANDSCAPE));
 		reg.put(IMAGE_LANDSCAPE_QC_PT, getImageDescriptor(IMAGE_LANDSCAPE_QC_PT));
 		reg.put(IMAGE_LANDSCAPE_QC_TF, getImageDescriptor(IMAGE_LANDSCAPE_QC_TF));
+		reg.put(IMAGE_LANDSCAPE_OPERATOR, getImageDescriptor(IMAGE_LANDSCAPE_OPERATOR));
 		reg.put(IMAGE_PROJECT_MAPPINGS, getImageDescriptor(IMAGE_PROJECT_MAPPINGS));
 		reg.put(IMAGE_LOGS, getImageDescriptor(IMAGE_LOGS));
 		reg.put(IMAGE_LOG, getImageDescriptor(IMAGE_LOG));
