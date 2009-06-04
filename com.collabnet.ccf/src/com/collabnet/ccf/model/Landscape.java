@@ -25,8 +25,10 @@ public class Landscape implements IPropertySource {
 	
 	private String ccfHost1;
 	private String ccfHost2;
+	private String logsPath1;
 	private String jmxPort1;
 	private String jmxPort2;
+	private String logsPath2;
 
 	private String type1;
 	private String type2;
@@ -215,6 +217,14 @@ public class Landscape implements IPropertySource {
 		this.jmxPort2 = jmxPort2;
 	}
 	
+	public void setLogsPath1(String logsPath1) {
+		this.logsPath1 = logsPath1;
+	}
+	
+	public void setLogsPath2(String logsPath2) {
+		this.logsPath2 = logsPath2;
+	}
+	
 	public String getHostName1() {
 		String hostName = getCcfHost1();
 		int index = hostName.indexOf("//");
@@ -270,6 +280,14 @@ public class Landscape implements IPropertySource {
 			url.append(":" + port);
 		}
 		return url.toString();
+	}
+	
+	public String getLogsPath1() {
+		return logsPath1;
+	}
+	
+	public String getLogsPath2() {
+		return logsPath2;
 	}
 	
 	public String getJmxUrl2() {
@@ -414,6 +432,12 @@ public class Landscape implements IPropertySource {
 	}
 	
 	public File getLogsFolder1() {
+		String logsPath = getLogsPath1();
+		if (logsPath != null) {
+			File logsFolder = new File(logsPath);
+			if (logsFolder.exists()) return logsFolder;
+			else return null;
+		}
 		if (logsFolder1 == null) {
 			logsFolder1 = getLogsFolder(configurationFolder1);
 		}
@@ -422,6 +446,12 @@ public class Landscape implements IPropertySource {
 	}
 	
 	public File getLogsFolder2() {
+		String logsPath = getLogsPath2();
+		if (logsPath != null) {
+			File logsFolder = new File(logsPath);
+			if (logsFolder.exists()) return logsFolder;
+			else return null;
+		}
 		if (logsFolder2 == null) {
 			logsFolder2 = getLogsFolder(configurationFolder2);
 		}

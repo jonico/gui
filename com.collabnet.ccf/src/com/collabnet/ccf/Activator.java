@@ -265,6 +265,8 @@ public class Activator extends AbstractUIPlugin {
 			prefs.put("databasePassword", landscape.getDatabasePassword()); //$NON-NLS-1$			
 			prefs.put("ccfHost1", landscape.getCcfHost1()); //$NON-NLS-1$
 			prefs.put("ccfHost2", landscape.getCcfHost2()); //$NON-NLS-1$
+			prefs.put("logsPath1", landscape.getLogsPath1()); //$NON-NLS-1$
+			prefs.put("logsPath2", landscape.getLogsPath2()); //$NON-NLS-1$
 			prefs.put("jmxPort1", landscape.getJmxPort1()); //$NON-NLS-1$
 			prefs.put("jmxPort2", landscape.getJmxPort2()); //$NON-NLS-1$
 		}
@@ -320,6 +322,9 @@ public class Activator extends AbstractUIPlugin {
 					landscape.setDatabaseDriver(node.get("databaseDriver", DATABASE_DEFAULT_DRIVER)); //$NON-NLS-1$
 					landscape.setDatabaseUser(node.get("databaseUser", DATABASE_DEFAULT_USER)); //$NON-NLS-1$
 					landscape.setDatabasePassword(node.get("databasePassword", DATABASE_DEFAULT_PASSWORD)); //$NON-NLS-1$
+					
+					landscape.setLogsPath1(node.get("logsPath1", "")); //$NON-NLS-1$ //$NON-NLS-2$
+					landscape.setLogsPath2(node.get("logsPath2", "")); //$NON-NLS-1$ //$NON-NLS-2$
 					
 					landscape.setCcfHost1(node.get("ccfHost1", DEFAULT_CCF_HOST)); //$NON-NLS-1$
 					landscape.setCcfHost2(node.get("ccfHost2", DEFAULT_CCF_HOST)); //$NON-NLS-1$
