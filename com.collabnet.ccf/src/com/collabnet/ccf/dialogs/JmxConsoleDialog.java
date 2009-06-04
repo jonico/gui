@@ -337,7 +337,7 @@ public class JmxConsoleDialog extends CcfDialog {
 		restartButton1.setEnabled(running1);
 		String artifactsShipped = monitor1.getNumberOfArtifactsShipped(readerMetricsName);
 		if (artifactsShipped == null) artifactsShippedText1.setText("");
-		else artifactsQuarantinedText1.setText(artifactsShipped);
+		else artifactsShippedText1.setText(artifactsShipped);
 		String exceptionsCaught = monitor1.getNumberOfCCFExceptionsCaught();
 		if (exceptionsCaught == null) exceptionsCaughtText1.setText("");
 		else exceptionsCaughtText1.setText(exceptionsCaught);
@@ -377,7 +377,7 @@ public class JmxConsoleDialog extends CcfDialog {
 		restartButton2.setEnabled(running1);
 		String artifactsShipped = monitor2.getNumberOfArtifactsShipped(readerMetricsName);
 		if (artifactsShipped == null) artifactsShippedText2.setText("");
-		else artifactsQuarantinedText2.setText(artifactsShipped);
+		else artifactsShippedText2.setText(artifactsShipped);
 		String exceptionsCaught = monitor2.getNumberOfCCFExceptionsCaught();
 		if (exceptionsCaught == null) exceptionsCaughtText2.setText("");
 		else exceptionsCaughtText2.setText(exceptionsCaught);
