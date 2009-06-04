@@ -189,7 +189,7 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 		gd.horizontalSpan = 2;
 		sizeGroup.setLayoutData(gd);	
 		
-		toolkit.createLabel(sizeGroup, "Maximum attachment size per artifact:");
+		toolkit.createLabel(sizeGroup, "Maximum attachment size per artifact (bytes):");
 		attachmentSizeText = toolkit.createText(sizeGroup, attachmentSize);
 		gd = new GridData();
 		gd.widthHint = 100;
