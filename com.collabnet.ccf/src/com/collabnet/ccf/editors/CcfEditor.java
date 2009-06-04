@@ -12,11 +12,15 @@ import org.eclipse.ui.forms.editor.FormEditor;
 import org.eclipse.ui.part.EditorPart;
 
 import com.collabnet.ccf.Activator;
+import com.collabnet.ccf.CCFJMXMonitorBean;
 import com.collabnet.ccf.model.Landscape;
 import com.collabnet.ccf.views.CcfExplorerView;
 
 public class CcfEditor extends FormEditor implements ISaveablePart2 {
 	private Landscape landscape;
+	
+	private CCFJMXMonitorBean monitor1;
+	private CCFJMXMonitorBean monitor2;
 	
 	private CcfCcfEditorPage ccfPage;
 	private CcfSystemEditorPage qcPage;
@@ -38,9 +42,34 @@ public class CcfEditor extends FormEditor implements ISaveablePart2 {
         setInput(input);
         setPartName(input.getName());
 		CcfEditorInput ccfEditorInput = (CcfEditorInput)getEditorInput();
-		landscape = ccfEditorInput.getLandscape();		
+		landscape = ccfEditorInput.getLandscape();	
+		if (landscape != null) {
+			getMonitors();
+		}
         setTitleImage(Activator.getImage(landscape));
     }
+
+	private void getMonitors() {
+		int port1 = 0;
+		int port2 = 0;
+		if (landscape.getType2().equals(Landscape.TYPE_TF)) {
+			port1 = 10001;
+			port2 = 10002;
+		}
+		if (landscape.getType2().equals(Landscape.TYPE_PT)) {
+			port1 = 10000;
+			port2 = 9999;
+		}
+		if (port1 != 0) {
+			monitor1 = new CCFJMXMonitorBean();
+			monitor1.setHostName(landscape.getHostName1());
+			monitor1.setRmiPort(port1);
+			
+			monitor2 = new CCFJMXMonitorBean();
+			monitor2.setHostName(landscape.getHostName2());
+			monitor2.setRmiPort(port2);
+		}
+	}
 
 	@Override
 	protected void addPages() {
@@ -85,6 +114,17 @@ public class CcfEditor extends FormEditor implements ISaveablePart2 {
 		
 		if (CcfExplorerView.getView() != null) {
 			CcfExplorerView.getView().refresh();
+		}
+		
+		if ((monitor1 != null && monitor1.isAlive()) || (monitor1 != null && monitor1.isAlive())) {
+			if (MessageDialog.openQuestion(Display.getDefault().getActiveShell(), "Landscape","Changes will take effect when CCF is restarted.\n\nDo you wish to restart now?")) {
+				if (monitor1 != null && monitor1.isAlive()) {
+					monitor1.restartCCFInstance();
+				}
+				if (monitor2 != null && monitor2.isAlive()) {
+					monitor2.restartCCFInstance();
+				}
+			}
 		}
 	}
 
