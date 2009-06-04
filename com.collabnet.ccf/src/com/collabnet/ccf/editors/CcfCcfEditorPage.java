@@ -211,48 +211,49 @@ public class CcfCcfEditorPage extends CcfEditorPage {
 		Composite templateSectionClient = null;
 		Section hostSection = null;
 		Section templateSection = null;
-		if (getLandscape().getRole() == Landscape.ROLE_ADMINISTRATOR) {
-			hostSection = toolkit.createSection(composite, Section.TITLE_BAR | Section.TWISTIE | Section.EXPANDED);
-	        td = new TableWrapData(TableWrapData.FILL_GRAB);
-	        td.colspan = 4;
-	        hostSection.setLayoutData(td);
-	        hostSection.setText("CCF Hosts");
-	        hostSectionClient = toolkit.createComposite(hostSection); 
-	        GridLayout jmxLayout = new GridLayout();
-	        jmxLayout.numColumns = 2;
-	        jmxLayout.verticalSpacing = 10;
-	        hostSectionClient.setLayout(jmxLayout);
-	        hostSection.setClient(hostSectionClient);
-	        hostSection.addExpansionListener(new ExpansionAdapter() {
-	            public void expansionStateChanged(ExpansionEvent e) {
-	                form.reflow(true);
-	                if (e.getState()) getDialogSettings().put(JMX_SECTION_STATE, STATE_EXPANDED);
-	                else getDialogSettings().put(JMX_SECTION_STATE, STATE_CONTRACTED);
-	            }
-	        });	
-	        
-			toolkit.createLabel(hostSectionClient, getLandscape().getType2() + " => " + getLandscape().getType1() + " host name:");
-			host1Text = toolkit.createText(hostSectionClient, ccfHost1);
-			gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
-			host1Text.setLayoutData(gd);
-	        
-			toolkit.createLabel(hostSectionClient, getLandscape().getType2() + " => " + getLandscape().getType1() + " JMX port:");
-			jmxPort1Text = toolkit.createText(hostSectionClient, jmxPort1);
-			gd = new GridData();
-			gd.widthHint = 100;
-			jmxPort1Text.setLayoutData(gd);
-			
-			toolkit.createLabel(hostSectionClient, getLandscape().getType1() + " => " + getLandscape().getType2() + " host name:");
-			host2Text = toolkit.createText(hostSectionClient, ccfHost2);
-			gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
-			host2Text.setLayoutData(gd);
-			
-			toolkit.createLabel(hostSectionClient, getLandscape().getType1() + " => " + getLandscape().getType2() + " JMX port:");
-			jmxPort2Text = toolkit.createText(hostSectionClient, jmxPort2);
-			gd = new GridData();
-			gd.widthHint = 100;
-			jmxPort2Text.setLayoutData(gd);
-			
+		
+		hostSection = toolkit.createSection(composite, Section.TITLE_BAR | Section.TWISTIE | Section.EXPANDED);
+        td = new TableWrapData(TableWrapData.FILL_GRAB);
+        td.colspan = 4;
+        hostSection.setLayoutData(td);
+        hostSection.setText("CCF Hosts");
+        hostSectionClient = toolkit.createComposite(hostSection); 
+        GridLayout jmxLayout = new GridLayout();
+        jmxLayout.numColumns = 2;
+        jmxLayout.verticalSpacing = 10;
+        hostSectionClient.setLayout(jmxLayout);
+        hostSection.setClient(hostSectionClient);
+        hostSection.addExpansionListener(new ExpansionAdapter() {
+            public void expansionStateChanged(ExpansionEvent e) {
+                form.reflow(true);
+                if (e.getState()) getDialogSettings().put(JMX_SECTION_STATE, STATE_EXPANDED);
+                else getDialogSettings().put(JMX_SECTION_STATE, STATE_CONTRACTED);
+            }
+        });	
+        
+		toolkit.createLabel(hostSectionClient, getLandscape().getType2() + " => " + getLandscape().getType1() + " host name:");
+		host1Text = toolkit.createText(hostSectionClient, ccfHost1);
+		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
+		host1Text.setLayoutData(gd);
+        
+		toolkit.createLabel(hostSectionClient, getLandscape().getType2() + " => " + getLandscape().getType1() + " JMX port:");
+		jmxPort1Text = toolkit.createText(hostSectionClient, jmxPort1);
+		gd = new GridData();
+		gd.widthHint = 100;
+		jmxPort1Text.setLayoutData(gd);
+		
+		toolkit.createLabel(hostSectionClient, getLandscape().getType1() + " => " + getLandscape().getType2() + " host name:");
+		host2Text = toolkit.createText(hostSectionClient, ccfHost2);
+		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
+		host2Text.setLayoutData(gd);
+		
+		toolkit.createLabel(hostSectionClient, getLandscape().getType1() + " => " + getLandscape().getType2() + " JMX port:");
+		jmxPort2Text = toolkit.createText(hostSectionClient, jmxPort2);
+		gd = new GridData();
+		gd.widthHint = 100;
+		jmxPort2Text.setLayoutData(gd);
+		
+		if (getLandscape().getRole() == Landscape.ROLE_ADMINISTRATOR) {			
 			templateSection = toolkit.createSection(composite, Section.TITLE_BAR | Section.TWISTIE | Section.EXPANDED);
 	        td = new TableWrapData(TableWrapData.FILL_GRAB);
 	        td.colspan = 4;
@@ -428,6 +429,10 @@ public class CcfCcfEditorPage extends CcfEditorPage {
 			getLandscape().setDatabaseDriver(driverText.getText().trim());
 			getLandscape().setDatabaseUser(userText.getText().trim());
 			getLandscape().setDatabasePassword(passwordText.getText().trim());
+			getLandscape().setCcfHost1(host1Text.getText().trim());
+			getLandscape().setJmxPort1(jmxPort1Text.getText().trim());
+			getLandscape().setCcfHost2(host2Text.getText().trim());
+			getLandscape().setJmxPort2(jmxPort2Text.getText().trim());
 			if (Activator.getDefault().storeLandscape(getLandscape())) {
 				// Delete old node.
 				if (descriptionChanged) Activator.getDefault().deleteLandscape(getLandscape());

@@ -132,6 +132,7 @@ public class Activator extends AbstractUIPlugin {
 	public static final String DEFAULT_IDENTITY_MAPPING_COLUMNS = CcfDataProvider.DEFAULT_IDENTITY_MAPPING_COLUMNS;
 	public static final boolean DEFAULT_SHOW_HOSPITAL_COUNT = true;
 	
+	public static final String DEFAULT_CCF_HOST = "http://localhost"; //$NON-NLS-1$
 	public static final String DEFAULT_JMX_PORT_PT2QC = "8082";
 	public static final String DEFAULT_JMX_PORT_QC2PT = "8083";
 	public static final String DEFAULT_JMX_PORT_QC2SFEE = "8084";
@@ -261,7 +262,11 @@ public class Activator extends AbstractUIPlugin {
 			prefs.put("databaseUrl", landscape.getDatabaseUrl()); //$NON-NLS-1$
 			prefs.put("databaseDriver", landscape.getDatabaseDriver()); //$NON-NLS-1$
 			prefs.put("databaseUser", landscape.getDatabaseUser()); //$NON-NLS-1$
-			prefs.put("databasePassword", landscape.getDatabasePassword()); //$NON-NLS-1$
+			prefs.put("databasePassword", landscape.getDatabasePassword()); //$NON-NLS-1$			
+			prefs.put("ccfHost1", landscape.getCcfHost1()); //$NON-NLS-1$
+			prefs.put("ccfHost2", landscape.getCcfHost2()); //$NON-NLS-1$
+			prefs.put("jmxPort1", landscape.getJmxPort1()); //$NON-NLS-1$
+			prefs.put("jmxPort2", landscape.getJmxPort2()); //$NON-NLS-1$
 		}
 		prefs.put("contributorId", landscape.getContributorId()); //$NON-NLS-1$
 		try {
@@ -308,14 +313,32 @@ public class Activator extends AbstractUIPlugin {
 					landscape = new AdministratorLandscape();
 				}
 				landscape.setDescription(childrenNames[i].replaceAll("%slash%", "/")); //$NON-NLS-1$ //$NON-NLS-2$
+				landscape.setType1(node.get("type1", "")); //$NON-NLS-1$ //$NON-NLS-2$
+				landscape.setType2(node.get("type2", "")); //$NON-NLS-1$ //$NON-NLS-2$				
 				if (landscape.getRole() == Landscape.ROLE_OPERATOR) {
 					landscape.setDatabaseUrl(node.get("databaseUrl", DATABASE_DEFAULT_URL)); //$NON-NLS-1$
 					landscape.setDatabaseDriver(node.get("databaseDriver", DATABASE_DEFAULT_DRIVER)); //$NON-NLS-1$
 					landscape.setDatabaseUser(node.get("databaseUser", DATABASE_DEFAULT_USER)); //$NON-NLS-1$
 					landscape.setDatabasePassword(node.get("databasePassword", DATABASE_DEFAULT_PASSWORD)); //$NON-NLS-1$
+					
+					landscape.setCcfHost1(node.get("ccfHost1", DEFAULT_CCF_HOST)); //$NON-NLS-1$
+					landscape.setCcfHost2(node.get("ccfHost2", DEFAULT_CCF_HOST)); //$NON-NLS-1$
+				
+					String defaultJmxPort1 = null;
+					String defaultJmxPort2 = null;
+					
+					if (landscape.getType2().equals(Landscape.TYPE_PT)) {
+						defaultJmxPort1 = DEFAULT_JMX_PORT_PT2QC;
+						defaultJmxPort2 = DEFAULT_JMX_PORT_QC2PT;
+					}
+					if (landscape.getType2().equals(Landscape.TYPE_TF)) {
+						defaultJmxPort1 = DEFAULT_JMX_PORT_SFEE2QC;
+						defaultJmxPort2 = DEFAULT_JMX_PORT_QC2SFEE;
+					}
+					
+					landscape.setJmxPort1(node.get("jmxPort1", defaultJmxPort1)); //$NON-NLS-1$
+					landscape.setJmxPort2(node.get("jmxPort2", defaultJmxPort2)); //$NON-NLS-1$
 				}
-				landscape.setType1(node.get("type1", "")); //$NON-NLS-1$ //$NON-NLS-2$
-				landscape.setType2(node.get("type2", "")); //$NON-NLS-1$ //$NON-NLS-2$
 				landscape.setConfigurationFolder1(node.get("configFolder1", "")); //$NON-NLS-1$ //$NON-NLS-2$
 				landscape.setConfigurationFolder2(node.get("configFolder2", "")); //$NON-NLS-1$ //$NON-NLS-2$
 				landscape.setNode(node);

@@ -224,17 +224,15 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 		
 		IStructuredSelection selection = (IStructuredSelection)treeViewer.getSelection();
 		if (selection.size() == 1 && selection.getFirstElement() instanceof Landscape) {
-			// TODO: Enable console options for operator landscapes.
-			if (((Landscape)selection.getFirstElement()).getRole() == Landscape.ROLE_ADMINISTRATOR) {
-				manager.add(new JmxConsoleAction((Landscape)selection.getFirstElement()));
-				
-				MenuManager jmxMenu = new MenuManager("Open JMX console in browser", IWorkbenchActionConstants.GROUP_ADD); //$NON-NLS-1$
-				JmxBrowserAction jmxToQcAction = new JmxBrowserAction((Landscape)selection.getFirstElement(), JmxBrowserAction.TO_QC);
-				jmxMenu.add(jmxToQcAction);
-				JmxBrowserAction jmxFromQcAction = new JmxBrowserAction((Landscape)selection.getFirstElement(), JmxBrowserAction.FROM_QC);
-				jmxMenu.add(jmxFromQcAction);			
-				manager.add(jmxMenu);
-			}
+
+			manager.add(new JmxConsoleAction((Landscape)selection.getFirstElement()));
+			
+			MenuManager jmxMenu = new MenuManager("Open JMX console in browser", IWorkbenchActionConstants.GROUP_ADD); //$NON-NLS-1$
+			JmxBrowserAction jmxToQcAction = new JmxBrowserAction((Landscape)selection.getFirstElement(), JmxBrowserAction.TO_QC);
+			jmxMenu.add(jmxToQcAction);
+			JmxBrowserAction jmxFromQcAction = new JmxBrowserAction((Landscape)selection.getFirstElement(), JmxBrowserAction.FROM_QC);
+			jmxMenu.add(jmxFromQcAction);			
+			manager.add(jmxMenu);
 			
 			ILandscapeContributor landscapeContributor = null;
 			try {

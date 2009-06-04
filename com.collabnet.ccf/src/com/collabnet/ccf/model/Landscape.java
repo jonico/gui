@@ -22,6 +22,11 @@ public class Landscape implements IPropertySource {
 	private String databaseDriver;
 	private String databaseUser;
 	private String databasePassword;
+	
+	private String ccfHost1;
+	private String ccfHost2;
+	private String jmxPort1;
+	private String jmxPort2;
 
 	private String type1;
 	private String type2;
@@ -194,6 +199,22 @@ public class Landscape implements IPropertySource {
 		return password;
 	}
 	
+	public void setCcfHost1(String ccfHost1) {
+		this.ccfHost1 = ccfHost1;
+	}
+	
+	public void setCcfHost2(String ccfHost2) {
+		this.ccfHost2 = ccfHost2;
+	}
+	
+	public void setJmxPort1(String jmxPort1) {
+		this.jmxPort1 = jmxPort1;
+	}
+	
+	public void setJmxPort2(String jmxPort2) {
+		this.jmxPort2 = jmxPort2;
+	}
+	
 	public String getHostName1() {
 		String hostName = getCcfHost1();
 		int index = hostName.indexOf("//");
@@ -213,6 +234,7 @@ public class Landscape implements IPropertySource {
 	}
 	
 	public String getCcfHost1() {
+		if (ccfHost1 != null) return ccfHost1;
 		String hostName = null;
 		ccfProperties1 = getCcfProperties1();
 		if (ccfProperties1 != null) {
@@ -222,6 +244,7 @@ public class Landscape implements IPropertySource {
 	}
 	
 	public String getCcfHost2() {
+		if (ccfHost2 != null) return ccfHost2;
 		String hostName = null;
 		ccfProperties2 = getCcfProperties2();
 		if (ccfProperties2 != null) {
@@ -231,6 +254,7 @@ public class Landscape implements IPropertySource {
 	}		
 	
 	public String getJmxPort1() {
+		if (jmxPort1 != null) return jmxPort1;
 		String port = null;
 		ccfProperties1 = getCcfProperties1();
 		if (ccfProperties1 != null) {
@@ -258,6 +282,7 @@ public class Landscape implements IPropertySource {
 	}
 	
 	public String getJmxPort2() {
+		if (jmxPort2 != null) return jmxPort2;
 		String port = null;
 		ccfProperties2 = getCcfProperties2();
 		if (ccfProperties2 != null) {
