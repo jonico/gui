@@ -19,7 +19,6 @@ import org.eclipse.swt.widgets.Text;
 import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.CCFJMXMonitorBean;
 import com.collabnet.ccf.db.CcfDataProvider;
-import com.collabnet.ccf.db.Filter;
 import com.collabnet.ccf.model.Landscape;
 
 public class JmxConsoleDialog extends CcfDialog {
@@ -426,16 +425,12 @@ public class JmxConsoleDialog extends CcfDialog {
 		} else {
 			targetType = landscape.getType2();
 		}
-		Filter targetTypeFilter = new Filter(CcfDataProvider.HOSPITAL_TARGET_SYSTEM_KIND, targetType, true, Filter.FILTER_TYPE_LIKE);
-		Filter fixedFilter = new Filter(CcfDataProvider.HOSPITAL_FIXED, "false", false, Filter.FILTER_TYPE_EQUAL);
-		Filter[] filters = { targetTypeFilter, fixedFilter };
-		Filter[][] filterGroups = { filters };
-		int hospitalCount= 0;
+		int hospitalCount = 0;
 		try {
-			hospitalCount = getDataProvider().getPatients(landscape, filterGroups).length;
+			hospitalCount = getDataProvider().getHospitalCount(landscape, targetType);
 		} catch (Exception e) {
 			Activator.handleError(e);
-		}
+		}	
 		return hospitalCount;
 	}
 	
