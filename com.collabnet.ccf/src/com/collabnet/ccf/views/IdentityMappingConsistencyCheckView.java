@@ -43,6 +43,7 @@ import com.collabnet.ccf.model.SynchronizationStatus;
 
 public class IdentityMappingConsistencyCheckView extends ViewPart implements IProjectMappingsChangeListener {
 	private static Landscape landscape;
+	private static SynchronizationStatus synchronizationStatus;
 	
 	private TreeViewer treeViewer;
 	private CcfDataProvider dataProvider;
@@ -155,33 +156,35 @@ public class IdentityMappingConsistencyCheckView extends ViewPart implements IPr
 				try {
 					SynchronizationStatus[] allMappings = dataProvider.getSynchronizationStatuses(landscape, null);
 					for (SynchronizationStatus status : allMappings) {
-						IdentityMappingConsistencyCheck multipleSourceCheck = new IdentityMappingConsistencyCheck(status, IdentityMappingConsistencyCheck.MULTIPLE_SOURCE_TO_ONE_TARGET);
-						IdentityMapping[] inconsistentMappings = dataProvider.getIdentityMappingConsistencyCheckViolations(multipleSourceCheck);
-						if (inconsistentMappings.length > 0) {
-							if (!problemProjectMappings.contains(status)) problemProjectMappings.add(status);
-							problemChecks.add(multipleSourceCheck);
-							for (IdentityMapping mapping : inconsistentMappings) {
-								problemIdentityMappings.add(mapping);
+						if (synchronizationStatus == null || status.equals(synchronizationStatus)) {
+							IdentityMappingConsistencyCheck multipleSourceCheck = new IdentityMappingConsistencyCheck(status, IdentityMappingConsistencyCheck.MULTIPLE_SOURCE_TO_ONE_TARGET);
+							IdentityMapping[] inconsistentMappings = dataProvider.getIdentityMappingConsistencyCheckViolations(multipleSourceCheck);
+							if (inconsistentMappings.length > 0) {
+								if (!problemProjectMappings.contains(status)) problemProjectMappings.add(status);
+								problemChecks.add(multipleSourceCheck);
+								for (IdentityMapping mapping : inconsistentMappings) {
+									problemIdentityMappings.add(mapping);
+								}
 							}
+							IdentityMappingConsistencyCheck multipleTargetCheck = new IdentityMappingConsistencyCheck(status, IdentityMappingConsistencyCheck.MULTIPLE_TARGET_TO_ONE_SOURCE);
+							inconsistentMappings = dataProvider.getIdentityMappingConsistencyCheckViolations(multipleTargetCheck);
+							if (inconsistentMappings.length > 0) {
+								if (!problemProjectMappings.contains(status)) problemProjectMappings.add(status);
+								problemChecks.add(multipleTargetCheck);
+								for (IdentityMapping mapping : inconsistentMappings) {
+									problemIdentityMappings.add(mapping);
+								}
+							}
+							IdentityMappingConsistencyCheck oneWayCheck = new IdentityMappingConsistencyCheck(status, IdentityMappingConsistencyCheck.ONE_WAY);					
+							inconsistentMappings = dataProvider.getIdentityMappingConsistencyCheckViolations(oneWayCheck);
+							if (inconsistentMappings.length > 0) {
+								if (!problemProjectMappings.contains(status)) problemProjectMappings.add(status);
+								problemChecks.add(oneWayCheck);
+								for (IdentityMapping mapping : inconsistentMappings) {
+									problemIdentityMappings.add(mapping);
+								}
+							}	
 						}
-						IdentityMappingConsistencyCheck multipleTargetCheck = new IdentityMappingConsistencyCheck(status, IdentityMappingConsistencyCheck.MULTIPLE_TARGET_TO_ONE_SOURCE);
-						inconsistentMappings = dataProvider.getIdentityMappingConsistencyCheckViolations(multipleTargetCheck);
-						if (inconsistentMappings.length > 0) {
-							if (!problemProjectMappings.contains(status)) problemProjectMappings.add(status);
-							problemChecks.add(multipleTargetCheck);
-							for (IdentityMapping mapping : inconsistentMappings) {
-								problemIdentityMappings.add(mapping);
-							}
-						}
-						IdentityMappingConsistencyCheck oneWayCheck = new IdentityMappingConsistencyCheck(status, IdentityMappingConsistencyCheck.ONE_WAY);					
-						inconsistentMappings = dataProvider.getIdentityMappingConsistencyCheckViolations(oneWayCheck);
-						if (inconsistentMappings.length > 0) {
-							if (!problemProjectMappings.contains(status)) problemProjectMappings.add(status);
-							problemChecks.add(oneWayCheck);
-							for (IdentityMapping mapping : inconsistentMappings) {
-								problemIdentityMappings.add(mapping);
-							}
-						}						
 					}
 					projectMappings = new SynchronizationStatus[problemProjectMappings.size()];
 					problemProjectMappings.toArray(projectMappings);
@@ -224,6 +227,10 @@ public class IdentityMappingConsistencyCheckView extends ViewPart implements IPr
 	
 	public static void setLandscape(Landscape landscape) {
 		IdentityMappingConsistencyCheckView.landscape = landscape;
+	}
+	
+	public static void setSynchronizationStatus(SynchronizationStatus synchronizationStatus) {
+		IdentityMappingConsistencyCheckView.synchronizationStatus = synchronizationStatus;
 	}
 	
 	public CcfDataProvider getDataProvider() {

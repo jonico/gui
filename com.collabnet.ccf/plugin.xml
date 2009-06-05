@@ -283,6 +283,14 @@
             objectClass="com.collabnet.ccf.model.SynchronizationStatus"
             id="com.collabnet.ccf.model.SynchronizationStatus">
          <action
+               label="Check Identity Mapping consistency"
+               class="com.collabnet.ccf.actions.IdentityMappingConsistencyAction"
+               enablesFor="1"
+               menubarPath="group.a"
+               icon="icons/consistency_check_view.gif"
+               id="com.collabnet.ccf.actions.IdentityMappingConsistencyAction">
+         </action>               
+         <action
                label="Show Identity Mapping"
                class="com.collabnet.ccf.actions.IdentityMappingAction"
                enablesFor="1"
@@ -297,7 +305,7 @@
                menubarPath="group.a"
                icon="icons/hospitalView.gif"
                id="com.collabnet.ccf.actions.HospitalAction">
-         </action>          
+         </action>                           
          <action
                label="Resume synchronization"
                class="com.collabnet.ccf.actions.ResumeSynchronizationAction"
