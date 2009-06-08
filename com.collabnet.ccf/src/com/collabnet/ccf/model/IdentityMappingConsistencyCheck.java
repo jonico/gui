@@ -37,9 +37,21 @@ public class IdentityMappingConsistencyCheck {
 	public Landscape getLandscape() {
 		return synchronizationStatus.getLandscape();
 	}
+	
+	public String getSourceSystemId() {
+		return synchronizationStatus.getSourceSystemId();
+	}
+	
+	public String getTargetSystemId() {
+		return synchronizationStatus.getTargetSystemId();
+	}
 
-	public String getRepository() {
+	public String getSourceRepository() {
 		return synchronizationStatus.getSourceRepositoryId();
+	}
+	
+	public String getTargetRepository() {
+		return synchronizationStatus.getTargetRepositoryId();
 	}
 	
 	public int getType() {
