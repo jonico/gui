@@ -508,10 +508,10 @@ public class CcfCcfEditorPage extends CcfEditorPage {
 			getLandscape().setDatabasePassword(passwordText.getText().trim());
 			getLandscape().setCcfHost1(host1Text.getText().trim());
 			getLandscape().setJmxPort1(jmxPort1Text.getText().trim());
-			getLandscape().setLogsPath1(logs1Text.getText().trim());
+			if (logs1Text != null) getLandscape().setLogsPath1(logs1Text.getText().trim());
 			getLandscape().setCcfHost2(host2Text.getText().trim());
 			getLandscape().setJmxPort2(jmxPort2Text.getText().trim());
-			getLandscape().setLogsPath2(logs2Text.getText().trim());
+			if (logs2Text != null) getLandscape().setLogsPath2(logs2Text.getText().trim());
 			if (Activator.getDefault().storeLandscape(getLandscape())) {
 				// Delete old node.
 				if (descriptionChanged) Activator.getDefault().deleteLandscape(getLandscape());
@@ -626,6 +626,12 @@ public class CcfCcfEditorPage extends CcfEditorPage {
 	}
 	
 	public boolean testConnection(boolean saving) {
+		if (saving && getLandscape().getDatabaseUrl().equals(urlText.getText().trim()) &&
+				getLandscape().getDatabaseDriver().equals(driverText.getText().trim()) &&
+				getLandscape().getDatabaseUser().equals(userText.getText().trim()) &&
+				getLandscape().getDatabasePassword().equals(passwordText.getText().trim())) {
+			return true;
+		}
 		try {
 			Class.forName(driverText.getText().trim());
 			DriverManager.getConnection(urlText.getText().trim(), userText.getText().trim(), passwordText.getText().trim());	
