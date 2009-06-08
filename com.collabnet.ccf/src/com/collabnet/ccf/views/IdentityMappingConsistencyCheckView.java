@@ -219,6 +219,12 @@ public class IdentityMappingConsistencyCheckView extends ViewPart implements IPr
 			treeViewer.setExpandedState(item.getData(), true);
 		}
 		treeViewer.expandAll();
+		
+		if (synchronizationStatus == null) {
+			setContentDescription(landscape.getDescription());
+		} else {
+			setContentDescription(synchronizationStatus.toString());
+		}
 	}
 
 	public static IdentityMappingConsistencyCheckView getView() {
@@ -277,6 +283,9 @@ public class IdentityMappingConsistencyCheckView extends ViewPart implements IPr
 			else if (element instanceof IdentityMapping) {
 				return Activator.getImage(Activator.IMAGE_IDENTITY_MAPPING);
 			}
+			else if (element instanceof String) {
+				return Activator.getImage(Activator.IMAGE_NO_INCONSISTENCIES);
+			}			
 			else return super.getImage(element);
 		}
 		
@@ -306,7 +315,7 @@ public class IdentityMappingConsistencyCheckView extends ViewPart implements IPr
 		}
 		
 		public boolean hasChildren(Object element) {
-			return !(element instanceof Exception) && !(element instanceof IdentityMapping);
+			return !(element instanceof Exception) && !(element instanceof IdentityMapping) && !(element instanceof String);
 		}
 		
 		public Object[] getElements(Object inputElement) {
@@ -315,7 +324,12 @@ public class IdentityMappingConsistencyCheckView extends ViewPart implements IPr
 		
 		public Object[] getChildren(Object parentElement) {
 			if (parentElement instanceof IdentityMappingConsistencyCheckView && landscape != null) {
-				return projectMappings;
+				if (projectMappings == null || projectMappings.length == 0) {
+					String[] noInconsistencies = { "No inconsistencies found" };
+					return noInconsistencies;
+				} else {
+					return projectMappings;
+				}
 			}
 			else if (parentElement instanceof SynchronizationStatus) {
 				List<IdentityMappingConsistencyCheck> mappingChecks = new ArrayList<IdentityMappingConsistencyCheck>();
