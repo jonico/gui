@@ -90,7 +90,8 @@ public class Landscape implements IPropertySource {
 	}		
 
 	public String getDescription() {
-		return description.replaceAll("%slash%", "/");
+		if (description == null) return null;
+		else return description.replaceAll("%slash%", "/");
 	}
 	public void setDescription(String description) {
 		this.description = description;
