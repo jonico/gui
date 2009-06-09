@@ -34,6 +34,7 @@ public class SynchronizationStatus implements IPropertySource, Comparable {
 	private File xslFile;
 	private File sampleXslFile;
 	private int hospitalEntries;
+	private int queuedArtifacts;
 
 	public static final String CONFLICT_RESOLUTION_ALWAYS_IGNORE = "alwaysIgnore"; //$NON-NLS-1$
 	public static final String CONFLICT_RESOLUTION_ALWAYS_OVERRIDE = "alwaysOverride"; //$NON-NLS-1$
@@ -204,6 +205,14 @@ public class SynchronizationStatus implements IPropertySource, Comparable {
 	
 	public void setHospitalEntries(int hospitalEntries) {
 		this.hospitalEntries = hospitalEntries;
+	}
+	
+	public int getQueuedArtifacts() {
+		return queuedArtifacts;
+	}
+	
+	public void setQueuedArtifacts(int queuedArtifacts) {
+		this.queuedArtifacts = queuedArtifacts;
 	}
 	
 	@Override

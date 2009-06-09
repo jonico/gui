@@ -21,6 +21,7 @@ public class JmxConsoleEditor extends FormEditor {
 	private CcfDataProvider dataProvider;
 
 	private JmxConsoleStatusEditorPage statusPage;
+	private JmxConsoleProjectMappingsEditorPage mappingsPage;
 	
 	private IDialogSettings settings = Activator.getDefault().getDialogSettings();
 	
@@ -67,6 +68,7 @@ public class JmxConsoleEditor extends FormEditor {
 	@Override
 	protected void addPages() {
 		createStatusPage();
+		createMappingsPage();
 		try {
 			String activePage = settings.get(JmxConsoleEditorPage.ACTIVE_PAGE);
 			if (activePage != null) {
@@ -82,6 +84,18 @@ public class JmxConsoleEditor extends FormEditor {
 	        int statusIndex = addPage(statusPage);
 	        setPageText(statusIndex, "Status");
 	        pages.add(statusPage);
+        } catch (Exception e) { 
+        	Activator.handleError(e);
+        }
+    }
+    
+    @SuppressWarnings("unchecked")
+	private void createMappingsPage() {
+        try {
+        	mappingsPage = new JmxConsoleProjectMappingsEditorPage(this, "mappings", getEditorInput().getName());
+	        int mappingsIndex = addPage(mappingsPage);
+	        setPageText(mappingsIndex, "Project Mappings");
+	        pages.add(mappingsPage);
         } catch (Exception e) { 
         	Activator.handleError(e);
         }
