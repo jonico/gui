@@ -1,9 +1,12 @@
 package com.collabnet.ccf.actions;
 
 import org.eclipse.jface.action.Action;
-import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PartInitException;
 
-import com.collabnet.ccf.dialogs.JmxConsoleDialog;
+import com.collabnet.ccf.Activator;
+import com.collabnet.ccf.editors.CcfEditorInput;
+import com.collabnet.ccf.editors.JmxConsoleEditor;
 import com.collabnet.ccf.model.Landscape;
 
 public class JmxConsoleAction extends Action {
@@ -12,11 +15,17 @@ public class JmxConsoleAction extends Action {
 	public JmxConsoleAction(Landscape landscape) {
 		this.landscape = landscape;
 		setText("Show status...");
+		setImageDescriptor(Activator.getDefault().getImageDescriptor(Activator.IMAGE_MONITOR));
 	}
 
 	@Override
 	public void run() {
-		JmxConsoleDialog dialog = new JmxConsoleDialog(Display.getDefault().getActiveShell(), landscape);
-		dialog.open();
+		CcfEditorInput editorInput = new CcfEditorInput(landscape);
+		IWorkbenchPage page = Activator.getDefault().getWorkbench().getActiveWorkbenchWindow().getActivePage();
+		try {
+			page.openEditor(editorInput, JmxConsoleEditor.ID);
+		} catch (PartInitException e) {
+			Activator.handleError(e);
+		}
 	}
 }

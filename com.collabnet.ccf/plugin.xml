@@ -406,7 +406,15 @@
             contributorClass="com.collabnet.ccf.editors.IdentityMappingActionBarContributor"
             class="com.collabnet.ccf.editors.IdentityMappingEditor"
             id="com.collabnet.ccf.editors.IdentityMappingEditor">
-      </editor>                                
+      </editor>
+      <editor
+            name="JMX Console Editor"
+            default="false"
+            icon="icons/monitor.gif"
+            extensions="jmx"
+            class="com.collabnet.ccf.editors.JmxConsoleEditor"
+            id="com.collabnet.ccf.editors.JmxConsoleEditor">
+      </editor>                                       
    </extension>
 
 </plugin>

@@ -71,6 +71,7 @@ public class Activator extends AbstractUIPlugin {
 	public static final String IMAGE_MULTIPLE_TARGET = "multiple_target.gif"; //$NON-NLS-1$
 	public static final String IMAGE_ONE_WAY = "one_way.gif"; //$NON-NLS-1$
 	public static final String IMAGE_NO_INCONSISTENCIES = "no_inconsistencies.gif"; //$NON-NLS-1$
+	public static final String IMAGE_MONITOR = "monitor.gif"; //$NON-NLS-1$
 	
 	// Preferences
 	public static final String PREFERENCES_DATABASE_DESCRIPTION = "pref_db_description"; //$NON-NLS-1$
@@ -440,6 +441,7 @@ public class Activator extends AbstractUIPlugin {
 		createImageDescriptor(IMAGE_MULTIPLE_TARGET);
 		createImageDescriptor(IMAGE_ONE_WAY);
 		createImageDescriptor(IMAGE_NO_INCONSISTENCIES);
+		createImageDescriptor(IMAGE_MONITOR);
 	}
 	
 	protected void initializeImageRegistry(ImageRegistry reg) {
@@ -471,5 +473,6 @@ public class Activator extends AbstractUIPlugin {
 		reg.put(IMAGE_MULTIPLE_TARGET, getImageDescriptor(IMAGE_MULTIPLE_TARGET));
 		reg.put(IMAGE_ONE_WAY, getImageDescriptor(IMAGE_ONE_WAY));
 		reg.put(IMAGE_NO_INCONSISTENCIES, getImageDescriptor(IMAGE_NO_INCONSISTENCIES));
+		reg.put(IMAGE_MONITOR, getImageDescriptor(IMAGE_MONITOR));
 	}
 }
