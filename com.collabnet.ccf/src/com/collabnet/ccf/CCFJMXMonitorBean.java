@@ -229,6 +229,22 @@ public class CCFJMXMonitorBean {
 	}
 	
 	/**
+	 * Returns the number of artifacts waiting to be synchronized per
+	 * synchronization status record
+	 * 
+	 * @param sourceSystemId     source system id
+	 * @param sourceRepositoryId source repository id
+	 * @param targetSystemId     target system id
+	 * @param targetRepositoryId target repository id
+	 * @return number of artifacts waiting for specific synchronization status record
+	 */
+	public String getNumberOfWaitingArtifacts(String sourceSystemId, String sourceRepositoryId, String targetSystemId, String targetRepositoryId) {
+		return (String) invokeJMXOperation("CCF:name=AbstractReader", "getNumberOfWaitingArtifacts",
+				new String[] { sourceSystemId, sourceRepositoryId, targetSystemId, targetRepositoryId },
+				new String[] { "java.lang.String", "java.lang.String", "java.lang.String", "java.lang.String"});
+	}	
+	
+	/**
 	 * Returns stats about processing time needed to extract artifacts
 	 * @param readerMetricsName name of JMX OA reader metrics name 
 	 * @return
