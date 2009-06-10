@@ -210,6 +210,7 @@ public class JmxConsoleProjectMappingsEditorPage extends JmxConsoleEditorPage {
 	
 	private void refresh() {
 		getMappings();
+		tableViewer.setInput(projectMappings);
 		tableViewer.refresh();
 	}
 	
@@ -266,12 +267,10 @@ public class JmxConsoleProjectMappingsEditorPage extends JmxConsoleEditorPage {
 				value = status.getTargetRepositoryId();
 				break;
 			case 2:
-				if (status.getHospitalEntries() == 0) value = "";
-				else value = Integer.toString(status.getHospitalEntries());
+				value = Integer.toString(status.getHospitalEntries());
 				break;
 			case 3:
-				if (status.getQueuedArtifacts() == 0) value = "";
-				else value = Integer.toString(status.getQueuedArtifacts());
+				value = Integer.toString(status.getQueuedArtifacts());
 				break;
 			default:
 				break;
