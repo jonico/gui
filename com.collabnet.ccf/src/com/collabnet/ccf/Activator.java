@@ -265,12 +265,12 @@ public class Activator extends AbstractUIPlugin {
 			prefs.put("databaseDriver", landscape.getDatabaseDriver()); //$NON-NLS-1$
 			prefs.put("databaseUser", landscape.getDatabaseUser()); //$NON-NLS-1$
 			prefs.put("databasePassword", landscape.getDatabasePassword()); //$NON-NLS-1$			
-			prefs.put("ccfHost1", landscape.getCcfHost1()); //$NON-NLS-1$
-			prefs.put("ccfHost2", landscape.getCcfHost2()); //$NON-NLS-1$
-			prefs.put("logsPath1", landscape.getLogsPath1()); //$NON-NLS-1$
-			prefs.put("logsPath2", landscape.getLogsPath2()); //$NON-NLS-1$
-			prefs.put("jmxPort1", landscape.getJmxPort1()); //$NON-NLS-1$
-			prefs.put("jmxPort2", landscape.getJmxPort2()); //$NON-NLS-1$
+			if (landscape.getCcfHost1() != null) prefs.put("ccfHost1", landscape.getCcfHost1()); //$NON-NLS-1$
+			if (landscape.getCcfHost2() != null) prefs.put("ccfHost2", landscape.getCcfHost2()); //$NON-NLS-1$
+			if (landscape.getLogsPath1() != null) prefs.put("logsPath1", landscape.getLogsPath1()); //$NON-NLS-1$
+			if (landscape.getLogsPath2() != null) prefs.put("logsPath2", landscape.getLogsPath2()); //$NON-NLS-1$
+			if (landscape.getJmxPort1() != null) prefs.put("jmxPort1", landscape.getJmxPort1()); //$NON-NLS-1$
+			if (landscape.getJmxPort2() != null) prefs.put("jmxPort2", landscape.getJmxPort2()); //$NON-NLS-1$
 		}
 		prefs.put("contributorId", landscape.getContributorId()); //$NON-NLS-1$
 		try {
