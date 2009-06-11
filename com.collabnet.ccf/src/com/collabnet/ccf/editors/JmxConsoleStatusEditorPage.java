@@ -421,14 +421,17 @@ public class JmxConsoleStatusEditorPage extends JmxConsoleEditorPage {
 	
 	private int getHospitalCount(String target) {
 		String targetType = null;
+		String sourceType = null;
 		if (target.equals(Landscape.TYPE_QC)) {
 			targetType = landscape.getType1();
+			sourceType = landscape.getType2();
 		} else {
 			targetType = landscape.getType2();
+			sourceType = landscape.getType1();
 		}
 		int hospitalCount = 0;
 		try {
-			hospitalCount = dataProvider.getHospitalCount(landscape, targetType);
+			hospitalCount = dataProvider.getHospitalCount(landscape, targetType, sourceType);
 		} catch (Exception e) {
 			Activator.handleError(e);
 		}	

@@ -193,7 +193,7 @@ public class CcfDataProvider {
 	private final static String SQL_HOSPITAL_DELETE = "DELETE FROM HOSPITAL";
 	
 	private final static String SQL_HOSPITAL_COUNT = "SELECT SOURCE_SYSTEM_ID, SOURCE_REPOSITORY_ID, TARGET_SYSTEM_ID, TARGET_REPOSITORY_ID, COUNT(*) AS \"HOSPITAL_ENTRIES\" FROM HOSPITAL WHERE FIXED <> true GROUP BY SOURCE_SYSTEM_ID, SOURCE_REPOSITORY_ID, TARGET_SYSTEM_ID, TARGET_REPOSITORY_ID";
-	private final static String SQL_HOSPITAL_COUNT_ALL_PROJECTS = "SELECT COUNT(*) AS \"HOSPITAL_ENTRIES\" FROM HOSPITAL WHERE FIXED <> true AND TARGET_SYSTEM_KIND = ?";
+	private final static String SQL_HOSPITAL_COUNT_ALL_PROJECTS = "SELECT COUNT(*) AS \"HOSPITAL_ENTRIES\" FROM HOSPITAL WHERE FIXED <> true AND TARGET_SYSTEM_KIND = ? AND SOURCE_SYSTEM_KIND = ?";
 	
 	private final static String SQL_SYNCHRONIZATION_STATUS_SELECT = "SELECT * FROM SYNCHRONIZATION_STATUS";
 	private final static String SQL_SYNCHRONIZATION_STATUS_UPDATE = "UPDATE SYNCHRONIZATION_STATUS";
@@ -553,7 +553,7 @@ public class CcfDataProvider {
 		return statuses;
 	}
 	
-	public int getHospitalCount(Landscape landscape, String targetSystemKind) throws Exception {
+	public int getHospitalCount(Landscape landscape, String targetSystemKind, String sourceSystemKind) throws Exception {
 		int count = 0;
 		Connection connection = null;
 		PreparedStatement stmt = null;
@@ -562,6 +562,7 @@ public class CcfDataProvider {
 			connection = getConnection(landscape);
 			stmt = connection.prepareStatement(SQL_HOSPITAL_COUNT_ALL_PROJECTS);
 			stmt.setString(1, targetSystemKind);
+			stmt.setString(2, sourceSystemKind);
 			rs = stmt.executeQuery();			
 			if (rs != null && rs.next()) {
 				count = rs.getInt("HOSPITAL_ENTRIES");
