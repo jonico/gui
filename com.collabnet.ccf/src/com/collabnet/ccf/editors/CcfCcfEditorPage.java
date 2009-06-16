@@ -626,6 +626,9 @@ public class CcfCcfEditorPage extends CcfEditorPage {
 	}
 	
 	public boolean testConnection(boolean saving) {
+		if (saving && urlText == null) {
+			return true;
+		}
 		if (saving && getLandscape().getDatabaseUrl().equals(urlText.getText().trim()) &&
 				getLandscape().getDatabaseDriver().equals(driverText.getText().trim()) &&
 				getLandscape().getDatabaseUser().equals(userText.getText().trim()) &&
