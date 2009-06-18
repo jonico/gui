@@ -26,6 +26,7 @@ import com.collabnet.ccf.model.Database;
 import com.collabnet.ccf.model.Landscape;
 import com.collabnet.ccf.model.OperatorLandscape;
 import com.collabnet.ccf.model.ProjectMappings;
+import com.collabnet.ccf.model.Role;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -83,7 +84,8 @@ public class Activator extends AbstractUIPlugin {
 	public static final String PREFERENCES_HOSPITAL_COLUMNS = "hospital_columns"; //$NON-NLS-1$
 	public static final String PREFERENCES_IDENTITY_MAPPING_COLUMNS = "identity_mapping_columns"; //$NON-NLS-1$
 	public static final String PREFERENCES_RESET_DELAY = "pref_reset_delay"; //$NON-NLS-1$
-	public static final String PREFERENCES_SHOW_HOSPITAL_COUNT = "pref_show_hospital_count"; //$NON-NLS-1$
+	public static final String PREFERENCES_SHOW_HOSPITAL_COUNT = "pref_show_hospital_count"; //$NON-NLS-1$	
+	public static final String PREFERENCES_ACTIVE_ROLE = "pref_active_role"; //$NON-NLS-1$
 	
 	// CCF Properties
 	public static final String PROPERTIES_CCF_URL = "ccf.db.url"; //$NON-NLS-1$
@@ -148,7 +150,29 @@ public class Activator extends AbstractUIPlugin {
 	private static List<Image> landscapeContributorImages = new ArrayList<Image>();
 	
 	public static final String PREF_CCF_LANDSCAPES_NODE = "ccfLandscapes"; //$NON-NLS-1$
-
+	public static final String PREF_CCF_ROLES_NODE = "ccfRoles"; //$NON-NLS-1$
+	public static final String PREF_CCF_ROLES_ADD_LANDSCAPE = "addLandscape"; //$NON-NLS-1$
+	public static final String PREF_CCF_ROLES_EDIT_LANDSCAPE = "editLandscape"; //$NON-NLS-1$
+	public static final String PREF_CCF_ROLES_DELETE_LANDSCAPE = "deleteLandscape"; //$NON-NLS-1$
+	public static final String PREF_CCF_ROLES_ADD_PROJECT_MAPPING = "addProjectMapping"; //$NON-NLS-1$
+	public static final String PREF_CCF_ROLES_CHANGE_PROJECT_MAPPING = "changeProjectMapping"; //$NON-NLS-1$
+	public static final String PREF_CCF_ROLES_DELETE_PROJECT_MAPPING = "deleteProjectMapping"; //$NON-NLS-1$
+	public static final String PREF_CCF_ROLES_EDIT_FIELD_MAPPINGS = "editFieldMappings"; //$NON-NLS-1$
+	public static final String PREF_CCF_ROLES_PAUSE_SYNCHRONIZATION = "pauseSynchronization"; //$NON-NLS-1$
+	public static final String PREF_CCF_ROLES_RESUME_SYNCHRONIZATION = "resumeSynchronization"; //$NON-NLS-1$
+	public static final String PREF_CCF_ROLES_RESET_SYNCHRONIZATION_STATUS = "resetSynchronizationStatus"; //$NON-NLS-1$
+	public static final String PREF_CCF_ROLES_DELETE_PROJECT_MAPPING_IDENTITY_MAPPINGS = "deleteProjectMappingIdentityMappings"; //$NON-NLS-1$
+	public static final String PREF_CCF_ROLES_EDIT_QUARANTINED_ARTIFACT = "editQuarantinedArtifact"; //$NON-NLS-1$
+	public static final String PREF_CCF_ROLES_MARK_AS_FIXED = "markAsFixed"; //$NON-NLS-1$
+	public static final String PREF_CCF_ROLES_REOPEN = "reopen"; //$NON-NLS-1$
+	public static final String PREF_CCF_ROLES_REPLAY = "replay"; //$NON-NLS-1$
+	public static final String PREF_CCF_ROLES_CANCEL_REPLAY = "cancelReplay"; //$NON-NLS-1$
+	public static final String PREF_CCF_ROLES_DELETE_HOSPITAL_ENTRY = "deleteHospitalEntry"; //$NON-NLS-1$
+	public static final String PREF_CCF_ROLES_CREATE_REVERSE_IDENTITY_MAPPING = "createReverseIdentityMapping"; //$NON-NLS-1$
+	public static final String PREF_CCF_ROLES_DELETE_IDENTITY_MAPPING = "deleteIdentityMapping"; //$NON-NLS-1$
+	public static final String PREF_CCF_ROLES_EDIT_IDENTITY_MAPPING = "editIdentityMapping"; //$NON-NLS-1$
+	public static final String PREF_CCF_ROLES_EDIT_LOG_SETTINGS = "editLogSettings"; //$NON-NLS-1$
+	
 	public static final String SAMPLE_XSL_FILE_NAME = "sample.xsl"; //$NON-NLS-1$
 	
 	/*
@@ -252,6 +276,38 @@ public class Activator extends AbstractUIPlugin {
 		return storeLandscape(landscape);
 	}
 	
+	public boolean storeRole(Role role) {
+		Preferences prefs = getInstancePreferences().node(PREF_CCF_ROLES_NODE).node(role.getName());
+		prefs.putBoolean(PREF_CCF_ROLES_ADD_LANDSCAPE, role.isAddLandscape());
+		prefs.putBoolean(PREF_CCF_ROLES_EDIT_LANDSCAPE, role.isEditLandscape());
+		prefs.putBoolean(PREF_CCF_ROLES_DELETE_LANDSCAPE, role.isDeleteLandscape());
+		prefs.putBoolean(PREF_CCF_ROLES_ADD_PROJECT_MAPPING, role.isAddProjectMapping());
+		prefs.putBoolean(PREF_CCF_ROLES_CHANGE_PROJECT_MAPPING, role.isChangeProjectMapping());
+		prefs.putBoolean(PREF_CCF_ROLES_DELETE_PROJECT_MAPPING, role.isDeleteProjectMapping());
+		prefs.putBoolean(PREF_CCF_ROLES_EDIT_FIELD_MAPPINGS, role.isEditFieldMappings());
+		prefs.putBoolean(PREF_CCF_ROLES_PAUSE_SYNCHRONIZATION, role.isPauseSynchronization());
+		prefs.putBoolean(PREF_CCF_ROLES_RESUME_SYNCHRONIZATION, role.isResumeSynchronization());
+		prefs.putBoolean(PREF_CCF_ROLES_RESET_SYNCHRONIZATION_STATUS, role.isResetSynchronizationStatus());
+		prefs.putBoolean(PREF_CCF_ROLES_DELETE_PROJECT_MAPPING_IDENTITY_MAPPINGS, role.isDeleteProjectMappingIdentityMappings());
+		prefs.putBoolean(PREF_CCF_ROLES_EDIT_QUARANTINED_ARTIFACT, role.isEditQuarantinedArtifact());
+		prefs.putBoolean(PREF_CCF_ROLES_MARK_AS_FIXED, role.isMarkAsFixed());
+		prefs.putBoolean(PREF_CCF_ROLES_REOPEN, role.isReopen());
+		prefs.putBoolean(PREF_CCF_ROLES_REPLAY, role.isReplay());
+		prefs.putBoolean(PREF_CCF_ROLES_CANCEL_REPLAY, role.isCancelReplay());
+		prefs.putBoolean(PREF_CCF_ROLES_DELETE_HOSPITAL_ENTRY, role.isDeleteHospitalEntry());
+		prefs.putBoolean(PREF_CCF_ROLES_CREATE_REVERSE_IDENTITY_MAPPING, role.isCreateReverseIdentityMapping());
+		prefs.putBoolean(PREF_CCF_ROLES_DELETE_IDENTITY_MAPPING, role.isDeleteProjectMapping());
+		prefs.putBoolean(PREF_CCF_ROLES_EDIT_IDENTITY_MAPPING, role.isEditIdentityMapping());
+		prefs.putBoolean(PREF_CCF_ROLES_EDIT_LOG_SETTINGS, role.isEditLogSettings());
+		try {
+			prefs.flush();
+		} catch (BackingStoreException e) {
+			handleError(e);
+			return false;
+		}		
+		return true;
+	}
+	
 	public boolean storeLandscape(Landscape landscape) {
 		Preferences prefs = getInstancePreferences().node(PREF_CCF_LANDSCAPES_NODE).node(landscape.getDescription().replaceAll("/", "%slash%")); //$NON-NLS-1$ //$NON-NLS-2$
 		prefs.putInt("role", landscape.getRole());
@@ -282,6 +338,21 @@ public class Activator extends AbstractUIPlugin {
 		return true;		
 	}
 	
+	public boolean deleteRole(Role role) {
+		Preferences node = role.getNode();
+		if (node != null) {
+			try {
+				node.removeNode();
+				getInstancePreferences().node(PREF_CCF_ROLES_NODE).flush();
+			} catch (BackingStoreException e) {
+				handleError(e);
+				return false;
+			}
+			return true;
+		}
+		return true;
+	}	
+	
 	public boolean deleteLandscape(Landscape landscape) {
 		Preferences node = landscape.getNode();
 		if (node != null) {
@@ -302,6 +373,52 @@ public class Activator extends AbstractUIPlugin {
 			if (landscapes[i].getDescription().equals(description)) return landscapes[i];
 		}
 		return null;
+	}
+	
+	public Role[] getRoles() {
+		List<Role> roles = new ArrayList<Role>();
+		try {
+			String[] childrenNames = getInstancePreferences().node(PREF_CCF_ROLES_NODE).childrenNames();
+			for (int i = 0; i < childrenNames.length; i++) {
+				Preferences node = getInstancePreferences().node(PREF_CCF_ROLES_NODE).node(childrenNames[i]);
+				Role role = new Role(childrenNames[i]);
+				role.setAddLandscape(node.getBoolean(PREF_CCF_ROLES_ADD_LANDSCAPE, true));
+				role.setEditLandscape(node.getBoolean(PREF_CCF_ROLES_EDIT_LANDSCAPE, true));
+				role.setDeleteLandscape(node.getBoolean(PREF_CCF_ROLES_DELETE_LANDSCAPE, true));
+				role.setAddProjectMapping(node.getBoolean(PREF_CCF_ROLES_ADD_PROJECT_MAPPING, true));
+				role.setChangeProjectMapping(node.getBoolean(PREF_CCF_ROLES_CHANGE_PROJECT_MAPPING, true));
+				role.setDeleteProjectMapping(node.getBoolean(PREF_CCF_ROLES_DELETE_PROJECT_MAPPING, true));
+				role.setEditFieldMappings(node.getBoolean(PREF_CCF_ROLES_EDIT_FIELD_MAPPINGS, true));
+				role.setPauseSynchronization(node.getBoolean(PREF_CCF_ROLES_PAUSE_SYNCHRONIZATION, true));
+				role.setResumeSynchronization(node.getBoolean(PREF_CCF_ROLES_RESUME_SYNCHRONIZATION, true));
+				role.setResetSynchronizationStatus(node.getBoolean(PREF_CCF_ROLES_RESET_SYNCHRONIZATION_STATUS, true));
+				role.setDeleteProjectMappingIdentityMappings(node.getBoolean(PREF_CCF_ROLES_DELETE_PROJECT_MAPPING_IDENTITY_MAPPINGS, true));
+				role.setEditQuarantinedArtifact(node.getBoolean(PREF_CCF_ROLES_EDIT_QUARANTINED_ARTIFACT, true));
+				role.setMarkAsFixed(node.getBoolean(PREF_CCF_ROLES_MARK_AS_FIXED, true));
+				role.setReopen(node.getBoolean(PREF_CCF_ROLES_REOPEN, true));
+				role.setReplay(node.getBoolean(PREF_CCF_ROLES_REPLAY, true));
+				role.setCancelReplay(node.getBoolean(PREF_CCF_ROLES_CANCEL_REPLAY, true));
+				role.setDeleteHospitalEntry(node.getBoolean(PREF_CCF_ROLES_DELETE_HOSPITAL_ENTRY, true));
+				role.setCreateReverseIdentityMapping(node.getBoolean(PREF_CCF_ROLES_CREATE_REVERSE_IDENTITY_MAPPING, true));
+				role.setDeleteIdentityMapping(node.getBoolean(PREF_CCF_ROLES_DELETE_IDENTITY_MAPPING, true));
+				role.setEditIdentityMapping(node.getBoolean(PREF_CCF_ROLES_EDIT_IDENTITY_MAPPING, true));
+				role.setEditLogSettings(node.getBoolean(PREF_CCF_ROLES_EDIT_LOG_SETTINGS, true));
+				role.setNode(node);
+				roles.add(role);
+			}
+			if (roles.size() == 0) {
+				Role role = new Role("Default");
+				roles.add(role);
+				getPreferenceStore().setValue(PREFERENCES_ACTIVE_ROLE, "Default");
+			}
+			Role[] roleArray = new Role[roles.size()];
+			roles.toArray(roleArray);
+			Arrays.sort(roleArray);
+			return roleArray;
+		} catch (Exception e) {
+			handleError(e);
+		}
+		return new Role[0];
 	}
 	
 	public Landscape[] getLandscapes() {

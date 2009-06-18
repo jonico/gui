@@ -42,7 +42,19 @@
             <description>
              Export CCF Landscapes
             </description>
-      </transfer>  
+      </transfer> 
+       <transfer
+            icon="icons/roles.gif"
+            name="CCF Roles"
+            id="com.collabnet.ccf.preferenceTransfer.roles">
+            <mapping scope="instance">
+                <entry node="com.collabnet.ccf/ccfRoles">
+                </entry>
+            </mapping>
+            <description>
+             Export CCF Roles
+            </description>
+      </transfer>         
    </extension> 
 
    <extension
@@ -60,7 +72,12 @@
             class="com.collabnet.ccf.preferences.IdentityMappingPreferencePage"
             id="com.collabnet.ccf.preferences.identityMapping"
             category="com.collabnet.ccf.preferences"
-            name="IdentityMapping"/>                               
+            name="Identity Mapping"/>   
+      <page
+            class="com.collabnet.ccf.preferences.RolesPreferencePage"
+            id="com.collabnet.ccf.preferences.roles"
+            category="com.collabnet.ccf.preferences"
+            name="Roles"/>                                            
    </extension>
 
    <extension
