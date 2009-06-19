@@ -213,6 +213,17 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 					break;
 				}
         		barMenuManager.add(sortMenu);
+        		barMenuManager.add(new Separator());
+        		MenuManager roleMenu = new MenuManager("Active role");
+        		Role[] roles = Activator.getDefault().getRoles();
+        		for (Role role : roles) {
+        			RoleAction roleAction = new RoleAction(role);
+        			if (activeRole != null && role.getName().equals(activeRole.getName())) {
+        				roleAction.setChecked(true);
+        			}
+        			roleMenu.add(roleAction);
+        		}
+        		barMenuManager.add(roleMenu);
             }
 		});
    		NewLandscapeAction newLandscapeAction = new NewLandscapeAction("New CCF Landscape...");
@@ -555,6 +566,21 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 			settings.put(PROJECT_MAPPING_SORT_ORDER, order);
 			ccfComparator.setSortOrder(order);
 			refreshProjectMappings();
+		}
+		
+	}
+	
+	class RoleAction extends Action {
+		private Role role;
+
+		public RoleAction(Role role) {
+			super(role.getName(), Action.AS_CHECK_BOX);
+			this.role = role;
+		}
+		
+		public void run() {
+			Activator.getDefault().getPreferenceStore().putValue(Activator.PREFERENCES_ACTIVE_ROLE, role.getName());
+			roleChanged(role);
 		}
 		
 	}
