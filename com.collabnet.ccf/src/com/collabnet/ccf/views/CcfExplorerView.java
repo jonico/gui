@@ -44,6 +44,7 @@ import org.eclipse.ui.part.ViewPart;
 import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.ILandscapeContributor;
 import com.collabnet.ccf.IProjectMappingsChangeListener;
+import com.collabnet.ccf.IRoleChangedListener;
 import com.collabnet.ccf.actions.ChangeSynchronizationStatusAction;
 import com.collabnet.ccf.actions.EditLandscapeAction;
 import com.collabnet.ccf.actions.EditLogAction;
@@ -57,15 +58,18 @@ import com.collabnet.ccf.model.Landscape;
 import com.collabnet.ccf.model.Log;
 import com.collabnet.ccf.model.Logs;
 import com.collabnet.ccf.model.ProjectMappings;
+import com.collabnet.ccf.model.Role;
 import com.collabnet.ccf.model.SynchronizationStatus;
 
-public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeListener {
+public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeListener, IRoleChangedListener {
 	private static CcfExplorerView view;
 	private TreeViewer treeViewer;
 	private CcfDataProvider dataProvider;
 	private CcfComparator ccfComparator = new CcfComparator();
 	private IDialogSettings settings = Activator.getDefault().getDialogSettings();
 	private Font italicFont;
+	private Role activeRole = Activator.getDefault().getActiveRole();
+	private NewLandscapeAction toolbarNewLandscapeAction = new NewLandscapeAction("New CCF Landscape...");
 	
 	public static final String PROJECT_MAPPING_SORT_ORDER = "CcfExplorerView.projectMappingSort";
 	public static final int SORT_BY_SOURCE_REPOSITORY = 0;
@@ -78,6 +82,7 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 		super();
 		view = this;
 		Activator.addChangeListener(this);
+		Activator.addRoleChangedListener(this);
 	}
 
 	@Override
@@ -115,7 +120,7 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 				IStructuredSelection selection = (IStructuredSelection)treeViewer.getSelection();
 				if (selection != null && selection.size() == 1) {
 					ActionDelegate action = null;
-					if (selection.getFirstElement() instanceof Landscape) {
+					if (selection.getFirstElement() instanceof Landscape && activeRole.isEditLandscape()) {
 						action = new EditLandscapeAction();
 					}
 					else if (selection.getFirstElement() instanceof Log) {
@@ -123,7 +128,7 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 					}
 					else if (selection.getFirstElement() instanceof SynchronizationStatus) {
 						SynchronizationStatus status = (SynchronizationStatus)selection.getFirstElement();
-						if (status.getLandscape().getRole() == Landscape.ROLE_ADMINISTRATOR) {
+						if (status.getLandscape().getRole() == Landscape.ROLE_ADMINISTRATOR && activeRole.isChangeProjectMapping()) {
 							action = new ChangeSynchronizationStatusAction();
 						}
 					}
@@ -183,6 +188,7 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 		barMenuManager.addMenuListener(new IMenuListener() {
             public void menuAboutToShow(IMenuManager menu) {
         		NewLandscapeAction newLandscapeAction = new NewLandscapeAction("New CCF Landscape...");
+        		newLandscapeAction.setEnabled(activeRole.isAddLandscape());
         		barMenuManager.add(newLandscapeAction);  
         		barMenuManager.add(new Separator());
         		MenuManager sortMenu = new MenuManager("Sort project mappings by");
@@ -216,6 +222,7 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 	private void fillContextMenu(IMenuManager manager) {
 		MenuManager sub = new MenuManager("New", IWorkbenchActionConstants.GROUP_ADD); //$NON-NLS-1$
 		NewLandscapeAction newLandscapeAction = new NewLandscapeAction("CCF Landscape");
+		newLandscapeAction.setEnabled(activeRole.isAddLandscape());
 		sub.add(newLandscapeAction);
 		sub.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 		manager.add(sub);	
@@ -257,7 +264,8 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 		toolbarManager.add(new RefreshAction());
 		toolbarManager.add(new FilterAction());
 		toolbarManager.add(new Separator());
-		toolbarManager.add(new NewLandscapeAction("New CCF Landscape..."));
+		toolbarNewLandscapeAction.setEnabled(activeRole.isAddLandscape());
+		toolbarManager.add(toolbarNewLandscapeAction);
 	}
 
 	@Override
@@ -305,6 +313,11 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 	public CcfDataProvider getDataProvider() {
 		if (dataProvider == null) dataProvider = new CcfDataProvider();
 		return dataProvider;
+	}
+	
+	public void roleChanged(Role activeRole) {
+		this.activeRole = activeRole;
+		toolbarNewLandscapeAction.setEnabled(activeRole.isAddLandscape());
 	}
 	
 	public static CcfExplorerView getView() {

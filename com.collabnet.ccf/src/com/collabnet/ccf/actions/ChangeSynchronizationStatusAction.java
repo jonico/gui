@@ -57,6 +57,9 @@ public class ChangeSynchronizationStatusAction extends ActionDelegate {
 		if (sel instanceof IStructuredSelection) {
 			fSelection= (IStructuredSelection) sel;
 		}
+		if (action != null) {
+			action.setEnabled(Activator.getDefault().getActiveRole().isChangeProjectMapping());
+		}
 	}	
 	
 }

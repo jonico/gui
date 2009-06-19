@@ -43,6 +43,7 @@ public class Activator extends AbstractUIPlugin {
 	
 	private static ILandscapeContributor[] landscapeContributors;
 	private static List<IProjectMappingsChangeListener> changeListeners = new ArrayList<IProjectMappingsChangeListener>();
+	private static List<IRoleChangedListener> roleChangedListeners = new ArrayList<IRoleChangedListener>();
 	
 	// Images
 	public static final String IMAGE_ERROR = "error.gif"; //$NON-NLS-1$
@@ -209,11 +210,25 @@ public class Activator extends AbstractUIPlugin {
 		changeListeners.remove(listener);
 	}
 	
-	public static void notifyChanged(ProjectMappings projectMappings) {
-	for (IProjectMappingsChangeListener listener : Activator.changeListeners) {
-		listener.changed(projectMappings);
+	public static void addRoleChangedListener(IRoleChangedListener listener) {
+		roleChangedListeners.add(listener);
 	}
-}
+	
+	public static void removeRoleChangedListener(IRoleChangedListener listener) {
+		roleChangedListeners.remove(listener);
+	}
+	
+	public static void notifyChanged(ProjectMappings projectMappings) {
+		for (IProjectMappingsChangeListener listener : Activator.changeListeners) {
+			listener.changed(projectMappings);
+		}
+	}
+	
+	public static void notifyRoleChanged(Role activeRole) {
+		for (IRoleChangedListener listener : Activator.roleChangedListeners) {
+			listener.roleChanged(activeRole);
+		}
+	}
 
 	// Initialize the landscape contributors by searching the registry for users of the
 	// landscape contributors extension point.	
@@ -375,35 +390,51 @@ public class Activator extends AbstractUIPlugin {
 		return null;
 	}
 	
+	public Role getActiveRole() {
+		String activeRole = getPreferenceStore().getString(Activator.PREFERENCES_ACTIVE_ROLE);
+		if (activeRole != null) {
+			Preferences node = getInstancePreferences().node(PREF_CCF_ROLES_NODE).node(activeRole);
+			if (node != null) {
+				return getRole(activeRole, node);
+			}
+		}
+		return new Role("Default");
+	}
+	
+	private Role getRole(String name, Preferences node) {
+		Role role = new Role(name);
+		role.setAddLandscape(node.getBoolean(PREF_CCF_ROLES_ADD_LANDSCAPE, true));
+		role.setEditLandscape(node.getBoolean(PREF_CCF_ROLES_EDIT_LANDSCAPE, true));
+		role.setDeleteLandscape(node.getBoolean(PREF_CCF_ROLES_DELETE_LANDSCAPE, true));
+		role.setAddProjectMapping(node.getBoolean(PREF_CCF_ROLES_ADD_PROJECT_MAPPING, true));
+		role.setChangeProjectMapping(node.getBoolean(PREF_CCF_ROLES_CHANGE_PROJECT_MAPPING, true));
+		role.setDeleteProjectMapping(node.getBoolean(PREF_CCF_ROLES_DELETE_PROJECT_MAPPING, true));
+		role.setEditFieldMappings(node.getBoolean(PREF_CCF_ROLES_EDIT_FIELD_MAPPINGS, true));
+		role.setPauseSynchronization(node.getBoolean(PREF_CCF_ROLES_PAUSE_SYNCHRONIZATION, true));
+		role.setResumeSynchronization(node.getBoolean(PREF_CCF_ROLES_RESUME_SYNCHRONIZATION, true));
+		role.setResetSynchronizationStatus(node.getBoolean(PREF_CCF_ROLES_RESET_SYNCHRONIZATION_STATUS, true));
+		role.setDeleteProjectMappingIdentityMappings(node.getBoolean(PREF_CCF_ROLES_DELETE_PROJECT_MAPPING_IDENTITY_MAPPINGS, true));
+		role.setEditQuarantinedArtifact(node.getBoolean(PREF_CCF_ROLES_EDIT_QUARANTINED_ARTIFACT, true));
+		role.setMarkAsFixed(node.getBoolean(PREF_CCF_ROLES_MARK_AS_FIXED, true));
+		role.setReopen(node.getBoolean(PREF_CCF_ROLES_REOPEN, true));
+		role.setReplay(node.getBoolean(PREF_CCF_ROLES_REPLAY, true));
+		role.setCancelReplay(node.getBoolean(PREF_CCF_ROLES_CANCEL_REPLAY, true));
+		role.setDeleteHospitalEntry(node.getBoolean(PREF_CCF_ROLES_DELETE_HOSPITAL_ENTRY, true));
+		role.setCreateReverseIdentityMapping(node.getBoolean(PREF_CCF_ROLES_CREATE_REVERSE_IDENTITY_MAPPING, true));
+		role.setDeleteIdentityMapping(node.getBoolean(PREF_CCF_ROLES_DELETE_IDENTITY_MAPPING, true));
+		role.setEditIdentityMapping(node.getBoolean(PREF_CCF_ROLES_EDIT_IDENTITY_MAPPING, true));
+		role.setEditLogSettings(node.getBoolean(PREF_CCF_ROLES_EDIT_LOG_SETTINGS, true));
+		role.setNode(node);	
+		return role;
+	}
+	
 	public Role[] getRoles() {
 		List<Role> roles = new ArrayList<Role>();
 		try {
 			String[] childrenNames = getInstancePreferences().node(PREF_CCF_ROLES_NODE).childrenNames();
 			for (int i = 0; i < childrenNames.length; i++) {
 				Preferences node = getInstancePreferences().node(PREF_CCF_ROLES_NODE).node(childrenNames[i]);
-				Role role = new Role(childrenNames[i]);
-				role.setAddLandscape(node.getBoolean(PREF_CCF_ROLES_ADD_LANDSCAPE, true));
-				role.setEditLandscape(node.getBoolean(PREF_CCF_ROLES_EDIT_LANDSCAPE, true));
-				role.setDeleteLandscape(node.getBoolean(PREF_CCF_ROLES_DELETE_LANDSCAPE, true));
-				role.setAddProjectMapping(node.getBoolean(PREF_CCF_ROLES_ADD_PROJECT_MAPPING, true));
-				role.setChangeProjectMapping(node.getBoolean(PREF_CCF_ROLES_CHANGE_PROJECT_MAPPING, true));
-				role.setDeleteProjectMapping(node.getBoolean(PREF_CCF_ROLES_DELETE_PROJECT_MAPPING, true));
-				role.setEditFieldMappings(node.getBoolean(PREF_CCF_ROLES_EDIT_FIELD_MAPPINGS, true));
-				role.setPauseSynchronization(node.getBoolean(PREF_CCF_ROLES_PAUSE_SYNCHRONIZATION, true));
-				role.setResumeSynchronization(node.getBoolean(PREF_CCF_ROLES_RESUME_SYNCHRONIZATION, true));
-				role.setResetSynchronizationStatus(node.getBoolean(PREF_CCF_ROLES_RESET_SYNCHRONIZATION_STATUS, true));
-				role.setDeleteProjectMappingIdentityMappings(node.getBoolean(PREF_CCF_ROLES_DELETE_PROJECT_MAPPING_IDENTITY_MAPPINGS, true));
-				role.setEditQuarantinedArtifact(node.getBoolean(PREF_CCF_ROLES_EDIT_QUARANTINED_ARTIFACT, true));
-				role.setMarkAsFixed(node.getBoolean(PREF_CCF_ROLES_MARK_AS_FIXED, true));
-				role.setReopen(node.getBoolean(PREF_CCF_ROLES_REOPEN, true));
-				role.setReplay(node.getBoolean(PREF_CCF_ROLES_REPLAY, true));
-				role.setCancelReplay(node.getBoolean(PREF_CCF_ROLES_CANCEL_REPLAY, true));
-				role.setDeleteHospitalEntry(node.getBoolean(PREF_CCF_ROLES_DELETE_HOSPITAL_ENTRY, true));
-				role.setCreateReverseIdentityMapping(node.getBoolean(PREF_CCF_ROLES_CREATE_REVERSE_IDENTITY_MAPPING, true));
-				role.setDeleteIdentityMapping(node.getBoolean(PREF_CCF_ROLES_DELETE_IDENTITY_MAPPING, true));
-				role.setEditIdentityMapping(node.getBoolean(PREF_CCF_ROLES_EDIT_IDENTITY_MAPPING, true));
-				role.setEditLogSettings(node.getBoolean(PREF_CCF_ROLES_EDIT_LOG_SETTINGS, true));
-				role.setNode(node);
+				Role role = getRole(childrenNames[i], node);
 				roles.add(role);
 			}
 			if (roles.size() == 0) {

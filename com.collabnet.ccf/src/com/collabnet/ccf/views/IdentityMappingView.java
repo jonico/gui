@@ -306,9 +306,11 @@ public class IdentityMappingView extends ViewPart {
 		
 		tableViewer.addOpenListener(new IOpenListener() {
 			public void open(OpenEvent evt) {
-				IdentityMappingEditAction action = new IdentityMappingEditAction();
-				action.selectionChanged(null, tableViewer.getSelection());
-				action.run(null);
+				if (Activator.getDefault().getActiveRole().isEditIdentityMapping()) {
+					IdentityMappingEditAction action = new IdentityMappingEditAction();
+					action.selectionChanged(null, tableViewer.getSelection());
+					action.run(null);
+				}
 			}			
 		});
 		

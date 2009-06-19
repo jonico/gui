@@ -157,7 +157,7 @@ public class CcfProjectMappingsEditorPage extends CcfEditorPage implements IProj
 			tableViewer1.addOpenListener(new IOpenListener() {
 				public void open(OpenEvent oe) {
 					IStructuredSelection selection = (IStructuredSelection)tableViewer1.getSelection();
-					if (selection != null && selection.size() == 1) {
+					if (selection != null && selection.size() == 1 && Activator.getDefault().getActiveRole().isChangeProjectMapping()) {
 						ActionDelegate action = new ChangeSynchronizationStatusAction();
 						action.selectionChanged(null, selection);
 						action.run(null);						
@@ -224,7 +224,7 @@ public class CcfProjectMappingsEditorPage extends CcfEditorPage implements IProj
 			tableViewer2.addOpenListener(new IOpenListener() {
 				public void open(OpenEvent oe) {
 					IStructuredSelection selection = (IStructuredSelection)tableViewer2.getSelection();
-					if (selection != null && selection.size() == 1) {
+					if (selection != null && selection.size() == 1 && Activator.getDefault().getActiveRole().isChangeProjectMapping()) {
 						ActionDelegate action = new ChangeSynchronizationStatusAction();
 						action.selectionChanged(null, selection);
 						action.run(null);						
@@ -320,9 +320,9 @@ public class CcfProjectMappingsEditorPage extends CcfEditorPage implements IProj
 	}
 	
 	private void fillContextMenu(IMenuManager manager, final TableViewer tableViewer) {	
-		if (getLandscape().getRole() == Landscape.ROLE_ADMINISTRATOR) {
+		if (getLandscape().getRole() == Landscape.ROLE_ADMINISTRATOR ) {
 			MenuManager sub = new MenuManager("New", IWorkbenchActionConstants.GROUP_ADD); //$NON-NLS-1$
-			sub.add(new Action("Project Mapping") {	
+			Action addProjectMappingAction = new Action("Project Mapping") {	
 				@Override
 				public void run() {
 					ProjectMappings projectMappings = null;
@@ -341,7 +341,9 @@ public class CcfProjectMappingsEditorPage extends CcfEditorPage implements IProj
 						}
 					}
 				}
-			});
+			};
+			addProjectMappingAction.setEnabled(Activator.getDefault().getActiveRole().isAddProjectMapping());
+			sub.add(addProjectMappingAction);
 			sub.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 			manager.add(sub);
 		}

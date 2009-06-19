@@ -57,7 +57,7 @@ public class PauseSynchronizationAction extends ActionDelegate {
 	
 	@SuppressWarnings("unchecked")
 	private boolean isEnabledForSelection() {
-		if (fSelection == null) return false;
+		if (fSelection == null || !Activator.getDefault().getActiveRole().isPauseSynchronization()) return false;
 		Iterator iter = fSelection.iterator();
 		while (iter.hasNext()) {
 			Object object = iter.next();

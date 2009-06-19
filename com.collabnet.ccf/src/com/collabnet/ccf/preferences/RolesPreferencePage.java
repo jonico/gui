@@ -401,6 +401,35 @@ public class RolesPreferencePage extends PreferencePage implements IWorkbenchPre
 		deleteIdentityMappingButton.addSelectionListener(optionListener);
 		editLogSettingsButton.addSelectionListener(optionListener);	
 		
+		if (activeRole != null) {
+			roleTableViewer.setSelection(new IStructuredSelection() {
+				public Object getFirstElement() {
+					return activeRole;
+				}
+				@SuppressWarnings("unchecked")
+				public Iterator iterator() {
+					return toList().iterator();
+				}
+				public int size() {
+					return 1;
+				}
+				public Object[] toArray() {
+					Role[] newRoleArray = { activeRole };
+					return newRoleArray;
+				}
+				@SuppressWarnings("unchecked")
+				public List toList() {
+					List<Role> roleList = new ArrayList<Role>();
+					roleList.add(activeRole);
+					return roleList;
+				}
+				public boolean isEmpty() {
+					return false;
+				}
+			});
+			setEnablement();
+		}
+		
 		return composite;
 	}
 
@@ -416,6 +445,7 @@ public class RolesPreferencePage extends PreferencePage implements IWorkbenchPre
 		if (activeRole != null) {
 			Activator.getDefault().getPreferenceStore().setValue(Activator.PREFERENCES_ACTIVE_ROLE, activeRole.getName());
 		}
+		Activator.notifyRoleChanged(Activator.getDefault().getActiveRole());
 		changes = false;
 		return super.performOk();
 	}

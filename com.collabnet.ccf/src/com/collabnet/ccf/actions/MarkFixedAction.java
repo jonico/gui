@@ -91,6 +91,8 @@ public class MarkFixedAction extends ActionDelegate {
 			if (object instanceof Patient) {
 				Patient patient = (Patient)object;
 				if (patient.isFixed() != undo) return false;
+				if (undo && !Activator.getDefault().getActiveRole().isReopen()) return false;
+				if (!undo && !Activator.getDefault().getActiveRole().isMarkAsFixed()) return false;
 			}
 		}
 		return true;

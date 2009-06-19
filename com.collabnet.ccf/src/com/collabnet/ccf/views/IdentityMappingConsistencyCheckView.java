@@ -91,10 +91,10 @@ public class IdentityMappingConsistencyCheckView extends ViewPart implements IPr
 				IStructuredSelection selection = (IStructuredSelection)treeViewer.getSelection();
 				if (selection != null && selection.size() == 1) {
 					ActionDelegate action = null;
-					if (selection.getFirstElement() instanceof SynchronizationStatus) {
+					if (selection.getFirstElement() instanceof SynchronizationStatus && Activator.getDefault().getActiveRole().isChangeProjectMapping()) {
 						action = new ChangeSynchronizationStatusAction();
 					}
-					else if (selection.getFirstElement() instanceof IdentityMapping) {
+					else if (selection.getFirstElement() instanceof IdentityMapping && Activator.getDefault().getActiveRole().isEditIdentityMapping()) {
 						action = new IdentityMappingEditAction();
 					}
 					else if (selection.getFirstElement() instanceof Exception) {

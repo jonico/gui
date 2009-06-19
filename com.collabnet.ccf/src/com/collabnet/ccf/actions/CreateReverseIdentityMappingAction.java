@@ -58,7 +58,7 @@ public class CreateReverseIdentityMappingAction extends ActionDelegate {
 	
 	@SuppressWarnings("unchecked")
 	private boolean isEnabledForSelection() {
-		if (fSelection == null) return false;
+		if (fSelection == null || !Activator.getDefault().getActiveRole().isCreateReverseIdentityMapping()) return false;
 		Iterator iter = fSelection.iterator();
 		while (iter.hasNext()) {
 			Object object = iter.next();
