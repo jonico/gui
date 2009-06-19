@@ -8,10 +8,15 @@ import com.collabnet.ccf.model.Landscape;
 
 public class CcfEditorInput implements IEditorInput {
 	private Landscape landscape;
+	private int editorType;
+
+	public final static int EDITOR_TYPE_LANDSCAPE = 0;
+	public final static int EDITOR_TYPE_STATUS = 1;
 		
-	public CcfEditorInput(Landscape landscape) {
+	public CcfEditorInput(Landscape landscape, int editorType) {
 		super();
 		this.landscape = landscape;
+		this.editorType = editorType;
 	}
 
 	public boolean exists() {
@@ -46,12 +51,16 @@ public class CcfEditorInput implements IEditorInput {
 	public void setLandscape(Landscape landscape) {
 		this.landscape = landscape;
 	}
+	
+	public int getEditorType() {
+		return editorType;
+	}
 
 	@Override
 	public boolean equals(Object obj) {
 		if (!(obj instanceof CcfEditorInput)) return false;
 		CcfEditorInput compareInput = (CcfEditorInput)obj;
-		return landscape.getDescription().equals(compareInput.getLandscape().getDescription());
+		return editorType == compareInput.getEditorType() && landscape.getDescription().equals(compareInput.getLandscape().getDescription());
 	}
 
 }

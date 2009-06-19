@@ -20,7 +20,7 @@ public class JmxConsoleAction extends Action {
 
 	@Override
 	public void run() {
-		CcfEditorInput editorInput = new CcfEditorInput(landscape);
+		CcfEditorInput editorInput = new CcfEditorInput(landscape, CcfEditorInput.EDITOR_TYPE_STATUS);
 		IWorkbenchPage page = Activator.getDefault().getWorkbench().getActiveWorkbenchWindow().getActivePage();
 		try {
 			page.openEditor(editorInput, JmxConsoleEditor.ID);

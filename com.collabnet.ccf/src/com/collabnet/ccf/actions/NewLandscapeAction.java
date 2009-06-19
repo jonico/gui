@@ -35,7 +35,7 @@ public class NewLandscapeAction extends Action {
 		WizardDialog dialog = new CustomWizardDialog(Display.getDefault().getActiveShell(), wizard);
 		dialog.open();
 		if (wizard.getNewLandscape() != null) {
-			CcfEditorInput editorInput = new CcfEditorInput(wizard.getNewLandscape());
+			CcfEditorInput editorInput = new CcfEditorInput(wizard.getNewLandscape(), CcfEditorInput.EDITOR_TYPE_LANDSCAPE);
 			IWorkbenchPage page = Activator.getDefault().getWorkbench().getActiveWorkbenchWindow().getActivePage();
 			try {
 				page.openEditor(editorInput, CcfEditor.ID);

@@ -24,7 +24,7 @@ public class EditLandscapeAction extends ActionDelegate {
 			Object object = iter.next();
 			if (object instanceof Landscape) {
 				Landscape landscape = (Landscape)object;
-				CcfEditorInput editorInput = new CcfEditorInput(landscape);
+				CcfEditorInput editorInput = new CcfEditorInput(landscape, CcfEditorInput.EDITOR_TYPE_LANDSCAPE);
 				IWorkbenchPage page = Activator.getDefault().getWorkbench().getActiveWorkbenchWindow().getActivePage();
 				try {
 					page.openEditor(editorInput, CcfEditor.ID);
