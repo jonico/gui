@@ -46,6 +46,7 @@ import com.collabnet.ccf.model.Role;
 public class RolesPreferencePage extends PreferencePage implements IWorkbenchPreferencePage {
 	private Button selectButton;
 	private Button removeButton;
+	private Button addButton;
 	private TableViewer roleTableViewer;
 	private Group optionGroup;
 	
@@ -74,6 +75,7 @@ public class RolesPreferencePage extends PreferencePage implements IWorkbenchPre
 	private Button consistencyCheckButton;
 	
 	private Button editLogSettingsButton;
+	private Button maintainRolesButton;
 	
 	private Role[] roles;
 	private Role activeRole;
@@ -163,7 +165,7 @@ public class RolesPreferencePage extends PreferencePage implements IWorkbenchPre
 			}			
 		});
 		
-		Button addButton = new Button(addRemoveGroup, SWT.PUSH);
+		addButton = new Button(addRemoveGroup, SWT.PUSH);
 		gd = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
 		addButton.setLayoutData(gd);
 		addButton.setText("Add...");
@@ -346,6 +348,8 @@ public class RolesPreferencePage extends PreferencePage implements IWorkbenchPre
 		
 		editLogSettingsButton = new Button(configGroup, SWT.CHECK);
 		editLogSettingsButton.setText("Edit CCF log settings");
+		maintainRolesButton = new Button(configGroup, SWT.CHECK);
+		maintainRolesButton.setText("Add/change/delete roles");
 		
 		roleTableViewer.addSelectionChangedListener(new ISelectionChangedListener() {
 			public void selectionChanged(SelectionChangedEvent sce) {
@@ -380,6 +384,7 @@ public class RolesPreferencePage extends PreferencePage implements IWorkbenchPre
 				role.setDeleteIdentityMapping(deleteIdentityMappingButton.getSelection());
 				role.setEditLogSettings(editLogSettingsButton.getSelection());
 				role.setConsistencyCheck(consistencyCheckButton.getSelection());
+				role.setMaintainRoles(maintainRolesButton.getSelection());
 			}			
 		};
 		
@@ -405,6 +410,7 @@ public class RolesPreferencePage extends PreferencePage implements IWorkbenchPre
 		deleteIdentityMappingButton.addSelectionListener(optionListener);
 		editLogSettingsButton.addSelectionListener(optionListener);	
 		consistencyCheckButton.addSelectionListener(optionListener);
+		maintainRolesButton.addSelectionListener(optionListener);
 		
 		if (activeRole != null) {
 			roleTableViewer.setSelection(new IStructuredSelection() {
@@ -436,6 +442,12 @@ public class RolesPreferencePage extends PreferencePage implements IWorkbenchPre
 		}
 		
 		return composite;
+	}
+
+	@Override
+	protected void performApply() {
+		super.performApply();
+		setEnablement();
 	}
 
 	@Override
@@ -513,11 +525,14 @@ public class RolesPreferencePage extends PreferencePage implements IWorkbenchPre
 	}
 
 	private void setEnablement() {
+		boolean maintainRoles = Activator.getDefault().getActiveRole().isMaintainRoles();
+		
 		IStructuredSelection selection = (IStructuredSelection)roleTableViewer.getSelection();
 		selectButton.setEnabled(selection.size() == 1 && selection.getFirstElement() != activeRole);
-		removeButton.setEnabled(selection.size() > 0 && !selection.toList().contains(activeRole));
+		removeButton.setEnabled(maintainRoles && selection.size() > 0 && !selection.toList().contains(activeRole));
+		addButton.setEnabled(maintainRoles);
 		
-		optionGroup.setEnabled(selection.size() == 1);
+		optionGroup.setEnabled(selection.size() == 1 && maintainRoles);
 		if (selection.size() == 1) {
 			Role role = (Role)selection.getFirstElement();
 			newLandscapeButton.setSelection(role.isAddLandscape());
@@ -542,6 +557,7 @@ public class RolesPreferencePage extends PreferencePage implements IWorkbenchPre
 			deleteIdentityMappingButton.setSelection(role.isDeleteIdentityMapping());
 			editLogSettingsButton.setSelection(role.isEditLogSettings());
 			consistencyCheckButton.setSelection(role.isConsistencyCheck());
+			maintainRolesButton.setSelection(role.isMaintainRoles());
 		}
 	}
 

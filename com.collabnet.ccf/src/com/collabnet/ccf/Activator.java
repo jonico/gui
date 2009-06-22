@@ -174,6 +174,7 @@ public class Activator extends AbstractUIPlugin {
 	public static final String PREF_CCF_ROLES_EDIT_IDENTITY_MAPPING = "editIdentityMapping"; //$NON-NLS-1$
 	public static final String PREF_CCF_ROLES_EDIT_LOG_SETTINGS = "editLogSettings"; //$NON-NLS-1$
 	public static final String PREF_CCF_ROLES_CONSISTENCY_CHECK = "consistencyCheck"; //$NON-NLS-1$
+	public static final String PREF_CCF_ROLES_MAINTAIN_ROLES = "maintainRoles"; //$NON-NLS-1$
 	
 	public static final String SAMPLE_XSL_FILE_NAME = "sample.xsl"; //$NON-NLS-1$
 	
@@ -316,6 +317,7 @@ public class Activator extends AbstractUIPlugin {
 		prefs.putBoolean(PREF_CCF_ROLES_EDIT_IDENTITY_MAPPING, role.isEditIdentityMapping());
 		prefs.putBoolean(PREF_CCF_ROLES_EDIT_LOG_SETTINGS, role.isEditLogSettings());
 		prefs.putBoolean(PREF_CCF_ROLES_CONSISTENCY_CHECK, role.isConsistencyCheck());
+		prefs.putBoolean(PREF_CCF_ROLES_MAINTAIN_ROLES, role.isMaintainRoles());
 		try {
 			prefs.flush();
 		} catch (BackingStoreException e) {
@@ -427,6 +429,7 @@ public class Activator extends AbstractUIPlugin {
 		role.setEditIdentityMapping(node.getBoolean(PREF_CCF_ROLES_EDIT_IDENTITY_MAPPING, true));
 		role.setEditLogSettings(node.getBoolean(PREF_CCF_ROLES_EDIT_LOG_SETTINGS, true));
 		role.setConsistencyCheck(node.getBoolean(PREF_CCF_ROLES_CONSISTENCY_CHECK, true));
+		role.setMaintainRoles(node.getBoolean(PREF_CCF_ROLES_MAINTAIN_ROLES, true));
 		role.setNode(node);	
 		return role;
 	}
