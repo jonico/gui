@@ -71,6 +71,7 @@ public class RolesPreferencePage extends PreferencePage implements IWorkbenchPre
 	private Button createReverseIdentityMappingButton;
 	private Button deleteIdentityMappingButton;
 	private Button editIdentityMappingButton;
+	private Button consistencyCheckButton;
 	
 	private Button editLogSettingsButton;
 	
@@ -332,6 +333,8 @@ public class RolesPreferencePage extends PreferencePage implements IWorkbenchPre
 		deleteIdentityMappingButton.setText("Delete");
 		createReverseIdentityMappingButton = new Button(identityMappingGroup, SWT.CHECK);
 		createReverseIdentityMappingButton.setText("Create reverse identity mapping");
+		consistencyCheckButton = new Button(identityMappingGroup, SWT.CHECK);
+		consistencyCheckButton.setText("Consistency check");
 
 		Group configGroup = new Group(column2Group, SWT.NULL);
 		GridLayout configLayout = new GridLayout();
@@ -376,6 +379,7 @@ public class RolesPreferencePage extends PreferencePage implements IWorkbenchPre
 				role.setCreateReverseIdentityMapping(createReverseIdentityMappingButton.getSelection());
 				role.setDeleteIdentityMapping(deleteIdentityMappingButton.getSelection());
 				role.setEditLogSettings(editLogSettingsButton.getSelection());
+				role.setConsistencyCheck(consistencyCheckButton.getSelection());
 			}			
 		};
 		
@@ -400,6 +404,7 @@ public class RolesPreferencePage extends PreferencePage implements IWorkbenchPre
 		createReverseIdentityMappingButton.addSelectionListener(optionListener);
 		deleteIdentityMappingButton.addSelectionListener(optionListener);
 		editLogSettingsButton.addSelectionListener(optionListener);	
+		consistencyCheckButton.addSelectionListener(optionListener);
 		
 		if (activeRole != null) {
 			roleTableViewer.setSelection(new IStructuredSelection() {
@@ -536,6 +541,7 @@ public class RolesPreferencePage extends PreferencePage implements IWorkbenchPre
 			createReverseIdentityMappingButton.setSelection(role.isCreateReverseIdentityMapping());
 			deleteIdentityMappingButton.setSelection(role.isDeleteIdentityMapping());
 			editLogSettingsButton.setSelection(role.isEditLogSettings());
+			consistencyCheckButton.setSelection(role.isConsistencyCheck());
 		}
 	}
 

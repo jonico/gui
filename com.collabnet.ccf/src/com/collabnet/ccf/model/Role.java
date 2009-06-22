@@ -28,6 +28,7 @@ public class Role implements Comparable {
 	private boolean deleteIdentityMapping = true;
 	private boolean editIdentityMapping = true;
 	private boolean editLogSettings = true;
+	private boolean consistencyCheck = true;
 
 	public Role(String name) {
 		this.name = name;
@@ -209,6 +210,15 @@ public class Role implements Comparable {
 	public void setEditLogSettings(boolean editLogSettings) {
 		this.editLogSettings = editLogSettings;
 	}
+	
+	public boolean isConsistencyCheck() {
+		return consistencyCheck;
+	}
+
+	public void setConsistencyCheck(boolean consistencyCheck) {
+		this.consistencyCheck = consistencyCheck;
+	}
+
 	
 	public Preferences getNode() {
 		return node;
