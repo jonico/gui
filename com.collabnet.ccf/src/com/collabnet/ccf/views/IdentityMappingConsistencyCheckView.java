@@ -221,7 +221,9 @@ public class IdentityMappingConsistencyCheckView extends ViewPart implements IPr
 		treeViewer.expandAll();
 		
 		if (synchronizationStatus == null) {
-			setContentDescription(landscape.getDescription());
+			if (landscape != null) {
+				setContentDescription(landscape.getDescription());
+			}
 		} else {
 			setContentDescription(synchronizationStatus.toString());
 		}
