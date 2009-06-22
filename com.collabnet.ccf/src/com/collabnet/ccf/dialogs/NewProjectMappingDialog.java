@@ -213,9 +213,10 @@ public class NewProjectMappingDialog extends CcfDialog {
 		system2ToSystem1ConflictResolutionCombo.add(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_ALWAYS_OVERRIDE);
 		system2ToSystem1ConflictResolutionCombo.add(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_QUARANTINE_ARTIFACT);
 		
-		String previousResolutionPriority = settings.get(PREVIOUS_SYSTEM2_SYSTEM1_CONFLICT_RESOLUTION_PRIORITY);
-		if (previousResolutionPriority == null || system2ToSystem1ConflictResolutionCombo.indexOf(previousResolutionPriority) == -1) system2ToSystem1ConflictResolutionCombo.setText(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_ALWAYS_IGNORE);
-		else system2ToSystem1ConflictResolutionCombo.setText(previousResolutionPriority);
+//		String previousResolutionPriority = settings.get(PREVIOUS_SYSTEM2_SYSTEM1_CONFLICT_RESOLUTION_PRIORITY);
+//		if (previousResolutionPriority == null || system2ToSystem1ConflictResolutionCombo.indexOf(previousResolutionPriority) == -1) system2ToSystem1ConflictResolutionCombo.setText(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_ALWAYS_IGNORE);
+//		else system2ToSystem1ConflictResolutionCombo.setText(previousResolutionPriority);
+		system2ToSystem1ConflictResolutionCombo.setText(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_ALWAYS_OVERRIDE);
 		
 		system1ToSystem2ConflictResolutionLabel = new Label(conflictGroup, SWT.NONE);
 		system1ToSystem2ConflictResolutionLabel.setText(system1ToSystem2Button.getText());
@@ -224,9 +225,10 @@ public class NewProjectMappingDialog extends CcfDialog {
 		system1ToSystem2ConflictResolutionCombo.add(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_ALWAYS_OVERRIDE);
 		system1ToSystem2ConflictResolutionCombo.add(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_QUARANTINE_ARTIFACT);
 
-		previousResolutionPriority = settings.get(PREVIOUS_SYSTEM1_SYSTEM2_CONFLICT_RESOLUTION_PRIORITY);
-		if (previousResolutionPriority == null || system1ToSystem2ConflictResolutionCombo.indexOf(previousResolutionPriority) == -1) system1ToSystem2ConflictResolutionCombo.setText(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_ALWAYS_IGNORE);
-		else system1ToSystem2ConflictResolutionCombo.setText(previousResolutionPriority);
+//		previousResolutionPriority = settings.get(PREVIOUS_SYSTEM1_SYSTEM2_CONFLICT_RESOLUTION_PRIORITY);
+//		if (previousResolutionPriority == null || system1ToSystem2ConflictResolutionCombo.indexOf(previousResolutionPriority) == -1) system1ToSystem2ConflictResolutionCombo.setText(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_ALWAYS_IGNORE);
+//		else system1ToSystem2ConflictResolutionCombo.setText(previousResolutionPriority);
+		system1ToSystem2ConflictResolutionCombo.setText(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_ALWAYS_OVERRIDE);
 
 		if (reverseStatus != null) initializeReverseValues();
 		
@@ -269,27 +271,27 @@ public class NewProjectMappingDialog extends CcfDialog {
 		if (reverseStatus.getSourceSystemKind().startsWith(Landscape.TYPE_QC)) {
 			system2ToSystem1Button.setSelection(true);
 			system1ToSystem2Button.setSelection(false);
-			system1ToSystem2ConflictResolutionCombo.setText(SynchronizationStatus.getConflictResolutionDescription(reverseStatus.getConflictResolutionPriority()));
-			if (reverseStatus.getConflictResolutionPriority().equals(SynchronizationStatus.CONFLICT_RESOLUTION_ALWAYS_IGNORE)) {
-				system2ToSystem1ConflictResolutionCombo.setText(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_ALWAYS_OVERRIDE);
-			}
-			else if (reverseStatus.getConflictResolutionPriority().equals(SynchronizationStatus.CONFLICT_RESOLUTION_ALWAYS_OVERRIDE)) {
-				system2ToSystem1ConflictResolutionCombo.setText(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_ALWAYS_IGNORE);
-			} else {
-				system2ToSystem1ConflictResolutionCombo.setText(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_QUARANTINE_ARTIFACT);
-			}
+//			system1ToSystem2ConflictResolutionCombo.setText(SynchronizationStatus.getConflictResolutionDescription(reverseStatus.getConflictResolutionPriority()));
+//			if (reverseStatus.getConflictResolutionPriority().equals(SynchronizationStatus.CONFLICT_RESOLUTION_ALWAYS_IGNORE)) {
+//				system2ToSystem1ConflictResolutionCombo.setText(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_ALWAYS_OVERRIDE);
+//			}
+//			else if (reverseStatus.getConflictResolutionPriority().equals(SynchronizationStatus.CONFLICT_RESOLUTION_ALWAYS_OVERRIDE)) {
+//				system2ToSystem1ConflictResolutionCombo.setText(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_ALWAYS_IGNORE);
+//			} else {
+//				system2ToSystem1ConflictResolutionCombo.setText(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_QUARANTINE_ARTIFACT);
+//			}
 		} else {
 			system2ToSystem1Button.setSelection(false);
 			system1ToSystem2Button.setSelection(true);	
-			system2ToSystem1ConflictResolutionCombo.setText(SynchronizationStatus.getConflictResolutionDescription(reverseStatus.getConflictResolutionPriority()));
-			if (reverseStatus.getConflictResolutionPriority().equals(SynchronizationStatus.CONFLICT_RESOLUTION_ALWAYS_IGNORE)) {
-				system1ToSystem2ConflictResolutionCombo.setText(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_ALWAYS_OVERRIDE);
-			}
-			else if (reverseStatus.getConflictResolutionPriority().equals(SynchronizationStatus.CONFLICT_RESOLUTION_ALWAYS_OVERRIDE)) {
-				system1ToSystem2ConflictResolutionCombo.setText(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_ALWAYS_IGNORE);
-			} else {
-				system1ToSystem2ConflictResolutionCombo.setText(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_QUARANTINE_ARTIFACT);
-			}		
+//			system2ToSystem1ConflictResolutionCombo.setText(SynchronizationStatus.getConflictResolutionDescription(reverseStatus.getConflictResolutionPriority()));
+//			if (reverseStatus.getConflictResolutionPriority().equals(SynchronizationStatus.CONFLICT_RESOLUTION_ALWAYS_IGNORE)) {
+//				system1ToSystem2ConflictResolutionCombo.setText(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_ALWAYS_OVERRIDE);
+//			}
+//			else if (reverseStatus.getConflictResolutionPriority().equals(SynchronizationStatus.CONFLICT_RESOLUTION_ALWAYS_OVERRIDE)) {
+//				system1ToSystem2ConflictResolutionCombo.setText(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_ALWAYS_IGNORE);
+//			} else {
+//				system1ToSystem2ConflictResolutionCombo.setText(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_QUARANTINE_ARTIFACT);
+//			}		
 		}
 	}
 	
