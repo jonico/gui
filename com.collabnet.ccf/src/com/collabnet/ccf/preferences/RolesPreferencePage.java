@@ -22,6 +22,8 @@ import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TableLayout;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -36,11 +38,13 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
 import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.dialogs.NewRoleDialog;
+import com.collabnet.ccf.dialogs.RoleLoginDialog;
 import com.collabnet.ccf.model.Role;
 
 public class RolesPreferencePage extends PreferencePage implements IWorkbenchPreferencePage {
@@ -49,6 +53,8 @@ public class RolesPreferencePage extends PreferencePage implements IWorkbenchPre
 	private Button addButton;
 	private TableViewer roleTableViewer;
 	private Group optionGroup;
+	private Group passwordGroup;
+	private Text passwordText;
 	
 	private Button newLandscapeButton;
 	private Button editLandscapeButton;
@@ -126,7 +132,7 @@ public class RolesPreferencePage extends PreferencePage implements IWorkbenchPre
 		roleTable.setLinesVisible(false);
 		
 		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.FILL_HORIZONTAL);
-		gd.heightHint = 100;
+		gd.heightHint = 75;
 		roleTable.setLayoutData(gd);
 		
 		TableLayout roleTableLayout = new TableLayout();
@@ -236,6 +242,20 @@ public class RolesPreferencePage extends PreferencePage implements IWorkbenchPre
 				roleTableViewer.setInput(roles);
 			}			
 		});
+		
+		passwordGroup = new Group(composite, SWT.NULL);
+		GridLayout passwordLayout = new GridLayout();
+		passwordLayout.numColumns = 1;
+		passwordGroup.setLayout(passwordLayout);
+		gd = new GridData(GridData.FILL_HORIZONTAL);
+		passwordGroup.setLayoutData(gd);	
+		passwordGroup.setText("Password:");
+		passwordGroup.setEnabled(false);
+		
+		passwordText = new Text(passwordGroup, SWT.PASSWORD | SWT.BORDER);
+		gd = new GridData();
+		gd.widthHint = 300;
+		passwordText.setLayoutData(gd);
 		
 		optionGroup = new Group(composite, SWT.NULL);
 		GridLayout optionsLayout = new GridLayout();
@@ -441,6 +461,15 @@ public class RolesPreferencePage extends PreferencePage implements IWorkbenchPre
 			setEnablement();
 		}
 		
+		passwordText.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent me) {
+				IStructuredSelection selection = (IStructuredSelection)roleTableViewer.getSelection();
+				Role role = (Role)selection.getFirstElement();
+				role.setPassword(passwordText.getText().trim());
+				changes = true;
+			}			
+		});
+		
 		return composite;
 	}
 
@@ -516,12 +545,21 @@ public class RolesPreferencePage extends PreferencePage implements IWorkbenchPre
 		return storedRoles;
 	}
 	
-	private void setActiveRole() {
-		changes = true;
+	private void setActiveRole() {		
 		IStructuredSelection selection = (IStructuredSelection)roleTableViewer.getSelection();
-		activeRole = (Role)selection.getFirstElement();
-		roleTableViewer.refresh();
-		setEnablement();
+		Role role = (Role)selection.getFirstElement();
+		if (activeRole == null || !role.getName().equals(activeRole.getName())) {
+			if (role.isPasswordRequired()) {
+				RoleLoginDialog dialog = new RoleLoginDialog(getShell(), role);
+				if (dialog.open() != RoleLoginDialog.OK) {
+					return;
+				}
+			}
+			changes = true;
+			activeRole = role;
+			roleTableViewer.refresh();
+			setEnablement();
+		}
 	}
 
 	private void setEnablement() {
@@ -531,10 +569,14 @@ public class RolesPreferencePage extends PreferencePage implements IWorkbenchPre
 		selectButton.setEnabled(selection.size() == 1 && selection.getFirstElement() != activeRole);
 		removeButton.setEnabled(maintainRoles && selection.size() > 0 && !selection.toList().contains(activeRole));
 		addButton.setEnabled(maintainRoles);
+		passwordGroup.setEnabled(maintainRoles);
+		passwordText.setEnabled(maintainRoles);
 		
 		optionGroup.setEnabled(selection.size() == 1 && maintainRoles);
 		if (selection.size() == 1) {
 			Role role = (Role)selection.getFirstElement();
+			if (role.getPassword() == null) passwordText.setText("");
+			else passwordText.setText(role.getPassword());
 			newLandscapeButton.setSelection(role.isAddLandscape());
 			editLandscapeButton.setSelection(role.isEditLandscape());
 			deleteLandscapeButton.setSelection(role.isDeleteLandscape());

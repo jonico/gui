@@ -53,6 +53,7 @@ import com.collabnet.ccf.actions.JmxConsoleAction;
 import com.collabnet.ccf.actions.NewLandscapeAction;
 import com.collabnet.ccf.db.CcfDataProvider;
 import com.collabnet.ccf.dialogs.ProjectMappingFilterDialog;
+import com.collabnet.ccf.dialogs.RoleLoginDialog;
 import com.collabnet.ccf.model.AdministratorProjectMappings;
 import com.collabnet.ccf.model.Landscape;
 import com.collabnet.ccf.model.Log;
@@ -217,7 +218,7 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
         		MenuManager roleMenu = new MenuManager("Active role");
         		Role[] roles = Activator.getDefault().getRoles();
         		for (Role role : roles) {
-        			RoleAction roleAction = new RoleAction(role);
+        			RoleAction roleAction = new RoleAction(role, activeRole != null && role.getName().equals(activeRole.getName()));
         			if (activeRole != null && role.getName().equals(activeRole.getName())) {
         				roleAction.setChecked(true);
         			}
@@ -572,13 +573,29 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 	
 	class RoleAction extends Action {
 		private Role role;
+		private boolean isActiveRole;
 
-		public RoleAction(Role role) {
+		public RoleAction(Role role, boolean isActiveRole) {
 			super(role.getName(), Action.AS_CHECK_BOX);
 			this.role = role;
+			this.isActiveRole = isActiveRole;
 		}
 		
+		@Override
+		public String getText() {
+			if (!isActiveRole && role.isPasswordRequired()) {
+				return role.getName() + "...";
+			} else {
+				return role.getName();
+			}
+		}
+
 		public void run() {
+			if (isActiveRole) return;
+			if (role.isPasswordRequired()) {
+				RoleLoginDialog dialog = new RoleLoginDialog(Display.getDefault().getActiveShell(), role);
+				if (dialog.open() != RoleLoginDialog.OK) return;
+			}
 			Activator.getDefault().getPreferenceStore().putValue(Activator.PREFERENCES_ACTIVE_ROLE, role.getName());
 			roleChanged(role);
 		}

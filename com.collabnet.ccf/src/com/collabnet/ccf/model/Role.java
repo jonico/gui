@@ -7,6 +7,8 @@ public class Role implements Comparable {
 	private String name;
 	private Preferences node;
 	
+	private String password;
+
 	private boolean addLandscape = true;
 	private boolean editLandscape = true;
 	private boolean deleteLandscape = true;
@@ -41,6 +43,18 @@ public class Role implements Comparable {
 
 	public String getName() {
 		return name;
+	}
+	
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+	
+	public boolean isPasswordRequired() {
+		return password != null && password.trim().length() > 0;
 	}
 
 	public boolean isAddLandscape() {

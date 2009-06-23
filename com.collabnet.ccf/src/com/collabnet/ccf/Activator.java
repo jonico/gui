@@ -152,6 +152,7 @@ public class Activator extends AbstractUIPlugin {
 	
 	public static final String PREF_CCF_LANDSCAPES_NODE = "ccfLandscapes"; //$NON-NLS-1$
 	public static final String PREF_CCF_ROLES_NODE = "ccfRoles"; //$NON-NLS-1$
+	public static final String PREF_CCF_ROLES_PASSWORD = "password"; //$NON-NLS-1$
 	public static final String PREF_CCF_ROLES_ADD_LANDSCAPE = "addLandscape"; //$NON-NLS-1$
 	public static final String PREF_CCF_ROLES_EDIT_LANDSCAPE = "editLandscape"; //$NON-NLS-1$
 	public static final String PREF_CCF_ROLES_DELETE_LANDSCAPE = "deleteLandscape"; //$NON-NLS-1$
@@ -295,6 +296,7 @@ public class Activator extends AbstractUIPlugin {
 	
 	public boolean storeRole(Role role) {
 		Preferences prefs = getInstancePreferences().node(PREF_CCF_ROLES_NODE).node(role.getName());
+		prefs.put(PREF_CCF_ROLES_PASSWORD, encode(role.getPassword()));
 		prefs.putBoolean(PREF_CCF_ROLES_ADD_LANDSCAPE, role.isAddLandscape());
 		prefs.putBoolean(PREF_CCF_ROLES_EDIT_LANDSCAPE, role.isEditLandscape());
 		prefs.putBoolean(PREF_CCF_ROLES_DELETE_LANDSCAPE, role.isDeleteLandscape());
@@ -407,6 +409,7 @@ public class Activator extends AbstractUIPlugin {
 	
 	private Role getRole(String name, Preferences node) {
 		Role role = new Role(name);
+		role.setPassword(decode(node.get(PREF_CCF_ROLES_PASSWORD, "")));
 		role.setAddLandscape(node.getBoolean(PREF_CCF_ROLES_ADD_LANDSCAPE, true));
 		role.setEditLandscape(node.getBoolean(PREF_CCF_ROLES_EDIT_LANDSCAPE, true));
 		role.setDeleteLandscape(node.getBoolean(PREF_CCF_ROLES_DELETE_LANDSCAPE, true));
@@ -628,5 +631,13 @@ public class Activator extends AbstractUIPlugin {
 		reg.put(IMAGE_ONE_WAY, getImageDescriptor(IMAGE_ONE_WAY));
 		reg.put(IMAGE_NO_INCONSISTENCIES, getImageDescriptor(IMAGE_NO_INCONSISTENCIES));
 		reg.put(IMAGE_MONITOR, getImageDescriptor(IMAGE_MONITOR));
+	}
+	
+	private static String encode(String string) {
+		return Obfuscator.obfuscateString(string);
+	}
+	
+	private static String decode(String string) {
+		return Obfuscator.deObfuscateString(string);
 	}
 }
