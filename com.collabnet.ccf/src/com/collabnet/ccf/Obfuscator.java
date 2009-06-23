@@ -1,21 +1,16 @@
 package com.collabnet.ccf;
 
-import java.io.IOException;
-
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
+import org.apache.commons.codec.binary.Base64;
 
 public class Obfuscator {
 
-	public final static BASE64Encoder encoder = new BASE64Encoder();
-	public final static BASE64Decoder decoder = new BASE64Decoder();
-	
 	public static String obfuscateString(String string) {
 		byte[] bytes = string.getBytes();
 		for (int i =0;i<bytes.length;++i) {
 			bytes[i] = cyclicShiftBitsRight(bytes[i], 4);
-		}		
-		return encoder.encode(bytes);
+		}
+		
+		return new String(Base64.encodeBase64(bytes));
 	}
 	
 	private static byte cyclicShiftBitsRight(int b, int i) {
@@ -42,11 +37,7 @@ public class Obfuscator {
 
 	public static String deObfuscateString(String string) {
 		byte[] bytes;
-		try {
-			bytes = decoder.decodeBuffer(string);
-		} catch (IOException e) {
-			return null;
-		}
+		bytes = Base64.decodeBase64(string.getBytes());
 		for (int i =0;i<bytes.length;++i) {
 			bytes[i] = cyclicShiftBitsLeft(bytes[i], 4);
 		}
