@@ -352,7 +352,7 @@ public class JmxConsoleStatusEditorPage extends JmxConsoleEditorPage {
 	
 	private void getMonitor2Info() {
 		running2 = monitor2.isAlive();
-		aliveButton2.setSelection(running1);
+		aliveButton2.setSelection(running2);
 		Long uptime = monitor2.getCCFUptime();
 		uptimeText2.setText(getTime(uptime));
 		String readerMetricsName = null;
@@ -374,7 +374,7 @@ public class JmxConsoleStatusEditorPage extends JmxConsoleEditorPage {
 		String memoryConsumption = monitor2.getCCFMemoryConsumption();
 		if (memoryConsumption == null) memoryConsumptionText2.setText("");
 		else memoryConsumptionText2.setText(memoryConsumption);
-		restartButton2.setEnabled(running1);
+		restartButton2.setEnabled(running2);
 		String artifactsShipped = monitor2.getNumberOfArtifactsShipped(readerMetricsName);
 		if (artifactsShipped == null) artifactsShippedText2.setText("");
 		else artifactsShippedText2.setText(artifactsShipped);

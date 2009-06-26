@@ -55,7 +55,7 @@ public class HospitalAction extends ActionDelegate {
 						if (landscape.getType1().equals(Landscape.TYPE_PT) || landscape.getType2().equals(Landscape.TYPE_PT)) {
 							adaptorName = Landscape.TYPE_PT;
 						} else {
-							adaptorName = "SFEE";
+							adaptorName = Landscape.TYPE_TF;
 						}
 						
 						Filter adaptorNameFilter = new Filter(CcfDataProvider.HOSPITAL_ADAPTOR_NAME, adaptorName, true, Filter.FILTER_TYPE_LIKE);
