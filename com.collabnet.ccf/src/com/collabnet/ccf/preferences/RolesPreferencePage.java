@@ -90,6 +90,7 @@ public class RolesPreferencePage extends PreferencePage implements IWorkbenchPre
 	private Font italicFont;
 	
 	private boolean changes;
+	private boolean changingRoles;
 
 	public static final String ID = "com.collabnet.ccf.preferences.roles";
 	
@@ -107,6 +108,8 @@ public class RolesPreferencePage extends PreferencePage implements IWorkbenchPre
 
 	@Override
 	protected Control createContents(Composite parent) {
+		noDefaultAndApplyButton();
+		
 		lastActiveRole = Activator.getDefault().getPreferenceStore().getString(Activator.PREFERENCES_ACTIVE_ROLE);
 		roles = getRoles();
 		
@@ -466,10 +469,10 @@ public class RolesPreferencePage extends PreferencePage implements IWorkbenchPre
 				IStructuredSelection selection = (IStructuredSelection)roleTableViewer.getSelection();
 				Role role = (Role)selection.getFirstElement();
 				role.setPassword(passwordText.getText().trim());
-				changes = true;
+				if (!changingRoles) changes = true;
 			}			
 		});
-		
+	
 		return composite;
 	}
 
@@ -506,16 +509,16 @@ public class RolesPreferencePage extends PreferencePage implements IWorkbenchPre
 		return super.performCancel();
 	}
 
-	@Override
-	protected void performDefaults() {
-		Role defaultRole = new Role("Default");
-		activeRole = defaultRole;
-		Role[] defaultRoles = { defaultRole };
-		roles = defaultRoles;
-		roleTableViewer.setInput(roles);
-		changes = true;
-		super.performDefaults();
-	}
+//	@Override
+//	protected void performDefaults() {
+//		Role defaultRole = new Role("Default");
+//		activeRole = defaultRole;
+//		Role[] defaultRoles = { defaultRole };
+//		roles = defaultRoles;
+//		roleTableViewer.setInput(roles);
+//		changes = true;
+//		super.performDefaults();
+//	}
 
 	public void init(IWorkbench workbench) {
 	}
@@ -555,10 +558,13 @@ public class RolesPreferencePage extends PreferencePage implements IWorkbenchPre
 					return;
 				}
 			}
-			changes = true;
+//			changes = true;
+			changingRoles = true;
 			activeRole = role;
 			roleTableViewer.refresh();
 			setEnablement();
+			performApply();
+			changingRoles = false;
 		}
 	}
 
