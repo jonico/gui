@@ -325,6 +325,27 @@ public class Patient implements IPropertySource {
 		this.landscape = landscape;
 	}
 	
+	public String toClipboard() {
+		StringBuffer clipboard = new StringBuffer();
+		if (exceptionMessage != null) {
+			clipboard.append("Exception Message:\n\n");
+			clipboard.append(exceptionMessage + "\n\n");
+		}
+		if (causeExceptionMessage != null) {
+			clipboard.append("Cause Exception Message:\n\n");
+			clipboard.append(causeExceptionMessage + "\n\n");
+		}
+		if (stackTrace != null) {
+			clipboard.append("Stack Trace:\n\n");
+			clipboard.append(stackTrace + "\n\n");
+		}
+		if (genericArtifact != null) {
+			clipboard.append("Payload:\n\n");
+			clipboard.append(genericArtifact);
+		}
+		return clipboard.toString();
+	}
+	
 	public Object getEditableValue() {
 		return id + ": " + timeStamp;
 	}

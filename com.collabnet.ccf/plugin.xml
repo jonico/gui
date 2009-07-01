@@ -129,7 +129,13 @@
          point="org.eclipse.ui.popupMenus">                    
       <objectContribution
             objectClass="com.collabnet.ccf.model.Patient"
-            id="com.collabnet.ccf.model.Patient">                 
+            id="com.collabnet.ccf.model.Patient">   
+         <action
+               label="Copy to clipboard"
+               menubarPath="group.a"
+               class="com.collabnet.ccf.actions.CopyPatientToClipboardAction"
+               id="com.collabnet.ccf.actions.CopyPatientToClipboardAction">
+         </action>                           
          <action
                label="Examine quarantined artifact"
                menubarPath="group.a"
