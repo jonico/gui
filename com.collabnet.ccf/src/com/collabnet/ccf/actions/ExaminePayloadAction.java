@@ -13,6 +13,7 @@ import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.custom.BusyIndicator;
@@ -131,6 +132,15 @@ public class ExaminePayloadAction extends ActionDelegate {
 																			+ e
 																					.getMessage(),
 																	e);
+													MessageDialog
+															.openError(
+																	Display
+																			.getDefault()
+																			.getActiveShell(),
+																	"Examine artifact payload",
+																	"Could not save payload because it does not comply to the generic artifact format: "
+																			+ e
+																					.getMessage());
 												} catch (Exception e) {
 													Activator.handleError(e);
 												}
