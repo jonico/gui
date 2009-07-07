@@ -1,11 +1,21 @@
 package com.collabnet.ccf;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.IStatus;
@@ -25,6 +35,7 @@ import com.collabnet.ccf.model.AdministratorLandscape;
 import com.collabnet.ccf.model.Database;
 import com.collabnet.ccf.model.Landscape;
 import com.collabnet.ccf.model.OperatorLandscape;
+import com.collabnet.ccf.model.Patient;
 import com.collabnet.ccf.model.ProjectMappings;
 import com.collabnet.ccf.model.Role;
 
@@ -639,6 +650,42 @@ public class Activator extends AbstractUIPlugin {
 		reg.put(IMAGE_ONE_WAY, getImageDescriptor(IMAGE_ONE_WAY));
 		reg.put(IMAGE_NO_INCONSISTENCIES, getImageDescriptor(IMAGE_NO_INCONSISTENCIES));
 		reg.put(IMAGE_MONITOR, getImageDescriptor(IMAGE_MONITOR));
+	}
+	
+	public static IProject getTemporaryFilesProject() throws CoreException {
+		IWorkspace workspace = ResourcesPlugin.getWorkspace();
+		IWorkspaceRoot root = workspace.getRoot();
+		IProject project  = root.getProject("Temporary CCF Files");	
+		if (!project.exists()) {
+			project.create(null);
+		}
+		if (!project.isOpen()) {
+			project.open(null);
+		}
+		return project;
+	}
+	
+	public static IFolder getQuarantinedArtifactFolder() throws CoreException {
+		IProject project = getTemporaryFilesProject();
+		IFolder folder = project.getFolder("Quarantined Artifacts");
+		if (!folder.exists()) {
+			folder.create(IResource.NONE, true, null);
+		}
+		return folder;
+	}
+	
+	public static IFile getQuarantinedArtifactFile(Patient patient, boolean createFile) throws CoreException {
+		IFolder folder = getQuarantinedArtifactFolder();
+		IFile file = folder.getFile("Payload" + patient.getId() + ".xml");
+		if (createFile) {
+			if (file.exists()) {
+				file.delete(true, null);
+			}
+			byte[] bytes = patient.getGenericArtifact().getBytes();
+		    InputStream source = new ByteArrayInputStream(bytes);
+		    file.create(source, IResource.NONE, null);
+		}
+		return file;
 	}
 	
 	private static String encode(String string) {

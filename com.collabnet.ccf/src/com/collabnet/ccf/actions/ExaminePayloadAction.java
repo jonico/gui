@@ -1,18 +1,14 @@
 package com.collabnet.ccf.actions;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Iterator;
 
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
-import org.eclipse.core.filesystem.EFS;
-import org.eclipse.core.filesystem.IFileStore;
-import org.eclipse.core.runtime.Path;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
@@ -27,6 +23,7 @@ import org.eclipse.ui.IPropertyListener;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.actions.ActionDelegate;
+import org.eclipse.ui.part.FileEditorInput;
 
 import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.core.GenericArtifactHelper;
@@ -34,12 +31,13 @@ import com.collabnet.ccf.core.GenericArtifactParsingException;
 import com.collabnet.ccf.db.CcfDataProvider;
 import com.collabnet.ccf.db.Filter;
 import com.collabnet.ccf.db.Update;
-import com.collabnet.ccf.editors.ExternalFileEditorInput;
 import com.collabnet.ccf.model.Patient;
 import com.collabnet.ccf.views.HospitalView;
 
 public class ExaminePayloadAction extends ActionDelegate {
 	private IStructuredSelection fSelection;
+	private IFile quarantineFile;
+	private IEditorInput input;
 
 	@SuppressWarnings("unchecked")
 	public void run(IAction action) {
@@ -53,16 +51,18 @@ public class ExaminePayloadAction extends ActionDelegate {
 				if (patient.getGenericArtifact() != null
 						&& patient.getGenericArtifact().trim().length() > 0) {
 					try {
-						final File tempFile = File.createTempFile("Payload"
-								+ patient.getId(), ".xml");
-						BufferedWriter out = new BufferedWriter(new FileWriter(
-								tempFile));
-						out.write(patient.getGenericArtifact());
-						out.close();
-						IFileStore fileStore = EFS.getLocalFileSystem()
-								.getStore(new Path(tempFile.getAbsolutePath()));
-						final IEditorInput input = new ExternalFileEditorInput(
-								fileStore, patient.getId() + " Payload");
+						
+						IFile checkFile = Activator.getQuarantinedArtifactFile(patient, false);
+						IEditorInput checkInput = new FileEditorInput(checkFile);
+						if (page.findEditor(checkInput) != null) {
+							// If editor is already open for selected hospital entry, reuse it.
+							quarantineFile = checkFile;
+							input = checkInput;
+						} else {
+							// Otherwise create the file and open new editor.
+							quarantineFile = Activator.getQuarantinedArtifactFile(patient, true);							
+							input = new FileEditorInput(quarantineFile);							
+						}
 						IEditorRegistry registry = Activator.getDefault()
 								.getWorkbench().getEditorRegistry();
 						IEditorDescriptor descriptor = registry
@@ -84,8 +84,8 @@ public class ExaminePayloadAction extends ActionDelegate {
 												Object arg0, int arg1) {
 											if (!editorPart.isDirty()) {
 												try {
-													final String updatedPayload = readFileAsString(tempFile
-															.getAbsolutePath());
+													final String updatedPayload = readFileAsString(quarantineFile.
+															getLocation().toString());
 													GenericArtifactHelper
 															.createGenericArtifactJavaObject(DocumentHelper
 																	.parseText(updatedPayload));
@@ -163,8 +163,9 @@ public class ExaminePayloadAction extends ActionDelegate {
 							break;
 						}
 
+						File tempFile = new File(quarantineFile.getLocation().toString());
 						tempFile.deleteOnExit();
-					} catch (IOException e) {
+					} catch (Exception e) {
 						Activator.handleError(e);
 					}
 				}
