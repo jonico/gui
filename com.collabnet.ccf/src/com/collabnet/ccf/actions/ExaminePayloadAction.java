@@ -8,6 +8,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Iterator;
 
+import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
@@ -126,22 +127,30 @@ public class ExaminePayloadAction extends ActionDelegate {
 																		}
 																	});
 												} catch (GenericArtifactParsingException e) {
-													Activator
-															.handleError(
-																	"Could not save payload because it does not comply to the generic artifact format: "
-																			+ e
-																					.getMessage(),
-																	e);
+													String errorMessage = "Could not save payload because it does not comply to the generic artifact format: "
+															+ e.getMessage();
+													Activator.handleError(
+															errorMessage, e);
 													MessageDialog
 															.openError(
 																	Display
 																			.getDefault()
 																			.getActiveShell(),
 																	"Examine artifact payload",
-																	"Could not save payload because it does not comply to the generic artifact format: "
-																			+ e
-																					.getMessage());
-												} catch (Exception e) {
+																	errorMessage);
+												} catch (DocumentException e) {
+													String errorMessage = "Could not save payload because it is not a valid XML document: "
+															+ e.getMessage();
+													Activator.handleError(
+															errorMessage, e);
+													MessageDialog
+															.openError(
+																	Display
+																			.getDefault()
+																			.getActiveShell(),
+																	"Examine artifact payload",
+																	errorMessage);
+												} catch (IOException e) {
 													Activator.handleError(e);
 												}
 											}
