@@ -9,6 +9,7 @@ import java.util.Iterator;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
@@ -19,8 +20,11 @@ import org.eclipse.ui.IEditorDescriptor;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorRegistry;
+import org.eclipse.ui.IPartListener2;
 import org.eclipse.ui.IPropertyListener;
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.actions.ActionDelegate;
 import org.eclipse.ui.part.FileEditorInput;
@@ -77,6 +81,7 @@ public class ExaminePayloadAction extends ActionDelegate {
 						try {
 							final IEditorPart editorPart = page.openEditor(
 									input, id);
+							page.addPartListener(new CloseListener(editorPart, quarantineFile));
 							editorPart
 									.addPropertyListener(new IPropertyListener() {
 
@@ -162,9 +167,6 @@ public class ExaminePayloadAction extends ActionDelegate {
 									.handleError("Examine Hospital Payload", e);
 							break;
 						}
-
-						File tempFile = new File(quarantineFile.getLocation().toString());
-						tempFile.deleteOnExit();
 					} catch (Exception e) {
 						Activator.handleError(e);
 					}
@@ -211,6 +213,37 @@ public class ExaminePayloadAction extends ActionDelegate {
 			}
 		}
 		return true;
+	}
+	
+	class CloseListener implements IPartListener2 {
+		private IEditorPart editorPart;
+		private IFile file;
+		
+		public CloseListener(IEditorPart editorPart, IFile file) {
+			this.editorPart = editorPart;
+			this.file = file;
+		}
+
+		public void partActivated(IWorkbenchPartReference partRef) {}
+		public void partBroughtToTop(IWorkbenchPartReference partRef) {}
+		public void partClosed(IWorkbenchPartReference partRef) {
+			IWorkbenchPart part = partRef.getPart(true);
+			if (part != null && part.equals(editorPart)) {
+				try {
+					file.delete(true, null);
+				} catch (CoreException e) {
+					// If we were unable to delete the file for some reason,
+					// try to delete it when the JVM closes.
+					File tempFile = new File(quarantineFile.getLocation().toString());
+					tempFile.deleteOnExit();
+				}
+			}
+		}
+		public void partDeactivated(IWorkbenchPartReference partRef) {}
+		public void partHidden(IWorkbenchPartReference partRef) {}
+		public void partInputChanged(IWorkbenchPartReference partRef) {}
+		public void partOpened(IWorkbenchPartReference partRef) {}
+		public void partVisible(IWorkbenchPartReference partRef) {}		
 	}
 
 }
