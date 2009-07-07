@@ -72,7 +72,12 @@
             class="com.collabnet.ccf.preferences.IdentityMappingPreferencePage"
             id="com.collabnet.ccf.preferences.identityMapping"
             category="com.collabnet.ccf.preferences"
-            name="Identity Mapping"/>   
+            name="Identity Mapping"/>  
+      <page
+            class="com.collabnet.ccf.preferences.FieldMappingsPreferencePage"
+            id="com.collabnet.ccf.preferences.fieldMappings"
+            category="com.collabnet.ccf.preferences"
+            name="Field Mappings"/>               
       <page
             class="com.collabnet.ccf.preferences.RolesPreferencePage"
             id="com.collabnet.ccf.preferences.roles"
@@ -347,11 +352,18 @@
             objectClass="com.collabnet.ccf.model.AdministratorSynchronizationStatus"
             id="com.collabnet.ccf.model.AdministratorSynchronizationStatus">
          <action
-               label="Edit field mappings"
-               class="com.collabnet.ccf.actions.EditFieldMappingsAction"
+               label="Set default mapping template..."
+               class="com.collabnet.ccf.actions.DefaultMappingAction"
+               enablesFor="1"
                menubarPath="group.b"
-               id="com.collabnet.ccf.actions.EditFieldMappingsAction">
-         </action>                      
+               id="com.collabnet.ccf.actions.DefaultMappingAction">
+         </action>              
+         <action
+               label="Edit field mappings"
+               class="com.collabnet.ccf.actions.FieldMappingsWizardAction"
+               menubarPath="group.b"
+               id="com.collabnet.ccf.actions.FieldMappingsWizardAction">
+         </action>                                  
          <action
                label="Delete identity mappings"
                class="com.collabnet.ccf.actions.DeleteIdentityMappingsAction"

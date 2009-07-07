@@ -38,6 +38,13 @@ public class ChangeProjectMappingDialog extends CcfDialog {
 	
 	private String oldXslFileName;
 	private String newXslFileName;
+	private String newGraphicalXslFileName;
+	private String newSourceRepositorySchemaFileName;
+	private String newTargetRepositorySchemaFileName;
+	private String newGenericArtifactToSourceRepositorySchemaFileName;
+	private String newGenericArtifactToTargetREpositorySchemaFileName;
+	private String newSourceRepositorySchemaToGenericArtifactFileName;
+	private String newTargetRepositorySchemaToGenericArtifactFileName;
 	
 	private Combo conflictResolutionCombo;
 	
@@ -181,7 +188,7 @@ public class ChangeProjectMappingDialog extends CcfDialog {
 							sourceRepository = trackerText.getText().trim();
 						}
 					}
-					
+
 					Update sourceRepositoryUpdate = new Update(CcfDataProvider.SYNCHRONIZATION_STATUS_SOURCE_REPOSITORY_ID, sourceRepository);
 					Update targetRepositoryUpdate = new Update(CcfDataProvider.SYNCHRONIZATION_STATUS_TARGET_REPOSITORY_ID, targetRepository);
 					Update conflictResolutionPriorityUpdate = new Update(CcfDataProvider.SYNCHRONIZATION_STATUS_CONFLICT_RESOLUTION_PRIORITY, SynchronizationStatus.CONFLICT_RESOLUTIONS[conflictResolutionCombo.getSelectionIndex()]);
@@ -191,6 +198,18 @@ public class ChangeProjectMappingDialog extends CcfDialog {
 					status.setSourceRepositoryId(sourceRepository);
 					status.setTargetRepositoryId(targetRepository);	
 					newXslFileName = status.getXslFileName();
+					newGraphicalXslFileName = status.getGraphicalXslFileName();
+					newSourceRepositorySchemaFileName = status.getSourceRepositorySchemaFileName();
+					newTargetRepositorySchemaFileName = status.getTargetRepositorySchemaFileName();
+					newGenericArtifactToSourceRepositorySchemaFileName = status.getGenericArtifactToSourceRepositorySchemaFileName();
+					newGenericArtifactToTargetREpositorySchemaFileName = status.getGenericArtifactToTargetRepositorySchemaFileName();
+					newSourceRepositorySchemaToGenericArtifactFileName = status.getSourceRepositorySchemaToGenericArtifactFileName();
+					newTargetRepositorySchemaToGenericArtifactFileName = status.getTargetRepositorySchemaToGenericArtifactFileName();
+					
+					if (status.usesGraphicalMapping() && !newXslFileName.equals(oldXslFileName)) {
+						status.switchToGraphicalMapping();
+						dataProvider.setFieldMappingMode(status);
+					}
 				
 				} catch (Exception e) {
 					Activator.handleError(e);
@@ -213,6 +232,38 @@ public class ChangeProjectMappingDialog extends CcfDialog {
 	
 	public String getNewXslFileName() {
 		return newXslFileName;
+	}
+	
+	public String getNewGraphicalXslFileName() {
+		return newGraphicalXslFileName;
+	}
+
+	public String getNewSourceRepositorySchemaFileName() {
+		return newSourceRepositorySchemaFileName;
+	}
+
+	public String getNewTargetRepositorySchemaFileName() {
+		return newTargetRepositorySchemaFileName;
+	}
+
+	public String getNewGenericArtifactToSourceRepositorySchemaFileName() {
+		return newGenericArtifactToSourceRepositorySchemaFileName;
+	}
+
+	public String getNewGenericArtifactToTargetRepositorySchemaFileName() {
+		return newGenericArtifactToTargetREpositorySchemaFileName;
+	}
+
+	public String getNewSourceRepositorySchemaToGenericArtifactFileName() {
+		return newSourceRepositorySchemaToGenericArtifactFileName;
+	}
+
+	public String getNewTargetRepositorySchemaToGenericArtifactFileName() {
+		return newTargetRepositorySchemaToGenericArtifactFileName;
+	}
+
+	public void setNewXslFileName(String newXslFileName) {
+		this.newXslFileName = newXslFileName;
 	}
 	
 	protected Button createButton(Composite parent, int id, String label, boolean defaultButton) {

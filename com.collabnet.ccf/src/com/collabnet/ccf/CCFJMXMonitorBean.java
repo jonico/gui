@@ -140,24 +140,25 @@ public class CCFJMXMonitorBean {
 			return null;
 		}
 		try {
-			return connection.invoke(new ObjectName(objectName), operationName, params, signature);
+			Object result= connection.invoke(new ObjectName(objectName), operationName, params, signature);
+			return result;
 		} catch (InstanceNotFoundException e) {
-			//e.printStackTrace();
+			e.printStackTrace();
 			return null;
 		} catch (MalformedObjectNameException e) {
-			//e.printStackTrace();
+			e.printStackTrace();
 			return null;
 		} catch (MBeanException e) {
-			//e.printStackTrace();
+			e.printStackTrace();
 			return null;
 		} catch (ReflectionException e) {
-			//e.printStackTrace();
+			e.printStackTrace();
 			return null;
 		} catch (NullPointerException e) {
-			//e.printStackTrace();
+			e.printStackTrace();
 			return null;
 		} catch (IOException e) {
-			//e.printStackTrace();
+			e.printStackTrace();
 			return null;
 		}
 	}

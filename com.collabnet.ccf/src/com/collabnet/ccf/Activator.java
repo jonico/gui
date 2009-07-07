@@ -49,6 +49,7 @@ public class Activator extends AbstractUIPlugin {
 	public static final String IMAGE_ERROR = "error.gif"; //$NON-NLS-1$
 	public static final String IMAGE_NEW_LANDSCAPE = "new_landscape.gif"; //$NON-NLS-1$
 	public static final String IMAGE_NEW_LANDSCAPE_WIZBAN = "new_landscape_wizban.png"; //$NON-NLS-1$
+	public static final String IMAGE_EDIT_FIELD_MAPPINGS_WIZBAN = "edit_field_mappings_wizban.png"; //$NON-NLS-1$
 	public static final String IMAGE_LANDSCAPE = "landscape.gif"; //$NON-NLS-1$
 	public static final String IMAGE_PROJECT_MAPPINGS = "project_mappings.gif"; //$NON-NLS-1$
 	public static final String IMAGE_LOGS = "logs.gif"; //$NON-NLS-1$
@@ -87,6 +88,8 @@ public class Activator extends AbstractUIPlugin {
 	public static final String PREFERENCES_RESET_DELAY = "pref_reset_delay"; //$NON-NLS-1$
 	public static final String PREFERENCES_SHOW_HOSPITAL_COUNT = "pref_show_hospital_count"; //$NON-NLS-1$	
 	public static final String PREFERENCES_ACTIVE_ROLE = "pref_active_role"; //$NON-NLS-1$
+	public static final String PREFERENCES_GRAPHICAL_MAPPING_AVAILABLE = "pref_graphical_mapping_available"; //$NON-NLS-1$
+	public static final String PREFERENCES_MAPFORCE_PATH = "pref_mapforce_path"; //$NON-NLS-1$
 	
 	// CCF Properties
 	public static final String PROPERTIES_CCF_URL = "ccf.db.url"; //$NON-NLS-1$
@@ -136,6 +139,8 @@ public class Activator extends AbstractUIPlugin {
 	public static final String DEFAULT_HOSPITAL_COLUMNS = CcfDataProvider.DEFAULT_HOSPITAL_COLUMNS;
 	public static final String DEFAULT_IDENTITY_MAPPING_COLUMNS = CcfDataProvider.DEFAULT_IDENTITY_MAPPING_COLUMNS;
 	public static final boolean DEFAULT_SHOW_HOSPITAL_COUNT = true;
+	public static final boolean DEFAULT_GRAPHICAL_MAPPING_AVAILABLE = true;
+	public static final String DEFAULT_MAPFORCE_PATH = "C:\\Program Files\\Altova\\Mapforce2009\\MapForce.exe";
 	
 	public static final String DEFAULT_CCF_HOST = "http://localhost"; //$NON-NLS-1$
 	public static final String DEFAULT_JMX_PORT_PT2QC = "8082";
@@ -178,6 +183,7 @@ public class Activator extends AbstractUIPlugin {
 	public static final String PREF_CCF_ROLES_MAINTAIN_ROLES = "maintainRoles"; //$NON-NLS-1$
 	
 	public static final String SAMPLE_XSL_FILE_NAME = "sample.xsl"; //$NON-NLS-1$
+	public static final String CREATE_INITIAL_MFD_FILE_NAME = "CreateInitialMFD.xsl"; //$NON-NLS-1$
 	
 	/*
 	 * (non-Javadoc)
@@ -585,6 +591,7 @@ public class Activator extends AbstractUIPlugin {
 		createImageDescriptor(IMAGE_SYNC_STATUS_ENTRY_WITH_HOSPITAL_ENTRIES);
 		createImageDescriptor(IMAGE_NEW_LANDSCAPE);
 		createImageDescriptor(IMAGE_NEW_LANDSCAPE_WIZBAN);
+		createImageDescriptor(IMAGE_EDIT_FIELD_MAPPINGS_WIZBAN);
 		createImageDescriptor(IMAGE_LANDSCAPE);
 		createImageDescriptor(IMAGE_LANDSCAPE_QC_PT);
 		createImageDescriptor(IMAGE_LANDSCAPE_QC_TF);
@@ -617,6 +624,7 @@ public class Activator extends AbstractUIPlugin {
 		reg.put(IMAGE_SYNC_STATUS_ENTRY_WITH_HOSPITAL_ENTRIES, getImageDescriptor(IMAGE_SYNC_STATUS_ENTRY_WITH_HOSPITAL_ENTRIES));
 		reg.put(IMAGE_NEW_LANDSCAPE, getImageDescriptor(IMAGE_NEW_LANDSCAPE));
 		reg.put(IMAGE_NEW_LANDSCAPE_WIZBAN, getImageDescriptor(IMAGE_NEW_LANDSCAPE_WIZBAN));
+		reg.put(IMAGE_EDIT_FIELD_MAPPINGS_WIZBAN, getImageDescriptor(IMAGE_EDIT_FIELD_MAPPINGS_WIZBAN));
 		reg.put(IMAGE_LANDSCAPE, getImageDescriptor(IMAGE_LANDSCAPE));
 		reg.put(IMAGE_LANDSCAPE_QC_PT, getImageDescriptor(IMAGE_LANDSCAPE_QC_PT));
 		reg.put(IMAGE_LANDSCAPE_QC_TF, getImageDescriptor(IMAGE_LANDSCAPE_QC_TF));

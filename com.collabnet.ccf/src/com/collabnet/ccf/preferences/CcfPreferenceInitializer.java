@@ -21,6 +21,8 @@ public class CcfPreferenceInitializer extends AbstractPreferenceInitializer {
 		node.put(Activator.PREFERENCES_IDENTITY_MAPPING_COLUMNS, Activator.DEFAULT_IDENTITY_MAPPING_COLUMNS);
 		node.putInt(Activator.PREFERENCES_RESET_DELAY, Activator.DEFAULT_RESET_DELAY);
 		node.putBoolean(Activator.PREFERENCES_SHOW_HOSPITAL_COUNT, Activator.DEFAULT_SHOW_HOSPITAL_COUNT);
+		node.putBoolean(Activator.PREFERENCES_GRAPHICAL_MAPPING_AVAILABLE, Activator.DEFAULT_GRAPHICAL_MAPPING_AVAILABLE);
+		node.put(Activator.PREFERENCES_MAPFORCE_PATH, Activator.DEFAULT_MAPFORCE_PATH);
 	}
 
 }
