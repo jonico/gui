@@ -327,6 +327,8 @@ public class Patient implements IPropertySource {
 	
 	public String toClipboard() {
 		StringBuffer clipboard = new StringBuffer();
+		// avoid NPE by adding at least one constant header
+		clipboard.append("Content of CCF hospital table\n");
 		if (exceptionMessage != null) {
 			clipboard.append("Exception Message:\n\n");
 			clipboard.append(exceptionMessage + "\n\n");
