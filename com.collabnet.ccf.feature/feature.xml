@@ -2,7 +2,7 @@
 <feature
       id="com.collabnet.ccf.feature"
       label="CollabNet Connector Framework"
-      version="1.2.0.qualifier"
+      version="1.2.1.qualifier"
       provider-name="CollabNet"
       plugin="com.collabnet.ccf">
 
@@ -37,7 +37,54 @@
          id="com.collabnet.ccf"
          download-size="0"
          install-size="0"
-         version="1.2.0.qualifier"
+         version="1.2.1.qualifier"
+         unpack="false"/>
+
+   <plugin
+         id="com.collabnet.cee.api"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.collabnet.ee.api"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="com.collabnet.webservices.common"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.apache.commons.codec"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.apache.commons.httpclient"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.apache.commons.lang"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.apache.commons.logging"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
          unpack="false"/>
 
 </feature>
