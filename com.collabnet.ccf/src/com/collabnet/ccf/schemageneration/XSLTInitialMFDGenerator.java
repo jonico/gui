@@ -18,6 +18,8 @@
 package com.collabnet.ccf.schemageneration;
 
 
+import java.io.File;
+
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -46,7 +48,7 @@ public class XSLTInitialMFDGenerator {
 	private Transformer initialMFDFileTransformer = null;
 
 	public XSLTInitialMFDGenerator(String xsltDirectory) {
-		initialMFDFileTransformer = loadXSLT(xsltDirectory+"/"+INITIAL_MFD_XSLT_FILE);
+		initialMFDFileTransformer = loadXSLT(new File(xsltDirectory+"/"+INITIAL_MFD_XSLT_FILE));
 	}
 
 	/**
@@ -90,7 +92,7 @@ public class XSLTInitialMFDGenerator {
 	/**
 	 * Loads XSLT files and builds transformer
 	 */
-	private static Transformer loadXSLT(String xsltFile) {
+	private static Transformer loadXSLT(File xsltFile) {
 		Transformer transform = null;
 		// InputStream inputStream = null;
 

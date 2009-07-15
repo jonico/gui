@@ -17,6 +17,7 @@
 
 package com.collabnet.ccf.schemageneration;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -51,9 +52,9 @@ public class CCFXSLTSchemaAndXSLTFileGenerator implements CCFSchemaAndXSLTFileGe
 	private Transformer repositoryToGenericArtifactTransformer = null;
 
 	public CCFXSLTSchemaAndXSLTFileGenerator(String xsltDirectory) {
-		genericArtifactToRepositorySchemaTransformer = loadXSLT(xsltDirectory+"/"+GENERIC_ARTIFACT_TO_REPOSITORY_SCHEMA_XSLT_FILE);
-		genericArtifactToRepositoryTransformer = loadXSLT(xsltDirectory+"/"+GENERIC_ARTIFACT_TO_REPOSITORY_XSLT_FILE);
-		repositoryToGenericArtifactTransformer = loadXSLT(xsltDirectory+"/"+REPOSITORY_TO_GENERIC_ARTIFACT_XSLT_FILE);
+		genericArtifactToRepositorySchemaTransformer = loadXSLT(new File(xsltDirectory+"/"+GENERIC_ARTIFACT_TO_REPOSITORY_SCHEMA_XSLT_FILE));
+		genericArtifactToRepositoryTransformer = loadXSLT(new File(xsltDirectory+"/"+GENERIC_ARTIFACT_TO_REPOSITORY_XSLT_FILE));
+		repositoryToGenericArtifactTransformer = loadXSLT(new File(xsltDirectory+"/"+REPOSITORY_TO_GENERIC_ARTIFACT_XSLT_FILE));
 	}
 
 	/**
@@ -108,7 +109,7 @@ public class CCFXSLTSchemaAndXSLTFileGenerator implements CCFSchemaAndXSLTFileGe
 	 *             if the XSLT file is not defined in the properties, the file
 	 *             cannot be found or there was an error parsing it
 	 */
-	private static Transformer loadXSLT(String xsltFile) {
+	private static Transformer loadXSLT(File xsltFile) {
 		Transformer transform = null;
 		InputStream inputStream = null;
 		// load the transform
