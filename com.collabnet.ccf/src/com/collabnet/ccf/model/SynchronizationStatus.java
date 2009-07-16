@@ -388,8 +388,8 @@ public class SynchronizationStatus implements IPropertySource, Comparable {
 
 	public String getMFXslFilename() {
 		return ("MappingMapTo" + targetSystemId + "+" + targetRepositoryId
-				+ "+" + sourceSystemId + "+" + sourceRepositoryId + ".xslt")
-				.replaceAll(":", "-").replaceAll("[\\ +]", "_");
+				+ "+" + sourceSystemId + "+" + sourceRepositoryId)
+				.replaceAll(":", "-").replaceAll("[\\ +\\.]", "_")+".xslt";
 	}
 
 	public File getSampleXslFile() {
