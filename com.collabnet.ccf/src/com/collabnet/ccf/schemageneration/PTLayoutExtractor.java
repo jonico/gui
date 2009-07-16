@@ -73,6 +73,7 @@ public class PTLayoutExtractor implements RepositoryLayoutExtractor {
 	public static final String ID_FIELD = "id";
 	public static final String CREATED_BY_FIELD = "createdBy";
 	public static final String MODIFIED_BY_FIELD = "modifiedBy";
+	public static final String PROJECT_FIELD = "project";
 	public static final String COMMENT_FIELD = "comment";
 	public static final String CREATED_ON_FIELD_NAME = "{" + TRACKER_NAMESPACE
 			+ "}" + CREATED_ON_FIELD;
@@ -86,6 +87,8 @@ public class PTLayoutExtractor implements RepositoryLayoutExtractor {
 			+ "}" + CREATED_BY_FIELD;
 	public static final String MODIFIED_BY_FIELD_NAME = "{" + TRACKER_NAMESPACE
 			+ "}" + MODIFIED_BY_FIELD;
+	public static final String PROJECT_FIELD_NAME = "{" + TRACKER_NAMESPACE
+	+ "}" + PROJECT_FIELD;
 	public static final String COMMENT_FIELD_NAME = "{" + TRACKER_NAMESPACE
 			+ "}" + COMMENT_FIELD;
 	private PTMetaDataHelper metadataHelper = PTMetaDataHelper.getInstance();
@@ -225,7 +228,9 @@ public class PTLayoutExtractor implements RepositoryLayoutExtractor {
 							|| attributeName.equals(MODIFIED_ON_FIELD_NAME)
 							|| attributeName.equals(ID_FIELD_NAME)
 							|| attributeName.equals(CREATED_BY_FIELD_NAME)
-							|| attributeName.equals(MODIFIED_BY_FIELD_NAME)) {
+							|| attributeName.equals(MODIFIED_BY_FIELD_NAME)
+							|| attributeName.equals(PROJECT_FIELD_NAME)) 
+					{
 						attributeNamespaceDisplayName = attributeName;
 						alternativeName = attributeTagName;
 
