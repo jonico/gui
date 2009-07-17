@@ -351,10 +351,14 @@ public class CcfProjectMappingsEditorPage extends CcfEditorPage implements IProj
 	
 	private void refresh() {
 		getMappings();
-		tableViewer1.setInput(direction1Mappings);
-		tableViewer1.refresh();
-		tableViewer2.setInput(direction2Mappings);
-		tableViewer2.refresh();
+		if (tableViewer1 != null) {
+			tableViewer1.setInput(direction1Mappings);
+			tableViewer1.refresh();
+		}
+		if (tableViewer2 != null) {
+			tableViewer2.setInput(direction2Mappings);
+			tableViewer2.refresh();
+		}
 	}		
 	
 	@Override
