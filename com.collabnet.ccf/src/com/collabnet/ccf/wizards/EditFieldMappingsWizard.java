@@ -241,7 +241,7 @@ public class EditFieldMappingsWizard extends Wizard {
 						if (graphicalXSLFile.exists()) {
 							graphicalXSLFile.delete();
 						}
-						if (!mfXSLFile.renameTo(graphicalXSLFile)) {
+						if (!mfXSLFile.renameTo(graphicalXSLFile) || !graphicalXSLFile.exists()) {
 							throw new CCFRuntimeException(
 									"Could not rename MapForce file "
 											+ mfXSLFile
