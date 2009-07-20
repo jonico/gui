@@ -217,8 +217,10 @@ public class EditFieldMappingsWizardMainPage extends WizardPage {
 		switchOnlyButton = new Button(buttonGroup, SWT.RADIO);
 		if (projectMapping.usesGraphicalMapping()) {
 			switchOnlyButton.setText("Switch to non-graphical mapping");
+			switchOnlyButton.setEnabled(xslFile.exists());
 		} else {
 			switchOnlyButton.setText("Switch to graphical mapping");
+			switchOnlyButton.setEnabled(graphicalXslFile.exists());
 		}
 		data = new GridData();
 		data.horizontalSpan = 2;
