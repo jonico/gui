@@ -250,9 +250,6 @@ public class EditFieldMappingsWizard extends Wizard {
 											+ graphicalXSLFile
 													.getCanonicalPath());
 						}
-						else {
-							MessageDialog.openInformation(getShell(), "Edit Field Mappings", "Successfully updated graphical mapping in "+mfXSLFile.getCanonicalPath());
-						}
 					}
 					monitor.worked(1);					
 				} catch (Exception e) {
