@@ -411,7 +411,7 @@ public class QCLayoutExtractor implements RepositoryLayoutExtractor {
 						.setMaxOccursValue(isMultiSelectField ? GenericArtifactField.UNBOUNDED
 								: "1");
 				field.setMinOccurs(0);
-				field.setNullValueSupported("false");
+				field.setNullValueSupported("true");
 				field.setAlternativeFieldName(columnName);
 
 				// Only for the Comments field, the action value of the

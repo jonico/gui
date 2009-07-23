@@ -250,7 +250,9 @@ public class PTLayoutExtractor implements RepositoryLayoutExtractor {
 					field.setFieldValueType(gaFieldType);
 					field.setFieldValueHasChanged(true);
 					field.setMinOccurs(0);
-					field.setNullValueSupported("false");
+					
+					field.setNullValueSupported("true");
+					
 
 					if (attributeName.equals(CREATED_ON_FIELD_NAME)
 							|| attributeName.equals(MODIFIED_ON_FIELD_NAME)) {
