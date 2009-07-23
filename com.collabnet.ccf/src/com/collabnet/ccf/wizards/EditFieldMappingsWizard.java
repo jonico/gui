@@ -11,8 +11,6 @@ import java.util.Properties;
 import javax.xml.transform.TransformerException;
 
 import org.dom4j.Document;
-import org.dom4j.io.OutputFormat;
-import org.dom4j.io.XMLWriter;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -52,7 +50,6 @@ public class EditFieldMappingsWizard extends Wizard {
 	private Exception mapForceException;
 	private boolean canceled;
 	
-	private final static OutputFormat format = OutputFormat.createPrettyPrint();
 
 	public EditFieldMappingsWizard(SynchronizationStatus projectMapping) {
 		super();
@@ -470,9 +467,10 @@ public class EditFieldMappingsWizard extends Wizard {
 		try {
 			out = new BufferedWriter(new OutputStreamWriter(
 					new FileOutputStream(file), "UTF-8"));
-			XMLWriter writer = new XMLWriter(out, format);
+			out.write(content.asXML());
+			/*XMLWriter writer = new XMLWriter(out, format);
 			writer.write(content);
-			writer.close();
+			writer.close();*/
 		} catch (IOException e) {
 			throw e;
 		} finally {
