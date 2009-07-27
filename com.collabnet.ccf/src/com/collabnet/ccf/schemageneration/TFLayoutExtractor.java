@@ -307,7 +307,12 @@ public class TFLayoutExtractor extends TFConnectHelper implements
 				} else {
 					field.setMaxOccurs(1);
 				}
-				field.setNullValueSupported("false");
+				if (fieldType.equals(TrackerFieldSoapDO.FIELD_TYPE_DATE)) {
+					field.setNullValueSupported("true");
+				}
+				else {
+					field.setNullValueSupported("false");
+				}
 				
 				field.setFieldValue(generateFieldDocumentation(fieldName,
 						alternativeFieldName, fieldValueType,
