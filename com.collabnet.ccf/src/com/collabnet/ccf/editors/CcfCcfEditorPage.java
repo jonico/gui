@@ -371,7 +371,7 @@ public class CcfCcfEditorPage extends CcfEditorPage {
 					insertHospitalColumn();
 				}			
 			});
-			insertButton.setEnabled(false);
+			insertButton.setEnabled(true);
 		}
 		
         toolkit.paintBordersFor(databaseSectionClient);
@@ -417,12 +417,10 @@ public class CcfCcfEditorPage extends CcfEditorPage {
 		
 		FocusListener focusListener = new FocusAdapter() {
 			public void focusGained(FocusEvent e) {
-				if (e.getSource() == templateText) insertButton.setEnabled(true);
-				else ((Text)e.getSource()).selectAll();
+				((Text)e.getSource()).selectAll();
 			}
 			public void focusLost(FocusEvent e) {
-				if (e.getSource() == templateText) insertButton.setEnabled(false);
-				else ((Text)e.getSource()).setText(((Text)e.getSource()).getText());
+				((Text)e.getSource()).setText(((Text)e.getSource()).getText());
 			}					
 		};
 		
@@ -437,7 +435,7 @@ public class CcfCcfEditorPage extends CcfEditorPage {
 		if (jmxPort2Text != null) jmxPort2Text.addFocusListener(focusListener);
 		if (host2Text != null) host2Text.addFocusListener(focusListener);
 		if (logs2Text != null) logs2Text.addFocusListener(focusListener);
-		if (templateText != null) templateText.addFocusListener(focusListener);
+		// if (templateText != null) templateText.addFocusListener(focusListener);
 	}
 	
 	@Override
