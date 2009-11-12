@@ -378,16 +378,13 @@ public class EditFieldMappingsWizard extends Wizard {
 			CCFSchemaAndXSLTFileGenerator xmlFileGenerator,
 			IProgressMonitor monitor) throws GenericArtifactParsingException,
 			IOException, TransformerException {
-		TFLayoutExtractor tfLayoutExtractor = new TFLayoutExtractor();
 		Properties properties = status.getLandscape().getProperties2();
 		String url = properties.getProperty(Activator.PROPERTIES_SFEE_URL, "");
 		String user = properties
 				.getProperty(Activator.PROPERTIES_SFEE_USER, "");
 		String password = properties.getProperty(
 				Activator.PROPERTIES_SFEE_PASSWORD, "");
-		tfLayoutExtractor.setServerUrl(url);
-		tfLayoutExtractor.setUsername(user);
-		tfLayoutExtractor.setPassword(password);
+		TFLayoutExtractor tfLayoutExtractor = new TFLayoutExtractor(url, user, password);
 		String repositoryId = null;
 
 		File artifactToSchemaFile = null;

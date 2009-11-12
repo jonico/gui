@@ -21,7 +21,7 @@ import java.util.HashMap;
 
 import com.collabnet.ccf.core.GenericArtifactField;
 import com.collabnet.ccf.core.GenericArtifactField.FieldValueTypeValue;
-import com.vasoftware.sf.soap44.webservices.sfmain.TrackerFieldSoapDO;
+import com.collabnet.teamforge.api.tracker.TrackerFieldDO;
 
 public class TFArtifactMetaData {
 
@@ -30,13 +30,13 @@ public class TFArtifactMetaData {
 	private static final HashMap<GenericArtifactField.FieldValueTypeValue, String>
 			fieldGAValueTypeFieldTypeMap = new HashMap<GenericArtifactField.FieldValueTypeValue, String>();
 	static {
-		fieldValueTypeGAFieldTypeMap.put(TrackerFieldSoapDO.FIELD_VALUE_TYPE_DATE,
+		fieldValueTypeGAFieldTypeMap.put(TrackerFieldDO.FIELD_VALUE_TYPE_DATE,
 				GenericArtifactField.FieldValueTypeValue.DATE);
-		fieldValueTypeGAFieldTypeMap.put(TrackerFieldSoapDO.FIELD_VALUE_TYPE_INTEGER,
+		fieldValueTypeGAFieldTypeMap.put(TrackerFieldDO.FIELD_VALUE_TYPE_INTEGER,
 				GenericArtifactField.FieldValueTypeValue.INTEGER);
-		fieldValueTypeGAFieldTypeMap.put(TrackerFieldSoapDO.FIELD_VALUE_TYPE_STRING,
+		fieldValueTypeGAFieldTypeMap.put(TrackerFieldDO.FIELD_VALUE_TYPE_STRING,
 				GenericArtifactField.FieldValueTypeValue.STRING);
-		fieldValueTypeGAFieldTypeMap.put(TrackerFieldSoapDO.FIELD_VALUE_TYPE_USER,
+		fieldValueTypeGAFieldTypeMap.put(TrackerFieldDO.FIELD_VALUE_TYPE_USER,
 				GenericArtifactField.FieldValueTypeValue.USER);
 		fieldValueTypeGAFieldTypeMap.put("SfUser",
 				GenericArtifactField.FieldValueTypeValue.USER);
@@ -44,23 +44,23 @@ public class TFArtifactMetaData {
 	}
 	static {
 		fieldGAValueTypeFieldTypeMap.put(GenericArtifactField.FieldValueTypeValue.DATE,
-				TrackerFieldSoapDO.FIELD_VALUE_TYPE_DATE);
+				TrackerFieldDO.FIELD_VALUE_TYPE_DATE);
 		fieldGAValueTypeFieldTypeMap.put(GenericArtifactField.FieldValueTypeValue.DATETIME,
-				TrackerFieldSoapDO.FIELD_VALUE_TYPE_DATE);
+				TrackerFieldDO.FIELD_VALUE_TYPE_DATE);
 		fieldGAValueTypeFieldTypeMap.put(GenericArtifactField.FieldValueTypeValue.INTEGER,
-				TrackerFieldSoapDO.FIELD_VALUE_TYPE_INTEGER);
+				TrackerFieldDO.FIELD_VALUE_TYPE_INTEGER);
 		fieldGAValueTypeFieldTypeMap.put(GenericArtifactField.FieldValueTypeValue.STRING,
-				TrackerFieldSoapDO.FIELD_VALUE_TYPE_STRING);
+				TrackerFieldDO.FIELD_VALUE_TYPE_STRING);
 		fieldGAValueTypeFieldTypeMap.put(GenericArtifactField.FieldValueTypeValue.DOUBLE,
-				TrackerFieldSoapDO.FIELD_VALUE_TYPE_STRING);
+				TrackerFieldDO.FIELD_VALUE_TYPE_STRING);
 		fieldGAValueTypeFieldTypeMap.put(GenericArtifactField.FieldValueTypeValue.USER,
-				TrackerFieldSoapDO.FIELD_VALUE_TYPE_USER);
+				TrackerFieldDO.FIELD_VALUE_TYPE_USER);
 		fieldGAValueTypeFieldTypeMap.put(GenericArtifactField.FieldValueTypeValue.HTMLSTRING,
-				TrackerFieldSoapDO.FIELD_VALUE_TYPE_STRING);
+				TrackerFieldDO.FIELD_VALUE_TYPE_STRING);
 		fieldGAValueTypeFieldTypeMap.put(GenericArtifactField.FieldValueTypeValue.BASE64STRING,
-				TrackerFieldSoapDO.FIELD_VALUE_TYPE_STRING);
+				TrackerFieldDO.FIELD_VALUE_TYPE_STRING);
 		fieldGAValueTypeFieldTypeMap.put(GenericArtifactField.FieldValueTypeValue.BOOLEAN,
-				TrackerFieldSoapDO.FIELD_VALUE_TYPE_STRING);
+				TrackerFieldDO.FIELD_VALUE_TYPE_STRING);
 	}
 
 	public enum FIELD_TYPE {
