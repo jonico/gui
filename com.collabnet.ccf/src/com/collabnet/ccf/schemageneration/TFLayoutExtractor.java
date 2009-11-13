@@ -45,20 +45,21 @@ import com.collabnet.teamforge.api.tracker.TrackerFieldValueDO;
  */
 public class TFLayoutExtractor implements RepositoryLayoutExtractor {
 	private TFSoapClient soapClient;
-	
-	private TrackerFieldValueDO [] priorityFieldValues;
+
+	private TrackerFieldValueDO[] priorityFieldValues;
 
 	private FieldNameAmbiguityDissolver fieldNameAmbiguityDissolver = new FieldNameAmbiguityDissolver();
 
 	public TFLayoutExtractor(String serverUrl, String userId, String password) {
 		soapClient = TFSoapClient.getSoapClient(serverUrl, userId, password);
 	}
-	
-	private TrackerFieldValueDO [] getPriorityFieldValues() {
+
+	private TrackerFieldValueDO[] getPriorityFieldValues() {
 		if (priorityFieldValues == null) {
 			// we manually have to create the field info for the priority field
 			List<TrackerFieldValueDO> fieldValues = new ArrayList<TrackerFieldValueDO>();
-			TrackerFieldValueDO fieldValue = new TrackerFieldValueDO(soapClient.supports50());
+			TrackerFieldValueDO fieldValue = new TrackerFieldValueDO(soapClient
+					.supports50());
 			fieldValue.setValue("0");
 			fieldValues.add(fieldValue);
 			fieldValue = new TrackerFieldValueDO(soapClient.supports50());
@@ -76,7 +77,8 @@ public class TFLayoutExtractor implements RepositoryLayoutExtractor {
 			fieldValue = new TrackerFieldValueDO(soapClient.supports50());
 			fieldValue.setValue("5");
 			fieldValues.add(fieldValue);
-			priorityFieldValues = fieldValues.toArray(new TrackerFieldValueDO[]{});			
+			priorityFieldValues = fieldValues
+					.toArray(new TrackerFieldValueDO[] {});
 		}
 		return priorityFieldValues;
 	}
@@ -85,12 +87,11 @@ public class TFLayoutExtractor implements RepositoryLayoutExtractor {
 	 * This method is used to add fields for system defined fields
 	 * 
 	 * @param sfField
-	 * @param value
 	 * @param genericArtifact
 	 * @return
 	 */
 	private GenericArtifactField createGenericArtifactField(
-			TFArtifactMetaData.SFEEFields sfField, Object value,
+			TFArtifactMetaData.SFEEFields sfField,
 			GenericArtifact genericArtifact, TrackerFieldValueDO[] fieldInfo) {
 		String fieldName = sfField.getFieldName();
 
@@ -110,9 +111,9 @@ public class TFLayoutExtractor implements RepositoryLayoutExtractor {
 		field.setMaxOccurs(1);
 
 		field.setFieldValue(generateFieldDocumentation(fieldName,
-					alternativeFieldName, fieldValueType,
-					GenericArtifactField.VALUE_FIELD_TYPE_MANDATORY_FIELD,
-					sfField.isNullValueSupported().toString(), fieldInfo));
+				alternativeFieldName, fieldValueType,
+				GenericArtifactField.VALUE_FIELD_TYPE_MANDATORY_FIELD, sfField
+						.isNullValueSupported().toString(), fieldInfo));
 		return field;
 	}
 
@@ -121,7 +122,8 @@ public class TFLayoutExtractor implements RepositoryLayoutExtractor {
 			String fieldType, String isNullValueSupported,
 			TrackerFieldValueDO[] fieldValues) {
 		StringBuffer documentation = new StringBuffer();
-		documentation.append(fieldName+" (" + fieldType + " / " + fieldValueType + ")\n");
+		documentation.append(fieldName + " (" + fieldType + " / "
+				+ fieldValueType + ")\n");
 		if (fieldValues != null && fieldValues.length != 0) {
 			documentation.append(" Values: [");
 			Set<String> sortedValues = new TreeSet<String>();
@@ -129,12 +131,12 @@ public class TFLayoutExtractor implements RepositoryLayoutExtractor {
 				sortedValues.add(trackerFieldValueSoapDO.getValue());
 			}
 			for (String fieldValueOption : sortedValues) {
-				documentation.append(" '"+fieldValueOption+ "',");	
+				documentation.append(" '" + fieldValueOption + "',");
 			}
-			/*if (fieldValues.length == 0) {
-				documentation.append("<empty>");
-			}*/
-			documentation.deleteCharAt(documentation.length()-1);
+			/*
+			 * if (fieldValues.length == 0) { documentation.append("<empty>"); }
+			 */
+			documentation.deleteCharAt(documentation.length() - 1);
 			documentation.append(" ]");
 		}
 		return documentation.toString();
@@ -161,75 +163,93 @@ public class TFLayoutExtractor implements RepositoryLayoutExtractor {
 			genericArtifact
 					.setIncludesFieldMetaData(IncludesFieldMetaDataValue.TRUE);
 
-			TrackerFieldDO[] trackerFields = soapClient.getFlexFields(trackerId);
+			TrackerFieldDO[] trackerFields = soapClient
+					.getFlexFields(trackerId);
 
-			// write schema for system defined fields
+			// write schema for system defined and configurable fields
+			if (soapClient.supports53()) {
+				createGenericArtifactField(
+						TFArtifactMetaData.SFEEFields.actualEffort,
+						genericArtifact, null);
+				createGenericArtifactField(
+						TFArtifactMetaData.SFEEFields.estimatedEffort,
+						genericArtifact, null);
+				createGenericArtifactField(
+						TFArtifactMetaData.SFEEFields.remainingEffort,
+						genericArtifact, null);
+				createGenericArtifactField(
+						TFArtifactMetaData.SFEEFields.planningFolder,
+						genericArtifact, null);
+				createGenericArtifactField(
+						TFArtifactMetaData.SFEEFields.autosumming,
+						genericArtifact, getSupportedFieldValues(trackerFields,
+								TFArtifactMetaData.SFEEFields.autosumming
+										.getFieldName()));
+			} else {
+				createGenericArtifactField(
+						TFArtifactMetaData.SFEEFields.actualHours,
+						genericArtifact, null);
+				createGenericArtifactField(
+						TFArtifactMetaData.SFEEFields.estimatedHours,
+						genericArtifact, null);
+			}
+
 			createGenericArtifactField(
-					TFArtifactMetaData.SFEEFields.actualHours, null,
-					genericArtifact, null);
-			createGenericArtifactField(
-					TFArtifactMetaData.SFEEFields.assignedTo, null,
-					genericArtifact, null);
+					TFArtifactMetaData.SFEEFields.assignedTo, genericArtifact,
+					null);
 			createGenericArtifactField(TFArtifactMetaData.SFEEFields.category,
-					null, genericArtifact, getSupportedFieldValues(
-							trackerFields,
+					genericArtifact, getSupportedFieldValues(trackerFields,
 							TFArtifactMetaData.SFEEFields.category
 									.getFieldName()));
 			createGenericArtifactField(TFArtifactMetaData.SFEEFields.closeDate,
-					null, genericArtifact, null);
+					genericArtifact, null);
 			createGenericArtifactField(TFArtifactMetaData.SFEEFields.customer,
-					null, genericArtifact, getSupportedFieldValues(
-							trackerFields,
+					genericArtifact, getSupportedFieldValues(trackerFields,
 							TFArtifactMetaData.SFEEFields.customer
 									.getFieldName()));
 			createGenericArtifactField(
-					TFArtifactMetaData.SFEEFields.description, null,
-					genericArtifact, null);
-			createGenericArtifactField(
-					TFArtifactMetaData.SFEEFields.estimatedHours, null,
-					genericArtifact, null);
+					TFArtifactMetaData.SFEEFields.description, genericArtifact,
+					null);
+
 			createGenericArtifactField(TFArtifactMetaData.SFEEFields.group,
-					null, genericArtifact, getSupportedFieldValues(
-							trackerFields, TFArtifactMetaData.SFEEFields.group
-									.getFieldName()));
-			
-			
+					genericArtifact, getSupportedFieldValues(trackerFields,
+							TFArtifactMetaData.SFEEFields.group.getFieldName()));
+
 			createGenericArtifactField(TFArtifactMetaData.SFEEFields.priority,
-					null, genericArtifact, getPriorityFieldValues());
+					genericArtifact, getPriorityFieldValues());
 			createGenericArtifactField(
-					TFArtifactMetaData.SFEEFields.reportedReleaseId, null,
+					TFArtifactMetaData.SFEEFields.reportedReleaseId,
 					genericArtifact, null);
 			createGenericArtifactField(
-					TFArtifactMetaData.SFEEFields.resolvedReleaseId, null,
+					TFArtifactMetaData.SFEEFields.resolvedReleaseId,
 					genericArtifact, null);
-			createGenericArtifactField(TFArtifactMetaData.SFEEFields.status,
-					null, genericArtifact, getSupportedFieldValues(
+			createGenericArtifactField(TFArtifactMetaData.SFEEFields.status, genericArtifact, getSupportedFieldValues(
 							trackerFields, TFArtifactMetaData.SFEEFields.status
 									.getFieldName()));
 			createGenericArtifactField(
-					TFArtifactMetaData.SFEEFields.statusClass, null,
-					genericArtifact, null);
+					TFArtifactMetaData.SFEEFields.statusClass, genericArtifact,
+					null);
 			createGenericArtifactField(TFArtifactMetaData.SFEEFields.folderId,
-					null, genericArtifact, null);
+					genericArtifact, null);
 			createGenericArtifactField(TFArtifactMetaData.SFEEFields.path,
-					null, genericArtifact, null);
+					genericArtifact, null);
 			createGenericArtifactField(TFArtifactMetaData.SFEEFields.title,
-					null, genericArtifact, null);
+					genericArtifact, null);
 			createGenericArtifactField(TFArtifactMetaData.SFEEFields.createdBy,
-					null, genericArtifact, null);
-			createGenericArtifactField(
-					TFArtifactMetaData.SFEEFields.createdDate, null,
-					genericArtifact, null);
-			createGenericArtifactField(TFArtifactMetaData.SFEEFields.id, null,
 					genericArtifact, null);
 			createGenericArtifactField(
-					TFArtifactMetaData.SFEEFields.lastModifiedBy, null,
+					TFArtifactMetaData.SFEEFields.createdDate, genericArtifact,
+					null);
+			createGenericArtifactField(TFArtifactMetaData.SFEEFields.id,
 					genericArtifact, null);
 			createGenericArtifactField(
-					TFArtifactMetaData.SFEEFields.lastModifiedDate, null,
+					TFArtifactMetaData.SFEEFields.lastModifiedBy,
+					genericArtifact, null);
+			createGenericArtifactField(
+					TFArtifactMetaData.SFEEFields.lastModifiedDate,
 					genericArtifact, null);
 			createGenericArtifactField(TFArtifactMetaData.SFEEFields.version,
-					null, genericArtifact, null);
+					genericArtifact, null);
 
 			// we manually have to add the comment text field (defined as flex
 			// field)
@@ -301,8 +321,7 @@ public class TFLayoutExtractor implements RepositoryLayoutExtractor {
 				field.setAlternativeFieldName(alternativeFieldName);
 				field.setMinOccurs(0);
 				String fieldType = trackerFieldSoapDO.getFieldType();
-				if (fieldType.equals(
-						TrackerFieldDO.FIELD_TYPE_MULTISELECT)) {
+				if (fieldType.equals(TrackerFieldDO.FIELD_TYPE_MULTISELECT)) {
 					field.setMaxOccurs(fieldValues.length);
 				} else if (fieldType
 						.equals(TrackerFieldDO.FIELD_TYPE_MULTISELECT_USER)) {
@@ -312,11 +331,10 @@ public class TFLayoutExtractor implements RepositoryLayoutExtractor {
 				}
 				if (fieldType.equals(TrackerFieldDO.FIELD_TYPE_DATE)) {
 					field.setNullValueSupported("true");
-				}
-				else {
+				} else {
 					field.setNullValueSupported("false");
 				}
-				
+
 				field.setFieldValue(generateFieldDocumentation(fieldName,
 						alternativeFieldName, fieldValueType,
 						GenericArtifactField.VALUE_FIELD_TYPE_FLEX_FIELD,
