@@ -149,7 +149,72 @@ public class TFLayoutExtractor implements RepositoryLayoutExtractor {
 	 * getRepositoryLayout(java.lang.String)
 	 */
 	public GenericArtifact getRepositoryLayout(String repositoryId) {
-		return getTrackerSchema(repositoryId);
+		if (isTrackerRepository(repositoryId)) {
+			return getTrackerSchema(repositoryId);
+		} else {
+			return getPlanningFolderSchema(repositoryId);
+		}
+	}
+	
+	
+	private GenericArtifact getPlanningFolderSchema(String repositoryId) {
+		// since CTF planning folder do not support any custom fields (yet), we just output a constant schema
+		GenericArtifact genericArtifact = new GenericArtifact();
+		genericArtifact.setArtifactAction(ArtifactActionValue.CREATE);
+		genericArtifact.setArtifactMode(ArtifactModeValue.COMPLETE);
+		genericArtifact.setArtifactType(ArtifactTypeValue.PLAINARTIFACT);
+		genericArtifact
+				.setIncludesFieldMetaData(IncludesFieldMetaDataValue.TRUE);
+		
+		// set the fields of PlanningFolderSoapDO
+		createGenericArtifactField(TFArtifactMetaData.SFEEFields.startDate,
+				genericArtifact, null);
+		createGenericArtifactField(TFArtifactMetaData.SFEEFields.endDate,
+				genericArtifact, null);
+		
+		// set the fields of FolderSoapDO
+		createGenericArtifactField(TFArtifactMetaData.SFEEFields.title,
+				genericArtifact, null);
+		createGenericArtifactField(
+				TFArtifactMetaData.SFEEFields.description, genericArtifact,
+				null);
+		createGenericArtifactField(TFArtifactMetaData.SFEEFields.path,
+				genericArtifact, null);
+		createGenericArtifactField(TFArtifactMetaData.SFEEFields.projectId,
+				genericArtifact, null);
+		createGenericArtifactField(TFArtifactMetaData.SFEEFields.parentFolderId,
+				genericArtifact, null);
+		
+		// set fields of ObjectSoapDO
+		createGenericArtifactField(TFArtifactMetaData.SFEEFields.createdBy,
+				genericArtifact, null);
+		createGenericArtifactField(
+				TFArtifactMetaData.SFEEFields.createdDate, genericArtifact,
+				null);
+		createGenericArtifactField(TFArtifactMetaData.SFEEFields.id,
+				genericArtifact, null);
+		createGenericArtifactField(
+				TFArtifactMetaData.SFEEFields.lastModifiedBy,
+				genericArtifact, null);
+		createGenericArtifactField(
+				TFArtifactMetaData.SFEEFields.lastModifiedDate,
+				genericArtifact, null);
+		createGenericArtifactField(TFArtifactMetaData.SFEEFields.version,
+				genericArtifact, null);
+		
+		// in later versions we may add support for planning folder stats as well
+		
+		return genericArtifact;
+	}
+
+	/**
+	 * Returns whether this repository id belongs to a tracker
+	 * If not, it belongs to a planning folder
+	 * @param repositoryId repositoryId
+	 * @return true if repository id belongs to a tracker
+	 */
+	public static boolean isTrackerRepository(String repositoryId) {
+		return repositoryId.startsWith("tracker");
 	}
 
 	public GenericArtifact getTrackerSchema(String trackerId) {

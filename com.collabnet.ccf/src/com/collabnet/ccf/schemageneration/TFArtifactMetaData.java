@@ -84,6 +84,8 @@ public class TFArtifactMetaData {
 		lastModifiedBy("lastModifiedBy", "Last modified by", FIELD_TYPE.SYSTEM_DEFINED, GenericArtifactField.FieldValueTypeValue.USER, false,"",false),
 		createdBy("createdBy", "Created by", FIELD_TYPE.SYSTEM_DEFINED, GenericArtifactField.FieldValueTypeValue.USER, false,"",false),
 		folderId("folderId", "Folder id",FIELD_TYPE.SYSTEM_DEFINED, GenericArtifactField.FieldValueTypeValue.STRING, false,"",false),
+		projectId("projectId", "Project id",FIELD_TYPE.SYSTEM_DEFINED, GenericArtifactField.FieldValueTypeValue.STRING, false,"",false),
+		parentFolderId("parentFolderId", "Parent folder id",FIELD_TYPE.SYSTEM_DEFINED, GenericArtifactField.FieldValueTypeValue.STRING, false,"",true),
 		version("version", "Version", FIELD_TYPE.SYSTEM_DEFINED, GenericArtifactField.FieldValueTypeValue.STRING, false,"",false),
 		title("title", "Title", FIELD_TYPE.SYSTEM_DEFINED, GenericArtifactField.FieldValueTypeValue.STRING, true,"",false),
 		path("path", "Path", FIELD_TYPE.SYSTEM_DEFINED, GenericArtifactField.FieldValueTypeValue.STRING, false,"",false),
@@ -93,6 +95,8 @@ public class TFArtifactMetaData {
 		 * */
 		closeDate("closeDate", "Close date", FIELD_TYPE.SYSTEM_DEFINED, GenericArtifactField.FieldValueTypeValue.DATETIME, false,"",true),
 		createdDate("createdDate", "Created date", FIELD_TYPE.SYSTEM_DEFINED, GenericArtifactField.FieldValueTypeValue.DATETIME, false,"",false),
+		startDate("startDate", "Start date", FIELD_TYPE.SYSTEM_DEFINED, GenericArtifactField.FieldValueTypeValue.DATETIME, false,"",true),
+		endDate("endDate", "End date", FIELD_TYPE.SYSTEM_DEFINED, GenericArtifactField.FieldValueTypeValue.DATETIME, false,"",true),
 		lastModifiedDate("lastModifiedDate", "Last modified date", FIELD_TYPE.SYSTEM_DEFINED, GenericArtifactField.FieldValueTypeValue.DATETIME, false,"",false),
 		customer("customer", "Customer", FIELD_TYPE.CONFIGURABLE, GenericArtifactField.FieldValueTypeValue.STRING, false,"", false),
 		description("description", "Description", FIELD_TYPE.SYSTEM_DEFINED, GenericArtifactField.FieldValueTypeValue.STRING, true,"",false),
