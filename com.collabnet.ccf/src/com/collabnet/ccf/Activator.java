@@ -65,6 +65,7 @@ public class Activator extends AbstractUIPlugin {
 	public static final String IMAGE_ERROR = "error.gif"; //$NON-NLS-1$
 	public static final String IMAGE_NEW_LANDSCAPE = "new_landscape.gif"; //$NON-NLS-1$
 	public static final String IMAGE_NEW_LANDSCAPE_WIZBAN = "new_landscape_wizban.png"; //$NON-NLS-1$
+	public static final String IMAGE_NEW_PROJECT_MAPPING_WIZBAN = "new_project_mapping_wizban.png"; //$NON-NLS-1$
 	public static final String IMAGE_EDIT_FIELD_MAPPINGS_WIZBAN = "edit_field_mappings_wizban.png"; //$NON-NLS-1$
 	public static final String IMAGE_LANDSCAPE = "landscape.gif"; //$NON-NLS-1$
 	public static final String IMAGE_PROJECT_MAPPINGS = "project_mappings.gif"; //$NON-NLS-1$
@@ -607,6 +608,7 @@ public class Activator extends AbstractUIPlugin {
 		createImageDescriptor(IMAGE_SYNC_STATUS_ENTRY_WITH_HOSPITAL_ENTRIES);
 		createImageDescriptor(IMAGE_NEW_LANDSCAPE);
 		createImageDescriptor(IMAGE_NEW_LANDSCAPE_WIZBAN);
+		createImageDescriptor(IMAGE_NEW_PROJECT_MAPPING_WIZBAN);
 		createImageDescriptor(IMAGE_EDIT_FIELD_MAPPINGS_WIZBAN);
 		createImageDescriptor(IMAGE_LANDSCAPE);
 		createImageDescriptor(IMAGE_LANDSCAPE_QC_PT);
@@ -640,6 +642,7 @@ public class Activator extends AbstractUIPlugin {
 		reg.put(IMAGE_SYNC_STATUS_ENTRY_WITH_HOSPITAL_ENTRIES, getImageDescriptor(IMAGE_SYNC_STATUS_ENTRY_WITH_HOSPITAL_ENTRIES));
 		reg.put(IMAGE_NEW_LANDSCAPE, getImageDescriptor(IMAGE_NEW_LANDSCAPE));
 		reg.put(IMAGE_NEW_LANDSCAPE_WIZBAN, getImageDescriptor(IMAGE_NEW_LANDSCAPE_WIZBAN));
+		reg.put(IMAGE_NEW_PROJECT_MAPPING_WIZBAN, getImageDescriptor(IMAGE_NEW_PROJECT_MAPPING_WIZBAN));
 		reg.put(IMAGE_EDIT_FIELD_MAPPINGS_WIZBAN, getImageDescriptor(IMAGE_EDIT_FIELD_MAPPINGS_WIZBAN));
 		reg.put(IMAGE_LANDSCAPE, getImageDescriptor(IMAGE_LANDSCAPE));
 		reg.put(IMAGE_LANDSCAPE_QC_PT, getImageDescriptor(IMAGE_LANDSCAPE_QC_PT));
