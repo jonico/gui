@@ -199,6 +199,62 @@ public class QCLayoutExtractor implements RepositoryLayoutExtractor {
 		}
 	}
 	
+	/**
+	 * Validates, whether given QC domain and project (will throw an exception otherwise) 
+	 * @param domain
+	 * @param project
+	 */
+	public void validateQCDomainAndProject(String domain, String project) {
+		IConnection qcConnection = null;
+		try {
+			initCOM();
+			qcConnection = createConnection(serverUrl, domain + PARAM_DELIMITER + project, userName,
+					password);
+		} finally {
+			if (qcConnection != null) {
+				closeConnection(qcConnection);
+			}
+			tearDownCOM();
+		}
+	}
+	
+	/**
+	 * Get the available requirement types
+	 * @param domain
+	 * @param project
+	 * @return list of available requirement types
+	 */
+	public List<String> getRequirementTypes(String domain, String project) {
+		List<String> requirementTypes = new ArrayList<String>();
+		IConnection qcConnection = null;
+		try {
+			initCOM();
+			qcConnection = createConnection(serverUrl, domain + PARAM_DELIMITER + project, userName,
+					password);
+			String sql = "SELECT TPR_NAME FROM REQ_TYPE";
+			IRecordSet rs = null;
+			try {
+				rs = executeSQL(qcConnection, sql);
+				int rc = rs.getRecordCount();
+				for (int cnt = 0; cnt < rc; cnt++, rs.next()) {
+					String reqType = rs.getFieldValueAsString("TPR_NAME");
+					requirementTypes.add(reqType);
+				}
+			} finally {
+				if (rs != null) {
+					rs.safeRelease();
+					rs = null;
+				}
+			}
+		} finally {
+			if (qcConnection != null) {
+				closeConnection(qcConnection);
+			}
+			tearDownCOM();
+		}
+		return requirementTypes;
+	}
+	
 	public static GenericArtifact getSchemaFieldsForRequirement(IConnection qcc,
 			String technicalReleaseTypeId) {
 
