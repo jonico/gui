@@ -10,7 +10,6 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -152,10 +151,15 @@ public class ChangeProjectMappingDialog extends CcfDialog {
 			Button teamForgeBrowseButton = new Button(otherGroup, SWT.PUSH);
 			teamForgeBrowseButton.setText("Browse...");
 			
-			// TODO:  Implement project/tracker selection.
 			teamForgeBrowseButton.addSelectionListener(new SelectionAdapter() {
-				public void widgetSelected(SelectionEvent arg0) {
-					MessageDialog.openInformation(getShell(), "Select Project/Tracker", "Not yet implmented.");
+				public void widgetSelected(SelectionEvent se) {
+					int type;
+					if (getTrackerId().startsWith("proj")) type = TeamForgeSelectionDialog.BROWSER_TYPE_PROJECT;
+					else type = TeamForgeSelectionDialog.BROWSER_TYPE_TRACKER;
+					TeamForgeSelectionDialog dialog = new TeamForgeSelectionDialog(getShell(), status.getLandscape(), type);
+					if (dialog.open() == TeamForgeSelectionDialog.OK) {
+						trackerText.setText(dialog.getSelectedId());
+					}
 				}			
 			});
 		}

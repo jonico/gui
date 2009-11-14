@@ -45,7 +45,7 @@ public class NewTeamForgeProjectMappingWizard extends Wizard {
 		mainPage = new NewTeamForgeProjectMappingWizardMainPage(projectMappings);
 		mainPage.setDirection(direction);
 		addPage(mainPage);
-		projectPage = new NewTeamForgeProjectMappingWizardProjectPage();
+		projectPage = new NewTeamForgeProjectMappingWizardProjectPage(projectMappings);
 		addPage(projectPage);
 	}
 

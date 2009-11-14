@@ -21,8 +21,12 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
 import com.collabnet.ccf.Activator;
+import com.collabnet.ccf.dialogs.TeamForgeSelectionDialog;
+import com.collabnet.ccf.model.ProjectMappings;
 
 public class NewTeamForgeProjectMappingWizardProjectPage extends WizardPage {
+	private ProjectMappings projectMappings;
+	
 	protected Combo qcDomainCombo;
 	protected Text qcProjectText;
 	private Label qcRequirementTypeLabel;
@@ -40,8 +44,9 @@ public class NewTeamForgeProjectMappingWizardProjectPage extends WizardPage {
 	public static final String PREVIOUS_QC_DOMAIN = "NewProjectMappingDialog.previousDomain.";
 	public static final String PREVIOUS_QC_DOMAIN_COUNT = "NewProjectMappingDialog.previousDomainCount";
 	
-	public NewTeamForgeProjectMappingWizardProjectPage() {
+	public NewTeamForgeProjectMappingWizardProjectPage(ProjectMappings projectMappings) {
 		super("projectPage", "Mapping Details", Activator.getDefault().getImageDescriptor(Activator.IMAGE_NEW_PROJECT_MAPPING_WIZBAN));
+		this.projectMappings = projectMappings;
 		setPageComplete(false);
 	}
 
@@ -119,13 +124,15 @@ public class NewTeamForgeProjectMappingWizardProjectPage extends WizardPage {
 		teamForgeText.setLayoutData(gd);
 		teamForgeBrowseButton = new Button(tfGroup, SWT.PUSH);
 		teamForgeBrowseButton.setText("Browse...");
-		// TODO:  Implement project/tracker selection.
 		teamForgeBrowseButton.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent arg0) {
-				String title;
-				if (planningFoldersSelected) title = "Select Project";
-				else title = "Select Tracker";
-				MessageDialog.openInformation(getShell(), title, "Not yet implmented.");
+			public void widgetSelected(SelectionEvent se) {
+				int type;
+				if (planningFoldersSelected) type = TeamForgeSelectionDialog.BROWSER_TYPE_PROJECT;
+				else type = TeamForgeSelectionDialog.BROWSER_TYPE_TRACKER;
+				TeamForgeSelectionDialog dialog = new TeamForgeSelectionDialog(getShell(), projectMappings.getLandscape(), type);
+				if (dialog.open() == TeamForgeSelectionDialog.OK) {
+					teamForgeText.setText(dialog.getSelectedId());
+				}
 			}			
 		});
 		
