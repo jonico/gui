@@ -496,6 +496,10 @@ public class HospitalView extends ViewPart {
 			if (columnIndex == 0) {
 				Patient patient = (Patient)element;
 				
+				if (patient.isOutdated()) {
+					return Activator.getImage(Activator.IMAGE_HOSPITAL_ENTRY_OUTDATED);
+				}
+				
 				if (patient.isReprocessed() && !patient.isFixed()) {
 					return Activator.getImage(Activator.IMAGE_HOSPITAL_ENTRY_REPLAY_FAILED);
 				}

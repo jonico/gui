@@ -80,6 +80,7 @@ public class Activator extends AbstractUIPlugin {
 	public static final String IMAGE_BACKWARD = "nav_backward.gif"; //$NON-NLS-1$
 	public static final String IMAGE_DATABASE_CONNECTION = "dbConnection.gif"; //$NON-NLS-1$
 	public static final String IMAGE_HOSPITAL_ENTRY = "hospitalEntry.gif"; //$NON-NLS-1$
+	public static final String IMAGE_HOSPITAL_ENTRY_OUTDATED = "hospitalEntryOutdated.gif"; //$NON-NLS-1$
 	public static final String IMAGE_HOSPITAL_ENTRY_FIXED = "hospitalEntryFixed.gif"; //$NON-NLS-1$
 	public static final String IMAGE_HOSPITAL_ENTRY_REPLAY = "hospitalEntryReplay.gif"; //$NON-NLS-1$
 	public static final String IMAGE_HOSPITAL_ENTRY_REPLAY_FAILED = "hospitalEntryReplayFailed.gif"; //$NON-NLS-1$
@@ -601,6 +602,7 @@ public class Activator extends AbstractUIPlugin {
 		createImageDescriptor(IMAGE_DATABASE_CONNECTION);
 		createImageDescriptor(IMAGE_HOSPITAL_ENTRY);
 		createImageDescriptor(IMAGE_HOSPITAL_ENTRY_FIXED);
+		createImageDescriptor(IMAGE_HOSPITAL_ENTRY_OUTDATED);
 		createImageDescriptor(IMAGE_HOSPITAL_ENTRY_REPLAY);
 		createImageDescriptor(IMAGE_HOSPITAL_ENTRY_REPLAY_FAILED);
 		createImageDescriptor(IMAGE_SYNC_STATUS_ENTRY);
@@ -637,6 +639,7 @@ public class Activator extends AbstractUIPlugin {
 		reg.put(IMAGE_HOSPITAL_ENTRY_FIXED, getImageDescriptor(IMAGE_HOSPITAL_ENTRY_FIXED));
 		reg.put(IMAGE_HOSPITAL_ENTRY_REPLAY, getImageDescriptor(IMAGE_HOSPITAL_ENTRY_REPLAY));
 		reg.put(IMAGE_HOSPITAL_ENTRY_REPLAY_FAILED, getImageDescriptor(IMAGE_HOSPITAL_ENTRY_REPLAY_FAILED));
+		reg.put(IMAGE_HOSPITAL_ENTRY_OUTDATED, getImageDescriptor(IMAGE_HOSPITAL_ENTRY_OUTDATED));
 		reg.put(IMAGE_SYNC_STATUS_ENTRY, getImageDescriptor(IMAGE_SYNC_STATUS_ENTRY));
 		reg.put(IMAGE_SYNC_STATUS_ENTRY_PAUSED, getImageDescriptor(IMAGE_SYNC_STATUS_ENTRY_PAUSED));
 		reg.put(IMAGE_SYNC_STATUS_ENTRY_WITH_HOSPITAL_ENTRIES, getImageDescriptor(IMAGE_SYNC_STATUS_ENTRY_WITH_HOSPITAL_ENTRIES));
