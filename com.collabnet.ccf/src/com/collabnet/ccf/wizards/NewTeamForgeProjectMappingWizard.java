@@ -63,7 +63,11 @@ public class NewTeamForgeProjectMappingWizard extends Wizard {
 				sourceRepositoryId.append("-" + projectPage.qcRequirementTypeText.getText().trim());
 			}
 			status.setSourceRepositoryId(sourceRepositoryId.toString());
-			status.setTargetRepositoryId(projectPage.teamForgeText.getText().trim());		
+			if (mainPage.planningFoldersButton.getSelection()) {
+				status.setTargetRepositoryId(projectPage.teamForgeText.getText().trim() + "-" + ProjectMappings.MAPPING_TYPE_PLANNING_FOLDERS);
+			} else {
+				status.setTargetRepositoryId(projectPage.teamForgeText.getText().trim());
+			}
 			status.setSourceSystemId(projectMappings.getLandscape().getId1());			
 			status.setTargetSystemId(projectMappings.getLandscape().getId2());			
 			status.setSourceSystemKind(projectMappings.getLandscape().getType1());			
@@ -89,7 +93,11 @@ public class NewTeamForgeProjectMappingWizard extends Wizard {
 				targetRepositoryId.append("-" + projectPage.qcRequirementTypeText.getText().trim());
 			}
 			status.setTargetRepositoryId(targetRepositoryId.toString());
-			status.setSourceRepositoryId(projectPage.teamForgeText.getText().trim());				
+			if (mainPage.planningFoldersButton.getSelection()) {
+				status.setSourceRepositoryId(projectPage.teamForgeText.getText().trim() + "-" + ProjectMappings.MAPPING_TYPE_PLANNING_FOLDERS);
+			} else {
+				status.setSourceRepositoryId(projectPage.teamForgeText.getText().trim());
+			}
 			status.setSourceSystemId(projectMappings.getLandscape().getId2());
 			status.setTargetSystemId(projectMappings.getLandscape().getId1());
 			status.setSourceSystemKind(projectMappings.getLandscape().getType2());

@@ -27,6 +27,7 @@ import com.collabnet.ccf.db.CcfDataProvider;
 import com.collabnet.ccf.db.Filter;
 import com.collabnet.ccf.db.Update;
 import com.collabnet.ccf.model.Landscape;
+import com.collabnet.ccf.model.ProjectMappings;
 import com.collabnet.ccf.model.SynchronizationStatus;
 import com.collabnet.ccf.schemageneration.QCLayoutExtractor;
 
@@ -142,7 +143,11 @@ public class ChangeProjectMappingDialog extends CcfDialog {
 		} else {
 			otherGroup.setText(Landscape.TYPE_DESCRIPTION_TF + ":");
 			Label trackerLabel = new Label(otherGroup, SWT.NONE);
-			trackerLabel.setText("Tracker ID:");			
+			if (isPlanningFolderMapping()) {
+				trackerLabel.setText("Project ID:");
+			} else {
+				trackerLabel.setText("Tracker ID:");	
+			}
 			trackerText = new Text(otherGroup, SWT.BORDER);
 			gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
 			trackerText.setLayoutData(gd);
@@ -223,7 +228,11 @@ public class ChangeProjectMappingDialog extends CcfDialog {
 						if (status.getTargetSystemKind().startsWith(Landscape.TYPE_PT)) {
 							targetRepository = ptProjectText.getText().trim() + ":" + ptIssueTypeText.getText().trim();
 						} else {
-							targetRepository = trackerText.getText().trim();
+							if (status.getTargetRepositoryId().endsWith(ProjectMappings.MAPPING_TYPE_PLANNING_FOLDERS)) {
+								targetRepository = trackerText.getText().trim() + "-" + ProjectMappings.MAPPING_TYPE_PLANNING_FOLDERS;
+							} else {
+								targetRepository = trackerText.getText().trim();
+							}
 						}
 						StringBuffer repository = new StringBuffer(qcDomainText.getText().trim() + "-" + qcProjectText.getText().trim());
 						if (qcRequirementTypeText != null) {
@@ -239,7 +248,11 @@ public class ChangeProjectMappingDialog extends CcfDialog {
 						if (status.getSourceSystemKind().startsWith(Landscape.TYPE_PT)) {
 							sourceRepository = ptProjectText.getText().trim() + ":" + ptIssueTypeText.getText().trim();
 						} else {
-							sourceRepository = trackerText.getText().trim();
+							if (status.getSourceRepositoryId().endsWith(ProjectMappings.MAPPING_TYPE_PLANNING_FOLDERS)) {
+								sourceRepository = trackerText.getText().trim() + "-" + ProjectMappings.MAPPING_TYPE_PLANNING_FOLDERS;
+							} else {
+								sourceRepository = trackerText.getText().trim();
+							}
 						}
 					}
 
@@ -347,7 +360,21 @@ public class ChangeProjectMappingDialog extends CcfDialog {
 		} else {
 			trackerId = status.getSourceRepositoryId();
 		}
+		int index = trackerId.indexOf("-");
+		if (index != -1) {
+			trackerId = trackerId.substring(0, index);
+		}
 		return trackerId;
+	}
+	
+	private boolean isPlanningFolderMapping() {
+		String trackerId;
+		if (status.getSourceSystemKind().startsWith(Landscape.TYPE_QC)) {
+			trackerId = status.getTargetRepositoryId();
+		} else {
+			trackerId = status.getSourceRepositoryId();
+		}
+		return trackerId.indexOf("-") != -1;
 	}
 	
 	private String getQcDomain() {

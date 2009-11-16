@@ -2,7 +2,6 @@ package com.collabnet.ccf.dialogs;
 
 import java.rmi.RemoteException;
 
-import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.DoubleClickEvent;
@@ -30,7 +29,7 @@ import com.collabnet.ccf.schemageneration.TFSoapClient;
 import com.collabnet.teamforge.api.main.ProjectRow;
 import com.collabnet.teamforge.api.tracker.TrackerRow;
 
-public class TeamForgeSelectionDialog extends Dialog {
+public class TeamForgeSelectionDialog extends CcfDialog {
 	private Landscape landscape;
 	private int type;
 	private TreeViewer treeViewer;
@@ -47,7 +46,7 @@ public class TeamForgeSelectionDialog extends Dialog {
 	private Button okButton;
 
 	public TeamForgeSelectionDialog(Shell parentShell, Landscape landscape, int type) {
-		super(parentShell);
+		super(parentShell, "TeamForgeSelectionDialog");
 		this.landscape = landscape;
 		this.type = type;
 		int shellStyle = getShellStyle();
@@ -76,13 +75,9 @@ public class TeamForgeSelectionDialog extends Dialog {
 		treeViewer.setLabelProvider(new TeamForgeSelectionLabelProvider());
 		treeViewer.setContentProvider(new TeamForgeSelectionContentProvider());
 		treeViewer.setUseHashlookup(true);
-		GridData layoutData = new GridData();
-		layoutData.grabExcessHorizontalSpace = true;
-		layoutData.grabExcessVerticalSpace = true;
-		layoutData.horizontalAlignment = GridData.FILL;
-		layoutData.verticalAlignment = GridData.FILL;
-		layoutData.minimumHeight = 300;
-		layoutData.minimumWidth = 300;
+		GridData layoutData = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL | GridData.FILL_VERTICAL | GridData.GRAB_VERTICAL);
+		layoutData.heightHint = 300;
+		layoutData.widthHint = 300;
 		treeViewer.getControl().setLayoutData(layoutData);
 		treeViewer.setInput(this);
 		

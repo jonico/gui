@@ -31,7 +31,7 @@ public class NewTeamForgeProjectMappingWizardMainPage extends WizardPage {
 	protected Button requirementsButton;
 	
 	private Button trackerButton;
-	private Button planningFoldersButton;
+	protected Button planningFoldersButton;
 	
 	private Label system1ToSystem2ConflictResolutionLabel;
 	protected Combo system1ToSystem2ConflictResolutionCombo;
