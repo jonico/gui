@@ -9,6 +9,7 @@ import java.util.Properties;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.wizard.Wizard;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.widgets.Display;
 
@@ -51,8 +52,11 @@ public class NewTeamForgeProjectMappingWizard extends Wizard {
 
 	@Override
 	public boolean performFinish() {
-// TODO: Validate
-//		if (!validate()) return false;
+		if (!validate()) {
+			if (!MessageDialog.openQuestion(getShell(), "New Project Mapping", "Invalid Quality Center Domain/Project entered.  Add project mapping anyway?")) {
+				return false;
+			}
+		}
 		addError = false;
 		final SynchronizationStatus status = new SynchronizationStatus();
 		
@@ -183,6 +187,9 @@ public class NewTeamForgeProjectMappingWizard extends Wizard {
 	}
 	
 	private boolean validate() {
+		// Only validate on windows.
+		if (!"win32".equals(SWT.getPlatform())) return true;
+		
 		QCLayoutExtractor qcLayoutExtractor = new QCLayoutExtractor();
 		Properties properties = projectMappings.getLandscape().getProperties1();
 		String url = properties.getProperty(Activator.PROPERTIES_QC_URL, "");
@@ -192,13 +199,15 @@ public class NewTeamForgeProjectMappingWizard extends Wizard {
 		qcLayoutExtractor.setServerUrl(url);
 		qcLayoutExtractor.setUserName(user);
 		qcLayoutExtractor.setPassword(password);
+		
+		boolean validDomainAndProject;
 		try {
 			qcLayoutExtractor.validateQCDomainAndProject(projectPage.qcDomainCombo.getText().trim(), projectPage.qcProjectText.getText().trim());
+			validDomainAndProject = true;
 		} catch (Exception e) {
-			MessageDialog.openError(getShell(), "New Project Mapping", "Invalid Quality Center Domain/Project entered.");
-			return false;
+			validDomainAndProject = false;
 		}
-		return true;
+		return validDomainAndProject;
 	}
 
 }

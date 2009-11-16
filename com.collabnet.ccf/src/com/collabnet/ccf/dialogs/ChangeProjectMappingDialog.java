@@ -40,6 +40,7 @@ public class ChangeProjectMappingDialog extends CcfDialog {
 	private Text qcProjectText;
 	private Text qcDomainText;
 	private Text qcRequirementTypeText;
+	private Button requirementTypeBrowseButton;
 	
 	private String oldXslFileName;
 	private String newXslFileName;
@@ -107,8 +108,9 @@ public class ChangeProjectMappingDialog extends CcfDialog {
 			qcRequirementTypeText.setLayoutData(gd);
 			qcRequirementTypeText.setText(requirementType);
 			
-			Button requirementTypeBrowseButton = new Button(qcGroup, SWT.PUSH);
+			requirementTypeBrowseButton = new Button(qcGroup, SWT.PUSH);
 			requirementTypeBrowseButton.setText("Browse...");
+			requirementTypeBrowseButton.setVisible("win32".equals(SWT.getPlatform()));
 // TODO:  Implement requirement type selection.
 			requirementTypeBrowseButton.addSelectionListener(new SelectionAdapter() {
 				public void widgetSelected(SelectionEvent arg0) {
@@ -207,8 +209,11 @@ public class ChangeProjectMappingDialog extends CcfDialog {
 	
 	@Override
 	protected void okPressed() {
-// TODO:  Validate
-//		if (!validate()) return;
+		if (!validate()) {
+			if (!MessageDialog.openQuestion(getShell(), "Change Project Mapping", "Invalid Quality Center Domain/Project entered.  Change project mapping anyway?")) {
+				return;
+			}
+		}
 		changeError = false;
 		BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
 			public void run() {
@@ -343,6 +348,9 @@ public class ChangeProjectMappingDialog extends CcfDialog {
     }
 
 	private boolean canFinish() {
+		if (requirementTypeBrowseButton != null && requirementTypeBrowseButton.isVisible()) {
+			requirementTypeBrowseButton.setEnabled(qcProjectText.getText().trim().length() > 0 && qcDomainText.getText().trim().length() > 0);
+		}
 		boolean canFinish = (trackerText == null || trackerText.getText().trim().length() > 0) &&
 		(ptProjectText == null || ptProjectText.getText().trim().length() > 0) &&
 		(ptIssueTypeText == null || ptIssueTypeText.getText().trim().length() > 0) &&
@@ -451,6 +459,9 @@ public class ChangeProjectMappingDialog extends CcfDialog {
 	}
 	
 	private boolean validate() {
+		// Only validate on windows.
+		if (!"win32".equals(SWT.getPlatform())) return true;
+		
 		QCLayoutExtractor qcLayoutExtractor = new QCLayoutExtractor();
 		Properties properties = status.getLandscape().getProperties1();
 		String url = properties.getProperty(Activator.PROPERTIES_QC_URL, "");
@@ -460,13 +471,15 @@ public class ChangeProjectMappingDialog extends CcfDialog {
 		qcLayoutExtractor.setServerUrl(url);
 		qcLayoutExtractor.setUserName(user);
 		qcLayoutExtractor.setPassword(password);
+		
+		boolean validDomainAndProject;
 		try {
 			qcLayoutExtractor.validateQCDomainAndProject(qcDomainText.getText().trim(), qcProjectText.getText().trim());
+			validDomainAndProject = true;
 		} catch (Exception e) {
-			MessageDialog.openError(getShell(), "Change Project Mapping", "Invalid Quality Center Domain/Project entered.");
-			return false;
+			validDomainAndProject = false;
 		}
-		return true;
+		return validDomainAndProject;
 	}
 
 }

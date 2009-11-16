@@ -97,7 +97,8 @@ public class NewTeamForgeProjectMappingWizardProjectPage extends WizardPage {
 		qcRequirementTypeText.setVisible(requirementsSelected);
 		requirementTypeBrowseButton = new Button(qcGroup, SWT.PUSH);
 		requirementTypeBrowseButton.setText("Browse...");
-		requirementTypeBrowseButton.setVisible(requirementsSelected);
+		requirementTypeBrowseButton.setEnabled(false);
+		requirementTypeBrowseButton.setVisible("win32".equals(SWT.getPlatform()) && requirementsSelected);
 		// TODO:  Implement requirement type selection.
 		requirementTypeBrowseButton.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent arg0) {
@@ -164,7 +165,7 @@ public class NewTeamForgeProjectMappingWizardProjectPage extends WizardPage {
 		if (qcRequirementTypeText != null) {
 			qcRequirementTypeLabel.setVisible(requirementsSelected);
 			qcRequirementTypeText.setVisible(requirementsSelected);
-			requirementTypeBrowseButton.setVisible(requirementsSelected);
+			requirementTypeBrowseButton.setVisible("win32".equals(SWT.getPlatform()) && requirementsSelected);
 			setPageComplete(canFinish());
 		}
 	}
@@ -181,6 +182,7 @@ public class NewTeamForgeProjectMappingWizardProjectPage extends WizardPage {
 	}
 	
 	private boolean canFinish() {
+		requirementTypeBrowseButton.setEnabled(qcDomainCombo.getText().trim().length() > 0 && qcProjectText.getText().trim().length() > 0 && requirementTypeBrowseButton.isVisible());
 		if (qcDomainCombo.getText().trim().length() == 0 ||
 			qcProjectText.getText().trim().length() == 0 ||
 			teamForgeText.getText().trim().length() == 0) {
