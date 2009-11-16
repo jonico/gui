@@ -124,6 +124,10 @@ public class NewTeamForgeProjectMappingWizard extends Wizard {
 		return true;
 	}
 	
+	public ProjectMappings getProjectMappings() {
+		return projectMappings;
+	}
+
 	public void setRequirementsSelected(boolean requirementsSelected) {
 		projectPage.setRequirementsSelected(requirementsSelected);
 	}
@@ -186,7 +190,7 @@ public class NewTeamForgeProjectMappingWizard extends Wizard {
 		}
 	}
 	
-	private boolean validate() {
+	public boolean validate() {
 		// Only validate on windows.
 		if (!"win32".equals(SWT.getPlatform())) return true;
 		

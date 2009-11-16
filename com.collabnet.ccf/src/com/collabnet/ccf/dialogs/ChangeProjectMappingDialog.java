@@ -111,10 +111,18 @@ public class ChangeProjectMappingDialog extends CcfDialog {
 			requirementTypeBrowseButton = new Button(qcGroup, SWT.PUSH);
 			requirementTypeBrowseButton.setText("Browse...");
 			requirementTypeBrowseButton.setVisible("win32".equals(SWT.getPlatform()));
-// TODO:  Implement requirement type selection.
+
 			requirementTypeBrowseButton.addSelectionListener(new SelectionAdapter() {
 				public void widgetSelected(SelectionEvent arg0) {
-					MessageDialog.openInformation(getShell(), "Select Requirement Type", "Not yet implmented.");
+					if (!validate()) {
+						MessageDialog.openError(getShell(), "Select Requirement Type", "Invalid Quality Center Domain/Project entered.");
+						return;
+					}
+					RequirementTypeSelectionDialog dialog = new RequirementTypeSelectionDialog(getShell(), status.getLandscape(), qcDomainText.getText().trim(), qcProjectText.getText().trim());
+					if (dialog.open() == RequirementTypeSelectionDialog.OK) {
+						qcRequirementTypeText.setText(dialog.getType());
+						okButton.setEnabled(canFinish());
+					}
 				}			
 			});
 		}

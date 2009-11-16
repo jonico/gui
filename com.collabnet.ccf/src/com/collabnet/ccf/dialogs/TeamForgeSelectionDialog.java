@@ -49,8 +49,6 @@ public class TeamForgeSelectionDialog extends CcfDialog {
 		super(parentShell, "TeamForgeSelectionDialog");
 		this.landscape = landscape;
 		this.type = type;
-		int shellStyle = getShellStyle();
-		setShellStyle(shellStyle | SWT.RESIZE);
 	}
 	
 	protected Control createDialogArea(Composite parent) {

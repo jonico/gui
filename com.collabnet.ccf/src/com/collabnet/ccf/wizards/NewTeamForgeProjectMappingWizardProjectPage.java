@@ -21,6 +21,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
 import com.collabnet.ccf.Activator;
+import com.collabnet.ccf.dialogs.RequirementTypeSelectionDialog;
 import com.collabnet.ccf.dialogs.TeamForgeSelectionDialog;
 import com.collabnet.ccf.model.ProjectMappings;
 
@@ -99,10 +100,18 @@ public class NewTeamForgeProjectMappingWizardProjectPage extends WizardPage {
 		requirementTypeBrowseButton.setText("Browse...");
 		requirementTypeBrowseButton.setEnabled(false);
 		requirementTypeBrowseButton.setVisible("win32".equals(SWT.getPlatform()) && requirementsSelected);
-		// TODO:  Implement requirement type selection.
 		requirementTypeBrowseButton.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent arg0) {
-				MessageDialog.openInformation(getShell(), "Select Requirement Type", "Not yet implmented.");
+				NewTeamForgeProjectMappingWizard wizard = (NewTeamForgeProjectMappingWizard)getWizard();
+				if (!wizard.validate()) {
+					MessageDialog.openError(getShell(), "Select Requirement Type", "Invalid Quality Center Domain/Project entered.");
+					return;
+				}
+				RequirementTypeSelectionDialog dialog = new RequirementTypeSelectionDialog(getShell(), wizard.getProjectMappings().getLandscape(), qcDomainCombo.getText().trim(), qcProjectText.getText().trim());
+				if (dialog.open() == RequirementTypeSelectionDialog.OK) {
+					qcRequirementTypeText.setText(dialog.getType());
+					setPageComplete(canFinish());
+				}
 			}			
 		});
 		
