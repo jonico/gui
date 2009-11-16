@@ -330,9 +330,11 @@ public class QCLayoutExtractor implements RepositoryLayoutExtractor {
 				
 				// special treatment for some fields (have to find out whether this is only due to the agile accelarator)
 				if (columnName.equals("RQ_TYPE_ID")) {
+					fieldValueType = FieldValueTypeValue.STRING;
 					field.setFieldValueType(FieldValueTypeValue.STRING);
 				}
 				else if (columnName.equals("RQ_REQ_TIME")) {
+					fieldValueType = FieldValueTypeValue.STRING;
 					field.setFieldValueType(FieldValueTypeValue.STRING);
 				}
 				if (columnName.equals("RQ_DEV_COMMENTS")) {
