@@ -2,7 +2,7 @@
 <feature
       id="com.collabnet.ccf.feature"
       label="CollabNet Connector Framework"
-      version="1.2.1.qualifier"
+      version="1.3.0.qualifier"
       provider-name="CollabNet"
       plugin="com.collabnet.ccf">
 
@@ -37,7 +37,7 @@
          id="com.collabnet.ccf"
          download-size="0"
          install-size="0"
-         version="1.2.1.qualifier"
+         version="1.3.0.qualifier"
          unpack="false"/>
 
    <plugin
@@ -48,7 +48,7 @@
          unpack="false"/>
 
    <plugin
-         id="com.collabnet.ee.api"
+         id="com.collabnet.teamforge.api"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
