@@ -48,6 +48,7 @@ public class NewProjectMappingDialog extends CcfDialog {
 	private Text ptIssueTypeText;
 	private Text qcProjectText;
 	private Combo qcDomainCombo;
+	private Text qcRequirementTypeText;
 
 	private Label system1ToSystem2ConflictResolutionLabel;
 	private Combo system1ToSystem2ConflictResolutionCombo;
@@ -230,7 +231,17 @@ public class NewProjectMappingDialog extends CcfDialog {
 //		else system1ToSystem2ConflictResolutionCombo.setText(previousResolutionPriority);
 		system1ToSystem2ConflictResolutionCombo.setText(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_ALWAYS_OVERRIDE);
 
-		if (reverseStatus != null) initializeReverseValues();
+		if (reverseStatus != null) {
+			String requirementType = getQcRequirementType();
+			if (requirementType != null) {
+				Label requirementTypeLabel = new Label(qcGroup, SWT.NONE);
+				requirementTypeLabel.setText("Requirement type:");
+				qcRequirementTypeText = new Text(qcGroup, SWT.BORDER);
+				gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
+				qcRequirementTypeText.setLayoutData(gd);
+			}
+			initializeReverseValues();
+		}
 		
 		ModifyListener modifyListener = new ModifyListener() {
 			public void modifyText(ModifyEvent me) {
@@ -260,6 +271,9 @@ public class NewProjectMappingDialog extends CcfDialog {
 	private void initializeReverseValues() {
 		qcDomainCombo.setText(getQcDomain());
 		qcProjectText.setText(getQcProject());
+		if (qcRequirementTypeText != null) {
+			qcRequirementTypeText.setText(getQcRequirementType());
+		}
 		if (trackerText != null) {
 			trackerText.setText(getTrackerId());
 		}
@@ -302,6 +316,10 @@ public class NewProjectMappingDialog extends CcfDialog {
 		} else {
 			trackerId = reverseStatus.getSourceRepositoryId();
 		}
+		int index = trackerId.indexOf("-");
+		if (index != -1) {
+			trackerId = trackerId.substring(0, index);
+		}
 		return trackerId;
 	}
 	
@@ -326,7 +344,32 @@ public class NewProjectMappingDialog extends CcfDialog {
 		}
 		int index = repositoryId.indexOf("-");
 		if (index == -1) return "";
-		else return repositoryId.substring(index + 1);
+		else {
+			String project = repositoryId = repositoryId.substring(index + 1);
+			index = project.indexOf("-");
+			if (index != -1) {
+				project = project.substring(0, index);
+			}
+			return project;
+		}
+	}
+	
+	private String getQcRequirementType() {
+		String repositoryId;
+		if (reverseStatus.getSourceSystemKind().startsWith(Landscape.TYPE_QC)) {
+			repositoryId = reverseStatus.getSourceRepositoryId();
+		} else {
+			repositoryId = reverseStatus.getTargetRepositoryId();
+		}
+		int index = repositoryId.indexOf("-");
+		if (index != -1) {
+			String project = repositoryId.substring(index + 1);
+			index = project.indexOf("-");
+			if (index != -1) {
+				return project.substring(index + 1);
+			}
+		}
+		return null;
 	}
 	
 	private String getPtProject() {
@@ -361,11 +404,19 @@ public class NewProjectMappingDialog extends CcfDialog {
 		if (system1ToSystem2Button.getSelection() || bothButton.getSelection()) {
 			settings.put(PREVIOUS_SYSTEM1_SYSTEM2_CONFLICT_RESOLUTION_PRIORITY, system1ToSystem2ConflictResolutionCombo.getText());
 			status.setConflictResolutionPriority(SynchronizationStatus.CONFLICT_RESOLUTIONS[system1ToSystem2ConflictResolutionCombo.getSelectionIndex()]);
-			status.setSourceRepositoryId(qcDomainCombo.getText().trim() + "-" + qcProjectText.getText().trim());
+			StringBuffer repositoryId = new StringBuffer(qcDomainCombo.getText().trim() + "-" + qcProjectText.getText().trim());
+			if (qcRequirementTypeText != null) {
+				repositoryId.append("-" + qcRequirementTypeText.getText().trim());
+			}
+			status.setSourceRepositoryId(repositoryId.toString());
 			if (trackerText == null) {
 				status.setTargetRepositoryId(ptProjectText.getText().trim() + ":" + ptIssueTypeText.getText().trim());
 			} else {
-				status.setTargetRepositoryId(trackerText.getText().trim());
+				if (trackerText.getText().trim().startsWith("proj")) {
+					status.setTargetRepositoryId(trackerText.getText().trim() + "-" + ProjectMappings.MAPPING_TYPE_PLANNING_FOLDERS);
+				} else {
+					status.setTargetRepositoryId(trackerText.getText().trim());
+				}
 			}
 			
 			status.setSourceSystemId(projectMappings.getLandscape().getId1());			
@@ -389,11 +440,19 @@ public class NewProjectMappingDialog extends CcfDialog {
 		if (system2ToSystem1Button.getSelection() || bothButton.getSelection()) {
 			settings.put(PREVIOUS_SYSTEM2_SYSTEM1_CONFLICT_RESOLUTION_PRIORITY, system2ToSystem1ConflictResolutionCombo.getText());
 			status.setConflictResolutionPriority(SynchronizationStatus.CONFLICT_RESOLUTIONS[system2ToSystem1ConflictResolutionCombo.getSelectionIndex()]);
-			status.setTargetRepositoryId(qcDomainCombo.getText().trim() + "-" + qcProjectText.getText().trim());
+			StringBuffer repositoryId = new StringBuffer(qcDomainCombo.getText().trim() + "-" + qcProjectText.getText().trim());
+			if (qcRequirementTypeText != null) {
+				repositoryId.append("-" + qcRequirementTypeText.getText().trim());
+			}			
+			status.setTargetRepositoryId(repositoryId.toString());
 			if (trackerText == null) {
 				status.setSourceRepositoryId(ptProjectText.getText().trim() + ":" + ptIssueTypeText.getText().trim());
 			} else {
-				status.setSourceRepositoryId(trackerText.getText().trim());	
+				if (trackerText.getText().trim().startsWith("proj")) {
+					status.setSourceRepositoryId(trackerText.getText().trim() + "-" + ProjectMappings.MAPPING_TYPE_PLANNING_FOLDERS);	
+				} else {
+					status.setSourceRepositoryId(trackerText.getText().trim());	
+				}
 			}
 			
 			status.setSourceSystemId(projectMappings.getLandscape().getId2());
