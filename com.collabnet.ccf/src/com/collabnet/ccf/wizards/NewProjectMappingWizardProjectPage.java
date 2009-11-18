@@ -21,6 +21,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
 import com.collabnet.ccf.Activator;
+import com.collabnet.ccf.dialogs.ProjectTrackerSelectionDialog;
 import com.collabnet.ccf.dialogs.RequirementTypeSelectionDialog;
 import com.collabnet.ccf.dialogs.TeamForgeSelectionDialog;
 import com.collabnet.ccf.model.ProjectMappings;
@@ -126,6 +127,9 @@ public class NewProjectMappingWizardProjectPage extends WizardPage {
 		ModifyListener modifyListener = new ModifyListener() {
 			public void modifyText(ModifyEvent me) {
 				setPageComplete(canFinish());
+				if (ptArtifactTypeBrowseButton != null) {
+					ptArtifactTypeBrowseButton.setEnabled(ptProjectText.getText().trim().length() > 0);
+				}
 			}			
 		};
 		
@@ -188,7 +192,15 @@ public class NewProjectMappingWizardProjectPage extends WizardPage {
 			
 			ptProjectBrowseButton = new Button(ptGroup, SWT.PUSH);
 			ptProjectBrowseButton.setText("Browse...");
-			ptProjectBrowseButton.setVisible(false);
+			ptProjectBrowseButton.addSelectionListener(new SelectionAdapter() {
+				public void widgetSelected(SelectionEvent se) {
+					ProjectTrackerSelectionDialog dialog = new ProjectTrackerSelectionDialog(getShell(), projectMappings.getLandscape(), ProjectTrackerSelectionDialog.BROWSER_TYPE_PROJECT);
+					if (dialog.open() == ProjectTrackerSelectionDialog.OK) {
+						ptProjectText.setText(dialog.getProjectName());
+						setPageComplete(canFinish());
+					}
+				}			
+			});
 			
 			Label ptIssueTypeLabel = new Label(ptGroup, SWT.NONE);
 			ptIssueTypeLabel.setText("Artifact type:");			
@@ -198,7 +210,12 @@ public class NewProjectMappingWizardProjectPage extends WizardPage {
 			
 			ptArtifactTypeBrowseButton = new Button(ptGroup, SWT.PUSH);
 			ptArtifactTypeBrowseButton.setText("Browse...");
-			ptArtifactTypeBrowseButton.setVisible(false);
+			ptArtifactTypeBrowseButton.setEnabled(false);
+			ptArtifactTypeBrowseButton.addSelectionListener(new SelectionAdapter() {
+				public void widgetSelected(SelectionEvent se) {
+					MessageDialog.openInformation(getShell(), "Select Artifact Type", "Not yet implemented.");
+				}			
+			});
 			
 			ptProjectText.addModifyListener(modifyListener);
 			ptIssueTypeText.addModifyListener(modifyListener);
