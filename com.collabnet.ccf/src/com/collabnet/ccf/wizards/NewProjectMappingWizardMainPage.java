@@ -163,7 +163,7 @@ public class NewProjectMappingWizardMainPage extends WizardPage {
 			trackerButton = new Button(tfGroup, SWT.RADIO);
 			trackerButton.setText("Tracker");
 			planningFoldersButton = new Button(tfGroup, SWT.RADIO);
-			planningFoldersButton.setText("Planning folders");
+			planningFoldersButton.setText("Planning folders (requires TeamForge 5.3 or later)");
 			
 			if (defectsButton.getSelection()) {
 				trackerButton.setSelection(true);

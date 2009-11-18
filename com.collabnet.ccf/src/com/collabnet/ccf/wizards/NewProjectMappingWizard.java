@@ -18,6 +18,7 @@ import com.collabnet.ccf.db.CcfDataProvider;
 import com.collabnet.ccf.model.ProjectMappings;
 import com.collabnet.ccf.model.SynchronizationStatus;
 import com.collabnet.ccf.schemageneration.QCLayoutExtractor;
+import com.collabnet.ccf.schemageneration.TFSoapClient;
 
 public class NewProjectMappingWizard extends Wizard {
 	private ProjectMappings projectMappings;
@@ -63,6 +64,16 @@ public class NewProjectMappingWizard extends Wizard {
 	public boolean performFinish() {
 		if (!validate()) {
 			if (!MessageDialog.openQuestion(getShell(), "New Project Mapping", "Invalid Quality Center Domain/Project entered.  Add project mapping anyway?")) {
+				return false;
+			}
+		}
+		if (mainPage.planningFoldersButton != null && mainPage.planningFoldersButton.getSelection()) {
+			String serverUrl = projectMappings.getLandscape().getSfeeProperties().getProperty(Activator.PROPERTIES_SFEE_URL);
+			String userId = projectMappings.getLandscape().getSfeeProperties().getProperty(Activator.PROPERTIES_SFEE_USER);
+			String password = projectMappings.getLandscape().getSfeeProperties().getProperty(Activator.PROPERTIES_SFEE_PASSWORD);
+			TFSoapClient soapClient = TFSoapClient.getSoapClient(serverUrl, userId, password);
+			if (!soapClient.supports53()) {
+				MessageDialog.openError(getShell(), "New Project Mapping", "Server does not support planning folders.");
 				return false;
 			}
 		}
