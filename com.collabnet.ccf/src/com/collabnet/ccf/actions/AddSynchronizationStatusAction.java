@@ -10,7 +10,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.actions.ActionDelegate;
 
 import com.collabnet.ccf.Activator;
-import com.collabnet.ccf.dialogs.NewProjectMappingDialog;
 import com.collabnet.ccf.model.Landscape;
 import com.collabnet.ccf.model.ProjectMappings;
 import com.collabnet.ccf.views.CcfExplorerView;
@@ -26,18 +25,17 @@ public class AddSynchronizationStatusAction extends ActionDelegate {
 		while (iter.hasNext()) {
 			Object object = iter.next();
 			if (object instanceof ProjectMappings) {
-				ProjectMappings projectMappings = (ProjectMappings)object;				
+				ProjectMappings projectMappings = (ProjectMappings)object;	
+				int type;
 				if (projectMappings.getLandscape().getType1().equals(Landscape.TYPE_TF) || projectMappings.getLandscape().getType2().equals(Landscape.TYPE_TF)) {
-					NewProjectMappingWizard wizard = new NewProjectMappingWizard(projectMappings);
-					WizardDialog dialog = new CustomWizardDialog(Display.getDefault().getActiveShell(), wizard);
-					if (dialog.open() == WizardDialog.OK && CcfExplorerView.getView() != null) {
-						Activator.notifyChanged(projectMappings);
-					}
+					type = NewProjectMappingWizard.TYPE_TF;
 				} else {			
-					NewProjectMappingDialog dialog = new NewProjectMappingDialog(Display.getDefault().getActiveShell(), projectMappings);
-					if (dialog.open() == NewProjectMappingDialog.OK && CcfExplorerView.getView() != null) {
-						Activator.notifyChanged(projectMappings);
-					}
+					type = NewProjectMappingWizard.TYPE_PT;
+				}
+				NewProjectMappingWizard wizard = new NewProjectMappingWizard(projectMappings, type);
+				WizardDialog dialog = new CustomWizardDialog(Display.getDefault().getActiveShell(), wizard);
+				if (dialog.open() == WizardDialog.OK && CcfExplorerView.getView() != null) {
+					Activator.notifyChanged(projectMappings);
 				}
 			}
 		}

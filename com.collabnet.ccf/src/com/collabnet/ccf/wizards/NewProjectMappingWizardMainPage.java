@@ -151,66 +151,72 @@ public class NewProjectMappingWizardMainPage extends WizardPage {
 		
 		wizard.setRequirementsSelected(requirementsButton.getSelection());
 		
-		Group tfGroup = new Group(outerContainer, SWT.NULL);
-		GridLayout tfLayout = new GridLayout();
-		tfLayout.numColumns = 1;
-		tfGroup.setLayout(tfLayout);
-		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
-		tfGroup.setLayoutData(gd);	
-		tfGroup.setText("TeamForge:");
-		
-		trackerButton = new Button(tfGroup, SWT.RADIO);
-		trackerButton.setText("Tracker");
-		planningFoldersButton = new Button(tfGroup, SWT.RADIO);
-		planningFoldersButton.setText("Planning folders");
-		
-		if (defectsButton.getSelection()) {
-			trackerButton.setSelection(true);
-		} else {
-			int tfType;
-			try {
-				tfType = settings.getInt(PREVIOUS_TEAMFORGE_TYPE);
-			} catch (Exception e) { tfType = TEAMFORGE_TYPE_TRACKER; }
-			switch (tfType) {
-			case TEAMFORGE_TYPE_PLANNING_FOLDERS:
-				planningFoldersButton.setSelection(true);
-				break;
-			default:
+		if (wizard.getType() == NewProjectMappingWizard.TYPE_TF) {
+			Group tfGroup = new Group(outerContainer, SWT.NULL);
+			GridLayout tfLayout = new GridLayout();
+			tfLayout.numColumns = 1;
+			tfGroup.setLayout(tfLayout);
+			gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
+			tfGroup.setLayoutData(gd);	
+			tfGroup.setText("TeamForge:");
+			
+			trackerButton = new Button(tfGroup, SWT.RADIO);
+			trackerButton.setText("Tracker");
+			planningFoldersButton = new Button(tfGroup, SWT.RADIO);
+			planningFoldersButton.setText("Planning folders");
+			
+			if (defectsButton.getSelection()) {
 				trackerButton.setSelection(true);
-				break;
+			} else {
+				int tfType;
+				try {
+					tfType = settings.getInt(PREVIOUS_TEAMFORGE_TYPE);
+				} catch (Exception e) { tfType = TEAMFORGE_TYPE_TRACKER; }
+				switch (tfType) {
+				case TEAMFORGE_TYPE_PLANNING_FOLDERS:
+					planningFoldersButton.setSelection(true);
+					break;
+				default:
+					trackerButton.setSelection(true);
+					break;
+				}
 			}
+			
+			wizard.setPlanningFoldersSelected(planningFoldersButton.getSelection());
+			planningFoldersButton.setEnabled(requirementsButton.getSelection());
 		}
-		
-		wizard.setPlanningFoldersSelected(planningFoldersButton.getSelection());
-		planningFoldersButton.setEnabled(requirementsButton.getSelection());
 		
 		SelectionListener typeListener = new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent se) {
-				if (defectsButton.getSelection()) {
-					trackerButton.setSelection(true);
-					planningFoldersButton.setSelection(false);
-				}
 				NewProjectMappingWizard wizard = (NewProjectMappingWizard)getWizard();
+				if (wizard.getType() == NewProjectMappingWizard.TYPE_TF) {
+					if (defectsButton.getSelection()) {
+						trackerButton.setSelection(true);
+						planningFoldersButton.setSelection(false);
+					}
+					wizard.setPlanningFoldersSelected(planningFoldersButton.getSelection());
+					planningFoldersButton.setEnabled(requirementsButton.getSelection());
+					if (planningFoldersButton.getSelection()) {
+						settings.put(PREVIOUS_TEAMFORGE_TYPE, TEAMFORGE_TYPE_PLANNING_FOLDERS);
+					} else {
+						settings.put(PREVIOUS_TEAMFORGE_TYPE, TEAMFORGE_TYPE_TRACKER);
+					}	
+				}
 				wizard.setRequirementsSelected(requirementsButton.getSelection());
-				wizard.setPlanningFoldersSelected(planningFoldersButton.getSelection());
-				planningFoldersButton.setEnabled(requirementsButton.getSelection());
 				if (requirementsButton.getSelection()) {
 					settings.put(PREVIOUS_QUALITY_CENTER_TYPE, QUALITY_CENTER_TYPE_REQUIREMENTS);
 				} else {
 					settings.put(PREVIOUS_QUALITY_CENTER_TYPE, QUALITY_CENTER_TYPE_DEFECTS);
 				}
-				if (planningFoldersButton.getSelection()) {
-					settings.put(PREVIOUS_TEAMFORGE_TYPE, TEAMFORGE_TYPE_PLANNING_FOLDERS);
-				} else {
-					settings.put(PREVIOUS_TEAMFORGE_TYPE, TEAMFORGE_TYPE_TRACKER);
-				}	
 			}			
 		};
 		
 		defectsButton.addSelectionListener(typeListener);
 		requirementsButton.addSelectionListener(typeListener);
-		trackerButton.addSelectionListener(typeListener);
-		planningFoldersButton.addSelectionListener(typeListener);
+		if (wizard.getType() == NewProjectMappingWizard.TYPE_TF) {
+			trackerButton.addSelectionListener(typeListener);
+			planningFoldersButton.addSelectionListener(typeListener);
+		}
 		
 		Group conflictGroup = new Group(outerContainer, SWT.NULL);
 		GridLayout conflictLayout = new GridLayout();

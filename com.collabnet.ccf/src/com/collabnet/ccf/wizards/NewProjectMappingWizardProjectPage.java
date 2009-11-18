@@ -34,12 +34,18 @@ public class NewProjectMappingWizardProjectPage extends WizardPage {
 	protected Text qcRequirementTypeText;
 	private Label teamForgeLabel;
 	protected Text teamForgeText;
+	protected Text ptProjectText;
+	protected Text ptIssueTypeText;
 	
 	private Button requirementTypeBrowseButton;
 	private Button teamForgeBrowseButton;
+	private Button ptProjectBrowseButton;
+	private Button ptArtifactTypeBrowseButton;
 	
 	private boolean requirementsSelected = false;
 	private boolean planningFoldersSelected = false;
+	
+	private NewProjectMappingWizard wizard;
 	
 	private IDialogSettings settings = Activator.getDefault().getDialogSettings();
 	public static final String PREVIOUS_QC_DOMAIN = "NewProjectMappingDialog.previousDomain.";
@@ -52,6 +58,8 @@ public class NewProjectMappingWizardProjectPage extends WizardPage {
 	}
 
 	public void createControl(Composite parent) {
+		wizard = (NewProjectMappingWizard)getWizard();
+		
 		Composite outerContainer = new Composite(parent,SWT.NONE);
 		outerContainer.setLayout(new GridLayout());
 		outerContainer.setLayoutData(
@@ -115,37 +123,6 @@ public class NewProjectMappingWizardProjectPage extends WizardPage {
 			}			
 		});
 		
-		Group tfGroup = new Group(outerContainer, SWT.NULL);
-		GridLayout tfLayout = new GridLayout();
-		tfLayout.numColumns = 3;
-		tfGroup.setLayout(tfLayout);
-		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
-		tfGroup.setLayoutData(gd);	
-		tfGroup.setText("TeamForge:");
-		
-		teamForgeLabel = new Label(tfGroup, SWT.NONE);
-		if (planningFoldersSelected) {
-			teamForgeLabel.setText("Project ID: ");
-		} else {
-			teamForgeLabel.setText("Tracker ID:");
-		}	
-		teamForgeText = new Text(tfGroup, SWT.BORDER);
-		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
-		teamForgeText.setLayoutData(gd);
-		teamForgeBrowseButton = new Button(tfGroup, SWT.PUSH);
-		teamForgeBrowseButton.setText("Browse...");
-		teamForgeBrowseButton.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent se) {
-				int type;
-				if (planningFoldersSelected) type = TeamForgeSelectionDialog.BROWSER_TYPE_PROJECT;
-				else type = TeamForgeSelectionDialog.BROWSER_TYPE_TRACKER;
-				TeamForgeSelectionDialog dialog = new TeamForgeSelectionDialog(getShell(), projectMappings.getLandscape(), type);
-				if (dialog.open() == TeamForgeSelectionDialog.OK) {
-					teamForgeText.setText(dialog.getSelectedId());
-				}
-			}			
-		});
-		
 		ModifyListener modifyListener = new ModifyListener() {
 			public void modifyText(ModifyEvent me) {
 				setPageComplete(canFinish());
@@ -162,8 +139,71 @@ public class NewProjectMappingWizardProjectPage extends WizardPage {
 			}			
 		});
 		
-		teamForgeText.addModifyListener(modifyListener);
-				
+		if (wizard.getType() == NewProjectMappingWizard.TYPE_TF) {
+			Group tfGroup = new Group(outerContainer, SWT.NULL);
+			GridLayout tfLayout = new GridLayout();
+			tfLayout.numColumns = 3;
+			tfGroup.setLayout(tfLayout);
+			gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
+			tfGroup.setLayoutData(gd);	
+			tfGroup.setText("TeamForge:");
+			
+			teamForgeLabel = new Label(tfGroup, SWT.NONE);
+			if (planningFoldersSelected) {
+				teamForgeLabel.setText("Project ID: ");
+			} else {
+				teamForgeLabel.setText("Tracker ID:");
+			}	
+			teamForgeText = new Text(tfGroup, SWT.BORDER);
+			gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
+			teamForgeText.setLayoutData(gd);
+			teamForgeBrowseButton = new Button(tfGroup, SWT.PUSH);
+			teamForgeBrowseButton.setText("Browse...");
+			teamForgeBrowseButton.addSelectionListener(new SelectionAdapter() {
+				public void widgetSelected(SelectionEvent se) {
+					int type;
+					if (planningFoldersSelected) type = TeamForgeSelectionDialog.BROWSER_TYPE_PROJECT;
+					else type = TeamForgeSelectionDialog.BROWSER_TYPE_TRACKER;
+					TeamForgeSelectionDialog dialog = new TeamForgeSelectionDialog(getShell(), projectMappings.getLandscape(), type);
+					if (dialog.open() == TeamForgeSelectionDialog.OK) {
+						teamForgeText.setText(dialog.getSelectedId());
+					}
+				}			
+			});
+			teamForgeText.addModifyListener(modifyListener);
+		} else {
+			Group ptGroup = new Group(outerContainer, SWT.NULL);
+			GridLayout ptLayout = new GridLayout();
+			ptLayout.numColumns = 3;
+			ptGroup.setLayout(ptLayout);
+			gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
+			ptGroup.setLayoutData(gd);	
+			ptGroup.setText("Project Tracker:");			
+			
+			Label ptProjectLabel = new Label(ptGroup, SWT.NONE);
+			ptProjectLabel.setText("Project:");			
+			ptProjectText = new Text(ptGroup, SWT.BORDER);
+			gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
+			ptProjectText.setLayoutData(gd);
+			
+			ptProjectBrowseButton = new Button(ptGroup, SWT.PUSH);
+			ptProjectBrowseButton.setText("Browse...");
+			ptProjectBrowseButton.setVisible(false);
+			
+			Label ptIssueTypeLabel = new Label(ptGroup, SWT.NONE);
+			ptIssueTypeLabel.setText("Artifact type:");			
+			ptIssueTypeText = new Text(ptGroup, SWT.BORDER);
+			gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
+			ptIssueTypeText.setLayoutData(gd);
+			
+			ptArtifactTypeBrowseButton = new Button(ptGroup, SWT.PUSH);
+			ptArtifactTypeBrowseButton.setText("Browse...");
+			ptArtifactTypeBrowseButton.setVisible(false);
+			
+			ptProjectText.addModifyListener(modifyListener);
+			ptIssueTypeText.addModifyListener(modifyListener);
+		}
+					
 		setMessage("Enter project mapping details");
 
 		setControl(outerContainer);
@@ -194,18 +234,22 @@ public class NewProjectMappingWizardProjectPage extends WizardPage {
 		requirementTypeBrowseButton.setEnabled(qcDomainCombo.getText().trim().length() > 0 && qcProjectText.getText().trim().length() > 0 && requirementTypeBrowseButton.isVisible());
 		if (qcDomainCombo.getText().trim().length() == 0 ||
 			qcProjectText.getText().trim().length() == 0 ||
-			teamForgeText.getText().trim().length() == 0) {
+			(wizard.getType() == NewProjectMappingWizard.TYPE_PT && ptProjectText.getText().trim().length() == 0) ||
+			(wizard.getType() == NewProjectMappingWizard.TYPE_PT && ptIssueTypeText.getText().trim().length() == 0) ||
+			(wizard.getType() == NewProjectMappingWizard.TYPE_TF && teamForgeText.getText().trim().length() == 0)) {
 			return false;
 		}
 		if (qcRequirementTypeText.isVisible() && qcRequirementTypeText.getText().trim().length() == 0) {
 			return false;
 		}
-		if (planningFoldersSelected) {
-			if (!teamForgeText.getText().trim().startsWith("proj")) return false;
-			if (teamForgeText.getText().trim().length() < 5) return false;
-		} else {
-			if (!teamForgeText.getText().trim().startsWith("tracker")) return false;
-			if (teamForgeText.getText().trim().length() < 8) return false;
+		if (wizard.getType() == NewProjectMappingWizard.TYPE_TF) {
+			if (planningFoldersSelected) {
+				if (!teamForgeText.getText().trim().startsWith("proj")) return false;
+				if (teamForgeText.getText().trim().length() < 5) return false;
+			} else {
+				if (!teamForgeText.getText().trim().startsWith("tracker")) return false;
+				if (teamForgeText.getText().trim().length() < 8) return false;
+			}
 		}
 		return true;
 	}

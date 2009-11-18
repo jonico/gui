@@ -21,6 +21,7 @@ import com.collabnet.ccf.schemageneration.QCLayoutExtractor;
 
 public class NewProjectMappingWizard extends Wizard {
 	private ProjectMappings projectMappings;
+	private int type = TYPE_TF;
 	private int direction = -1;
 	
 	private NewProjectMappingWizardMainPage mainPage;
@@ -29,16 +30,24 @@ public class NewProjectMappingWizard extends Wizard {
 	private boolean addError;
 	
 	private IDialogSettings settings = Activator.getDefault().getDialogSettings();
+	
+	public static final int TYPE_TF = 0;
+	public static final int TYPE_PT = 1;
 
-	public NewProjectMappingWizard(ProjectMappings projectMappings) {
+	public NewProjectMappingWizard(ProjectMappings projectMappings, int type) {
 		super();
 		this.projectMappings = projectMappings;
+		this.type = type;
 	}
 	
 	public void setDirection(int direction) {
 		this.direction = direction;
 	}
-	
+
+	public int getType() {
+		return type;
+	}
+
 	@Override
 	public void addPages() {
 		super.addPages();
@@ -60,6 +69,14 @@ public class NewProjectMappingWizard extends Wizard {
 		addError = false;
 		final SynchronizationStatus status = new SynchronizationStatus();
 		
+		createProjectMapping(status);
+		
+		if (addError) return false;
+		saveDomainSelection();		
+		return true;
+	}
+
+	private void createProjectMapping(final SynchronizationStatus status) {
 		if (mainPage.system1ToSystem2Button.getSelection() || mainPage.bothButton.getSelection()) {
 			status.setConflictResolutionPriority(SynchronizationStatus.CONFLICT_RESOLUTIONS[mainPage.system1ToSystem2ConflictResolutionCombo.getSelectionIndex()]);
 			StringBuffer sourceRepositoryId = new StringBuffer(projectPage.qcDomainCombo.getText().trim() + "-" + projectPage.qcProjectText.getText().trim());
@@ -67,10 +84,14 @@ public class NewProjectMappingWizard extends Wizard {
 				sourceRepositoryId.append("-" + projectPage.qcRequirementTypeText.getText().trim());
 			}
 			status.setSourceRepositoryId(sourceRepositoryId.toString());
-			if (mainPage.planningFoldersButton.getSelection()) {
-				status.setTargetRepositoryId(projectPage.teamForgeText.getText().trim() + "-" + ProjectMappings.MAPPING_TYPE_PLANNING_FOLDERS);
+			if (projectPage.teamForgeText == null) {
+				status.setTargetRepositoryId(projectPage.ptProjectText.getText().trim() + ":" + projectPage.ptIssueTypeText.getText().trim());				
 			} else {
-				status.setTargetRepositoryId(projectPage.teamForgeText.getText().trim());
+				if (mainPage.planningFoldersButton.getSelection()) {
+					status.setTargetRepositoryId(projectPage.teamForgeText.getText().trim() + "-" + ProjectMappings.MAPPING_TYPE_PLANNING_FOLDERS);
+				} else {
+					status.setTargetRepositoryId(projectPage.teamForgeText.getText().trim());
+				}
 			}
 			status.setSourceSystemId(projectMappings.getLandscape().getId1());			
 			status.setTargetSystemId(projectMappings.getLandscape().getId2());			
@@ -88,7 +109,7 @@ public class NewProjectMappingWizard extends Wizard {
 			}
 			createMapping(status);
 			createFieldMappingFile(status);
-			if (addError) return false;
+			if (addError) return;
 		}
 		if (mainPage.system2ToSystem1Button.getSelection() || mainPage.bothButton.getSelection()) {
 			status.setConflictResolutionPriority(SynchronizationStatus.CONFLICT_RESOLUTIONS[mainPage.system2ToSystem1ConflictResolutionCombo.getSelectionIndex()]);
@@ -97,10 +118,14 @@ public class NewProjectMappingWizard extends Wizard {
 				targetRepositoryId.append("-" + projectPage.qcRequirementTypeText.getText().trim());
 			}
 			status.setTargetRepositoryId(targetRepositoryId.toString());
-			if (mainPage.planningFoldersButton.getSelection()) {
-				status.setSourceRepositoryId(projectPage.teamForgeText.getText().trim() + "-" + ProjectMappings.MAPPING_TYPE_PLANNING_FOLDERS);
+			if (projectPage.teamForgeText == null) {
+				status.setSourceRepositoryId(projectPage.ptProjectText.getText().trim() + ":" + projectPage.ptIssueTypeText.getText().trim());
 			} else {
-				status.setSourceRepositoryId(projectPage.teamForgeText.getText().trim());
+				if (mainPage.planningFoldersButton.getSelection()) {
+					status.setSourceRepositoryId(projectPage.teamForgeText.getText().trim() + "-" + ProjectMappings.MAPPING_TYPE_PLANNING_FOLDERS);
+				} else {
+					status.setSourceRepositoryId(projectPage.teamForgeText.getText().trim());
+				}
 			}
 			status.setSourceSystemId(projectMappings.getLandscape().getId2());
 			status.setTargetSystemId(projectMappings.getLandscape().getId1());
@@ -119,9 +144,6 @@ public class NewProjectMappingWizard extends Wizard {
 			createMapping(status);
 			createFieldMappingFile(status);
 		}
-		if (addError) return false;
-		saveDomainSelection();		
-		return true;
 	}
 	
 	public ProjectMappings getProjectMappings() {
