@@ -75,7 +75,7 @@ import com.collabnet.ccf.model.SynchronizationStatus;
 import com.collabnet.ccf.views.ActiveViewSelectionDragAdapter;
 import com.collabnet.ccf.views.CcfExplorerView;
 import com.collabnet.ccf.wizards.CustomWizardDialog;
-import com.collabnet.ccf.wizards.NewTeamForgeProjectMappingWizard;
+import com.collabnet.ccf.wizards.NewProjectMappingWizard;
 
 public class CcfProjectMappingsEditorPage extends CcfEditorPage implements IProjectMappingsChangeListener {
 	private ScrolledForm form;
@@ -335,7 +335,7 @@ public class CcfProjectMappingsEditorPage extends CcfEditorPage implements IProj
 						projectMappings = new ProjectMappings(getLandscape());
 					}
 					if (projectMappings.getLandscape().getType1().equals(Landscape.TYPE_TF) || projectMappings.getLandscape().getType2().equals(Landscape.TYPE_TF)) {
-						NewTeamForgeProjectMappingWizard wizard = new NewTeamForgeProjectMappingWizard(projectMappings);
+						NewProjectMappingWizard wizard = new NewProjectMappingWizard(projectMappings);
 						if (tableViewer == tableViewer1) wizard.setDirection(0);
 						else wizard.setDirection(1);
 						WizardDialog dialog = new CustomWizardDialog(Display.getDefault().getActiveShell(), wizard);

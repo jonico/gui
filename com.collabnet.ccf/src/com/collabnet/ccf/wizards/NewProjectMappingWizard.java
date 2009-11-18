@@ -19,18 +19,18 @@ import com.collabnet.ccf.model.ProjectMappings;
 import com.collabnet.ccf.model.SynchronizationStatus;
 import com.collabnet.ccf.schemageneration.QCLayoutExtractor;
 
-public class NewTeamForgeProjectMappingWizard extends Wizard {
+public class NewProjectMappingWizard extends Wizard {
 	private ProjectMappings projectMappings;
 	private int direction = -1;
 	
-	private NewTeamForgeProjectMappingWizardMainPage mainPage;
-	private NewTeamForgeProjectMappingWizardProjectPage projectPage;
+	private NewProjectMappingWizardMainPage mainPage;
+	private NewProjectMappingWizardProjectPage projectPage;
 	
 	private boolean addError;
 	
 	private IDialogSettings settings = Activator.getDefault().getDialogSettings();
 
-	public NewTeamForgeProjectMappingWizard(ProjectMappings projectMappings) {
+	public NewProjectMappingWizard(ProjectMappings projectMappings) {
 		super();
 		this.projectMappings = projectMappings;
 	}
@@ -43,10 +43,10 @@ public class NewTeamForgeProjectMappingWizard extends Wizard {
 	public void addPages() {
 		super.addPages();
 		setWindowTitle("New Project Mapping");
-		mainPage = new NewTeamForgeProjectMappingWizardMainPage(projectMappings);
+		mainPage = new NewProjectMappingWizardMainPage(projectMappings);
 		mainPage.setDirection(direction);
 		addPage(mainPage);
-		projectPage = new NewTeamForgeProjectMappingWizardProjectPage(projectMappings);
+		projectPage = new NewProjectMappingWizardProjectPage(projectMappings);
 		addPage(projectPage);
 	}
 
@@ -148,10 +148,10 @@ public class NewTeamForgeProjectMappingWizard extends Wizard {
 				if (count == 9) break;
 			}
 		}
-		settings.put(NewTeamForgeProjectMappingWizardProjectPage.PREVIOUS_QC_DOMAIN_COUNT, domainList.size());
+		settings.put(NewProjectMappingWizardProjectPage.PREVIOUS_QC_DOMAIN_COUNT, domainList.size());
 		count = 0;
 		for (String domain : domainList) {
-			settings.put(NewTeamForgeProjectMappingWizardProjectPage.PREVIOUS_QC_DOMAIN + count++, domain);
+			settings.put(NewProjectMappingWizardProjectPage.PREVIOUS_QC_DOMAIN + count++, domain);
 		}
 	}
 	

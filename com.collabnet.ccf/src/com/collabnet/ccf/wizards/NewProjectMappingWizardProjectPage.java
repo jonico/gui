@@ -25,7 +25,7 @@ import com.collabnet.ccf.dialogs.RequirementTypeSelectionDialog;
 import com.collabnet.ccf.dialogs.TeamForgeSelectionDialog;
 import com.collabnet.ccf.model.ProjectMappings;
 
-public class NewTeamForgeProjectMappingWizardProjectPage extends WizardPage {
+public class NewProjectMappingWizardProjectPage extends WizardPage {
 	private ProjectMappings projectMappings;
 	
 	protected Combo qcDomainCombo;
@@ -45,7 +45,7 @@ public class NewTeamForgeProjectMappingWizardProjectPage extends WizardPage {
 	public static final String PREVIOUS_QC_DOMAIN = "NewProjectMappingDialog.previousDomain.";
 	public static final String PREVIOUS_QC_DOMAIN_COUNT = "NewProjectMappingDialog.previousDomainCount";
 	
-	public NewTeamForgeProjectMappingWizardProjectPage(ProjectMappings projectMappings) {
+	public NewProjectMappingWizardProjectPage(ProjectMappings projectMappings) {
 		super("projectPage", "Mapping Details", Activator.getDefault().getImageDescriptor(Activator.IMAGE_NEW_PROJECT_MAPPING_WIZBAN));
 		this.projectMappings = projectMappings;
 		setPageComplete(false);
@@ -102,7 +102,7 @@ public class NewTeamForgeProjectMappingWizardProjectPage extends WizardPage {
 		requirementTypeBrowseButton.setVisible("win32".equals(SWT.getPlatform()) && requirementsSelected);
 		requirementTypeBrowseButton.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent arg0) {
-				NewTeamForgeProjectMappingWizard wizard = (NewTeamForgeProjectMappingWizard)getWizard();
+				NewProjectMappingWizard wizard = (NewProjectMappingWizard)getWizard();
 				if (!wizard.validate()) {
 					MessageDialog.openError(getShell(), "Select Requirement Type", "Invalid Quality Center Domain/Project entered.");
 					return;

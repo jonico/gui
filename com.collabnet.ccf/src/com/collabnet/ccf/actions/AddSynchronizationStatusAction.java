@@ -15,7 +15,7 @@ import com.collabnet.ccf.model.Landscape;
 import com.collabnet.ccf.model.ProjectMappings;
 import com.collabnet.ccf.views.CcfExplorerView;
 import com.collabnet.ccf.wizards.CustomWizardDialog;
-import com.collabnet.ccf.wizards.NewTeamForgeProjectMappingWizard;
+import com.collabnet.ccf.wizards.NewProjectMappingWizard;
 
 public class AddSynchronizationStatusAction extends ActionDelegate {
 	private IStructuredSelection fSelection;
@@ -28,7 +28,7 @@ public class AddSynchronizationStatusAction extends ActionDelegate {
 			if (object instanceof ProjectMappings) {
 				ProjectMappings projectMappings = (ProjectMappings)object;				
 				if (projectMappings.getLandscape().getType1().equals(Landscape.TYPE_TF) || projectMappings.getLandscape().getType2().equals(Landscape.TYPE_TF)) {
-					NewTeamForgeProjectMappingWizard wizard = new NewTeamForgeProjectMappingWizard(projectMappings);
+					NewProjectMappingWizard wizard = new NewProjectMappingWizard(projectMappings);
 					WizardDialog dialog = new CustomWizardDialog(Display.getDefault().getActiveShell(), wizard);
 					if (dialog.open() == WizardDialog.OK && CcfExplorerView.getView() != null) {
 						Activator.notifyChanged(projectMappings);

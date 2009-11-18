@@ -19,7 +19,7 @@ import com.collabnet.ccf.model.Landscape;
 import com.collabnet.ccf.model.ProjectMappings;
 import com.collabnet.ccf.model.SynchronizationStatus;
 
-public class NewTeamForgeProjectMappingWizardMainPage extends WizardPage {
+public class NewProjectMappingWizardMainPage extends WizardPage {
 	private ProjectMappings projectMappings;
 	private int direction = -1;
 
@@ -48,7 +48,7 @@ public class NewTeamForgeProjectMappingWizardMainPage extends WizardPage {
 	private static final int TEAMFORGE_TYPE_TRACKER = 0;
 	private static final int TEAMFORGE_TYPE_PLANNING_FOLDERS = 1;
 	
-	public NewTeamForgeProjectMappingWizardMainPage(ProjectMappings projectMappings) {
+	public NewProjectMappingWizardMainPage(ProjectMappings projectMappings) {
 		super("mainPage", "Mapping Type", Activator.getDefault().getImageDescriptor(Activator.IMAGE_NEW_PROJECT_MAPPING_WIZBAN));
 		this.projectMappings = projectMappings;
 		setPageComplete(true);
@@ -59,7 +59,7 @@ public class NewTeamForgeProjectMappingWizardMainPage extends WizardPage {
 	}
 	
 	public void createControl(Composite parent) {
-		NewTeamForgeProjectMappingWizard wizard = (NewTeamForgeProjectMappingWizard)getWizard();
+		NewProjectMappingWizard wizard = (NewProjectMappingWizard)getWizard();
 		
 		Composite outerContainer = new Composite(parent,SWT.NONE);
 		outerContainer.setLayout(new GridLayout());
@@ -164,23 +164,36 @@ public class NewTeamForgeProjectMappingWizardMainPage extends WizardPage {
 		planningFoldersButton = new Button(tfGroup, SWT.RADIO);
 		planningFoldersButton.setText("Planning folders");
 		
-		int tfType;
-		try {
-			tfType = settings.getInt(PREVIOUS_TEAMFORGE_TYPE);
-		} catch (Exception e) { tfType = TEAMFORGE_TYPE_TRACKER; }
-		switch (tfType) {
-		case TEAMFORGE_TYPE_PLANNING_FOLDERS:
-			planningFoldersButton.setSelection(true);
-			break;
-		default:
+		if (defectsButton.getSelection()) {
 			trackerButton.setSelection(true);
-			break;
+		} else {
+			int tfType;
+			try {
+				tfType = settings.getInt(PREVIOUS_TEAMFORGE_TYPE);
+			} catch (Exception e) { tfType = TEAMFORGE_TYPE_TRACKER; }
+			switch (tfType) {
+			case TEAMFORGE_TYPE_PLANNING_FOLDERS:
+				planningFoldersButton.setSelection(true);
+				break;
+			default:
+				trackerButton.setSelection(true);
+				break;
+			}
 		}
 		
 		wizard.setPlanningFoldersSelected(planningFoldersButton.getSelection());
+		planningFoldersButton.setEnabled(requirementsButton.getSelection());
 		
 		SelectionListener typeListener = new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent se) {
+				if (defectsButton.getSelection()) {
+					trackerButton.setSelection(true);
+					planningFoldersButton.setSelection(false);
+				}
+				NewProjectMappingWizard wizard = (NewProjectMappingWizard)getWizard();
+				wizard.setRequirementsSelected(requirementsButton.getSelection());
+				wizard.setPlanningFoldersSelected(planningFoldersButton.getSelection());
+				planningFoldersButton.setEnabled(requirementsButton.getSelection());
 				if (requirementsButton.getSelection()) {
 					settings.put(PREVIOUS_QUALITY_CENTER_TYPE, QUALITY_CENTER_TYPE_REQUIREMENTS);
 				} else {
@@ -191,14 +204,6 @@ public class NewTeamForgeProjectMappingWizardMainPage extends WizardPage {
 				} else {
 					settings.put(PREVIOUS_TEAMFORGE_TYPE, TEAMFORGE_TYPE_TRACKER);
 				}	
-				if (se.getSource() == defectsButton || se.getSource() == requirementsButton) {
-					NewTeamForgeProjectMappingWizard wizard = (NewTeamForgeProjectMappingWizard)getWizard();
-					wizard.setRequirementsSelected(requirementsButton.getSelection());
-				}
-				if (se.getSource() == trackerButton || se.getSource() == planningFoldersButton) {
-					NewTeamForgeProjectMappingWizard wizard = (NewTeamForgeProjectMappingWizard)getWizard();
-					wizard.setPlanningFoldersSelected(planningFoldersButton.getSelection());
-				}				
 			}			
 		};
 		
