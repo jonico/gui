@@ -127,9 +127,6 @@ public class NewProjectMappingWizardProjectPage extends WizardPage {
 		ModifyListener modifyListener = new ModifyListener() {
 			public void modifyText(ModifyEvent me) {
 				setPageComplete(canFinish());
-				if (ptArtifactTypeBrowseButton != null) {
-					ptArtifactTypeBrowseButton.setEnabled(ptProjectText.getText().trim().length() > 0);
-				}
 			}			
 		};
 		
@@ -210,10 +207,14 @@ public class NewProjectMappingWizardProjectPage extends WizardPage {
 			
 			ptArtifactTypeBrowseButton = new Button(ptGroup, SWT.PUSH);
 			ptArtifactTypeBrowseButton.setText("Browse...");
-			ptArtifactTypeBrowseButton.setEnabled(false);
 			ptArtifactTypeBrowseButton.addSelectionListener(new SelectionAdapter() {
 				public void widgetSelected(SelectionEvent se) {
-					MessageDialog.openInformation(getShell(), "Select Artifact Type", "Not yet implemented.");
+					ProjectTrackerSelectionDialog dialog = new ProjectTrackerSelectionDialog(getShell(), projectMappings.getLandscape(), ProjectTrackerSelectionDialog.BROWSER_TYPE_ARTIFACT_TYPE);
+					if (dialog.open() == ProjectTrackerSelectionDialog.OK) {
+						ptProjectText.setText(dialog.getProjectName());
+						ptIssueTypeText.setText(dialog.getArtifactType());
+						setPageComplete(canFinish());
+					}
 				}			
 			});
 			

@@ -23,6 +23,9 @@ import com.collabnet.helm.ws.project.Project;
 import com.collabnet.helm.ws.project.ProjectServiceLocator;
 import com.collabnet.tracker.common.WebServiceClient;
 import com.collabnet.tracker.core.TrackerClientManager;
+import com.collabnet.tracker.ws.ArtifactType;
+import com.collabnet.tracker.ws.Metadata;
+import com.collabnet.tracker.ws.MetadataServiceLocator;
 
 public class PTClient {
 	private String serverUrl;
@@ -89,6 +92,16 @@ public class PTClient {
 		return projectNames;
 	}
 	
+	public List<String> getArtifactTypes(String projectUrl) throws MalformedURLException, ServiceException, WSException, RemoteException {
+		List<String> artifactTypeList = new ArrayList<String>();
+		Metadata metadata = getMetadataService(projectUrl);
+		ArtifactType[] artifactTypes = metadata.getArtifactTypes();
+		for (ArtifactType artifactType : artifactTypes) {
+			artifactTypeList.add(artifactType.getDisplayName());
+		}
+		return artifactTypeList;
+	}
+	
 	private String getProjectUrl(SimpleProjectType project) {
 		String baseurl = serverUrl;
 		int prefixIndex = baseurl.indexOf("//"); //$NON-NLS-1$
@@ -127,5 +140,21 @@ public class PTClient {
         }
         
         return service.getProject(portAddress);
+    }
+	
+	public Metadata getMetadataService(String projectUrl) throws ServiceException, MalformedURLException {
+		WebServiceClient wsClient = new WebServiceClient();
+		wsClient.init(userId, password, projectUrl);
+		EngineConfiguration config = wsClient.getEngineConfiguration();
+        MetadataServiceLocator service = new MetadataServiceLocator(config);
+        URL portAddress = wsClient.constructServiceURL("/tracker/Metadata"); //$NON-NLS-1$
+        
+        if (TrackerClientManager.getInstance().getClient(projectUrl) == null) {
+    		try {
+    			TrackerClientManager.getInstance().createClient(projectUrl, userId, password, null, null, null);
+    		} catch (MalformedURLException e) {}        	
+        }
+        
+        return service.getMetadataService(portAddress);
     }
 }

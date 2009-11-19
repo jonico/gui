@@ -36,7 +36,9 @@ public class ProjectTrackerSelectionDialog extends CcfDialog {
 	
 	private PTClient ptClient;
 	private Project[] projects;
+	private ArtifactType[] artifactTypes;
 	private String projectName;
+	private String artifactType;
 	
 	public static final int BROWSER_TYPE_PROJECT = 0;
 	public static final int BROWSER_TYPE_ARTIFACT_TYPE = 1;
@@ -101,11 +103,19 @@ public class ProjectTrackerSelectionDialog extends CcfDialog {
 		if (firstSelection instanceof Project) {
 			projectName = ((Project)firstSelection).getName();
 		}
+		if (firstSelection instanceof ArtifactType) {
+			projectName = ((ArtifactType)firstSelection).getProjectName();
+			artifactType = ((ArtifactType)firstSelection).getName();
+		}
 		super.okPressed();
 	}
 	
 	public String getProjectName() {
 		return projectName;
+	}
+
+	public String getArtifactType() {
+		return artifactType;
 	}
 
 	protected Button createButton(Composite parent, int id, String label, boolean defaultButton) {
@@ -134,7 +144,7 @@ public class ProjectTrackerSelectionDialog extends CcfDialog {
 					projects = new Project[projectList.size()];
 					int i = 0;
 					for (String projectName : projectList) {
-						projects[i++] = new Project(projectName);
+						projects[i++] = new Project(projectName, getProjectUrl(projectName));
 					}
 				} catch (Exception e) {
 					MessageDialog.openError(getShell(), title, e.getMessage());
@@ -143,6 +153,36 @@ public class ProjectTrackerSelectionDialog extends CcfDialog {
 		});
 		if (projects == null) return new Project[0];
 		else return projects;
+	}
+	
+	private ArtifactType[] getArtifactTypes(final Project project) {
+		BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
+			public void run() {
+				artifactTypes = null;
+				try {
+					List<String> artifactTypeList = getClient().getArtifactTypes(project.getUrl());
+					artifactTypes = new ArtifactType[artifactTypeList.size()];
+					int i = 0;
+					for (String artifactTypeName : artifactTypeList) {
+						artifactTypes[i++] = new ArtifactType(artifactTypeName, project.getName());
+					}
+				} catch (Exception e) {
+					MessageDialog.openError(getShell(), title, e.getMessage());
+				}
+			}
+		});
+		if (artifactTypes == null) return new ArtifactType[0];
+		else return artifactTypes;		
+	}
+	
+	private String getProjectUrl(String projectName) {
+		String baseurl = landscape.getCeeProperties().getProperty(Activator.PROPERTIES_CEE_URL);
+		int prefixIndex = baseurl.indexOf("//"); //$NON-NLS-1$
+		int postfixIndex = baseurl.indexOf("."); //$NON-NLS-1$
+		
+		return baseurl.substring(0, prefixIndex+2) 
+		 	+ projectName
+		 	+ baseurl.substring(postfixIndex);		
 	}
 	
 	private PTClient getClient() {
@@ -163,6 +203,9 @@ public class ProjectTrackerSelectionDialog extends CcfDialog {
 			if (element instanceof Project) {
 				return ((Project)element).getName();
 			}
+			if (element instanceof ArtifactType) {
+				return ((ArtifactType)element).getName();
+			}
 			return super.getText(element);
 		}
 	}
@@ -171,6 +214,9 @@ public class ProjectTrackerSelectionDialog extends CcfDialog {
 		public Object[] getChildren(Object element) {
 			if (element instanceof ProjectTrackerSelectionDialog) {
 				return getProjects();
+			}
+			if (element instanceof Project) {
+				return getArtifactTypes((Project)element);
 			}
 			return new Object[0];
 		}
@@ -187,14 +233,41 @@ public class ProjectTrackerSelectionDialog extends CcfDialog {
 	
 	class Project {
 		private String name;
+		private String url;
 		
-		public Project(String name) {
+		public Project(String name, String url) {
 			this.name = name;
+			this.url = url;
 		}
 		
 		public String getName() {
 			return name;
 		}
+
+		public String getUrl() {
+			return url;
+		}
+		
+	}
+	
+	class ArtifactType {
+		private String name;
+		private String projectName;
+		
+		public ArtifactType(String name, String projectName) {
+			super();
+			this.name = name;
+			this.projectName = projectName;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public String getProjectName() {
+			return projectName;
+		}
+		
 	}
 
 }
