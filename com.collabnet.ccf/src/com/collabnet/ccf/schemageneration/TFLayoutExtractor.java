@@ -217,7 +217,7 @@ public class TFLayoutExtractor implements RepositoryLayoutExtractor {
 		return repositoryId.startsWith("tracker");
 	}
 
-	public GenericArtifact getTrackerSchema(String trackerId) {
+	private GenericArtifact getTrackerSchema(String trackerId) {
 		GenericArtifact genericArtifact = null;
 		try {
 			fieldNameAmbiguityDissolver.resetFieldNameMapping();
