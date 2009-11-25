@@ -337,6 +337,10 @@ public class QCLayoutExtractor implements RepositoryLayoutExtractor {
 					fieldValueType = FieldValueTypeValue.STRING;
 					field.setFieldValueType(FieldValueTypeValue.STRING);
 				}
+				else if (columnName.equals("RQ_VC_CHECKOUT_TIME")) {
+					fieldValueType = FieldValueTypeValue.STRING;
+					field.setFieldValueType(FieldValueTypeValue.STRING);
+				}
 				if (columnName.equals("RQ_DEV_COMMENTS")) {
 					field
 						.setFieldAction(GenericArtifactField.FieldActionValue.APPEND);
