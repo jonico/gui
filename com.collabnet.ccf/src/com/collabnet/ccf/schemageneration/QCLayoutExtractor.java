@@ -523,6 +523,12 @@ public class QCLayoutExtractor implements RepositoryLayoutExtractor {
 						&& !(columnName.equals("BG_DEV_COMMENTS")))
 					field
 							.setFieldAction(GenericArtifactField.FieldActionValue.REPLACE);
+				
+				if (columnName.equals("BG_VC_CHECKOUT_TIME")) {
+					fieldValueType = FieldValueTypeValue.STRING;
+					field.setFieldValueType(FieldValueTypeValue.STRING);
+				}
+				
 				field.setFieldValue(generateFieldDocumentation(
 						fieldDisplayName, fieldValueType, fieldValueOptions));
 			}
