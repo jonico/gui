@@ -318,7 +318,7 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 	public void dispose() {
 		Activator.removeChangeListener(this);
 		view = null;
-		if (italicFont != null) italicFont.dispose();
+		if (italicFont != null && !italicFont.isDisposed()) italicFont.dispose();
 		super.dispose();
 	}
 	

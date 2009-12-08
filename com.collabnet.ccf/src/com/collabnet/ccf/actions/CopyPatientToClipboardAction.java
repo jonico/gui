@@ -28,7 +28,7 @@ public class CopyPatientToClipboardAction extends ActionDelegate {
 				clipboard.setContents(
 						new String[] { patient.toClipboard() }, 
 						new Transfer[]{plainTextTransfer});					
-				clipboard.dispose();
+				if (!clipboard.isDisposed()) clipboard.dispose();
 			}
 		}
 	}

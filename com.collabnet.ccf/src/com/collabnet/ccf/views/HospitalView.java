@@ -192,7 +192,9 @@ public class HospitalView extends ViewPart {
 		if (recreatingTable) {
 			Control[] controls = parentComposite.getChildren();
 			for (int i = 0; i < controls.length; i++) {
-				controls[i].dispose();
+				if (!controls[i].isDisposed()) {
+					controls[i].dispose();
+				}
 			}
 		}
 		

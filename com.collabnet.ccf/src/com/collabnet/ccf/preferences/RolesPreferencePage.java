@@ -526,7 +526,7 @@ public class RolesPreferencePage extends PreferencePage implements IWorkbenchPre
 	@Override
 	public void dispose() {
 		if (italicFont != null) {
-			italicFont.dispose();
+			if (!italicFont.isDisposed()) italicFont.dispose();
 			italicFont = null;
 		}
 		super.dispose();

@@ -224,7 +224,7 @@ public class Activator extends AbstractUIPlugin {
 		Iterator<Image> iter = landscapeContributorImages.iterator();
 		while(iter.hasNext()) {
 			Image image = (Image)iter.next();
-			image.dispose();
+			if (!image.isDisposed()) image.dispose();
 		}
 		super.stop(context);
 	}

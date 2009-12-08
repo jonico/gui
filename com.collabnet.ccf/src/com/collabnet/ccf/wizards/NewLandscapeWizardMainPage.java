@@ -147,8 +147,8 @@ public class NewLandscapeWizardMainPage extends WizardPage {
 			new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL | GridData.GRAB_VERTICAL | GridData.VERTICAL_ALIGN_FILL));			
 		}
 		descriptionGroup.setText(selectedLandscapeContributor.getName());
-		if (descriptionLabel != null) descriptionLabel.dispose();
-		if (descriptionImage != null) descriptionImage.dispose();
+		if (descriptionLabel != null && !descriptionLabel.isDisposed()) descriptionLabel.dispose();
+		if (descriptionImage != null && !descriptionImage.isDisposed()) descriptionImage.dispose();
 		if (selectedLandscapeContributor.getImage() != null) {
 			descriptionImage = new Label(descriptionGroup, SWT.NONE);
 			GridData data = new GridData(GridData.HORIZONTAL_ALIGN_CENTER);
