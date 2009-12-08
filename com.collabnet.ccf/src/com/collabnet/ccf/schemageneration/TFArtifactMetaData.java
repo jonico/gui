@@ -21,7 +21,7 @@ import java.util.HashMap;
 
 import com.collabnet.ccf.core.GenericArtifactField;
 import com.collabnet.ccf.core.GenericArtifactField.FieldValueTypeValue;
-import com.vasoftware.sf.soap44.webservices.sfmain.TrackerFieldSoapDO;
+import com.collabnet.teamforge.api.tracker.TrackerFieldDO;
 
 public class TFArtifactMetaData {
 
@@ -30,37 +30,40 @@ public class TFArtifactMetaData {
 	private static final HashMap<GenericArtifactField.FieldValueTypeValue, String>
 			fieldGAValueTypeFieldTypeMap = new HashMap<GenericArtifactField.FieldValueTypeValue, String>();
 	static {
-		fieldValueTypeGAFieldTypeMap.put(TrackerFieldSoapDO.FIELD_VALUE_TYPE_DATE,
+		fieldValueTypeGAFieldTypeMap.put(TrackerFieldDO.FIELD_VALUE_TYPE_DATE,
 				GenericArtifactField.FieldValueTypeValue.DATE);
-		fieldValueTypeGAFieldTypeMap.put(TrackerFieldSoapDO.FIELD_VALUE_TYPE_INTEGER,
+		fieldValueTypeGAFieldTypeMap.put(TrackerFieldDO.FIELD_VALUE_TYPE_INTEGER,
 				GenericArtifactField.FieldValueTypeValue.INTEGER);
-		fieldValueTypeGAFieldTypeMap.put(TrackerFieldSoapDO.FIELD_VALUE_TYPE_STRING,
+		fieldValueTypeGAFieldTypeMap.put(TrackerFieldDO.FIELD_VALUE_TYPE_STRING,
 				GenericArtifactField.FieldValueTypeValue.STRING);
-		fieldValueTypeGAFieldTypeMap.put(TrackerFieldSoapDO.FIELD_VALUE_TYPE_USER,
+		fieldValueTypeGAFieldTypeMap.put(TrackerFieldDO.FIELD_VALUE_TYPE_USER,
 				GenericArtifactField.FieldValueTypeValue.USER);
 		fieldValueTypeGAFieldTypeMap.put("SfUser",
 				GenericArtifactField.FieldValueTypeValue.USER);
-		
+		fieldValueTypeGAFieldTypeMap.put("Boolean",
+				GenericArtifactField.FieldValueTypeValue.BOOLEAN);
+		fieldValueTypeGAFieldTypeMap.put("FolderPath",
+				GenericArtifactField.FieldValueTypeValue.STRING);
 	}
 	static {
 		fieldGAValueTypeFieldTypeMap.put(GenericArtifactField.FieldValueTypeValue.DATE,
-				TrackerFieldSoapDO.FIELD_VALUE_TYPE_DATE);
+				TrackerFieldDO.FIELD_VALUE_TYPE_DATE);
 		fieldGAValueTypeFieldTypeMap.put(GenericArtifactField.FieldValueTypeValue.DATETIME,
-				TrackerFieldSoapDO.FIELD_VALUE_TYPE_DATE);
+				TrackerFieldDO.FIELD_VALUE_TYPE_DATE);
 		fieldGAValueTypeFieldTypeMap.put(GenericArtifactField.FieldValueTypeValue.INTEGER,
-				TrackerFieldSoapDO.FIELD_VALUE_TYPE_INTEGER);
+				TrackerFieldDO.FIELD_VALUE_TYPE_INTEGER);
 		fieldGAValueTypeFieldTypeMap.put(GenericArtifactField.FieldValueTypeValue.STRING,
-				TrackerFieldSoapDO.FIELD_VALUE_TYPE_STRING);
+				TrackerFieldDO.FIELD_VALUE_TYPE_STRING);
 		fieldGAValueTypeFieldTypeMap.put(GenericArtifactField.FieldValueTypeValue.DOUBLE,
-				TrackerFieldSoapDO.FIELD_VALUE_TYPE_STRING);
+				TrackerFieldDO.FIELD_VALUE_TYPE_STRING);
 		fieldGAValueTypeFieldTypeMap.put(GenericArtifactField.FieldValueTypeValue.USER,
-				TrackerFieldSoapDO.FIELD_VALUE_TYPE_USER);
+				TrackerFieldDO.FIELD_VALUE_TYPE_USER);
 		fieldGAValueTypeFieldTypeMap.put(GenericArtifactField.FieldValueTypeValue.HTMLSTRING,
-				TrackerFieldSoapDO.FIELD_VALUE_TYPE_STRING);
+				TrackerFieldDO.FIELD_VALUE_TYPE_STRING);
 		fieldGAValueTypeFieldTypeMap.put(GenericArtifactField.FieldValueTypeValue.BASE64STRING,
-				TrackerFieldSoapDO.FIELD_VALUE_TYPE_STRING);
+				TrackerFieldDO.FIELD_VALUE_TYPE_STRING);
 		fieldGAValueTypeFieldTypeMap.put(GenericArtifactField.FieldValueTypeValue.BOOLEAN,
-				TrackerFieldSoapDO.FIELD_VALUE_TYPE_STRING);
+				TrackerFieldDO.FIELD_VALUE_TYPE_STRING);
 	}
 
 	public enum FIELD_TYPE {
@@ -72,10 +75,17 @@ public class TFArtifactMetaData {
 	public enum SFEEFields {
 		id("id", "ID", FIELD_TYPE.SYSTEM_DEFINED, GenericArtifactField.FieldValueTypeValue.STRING, true,"",false),
 		actualHours("actualHours", "Actual hours", FIELD_TYPE.CONFIGURABLE,GenericArtifactField.FieldValueTypeValue.INTEGER, false,"",false),
+		actualEffort("actualEffort", "Actual Effort", FIELD_TYPE.CONFIGURABLE,GenericArtifactField.FieldValueTypeValue.INTEGER, false,"",false),
+		estimatedEffort("estimatedEffort", "Estimated Effort", FIELD_TYPE.CONFIGURABLE,GenericArtifactField.FieldValueTypeValue.INTEGER, false,"",false),
+		remainingEffort("remainingEffort", "Remaining Effort", FIELD_TYPE.CONFIGURABLE,GenericArtifactField.FieldValueTypeValue.INTEGER, false,"",false),
+		autosumming("autosumming", "Calculate Effort", FIELD_TYPE.CONFIGURABLE,GenericArtifactField.FieldValueTypeValue.BOOLEAN, false,"",false),
+		planningFolder("planningFolder", "Planning Folder", FIELD_TYPE.CONFIGURABLE,GenericArtifactField.FieldValueTypeValue.STRING, false,"",true),
 		assignedTo("assignedTo", "Assigned to",FIELD_TYPE.SYSTEM_DEFINED, GenericArtifactField.FieldValueTypeValue.USER, false,"",true),
 		lastModifiedBy("lastModifiedBy", "Last modified by", FIELD_TYPE.SYSTEM_DEFINED, GenericArtifactField.FieldValueTypeValue.USER, false,"",false),
 		createdBy("createdBy", "Created by", FIELD_TYPE.SYSTEM_DEFINED, GenericArtifactField.FieldValueTypeValue.USER, false,"",false),
 		folderId("folderId", "Folder id",FIELD_TYPE.SYSTEM_DEFINED, GenericArtifactField.FieldValueTypeValue.STRING, false,"",false),
+		projectId("projectId", "Project id",FIELD_TYPE.SYSTEM_DEFINED, GenericArtifactField.FieldValueTypeValue.STRING, false,"",false),
+		parentFolderId("parentFolderId", "Parent folder id",FIELD_TYPE.SYSTEM_DEFINED, GenericArtifactField.FieldValueTypeValue.STRING, false,"",true),
 		version("version", "Version", FIELD_TYPE.SYSTEM_DEFINED, GenericArtifactField.FieldValueTypeValue.STRING, false,"",false),
 		title("title", "Title", FIELD_TYPE.SYSTEM_DEFINED, GenericArtifactField.FieldValueTypeValue.STRING, true,"",false),
 		path("path", "Path", FIELD_TYPE.SYSTEM_DEFINED, GenericArtifactField.FieldValueTypeValue.STRING, false,"",false),
@@ -85,6 +95,8 @@ public class TFArtifactMetaData {
 		 * */
 		closeDate("closeDate", "Close date", FIELD_TYPE.SYSTEM_DEFINED, GenericArtifactField.FieldValueTypeValue.DATETIME, false,"",true),
 		createdDate("createdDate", "Created date", FIELD_TYPE.SYSTEM_DEFINED, GenericArtifactField.FieldValueTypeValue.DATETIME, false,"",false),
+		startDate("startDate", "Start date", FIELD_TYPE.SYSTEM_DEFINED, GenericArtifactField.FieldValueTypeValue.DATE, false,"",true),
+		endDate("endDate", "End date", FIELD_TYPE.SYSTEM_DEFINED, GenericArtifactField.FieldValueTypeValue.DATE, false,"",true),
 		lastModifiedDate("lastModifiedDate", "Last modified date", FIELD_TYPE.SYSTEM_DEFINED, GenericArtifactField.FieldValueTypeValue.DATETIME, false,"",false),
 		customer("customer", "Customer", FIELD_TYPE.CONFIGURABLE, GenericArtifactField.FieldValueTypeValue.STRING, false,"", false),
 		description("description", "Description", FIELD_TYPE.SYSTEM_DEFINED, GenericArtifactField.FieldValueTypeValue.STRING, true,"",false),

@@ -8,6 +8,8 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.core.net.proxy.IProxyData;
+import org.eclipse.core.net.proxy.IProxyService;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -29,6 +31,7 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;
+import org.osgi.util.tracker.ServiceTracker;
 
 import com.collabnet.ccf.db.CcfDataProvider;
 import com.collabnet.ccf.model.AdministratorLandscape;
@@ -38,11 +41,13 @@ import com.collabnet.ccf.model.OperatorLandscape;
 import com.collabnet.ccf.model.Patient;
 import com.collabnet.ccf.model.ProjectMappings;
 import com.collabnet.ccf.model.Role;
+import com.collabnet.ccf.schemageneration.Proxy;
 
 /**
  * The activator class controls the plug-in life cycle
  */
 public class Activator extends AbstractUIPlugin {
+	private ServiceTracker proxyServiceTracker;
 	
 	private Hashtable<String, ImageDescriptor> imageDescriptors;
 
@@ -60,6 +65,7 @@ public class Activator extends AbstractUIPlugin {
 	public static final String IMAGE_ERROR = "error.gif"; //$NON-NLS-1$
 	public static final String IMAGE_NEW_LANDSCAPE = "new_landscape.gif"; //$NON-NLS-1$
 	public static final String IMAGE_NEW_LANDSCAPE_WIZBAN = "new_landscape_wizban.png"; //$NON-NLS-1$
+	public static final String IMAGE_NEW_PROJECT_MAPPING_WIZBAN = "new_project_mapping_wizban.png"; //$NON-NLS-1$
 	public static final String IMAGE_EDIT_FIELD_MAPPINGS_WIZBAN = "edit_field_mappings_wizban.png"; //$NON-NLS-1$
 	public static final String IMAGE_LANDSCAPE = "landscape.gif"; //$NON-NLS-1$
 	public static final String IMAGE_PROJECT_MAPPINGS = "project_mappings.gif"; //$NON-NLS-1$
@@ -74,6 +80,7 @@ public class Activator extends AbstractUIPlugin {
 	public static final String IMAGE_BACKWARD = "nav_backward.gif"; //$NON-NLS-1$
 	public static final String IMAGE_DATABASE_CONNECTION = "dbConnection.gif"; //$NON-NLS-1$
 	public static final String IMAGE_HOSPITAL_ENTRY = "hospitalEntry.gif"; //$NON-NLS-1$
+	public static final String IMAGE_HOSPITAL_ENTRY_OUTDATED = "hospitalEntryOutdated.gif"; //$NON-NLS-1$
 	public static final String IMAGE_HOSPITAL_ENTRY_FIXED = "hospitalEntryFixed.gif"; //$NON-NLS-1$
 	public static final String IMAGE_HOSPITAL_ENTRY_REPLAY = "hospitalEntryReplay.gif"; //$NON-NLS-1$
 	public static final String IMAGE_HOSPITAL_ENTRY_REPLAY_FAILED = "hospitalEntryReplayFailed.gif"; //$NON-NLS-1$
@@ -595,6 +602,7 @@ public class Activator extends AbstractUIPlugin {
 		createImageDescriptor(IMAGE_DATABASE_CONNECTION);
 		createImageDescriptor(IMAGE_HOSPITAL_ENTRY);
 		createImageDescriptor(IMAGE_HOSPITAL_ENTRY_FIXED);
+		createImageDescriptor(IMAGE_HOSPITAL_ENTRY_OUTDATED);
 		createImageDescriptor(IMAGE_HOSPITAL_ENTRY_REPLAY);
 		createImageDescriptor(IMAGE_HOSPITAL_ENTRY_REPLAY_FAILED);
 		createImageDescriptor(IMAGE_SYNC_STATUS_ENTRY);
@@ -602,6 +610,7 @@ public class Activator extends AbstractUIPlugin {
 		createImageDescriptor(IMAGE_SYNC_STATUS_ENTRY_WITH_HOSPITAL_ENTRIES);
 		createImageDescriptor(IMAGE_NEW_LANDSCAPE);
 		createImageDescriptor(IMAGE_NEW_LANDSCAPE_WIZBAN);
+		createImageDescriptor(IMAGE_NEW_PROJECT_MAPPING_WIZBAN);
 		createImageDescriptor(IMAGE_EDIT_FIELD_MAPPINGS_WIZBAN);
 		createImageDescriptor(IMAGE_LANDSCAPE);
 		createImageDescriptor(IMAGE_LANDSCAPE_QC_PT);
@@ -630,11 +639,13 @@ public class Activator extends AbstractUIPlugin {
 		reg.put(IMAGE_HOSPITAL_ENTRY_FIXED, getImageDescriptor(IMAGE_HOSPITAL_ENTRY_FIXED));
 		reg.put(IMAGE_HOSPITAL_ENTRY_REPLAY, getImageDescriptor(IMAGE_HOSPITAL_ENTRY_REPLAY));
 		reg.put(IMAGE_HOSPITAL_ENTRY_REPLAY_FAILED, getImageDescriptor(IMAGE_HOSPITAL_ENTRY_REPLAY_FAILED));
+		reg.put(IMAGE_HOSPITAL_ENTRY_OUTDATED, getImageDescriptor(IMAGE_HOSPITAL_ENTRY_OUTDATED));
 		reg.put(IMAGE_SYNC_STATUS_ENTRY, getImageDescriptor(IMAGE_SYNC_STATUS_ENTRY));
 		reg.put(IMAGE_SYNC_STATUS_ENTRY_PAUSED, getImageDescriptor(IMAGE_SYNC_STATUS_ENTRY_PAUSED));
 		reg.put(IMAGE_SYNC_STATUS_ENTRY_WITH_HOSPITAL_ENTRIES, getImageDescriptor(IMAGE_SYNC_STATUS_ENTRY_WITH_HOSPITAL_ENTRIES));
 		reg.put(IMAGE_NEW_LANDSCAPE, getImageDescriptor(IMAGE_NEW_LANDSCAPE));
 		reg.put(IMAGE_NEW_LANDSCAPE_WIZBAN, getImageDescriptor(IMAGE_NEW_LANDSCAPE_WIZBAN));
+		reg.put(IMAGE_NEW_PROJECT_MAPPING_WIZBAN, getImageDescriptor(IMAGE_NEW_PROJECT_MAPPING_WIZBAN));
 		reg.put(IMAGE_EDIT_FIELD_MAPPINGS_WIZBAN, getImageDescriptor(IMAGE_EDIT_FIELD_MAPPINGS_WIZBAN));
 		reg.put(IMAGE_LANDSCAPE, getImageDescriptor(IMAGE_LANDSCAPE));
 		reg.put(IMAGE_LANDSCAPE_QC_PT, getImageDescriptor(IMAGE_LANDSCAPE_QC_PT));
@@ -695,4 +706,25 @@ public class Activator extends AbstractUIPlugin {
 	private static String decode(String string) {
 		return Obfuscator.deObfuscateString(string);
 	}
+	
+	public IProxyService getProxyService() {
+		return (IProxyService) proxyServiceTracker.getService();
+	}    
+	
+	public static Proxy getPlatformProxy(String url) {
+		IProxyService service = getDefault().getProxyService();
+		if (service != null && service.isProxiesEnabled()) {
+			String host = Proxy.getDomain(url);
+			IProxyData data = null;
+			if (url.toLowerCase().startsWith("https://")) //$NON-NLS-1$
+				data = service.getProxyDataForHost(host, IProxyData.HTTPS_PROXY_TYPE);
+			else
+				data = service.getProxyDataForHost(host, IProxyData.HTTP_PROXY_TYPE);
+			if (data != null && data.getHost() != null) {
+				return new Proxy(data.getHost(), data.getPort(), data.isRequiresAuthentication(),
+						data.getUserId(), data.getPassword());
+			}
+		}
+		return null;
+	}	
 }

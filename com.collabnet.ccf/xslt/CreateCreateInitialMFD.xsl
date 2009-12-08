@@ -12,8 +12,9 @@
 	-->
 <xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:xslo="alias" xmlns="">
 	<xsl:namespace-alias stylesheet-prefix="xslo" result-prefix="xsl"/>
-	<xsl:variable name="sourceSchema" select='/mapping/component/structure/children/component[@name="document"][2]/data/document'/>
-	<xsl:variable name="targetSchema" select='/mapping/component/structure/children/component[@name="document"][1]/data/document'/>
+	<xsl:param name="sourceSchema" />
+	<xsl:param name="targetSchema" />
+	
 	<xsl:template match="/mapping" priority="2">
 		<xslo:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:fn="http://www.w3.org/2005/xpath-functions" xmlns="" exclude-result-prefixes="xsl xs fn">
 			<xslo:template match="node()">
@@ -29,7 +30,7 @@
 	</xsl:template>
 	<xsl:template match="document" priority="3" mode="processDocument">
 		<xsl:choose>
-			<xsl:when test="@schema = $sourceSchema/@schema">
+			<xsl:when test="@schema = $sourceSchema">
 				<xsl:copy>
 					<xsl:copy-of select="@*[not(name() = 'instanceroot')]"/>
 					<xsl:attribute name="schema">{@sourceSchemaName}</xsl:attribute>
@@ -39,7 +40,7 @@
 					<xsl:apply-templates mode="processDocument"/>
 				</xsl:copy>
 			</xsl:when>
-			<xsl:when test="@schema = $targetSchema/@schema">
+			<xsl:when test="@schema = $targetSchema">
 				<xsl:copy>
 					<xsl:copy-of select="@*[not(name() = 'instanceroot')]"/>
 					<xsl:attribute name="schema">{@targetSchemaName}</xsl:attribute>

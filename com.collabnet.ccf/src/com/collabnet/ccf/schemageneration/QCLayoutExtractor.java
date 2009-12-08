@@ -18,14 +18,16 @@ package com.collabnet.ccf.schemageneration;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
-
 import com.collabnet.ccf.pi.qc.v90.api.ICommand;
 import com.collabnet.ccf.pi.qc.v90.api.IConnection;
 import com.collabnet.ccf.pi.qc.v90.api.IRecordSet;
 import com.collabnet.ccf.pi.qc.v90.api.dcom.Connection;
+import com.collabnet.ccf.core.CCFRuntimeException;
 import com.collabnet.ccf.core.GenericArtifact;
 import com.collabnet.ccf.core.GenericArtifactField;
 import com.collabnet.ccf.core.GenericArtifact.ArtifactActionValue;
@@ -75,6 +77,11 @@ public class QCLayoutExtractor implements RepositoryLayoutExtractor {
 	private String userName;
 	private String password;
 	private boolean comInitialized = false;
+	
+	/**
+	 * This data structure maps the repository id to the corresponding requirements type's technical id
+	 */
+	static Map <String, String> repositoryIdToTechnicalRequirementsTypeIdMap = new HashMap<String, String>();
 
 	private void closeConnection(IConnection connection) {
 		try {
@@ -110,7 +117,7 @@ public class QCLayoutExtractor implements RepositoryLayoutExtractor {
 		if (repositoryId != null) {
 			String[] splitRepoId = repositoryId.split(PARAM_DELIMITER);
 			if (splitRepoId != null) {
-				if (splitRepoId.length == 2) {
+				if (splitRepoId.length == 2 || splitRepoId.length == 3) {
 					domain = splitRepoId[0];
 					project = splitRepoId[1];
 				} else {
@@ -178,7 +185,12 @@ public class QCLayoutExtractor implements RepositoryLayoutExtractor {
 			initCOM();
 			qcConnection = createConnection(serverUrl, repositoryId, userName,
 					password);
-			return getSchemaFields(qcConnection);
+			if (isDefectRepository(repositoryId)) {
+				return getSchemaFieldsForDefect(qcConnection);
+			} else {
+				String technicalReleaseId = extractTechnicalRequirementsType(repositoryId, qcConnection);
+				return getSchemaFieldsForRequirement(qcConnection, technicalReleaseId);
+			}
 		} finally {
 			if (qcConnection != null) {
 				closeConnection(qcConnection);
@@ -186,149 +198,236 @@ public class QCLayoutExtractor implements RepositoryLayoutExtractor {
 			tearDownCOM();
 		}
 	}
+	
+	/**
+	 * Validates, whether given QC domain and project (will throw an exception otherwise) 
+	 * @param domain
+	 * @param project
+	 */
+	public void validateQCDomainAndProject(String domain, String project) {
+		IConnection qcConnection = null;
+		try {
+			initCOM();
+			qcConnection = createConnection(serverUrl, domain + PARAM_DELIMITER + project, userName,
+					password);
+		} finally {
+			if (qcConnection != null) {
+				closeConnection(qcConnection);
+			}
+			tearDownCOM();
+		}
+	}
+	
+	/**
+	 * Get the available requirement types
+	 * @param domain
+	 * @param project
+	 * @return list of available requirement types
+	 */
+	public List<String> getRequirementTypes(String domain, String project) {
+		List<String> requirementTypes = new ArrayList<String>();
+		IConnection qcConnection = null;
+		try {
+			initCOM();
+			qcConnection = createConnection(serverUrl, domain + PARAM_DELIMITER + project, userName,
+					password);
+			String sql = "SELECT TPR_NAME FROM REQ_TYPE";
+			IRecordSet rs = null;
+			try {
+				rs = executeSQL(qcConnection, sql);
+				int rc = rs.getRecordCount();
+				for (int cnt = 0; cnt < rc; cnt++, rs.next()) {
+					String reqType = rs.getFieldValueAsString("TPR_NAME");
+					requirementTypes.add(reqType);
+				}
+			} finally {
+				if (rs != null) {
+					rs.safeRelease();
+					rs = null;
+				}
+			}
+		} finally {
+			if (qcConnection != null) {
+				closeConnection(qcConnection);
+			}
+			tearDownCOM();
+		}
+		return requirementTypes;
+	}
+	
+	public static GenericArtifact getSchemaFieldsForRequirement(IConnection qcc,
+			String technicalReleaseTypeId) {
 
-	private static GenericArtifactField.FieldValueTypeValue convertQCDataTypeToGADatatype(
-			String dataType, String editStyle, String columnName) {
+		// Get all the fields in the project represented
+		// by qcc
+		String sql = "SELECT * FROM REQ_TYPE_FIELD rf, system_field sf where rf.rtf_type_id = '"
+				+ technicalReleaseTypeId
+				+ "' and rf.rtf_sf_column_name = sf.sf_column_name";
+		GenericArtifact genericArtifact = null;
+		IRecordSet rs = null;
+		try {
+			rs = executeSQL(qcc, sql);
+			int rc = rs.getRecordCount();
+			genericArtifact = new GenericArtifact();
+			genericArtifact.setArtifactAction(ArtifactActionValue.CREATE);
+			genericArtifact.setArtifactMode(ArtifactModeValue.COMPLETE);
+			genericArtifact.setArtifactType(ArtifactTypeValue.PLAINARTIFACT);
+			genericArtifact
+					.setIncludesFieldMetaData(IncludesFieldMetaDataValue.TRUE);
+			
+			for (int cnt = 0; cnt < rc; cnt++, rs.next()) {
+				String columnName = rs.getFieldValueAsString(sfColumnName);
+				
+				String columnType = rs.getFieldValueAsString(sfColumnType);
+
+				String fieldDisplayName = rs.getFieldValueAsString(sfUserLabel);
+				if (fieldDisplayName == null) {
+					continue;
+				}
+
+				List<String> fieldValueOptions = new ArrayList<String>();
+				
+				String editStyle = rs.getFieldValueAsString(sfEditStyle);
+				// String isMultiValue =
+				// rs.getFieldValueAsString(sfIsMultiValue);
+				GenericArtifactField field;
+
+				// obtain the GenericArtifactField datatype from the columnType
+				// and editStyle
+				GenericArtifactField.FieldValueTypeValue fieldValueType = convertQCDataTypeToGADatatype(
+						columnType, editStyle, columnName);
+
+				boolean isMultiSelectField = false;
+				if (fieldValueType
+						.equals(GenericArtifactField.FieldValueTypeValue.STRING)) {
+					String isMultiValue = rs
+							.getFieldValueAsString(sfIsMultiValue);
+					
+					String rootId = rs.getFieldValueAsString(sfRootId);
+					addFieldOptionValue(qcc, rootId, fieldValueOptions);
+
+					if (columnType.equals("char") && editStyle != null
+							&& isMultiValue != null
+							&& !StringUtils.isEmpty(isMultiValue)
+							&& isMultiValue.equals("Y")) {
+						if (editStyle.equals("ListCombo")
+								|| editStyle.equals("TreeCombo")
+								|| editStyle.equals("ReqTreeCombo")) {
+							isMultiSelectField = true;
+						}
+					}
+				}
+
+				field = genericArtifact.addNewField(columnName,
+						GenericArtifactField.VALUE_FIELD_TYPE_FLEX_FIELD);
+				field.setFieldValueType(fieldValueType);
+				field
+						.setMaxOccursValue(isMultiSelectField ? GenericArtifactField.UNBOUNDED
+								: "1");
+				field.setMinOccurs(0);
+				field.setNullValueSupported("true");
+				field.setAlternativeFieldName(columnName);
+				
+				// special treatment for some fields (have to find out whether this is only due to the agile accelarator)
+				if (columnName.equals("RQ_TYPE_ID")) {
+					fieldValueType = FieldValueTypeValue.STRING;
+					field.setFieldValueType(FieldValueTypeValue.STRING);
+				}
+				else if (columnName.equals("RQ_REQ_TIME")) {
+					fieldValueType = FieldValueTypeValue.STRING;
+					field.setFieldValueType(FieldValueTypeValue.STRING);
+				}
+				else if (columnName.equals("RQ_VC_CHECKOUT_TIME")) {
+					fieldValueType = FieldValueTypeValue.STRING;
+					field.setFieldValueType(FieldValueTypeValue.STRING);
+				}
+				if (columnName.equals("RQ_DEV_COMMENTS")) {
+					field
+						.setFieldAction(GenericArtifactField.FieldActionValue.APPEND);
+				}
+				else {
+					field
+						.setFieldAction(GenericArtifactField.FieldActionValue.REPLACE);
+				}
+				field.setFieldValue(generateFieldDocumentation(
+						fieldDisplayName, fieldValueType, fieldValueOptions));
+			}
+		} finally {
+			if (rs != null) {
+				rs.safeRelease();
+				rs = null;
+			}
+		}
+
+		return genericArtifact;
+	}
+	
+	/**
+	 * Returns whether this repository id belongs to a defect repository
+	 * If not, it belongs to a requirements type
+	 * @param repositoryId repositoryId
+	 * @return true if repository id belongs to a defect repository
+	 */
+	public static boolean isDefectRepository(String repositoryId) {
+		String[] splitRepoId = repositoryId.split(PARAM_DELIMITER);
+		if(splitRepoId != null){
+			// we now also accept a double hyphen to synchronize requirement types as well
+			if(splitRepoId.length == 2){
+				return true;
+			}
+			else if (splitRepoId.length == 3) {
+				return false;
+			}
+			else {
+				throw new IllegalArgumentException("Repository Id "+repositoryId+" is invalid.");
+			}
+		}
+		throw new IllegalArgumentException("Repository Id "+repositoryId+" is invalid.");
+	}
+
+	private static GenericArtifactField.FieldValueTypeValue convertQCDataTypeToGADatatype(String dataType, String editStyle, String columnName) {
 
 		// TODO: Convert the datatype, editStyle pair to a valid GA type
-		if (dataType.equals("char")
-				&& (editStyle == null || (editStyle != null && editStyle
-						.equals(""))))
+		if(dataType.equals("char") && (editStyle==null || ( editStyle!=null && editStyle.equals(""))) )
 			return GenericArtifactField.FieldValueTypeValue.STRING;
-		if (dataType.equals("char")
-				&& (editStyle != null && editStyle.equals("UserCombo")))
+		if(dataType.equals("char") && ( editStyle!=null && editStyle.equals("UserCombo")) )
 			return GenericArtifactField.FieldValueTypeValue.USER;
-		if (dataType.equals("char")
-				&& (editStyle != null && editStyle.equals("DateCombo")))
+		if(dataType.equals("char") && ( editStyle!=null && editStyle.equals("DateCombo")) )
 			return GenericArtifactField.FieldValueTypeValue.DATE;
-		if (dataType.equals("char")
-				&& (editStyle != null && editStyle.equals("ListCombo"))) {
-			// if(isMultiValue.equals("N"))
-			return GenericArtifactField.FieldValueTypeValue.STRING;
-			// if(isMultiValue.equals("Y")) // MULTI_SELECT_LIST
-			// return GenericArtifactField.FieldValueTypeValue.STRING;
+		if(dataType.equals("char") && ( editStyle!=null && editStyle.equals("ListCombo")) ) {
+			//if(isMultiValue.equals("N"))
+				return GenericArtifactField.FieldValueTypeValue.STRING;
+			//if(isMultiValue.equals("Y")) // MULTI_SELECT_LIST
+			//	return GenericArtifactField.FieldValueTypeValue.STRING;
 		}
-		if (dataType.equals("memo"))
+		if(dataType.equals("memo"))
 			return GenericArtifactField.FieldValueTypeValue.HTMLSTRING;
-		if (dataType.equals("char")
-				&& (editStyle != null && editStyle.equals("TreeCombo"))) {
-			// if(isMultiValue.equals("N"))
-			return GenericArtifactField.FieldValueTypeValue.STRING;
-			// if(isMultiValue.equals("Y")) // MULTI_SELECT_LIST
-			// return GenericArtifactField.FieldValueTypeValue.STRING;
+		if(dataType.equals("char") && ( editStyle!=null && editStyle.equals("TreeCombo")) ) {
+			//if(isMultiValue.equals("N"))
+				return GenericArtifactField.FieldValueTypeValue.STRING;
+			//if(isMultiValue.equals("Y")) // MULTI_SELECT_LIST
+			//	return GenericArtifactField.FieldValueTypeValue.STRING;
+		}
+		if(dataType.equals("char") && ( editStyle!=null && editStyle.equals("ReqTreeCombo")) ) {
+			//if(isMultiValue.equals("N"))
+				return GenericArtifactField.FieldValueTypeValue.STRING;
+			//if(isMultiValue.equals("Y")) // MULTI_SELECT_LIST
+			//	return GenericArtifactField.FieldValueTypeValue.STRING;
 		}
 
-		if (dataType.equals("number"))
+		if(dataType.equals("number"))
 			return GenericArtifactField.FieldValueTypeValue.INTEGER;
-		if (dataType.equals("DATE")
-				&& (editStyle != null && editStyle.equals("DateCombo")))
+		if(dataType.equals("DATE") && (editStyle!=null && editStyle.equals("DateCombo")) )
 			return GenericArtifactField.FieldValueTypeValue.DATE;
+		if(dataType.equals("DATE") && editStyle==null)
+			return GenericArtifactField.FieldValueTypeValue.DATE;
+		if(dataType.equals("time"))
+			return GenericArtifactField.FieldValueTypeValue.DATETIME;
 
-		// log.debug("Unknown QC data type "+dataType +
-		// " of field "+columnName+" defaulting to STRING");
 		return GenericArtifactField.FieldValueTypeValue.STRING;
 	}
 
-	// public static GenericArtifact getSchemaFieldsAndValues(IConnection qcc) {
-	//
-	// // Get all the fields in the project represented
-	// // by qcc
-	// String sql = "SELECT * FROM SYSTEM_FIELD WHERE SF_TABLE_NAME='BUG'";
-	//
-	// IRecordSet rs = null;
-	// GenericArtifact genericArtifact = null;
-	// try {
-	// rs = QCDefectHandler.executeSQL(qcc, sql);
-	// int rc = rs.getRecordCount();
-	// genericArtifact = new GenericArtifact();
-	// for(int cnt = 0 ; cnt < rc ; cnt++, rs.next())
-	// {
-	// String columnName = rs.getFieldValue(sfColumnName);
-	// String columnType = rs.getFieldValue(sfColumnType);
-	// //String fieldDisplayName = rs.getFieldValue(sfUserLabel);
-	// String editStyle = rs.getFieldValue(sfEditStyle);
-	// String isMultiValue = rs.getFieldValue(sfIsMultiValue);
-	// GenericArtifactField field;
-	//
-	// // obtain the GenericArtifactField datatype from the columnType and
-	// editStyle
-	// GenericArtifactField.FieldValueTypeValue fieldValueTypeValue =
-	// convertQCDataTypeToGADatatype(columnType, editStyle, isMultiValue);
-	// field = genericArtifact.addNewField(columnName, columnType);
-	// field.setFieldValueType(fieldValueTypeValue);
-	//
-	// // Only for the Comments field, the action value of the
-	// GenericArtifactField is set to APPEND. Later, this feature can be
-	// upgraded.
-	// if(columnName!=null && columnName.equals("BG_DEV_COMMENTS"))
-	// field.setFieldAction(GenericArtifactField.FieldActionValue.APPEND);
-	// if(columnName!=null && !(columnName.equals("BG_DEV_COMMENTS")) )
-	// field.setFieldAction(GenericArtifactField.FieldActionValue.REPLACE);
-	//
-	// // Obtain the value to set in the field
-	// if (editStyle == sfListComboValue ) {
-	// // Get the list values
-	// String rootId = rs.getFieldValue(sfRootId);
-	//
-	// // Obtain the list values
-	// String subSql = "SELECT * FROM ALL_LISTS WHERE AL_RATHER_ID = " + rootId;
-	// IRecordSet subRs = null;
-	// try {
-	// subRs = QCDefectHandler.executeSQL(qcc, subSql);
-	// int rsRc = subRs.getRecordCount();
-	//
-	// if ( rsRc > 0 ) {
-	// List<String> values = new ArrayList<String>();
-	// for (int rsCnt = 0 ; rsCnt < rsRc ; subRs.next()) {
-	// String listValue = subRs.getFieldValue(alDescription);
-	// values.add(listValue);
-	// }
-	// field.setFieldValue(values);
-	// }
-	// }
-	// finally {
-	// if(subRs != null){
-	// subRs.safeRelease();
-	// subRs = null;
-	// }
-	// }
-	// }
-	// else if (editStyle == sfUserComboValue ) {
-	// // get the user values
-	// String subSql = "SELECT * FROM USERS";
-	// IRecordSet subRs = null;
-	// try {
-	// subRs = QCDefectHandler.executeSQL(qcc, subSql);
-	// int rsRc = subRs.getRecordCount();
-	//
-	// if ( rsRc > 0 ) {
-	// List<String> values = new ArrayList<String>();
-	// for (int rsCnt = 0 ; rsCnt < rsRc ; subRs.next()) {
-	// String userValue = subRs.getFieldValue(usUsername);
-	// values.add(userValue);
-	// }
-	// field.setFieldValue(values);
-	// }
-	// }
-	// finally {
-	// if(subRs != null) {
-	// subRs.safeRelease();
-	// subRs = null;
-	// }
-	// }
-	// }
-	// }
-	// }
-	// finally {
-	// if(rs != null){
-	// rs.safeRelease();
-	// rs = null;
-	// }
-	// }
-	//
-	// return genericArtifact;
-	// }
-
+	
 	private static Object generateFieldDocumentation(String fieldDisplayName,
 			FieldValueTypeValue fieldValueType, List<String> fieldValues) {
 		StringBuffer documentation = new StringBuffer();
@@ -348,7 +447,7 @@ public class QCLayoutExtractor implements RepositoryLayoutExtractor {
 		return documentation.toString();
 	}
 
-	private static GenericArtifact getSchemaFields(IConnection qcc) {
+	private static GenericArtifact getSchemaFieldsForDefect(IConnection qcc) {
 
 		// Get all the fields in the project represented
 		// by qcc
@@ -424,6 +523,12 @@ public class QCLayoutExtractor implements RepositoryLayoutExtractor {
 						&& !(columnName.equals("BG_DEV_COMMENTS")))
 					field
 							.setFieldAction(GenericArtifactField.FieldActionValue.REPLACE);
+				
+				if (columnName.equals("BG_VC_CHECKOUT_TIME")) {
+					fieldValueType = FieldValueTypeValue.STRING;
+					field.setFieldValueType(FieldValueTypeValue.STRING);
+				}
+				
 				field.setFieldValue(generateFieldDocumentation(
 						fieldDisplayName, fieldValueType, fieldValueOptions));
 			}
@@ -470,66 +575,7 @@ public class QCLayoutExtractor implements RepositoryLayoutExtractor {
 		}
 
 	}
-
-	/*
-	 * public static GenericArtifact getSchemaAttachments(IConnection qcc,
-	 * GenericArtifact genericArtifact, String actionId, String entityId, String
-	 * attachmentName) {
-	 * 
-	 * GenericArtifactAttachment attachment; List<String> attachmentIdAndType =
-	 * QCDefectHandler.getFromTable(qcc, entityId, attachmentName);
-	 * if(attachmentIdAndType!=null) { String attachmentId =
-	 * attachmentIdAndType.get(0); // CR_REF_ID String attachmentContentType =
-	 * attachmentIdAndType.get(1); // CR_REF_TYPE String attachmentDescription =
-	 * attachmentIdAndType.get(2); // CR_DESCRIPTION
-	 * 
-	 * if(attachmentContentType.equals("File")) { attachment =
-	 * genericArtifact.addNewAttachment(attachmentName, attachmentId,
-	 * attachmentDescription);
-	 * attachment.setAttachmentContentType(GenericArtifactAttachment
-	 * .AttachmentContentTypeValue.DATA); } else { attachment =
-	 * genericArtifact.addNewAttachment(attachmentId, attachmentId,
-	 * attachmentDescription);
-	 * attachment.setAttachmentContentType(GenericArtifactAttachment
-	 * .AttachmentContentTypeValue.LINK); }
-	 * attachment.setAttachmentAction(GenericArtifactAttachment
-	 * .AttachmentActionValue.CREATE); }
-	 * 
-	 * return genericArtifact;
-	 * 
-	 * }
-	 * 
-	 * public static GenericArtifact getCompleteSchemaAttachments(IConnection
-	 * qcc, String actionId, String entityId, List<String> attachmentNames) {
-	 * 
-	 * GenericArtifact genericArtifact = new GenericArtifact();
-	 * if(attachmentNames!=null) { for(int cnt=0; cnt < attachmentNames.size();
-	 * cnt++) {
-	 * 
-	 * GenericArtifactAttachment attachment; List<String> attachmentIdAndType =
-	 * QCDefectHandler.getFromTable(qcc, entityId, attachmentNames.get(cnt));
-	 * if(attachmentIdAndType!=null) { String attachmentId =
-	 * attachmentIdAndType.get(0); // CR_REF_ID String attachmentContentType =
-	 * attachmentIdAndType.get(1); // CR_REF_TYPE String attachmentDescription =
-	 * attachmentIdAndType.get(2); // CR_DESCRIPTION
-	 * 
-	 * if(attachmentContentType.equals("File")) { attachment =
-	 * genericArtifact.addNewAttachment(attachmentNames.get(cnt), attachmentId,
-	 * attachmentDescription);
-	 * attachment.setAttachmentContentType(GenericArtifactAttachment
-	 * .AttachmentContentTypeValue.DATA); } else { attachment =
-	 * genericArtifact.addNewAttachment(attachmentId, attachmentId,
-	 * attachmentDescription);
-	 * attachment.setAttachmentContentType(GenericArtifactAttachment
-	 * .AttachmentContentTypeValue.LINK); }
-	 * attachment.setAttachmentAction(GenericArtifactAttachment
-	 * .AttachmentActionValue.CREATE); }
-	 * 
-	 * } } return genericArtifact;
-	 * 
-	 * }
-	 */
-
+	
 	public static IRecordSet executeSQL(IConnection qcc, String sql) {
 		ICommand command = null;
 		try {
@@ -544,6 +590,60 @@ public class QCLayoutExtractor implements RepositoryLayoutExtractor {
 
 	public GenericArtifact getRepositoryLayout(String repositoryId) {
 		return getProjectSchema(repositoryId);
+	}
+	
+	/**
+	 * Extracts the technical requirements type from the repository id (does a lookup and retrieve technical id for it)
+	 * @param repositoryId repository id
+	 * @param qcc HP QC connection
+	 * @return technical requirements type
+	 */
+	public static String extractTechnicalRequirementsType (String repositoryId, IConnection qcc) {
+		// first lookup the map
+		String requirementsType = repositoryIdToTechnicalRequirementsTypeIdMap.get(repositoryId);
+		if (requirementsType == null) {
+			// we have to extract the requirements type now
+			String[] splitRepoId = repositoryId.split(PARAM_DELIMITER);
+			if(splitRepoId != null){
+				// we now also accept a double hyphen to synchronize requirement types as well
+				if(splitRepoId.length == 3){
+					requirementsType = splitRepoId[2];
+					// now we have to retrieve the technical id for the requirements type
+					String technicalId = getRequirementTypeTechnicalId(qcc, requirementsType);
+					repositoryIdToTechnicalRequirementsTypeIdMap.put(repositoryId, technicalId);
+					return technicalId;
+				}
+				else {
+					throw new IllegalArgumentException("Repository Id "+repositoryId+" is invalid.");
+				}
+			} else {
+				throw new IllegalArgumentException("Repository Id "+repositoryId+" is invalid.");
+			}
+		} else {
+			return requirementsType;
+		}
+	}
+	
+	public static String getRequirementTypeTechnicalId(IConnection qcc,
+			String requirementTypeName) {
+		IRecordSet rs = null;
+		try {
+			rs = executeSQL(qcc,
+					"SELECT TPR_TYPE_ID FROM REQ_TYPE WHERE TPR_NAME = '"
+							+ requirementTypeName + "'");
+			if (rs.getRecordCount() != 1) {
+				throw new CCFRuntimeException(
+						"Could not retrieve technical id for requirements type "
+								+ requirementTypeName);
+			} else {
+				return rs.getFieldValueAsString("TPR_TYPE_ID");
+			}
+		} finally {
+			if (rs != null) {
+				rs.safeRelease();
+				rs = null;
+			}
+		}
 	}
 
 }

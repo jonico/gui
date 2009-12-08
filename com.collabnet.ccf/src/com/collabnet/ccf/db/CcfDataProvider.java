@@ -257,6 +257,24 @@ public class CcfDataProvider {
 	        	 Activator.handleError("Could not close Connection" ,e);
 	        }			
 		}
+		
+		if (patients != null) {
+			for (Patient patient : patients) {
+				IdentityMapping identityMapping = new IdentityMapping();
+				identityMapping.setSourceRepositoryId(patient.getSourceRepositoryId());
+				identityMapping.setTargetRepositoryId(patient.getTargetRepositoryId());
+				identityMapping.setSourceArtifactId(patient.getSourceArtifactId());
+				identityMapping.setArtifactType(patient.getArtifactType());
+				identityMapping.setLandscape(landscape);
+				identityMapping = getIdentityMapping(identityMapping);
+				if (identityMapping != null && identityMapping.getSourceArtifactVersion() != null) {
+					if (Integer.parseInt(patient.getSourceArtifactVersion()) < Integer.parseInt(identityMapping.getSourceArtifactVersion())) {
+						patient.setOutdated(true);
+					}
+				}
+			}
+		}
+		
 		return patients;
 	}
 	

@@ -25,10 +25,7 @@ public class TestSchemaAndXSLTFileGenerators {
 		ptLayoutExtractor.setPassword("<secret>");
 		ptLayoutExtractor.setServerUrl("http://open.collab.net");
 
-		TFLayoutExtractor tfLayoutExtractor = new TFLayoutExtractor();
-		tfLayoutExtractor.setUsername("CCFConnectorUser");
-		tfLayoutExtractor.setPassword("CCF11");
-		tfLayoutExtractor.setServerUrl("http://cu085.cubit.sp.collab.net");
+		TFLayoutExtractor tfLayoutExtractor = new TFLayoutExtractor("http://cu085.cubit.sp.collab.net", "CCFConnectorUser", "CCF11");
 
 		QCLayoutExtractor qcLayoutExtractor = new QCLayoutExtractor();
 		qcLayoutExtractor.setUserName("alex_qc");

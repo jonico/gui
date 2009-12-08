@@ -29,6 +29,7 @@ import org.eclipse.jface.viewers.TableLayout;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerSorter;
+import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.dnd.DND;
@@ -66,13 +67,14 @@ import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.IProjectMappingsChangeListener;
 import com.collabnet.ccf.actions.ChangeSynchronizationStatusAction;
 import com.collabnet.ccf.db.CcfDataProvider;
-import com.collabnet.ccf.dialogs.NewProjectMappingDialog;
 import com.collabnet.ccf.model.AdministratorProjectMappings;
 import com.collabnet.ccf.model.Landscape;
 import com.collabnet.ccf.model.ProjectMappings;
 import com.collabnet.ccf.model.SynchronizationStatus;
 import com.collabnet.ccf.views.ActiveViewSelectionDragAdapter;
 import com.collabnet.ccf.views.CcfExplorerView;
+import com.collabnet.ccf.wizards.CustomWizardDialog;
+import com.collabnet.ccf.wizards.NewProjectMappingWizard;
 
 public class CcfProjectMappingsEditorPage extends CcfEditorPage implements IProjectMappingsChangeListener {
 	private ScrolledForm form;
@@ -331,15 +333,22 @@ public class CcfProjectMappingsEditorPage extends CcfEditorPage implements IProj
 					} else {
 						projectMappings = new ProjectMappings(getLandscape());
 					}
-					NewProjectMappingDialog dialog = new NewProjectMappingDialog(Display.getDefault().getActiveShell(), projectMappings);
-					if (tableViewer == tableViewer1) dialog.setDirection(0);
-					else dialog.setDirection(1);
-					if (dialog.open() == NewProjectMappingDialog.OK) {
+					int type;
+					if (projectMappings.getLandscape().getType1().equals(Landscape.TYPE_TF) || projectMappings.getLandscape().getType2().equals(Landscape.TYPE_TF)) {
+						type = NewProjectMappingWizard.TYPE_TF;
+					} else {
+						type = NewProjectMappingWizard.TYPE_PT;
+					}
+					NewProjectMappingWizard wizard = new NewProjectMappingWizard(projectMappings, type);
+					if (tableViewer == tableViewer1) wizard.setDirection(0);
+					else wizard.setDirection(1);
+					WizardDialog dialog = new CustomWizardDialog(Display.getDefault().getActiveShell(), wizard);
+					if (dialog.open() == WizardDialog.OK) {
 						refresh();
 						if (CcfExplorerView.getView() != null) {
 							CcfExplorerView.getView().refresh(projectMappings);
 						}
-					}
+					}					
 				}
 			};
 			addProjectMappingAction.setEnabled(Activator.getDefault().getActiveRole().isAddProjectMapping());

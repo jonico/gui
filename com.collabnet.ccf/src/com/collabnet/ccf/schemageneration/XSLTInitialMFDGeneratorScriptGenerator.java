@@ -61,17 +61,20 @@ public class XSLTInitialMFDGeneratorScriptGenerator {
 	 * @param transformer
 	 * @param d
 	 *            the document to transform
+	 * @param targetSchemaName 
+	 * @param sourceSchemaName 
 	 * 
 	 * @return an array containing a single XML string representing the
 	 *         transformed document
 	 * @throws TransformerException
 	 *             thrown if an XSLT runtime error happens during transformation
 	 */
-	private static Document transform(Transformer transformer, Document d)
+	private static Document transform(Transformer transformer, Document d, String sourceSchemaName, String targetSchemaName)
 			throws TransformerException {
 		DocumentSource source = new DocumentSource(d);
 		DocumentResult result = new DocumentResult();
-		// TODO: Allow the user to specify stylesheet parameters?
+		transformer.setParameter("sourceSchema", sourceSchemaName);
+		transformer.setParameter("targetSchema", targetSchemaName);
 		transformer.transform(source, result);
 		return result.getDocument();
 	}
@@ -80,15 +83,17 @@ public class XSLTInitialMFDGeneratorScriptGenerator {
 	/**
 	 * Creates a new CreateInitialMFD.xsl file based on an already existing MFD file
 	 * @param mfdTemplateFile path to mfdFile
+	 * @param targetSchemaName 
+	 * @param sourceSchemaName 
 	 * @return XML document containing CreateInitialMFD XSLT script
 	 * @throws TransformerException
 	 * @throws IOException 
 	 * @throws DocumentException
 	 */
-	public Document generateCreateInitialMFDScript(String mfdTemplateFile)
+	public Document generateCreateInitialMFDScript(String mfdTemplateFile, String sourceSchemaName, String targetSchemaName)
 			throws TransformerException, DocumentException, IOException {
 		Document document = DocumentHelper.parseText(readFileAsString(mfdTemplateFile));
-		return transform(initialMFDFileTransformer, document);
+		return transform(initialMFDFileTransformer, document, sourceSchemaName, targetSchemaName);
 	}
 	
 	private static String readFileAsString(String filePath)

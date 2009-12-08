@@ -40,6 +40,7 @@ public class Patient implements IPropertySource {
 	private String artifactType;
 	private String genericArtifact;
 	private Landscape landscape;
+	private boolean outdated;
 	
 	public static String P_ID_ID = "id"; //$NON-NLS-1$
 	public static String P_ID = "ID";
@@ -325,6 +326,13 @@ public class Patient implements IPropertySource {
 		this.landscape = landscape;
 	}
 	
+	public boolean isOutdated() {
+		return outdated;
+	}
+	
+	public void setOutdated(boolean outdated) {
+		this.outdated = outdated;
+	}
 	public String toClipboard() {
 		StringBuffer clipboard = new StringBuffer();
 		// avoid NPE by adding at least one constant header

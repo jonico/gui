@@ -33,9 +33,13 @@ public class DefaultMappingAction extends ActionDelegate {
 			if (object instanceof SynchronizationStatus) {
 				SynchronizationStatus projectMapping = (SynchronizationStatus) object;
 				File modelFile = null;
+				String sourceSchemaName = null;
+				String targetSchemaName = null;
 				if (projectMapping.usesGraphicalMapping()) {
 					modelFile = projectMapping.getMappingFile(projectMapping
 							.getMFDFileName());
+					sourceSchemaName = projectMapping.getSourceRepositorySchemaFileName();
+					targetSchemaName = projectMapping.getTargetRepositorySchemaFileName();
 				} else {
 					modelFile = projectMapping.getXslFile();
 				}
@@ -63,7 +67,7 @@ public class DefaultMappingAction extends ActionDelegate {
 						XSLTInitialMFDGeneratorScriptGenerator generator = new XSLTInitialMFDGeneratorScriptGenerator();
 						Document mfdDocument = generator
 								.generateCreateInitialMFDScript(modelFile
-										.getAbsolutePath());
+										.getAbsolutePath(), sourceSchemaName, targetSchemaName);
 						File createInitialMFDFile = projectMapping
 								.getCreateInitialMFDFile();
 						writeFile(createInitialMFDFile, mfdDocument);
