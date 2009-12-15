@@ -344,7 +344,7 @@ public class CcfCcfEditorPage extends CcfEditorPage {
 	            }
 	        });
 	        
-	        templateText = toolkit.createText(templateSectionClient, getLandscape().getLogMessageTemplate1(), SWT.BORDER | SWT.MULTI);
+	        templateText = toolkit.createText(templateSectionClient, getLandscape().getLogMessageTemplate1(), SWT.BORDER | SWT.MULTI | SWT.WRAP);
 			gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
 			gd.heightHint = 175;
 			templateText.setLayoutData(gd);

@@ -68,14 +68,14 @@ public class HospitalExceptionEditorPage extends HospitalEditorPage {
         toolkit.createLabel(composite, "Error code:");
         String errorCode = getPatient().getErrorCode();
         if (errorCode == null) errorCode = "";
-        errorCodeText = toolkit.createText(composite, errorCode, SWT.BORDER | SWT.READ_ONLY | SWT.MULTI);
+        errorCodeText = toolkit.createText(composite, errorCode, SWT.BORDER | SWT.READ_ONLY | SWT.MULTI | SWT.WRAP);
         td = new TableWrapData(TableWrapData.FILL_GRAB);
         errorCodeText.setLayoutData(td);
 		
         toolkit.createLabel(composite, "Class:");
         String className = getPatient().getExceptionClassName();
         if (className == null) className = "";
-        classText = toolkit.createText(composite, className, SWT.BORDER | SWT.READ_ONLY | SWT.MULTI);
+        classText = toolkit.createText(composite, className, SWT.BORDER | SWT.READ_ONLY | SWT.MULTI | SWT.WRAP);
         td = new TableWrapData(TableWrapData.FILL_GRAB);
         classText.setLayoutData(td);
 		
@@ -84,7 +84,7 @@ public class HospitalExceptionEditorPage extends HospitalEditorPage {
         toolkit.createLabel(composite, "Cause class:");
         className = getPatient().getCauseExceptionClassName();
         if (className == null) className = "";
-        causeClassText = toolkit.createText(composite, className, SWT.BORDER | SWT.READ_ONLY | SWT.MULTI);
+        causeClassText = toolkit.createText(composite, className, SWT.BORDER | SWT.READ_ONLY | SWT.MULTI | SWT.WRAP);
         td = new TableWrapData(TableWrapData.FILL_GRAB);
         causeClassText.setLayoutData(td);
 		
@@ -133,7 +133,7 @@ public class HospitalExceptionEditorPage extends HospitalEditorPage {
         
         String message = getPatient().getExceptionMessage();
         if (message == null) message = "";
-        messageText = toolkit.createText(messageSectionClient, message, SWT.BORDER | SWT.MULTI | SWT.READ_ONLY);
+        messageText = toolkit.createText(messageSectionClient, message, SWT.BORDER | SWT.MULTI | SWT.WRAP | SWT.READ_ONLY);
         GridData gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
         gd.heightHint = 75;
         messageText.setLayoutData(gd);
@@ -162,7 +162,7 @@ public class HospitalExceptionEditorPage extends HospitalEditorPage {
         
         String message = getPatient().getCauseExceptionMessage();
         if (message == null) message = "";
-        causeMessageText = toolkit.createText(causeMessageSectionClient, message, SWT.BORDER | SWT.MULTI | SWT.READ_ONLY);
+        causeMessageText = toolkit.createText(causeMessageSectionClient, message, SWT.BORDER | SWT.MULTI | SWT.WRAP | SWT.READ_ONLY);
         GridData gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
         gd.heightHint = 75;
         causeMessageText.setLayoutData(gd);
@@ -189,7 +189,7 @@ public class HospitalExceptionEditorPage extends HospitalEditorPage {
             }
         });
         
-        toolkit.createText(stackTraceSectionClient, getPatient().getStackTrace(), SWT.BORDER | SWT.MULTI | SWT.READ_ONLY);
+        toolkit.createText(stackTraceSectionClient, getPatient().getStackTrace(), SWT.BORDER | SWT.MULTI | SWT.WRAP | SWT.READ_ONLY);
 	}	
 
 }
