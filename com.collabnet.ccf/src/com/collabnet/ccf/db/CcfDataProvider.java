@@ -268,8 +268,13 @@ public class CcfDataProvider {
 				identityMapping.setLandscape(landscape);
 				identityMapping = getIdentityMapping(identityMapping);
 				if (identityMapping != null && identityMapping.getSourceArtifactVersion() != null) {
-					if (Integer.parseInt(patient.getSourceArtifactVersion()) < Integer.parseInt(identityMapping.getSourceArtifactVersion())) {
-						patient.setOutdated(true);
+					try {
+						if (Long.parseLong(patient.getSourceArtifactVersion()) < Long.parseLong(identityMapping.getSourceArtifactVersion())) {
+							patient.setOutdated(true);
+						}
+					} catch (Exception e) {
+						// Log unexpected parse error, but don't let it crash app.
+						Activator.handleError(e);
 					}
 				}
 			}
