@@ -43,12 +43,10 @@ import com.collabnet.ccf.core.CCFRuntimeException;
  */
 public class XSLTInitialMFDGenerator {
 
-	public final static String INITIAL_MFD_XSLT_FILE = "CreateInitialMFD.xsl";
-
 	private Transformer initialMFDFileTransformer = null;
 
-	public XSLTInitialMFDGenerator(String xsltDirectory) {
-		initialMFDFileTransformer = loadXSLT(new File(xsltDirectory+"/"+INITIAL_MFD_XSLT_FILE));
+	public XSLTInitialMFDGenerator(File template) {
+		initialMFDFileTransformer = loadXSLT(template);
 	}
 
 	/**

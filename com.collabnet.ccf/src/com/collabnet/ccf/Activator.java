@@ -202,6 +202,16 @@ public class Activator extends AbstractUIPlugin {
 	
 	public static final String SAMPLE_XSL_FILE_NAME = "sample.xsl"; //$NON-NLS-1$
 	public static final String CREATE_INITIAL_MFD_FILE_NAME = "CreateInitialMFD.xsl"; //$NON-NLS-1$
+	public static final String CREATE_INITIAL_MFD_FILE_PREFIX = "CreateInitialMFD"; //$NON-NLS-1$
+	public static final String CREATE_INITIAL_MFD_FILE_SUFFIX = ".xsl"; //$NON-NLS-1$
+	public static final String CREATE_INITIAL_MFD_FILE_SEPARATOR = "-"; //$NON-NLS-1$
+	public static final String CREATE_INITIAL_MFD_FILE_PT_ISSUE = "PTIssue"; //$NON-NLS-1$
+	public static final String CREATE_INITIAL_MFD_FILE_TF_PF = "TFPlanningFolder"; //$NON-NLS-1$
+	public static final String CREATE_INITIAL_MFD_FILE_TF_TRACKER_ITEM = "TFTrackerItem"; //$NON-NLS-1$
+	public static final String CREATE_INITIAL_MFD_FILE_QC_DEFECT = "QCDefect"; //$NON-NLS-1$
+	public static final String CREATE_INITIAL_MFD_FILE_QC_REQUIREMENT = "QCRequirement"; //$NON-NLS-1$
+	public static final String CREATE_INITIAL_MFD_FILE_UNKNOWN_ENTITY = "Unknown"; //$NON-NLS-1$
+	
 	
 	/*
 	 * (non-Javadoc)

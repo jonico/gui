@@ -10,6 +10,8 @@ import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.properties.PropertyDescriptor;
 
 import com.collabnet.ccf.Activator;
+import com.collabnet.ccf.schemageneration.QCLayoutExtractor;
+import com.collabnet.ccf.schemageneration.TFLayoutExtractor;
 
 @SuppressWarnings("unchecked")
 public class SynchronizationStatus implements IPropertySource, Comparable {
@@ -388,8 +390,9 @@ public class SynchronizationStatus implements IPropertySource, Comparable {
 
 	public String getMFXslFilename() {
 		return ("MappingMapTo" + targetSystemId + "+" + targetRepositoryId
-				+ "+" + sourceSystemId + "+" + sourceRepositoryId)
-				.replaceAll(":", "-").replaceAll("[\\ +\\.]", "_")+".xslt";
+				+ "+" + sourceSystemId + "+" + sourceRepositoryId).replaceAll(
+				":", "-").replaceAll("[\\ +\\.]", "_")
+				+ ".xslt";
 	}
 
 	public File getSampleXslFile() {
@@ -404,15 +407,95 @@ public class SynchronizationStatus implements IPropertySource, Comparable {
 		return sampleXslFile;
 	}
 	
+	public File getFallbackCreateInitialMFDFile() {
+		File xsltFolder = getXSLTFolder();
+		if (xsltFolder != null) {
+			return new File(xsltFolder, Activator.CREATE_INITIAL_MFD_FILE_NAME);
+		} else {
+			return null;
+		}
+	}
+
 	public File getCreateInitialMFDFile() {
 		if (createInitialMFDFile == null) {
 			File xsltFolder = getXSLTFolder();
 			if (xsltFolder != null) {
+				String createInitialMFDFileName = Activator.CREATE_INITIAL_MFD_FILE_NAME;
+				if (getSourceSystemKind().startsWith(Landscape.TYPE_PT)) {
+					createInitialMFDFileName = Activator.CREATE_INITIAL_MFD_FILE_PREFIX
+							+ Activator.CREATE_INITIAL_MFD_FILE_SEPARATOR
+							+ Activator.CREATE_INITIAL_MFD_FILE_PT_ISSUE
+							+ Activator.CREATE_INITIAL_MFD_FILE_SEPARATOR;
+				} else if (getSourceSystemKind().startsWith(Landscape.TYPE_TF)) {
+					if (TFLayoutExtractor
+							.isTrackerRepository(getSourceRepositoryId())) {
+						createInitialMFDFileName = Activator.CREATE_INITIAL_MFD_FILE_PREFIX
+								+ Activator.CREATE_INITIAL_MFD_FILE_SEPARATOR
+								+ Activator.CREATE_INITIAL_MFD_FILE_TF_TRACKER_ITEM
+								+ Activator.CREATE_INITIAL_MFD_FILE_SEPARATOR;
+					} else {
+						createInitialMFDFileName = Activator.CREATE_INITIAL_MFD_FILE_PREFIX
+								+ Activator.CREATE_INITIAL_MFD_FILE_SEPARATOR
+								+ Activator.CREATE_INITIAL_MFD_FILE_TF_PF
+								+ Activator.CREATE_INITIAL_MFD_FILE_SEPARATOR;
+					}
+				} else if (getSourceSystemKind().startsWith(Landscape.TYPE_QC)) {
+					if (QCLayoutExtractor
+							.isDefectRepository(getSourceRepositoryId())) {
+						createInitialMFDFileName = Activator.CREATE_INITIAL_MFD_FILE_PREFIX
+								+ Activator.CREATE_INITIAL_MFD_FILE_SEPARATOR
+								+ Activator.CREATE_INITIAL_MFD_FILE_QC_DEFECT
+								+ Activator.CREATE_INITIAL_MFD_FILE_SEPARATOR;
+					} else {
+						createInitialMFDFileName = Activator.CREATE_INITIAL_MFD_FILE_PREFIX
+								+ Activator.CREATE_INITIAL_MFD_FILE_SEPARATOR
+								+ Activator.CREATE_INITIAL_MFD_FILE_QC_REQUIREMENT
+								+ Activator.CREATE_INITIAL_MFD_FILE_SEPARATOR;
+					}
+				} else {
+					createInitialMFDFileName = Activator.CREATE_INITIAL_MFD_FILE_PREFIX
+					+ Activator.CREATE_INITIAL_MFD_FILE_SEPARATOR
+					+ Activator.CREATE_INITIAL_MFD_FILE_UNKNOWN_ENTITY
+					+ Activator.CREATE_INITIAL_MFD_FILE_SEPARATOR;
+				}
+
+				// now care about target system
+				if (getTargetSystemKind().startsWith(Landscape.TYPE_PT)) {
+					createInitialMFDFileName = createInitialMFDFileName
+							+ Activator.CREATE_INITIAL_MFD_FILE_PT_ISSUE
+							+ Activator.CREATE_INITIAL_MFD_FILE_SUFFIX;
+				} else if (getTargetSystemKind().startsWith(Landscape.TYPE_TF)) {
+					if (TFLayoutExtractor
+							.isTrackerRepository(getTargetRepositoryId())) {
+						createInitialMFDFileName = createInitialMFDFileName
+								+ Activator.CREATE_INITIAL_MFD_FILE_TF_TRACKER_ITEM
+								+ Activator.CREATE_INITIAL_MFD_FILE_SUFFIX;
+					} else {
+						createInitialMFDFileName = createInitialMFDFileName
+								+ Activator.CREATE_INITIAL_MFD_FILE_TF_PF
+								+ Activator.CREATE_INITIAL_MFD_FILE_SUFFIX;
+					}
+				} else if (getTargetSystemKind().startsWith(Landscape.TYPE_QC)) {
+					if (QCLayoutExtractor
+							.isDefectRepository(getTargetRepositoryId())) {
+						createInitialMFDFileName = createInitialMFDFileName
+								+ Activator.CREATE_INITIAL_MFD_FILE_QC_DEFECT
+								+ Activator.CREATE_INITIAL_MFD_FILE_SUFFIX;
+					} else {
+						createInitialMFDFileName = createInitialMFDFileName
+								+ Activator.CREATE_INITIAL_MFD_FILE_QC_REQUIREMENT
+								+ Activator.CREATE_INITIAL_MFD_FILE_SUFFIX;
+					}
+				} else {
+					createInitialMFDFileName = createInitialMFDFileName
+					+ Activator.CREATE_INITIAL_MFD_FILE_UNKNOWN_ENTITY
+					+ Activator.CREATE_INITIAL_MFD_FILE_SUFFIX;
+				}
+
 				createInitialMFDFile = new File(xsltFolder,
-						Activator.CREATE_INITIAL_MFD_FILE_NAME);
+						createInitialMFDFileName);
 			}
 		}
-
 		return createInitialMFDFile;
 	}
 
@@ -425,72 +508,83 @@ public class SynchronizationStatus implements IPropertySource, Comparable {
 		}
 		return xslFile;
 	}
-	
+
 	public File getGraphicalXslFile() {
 		if (graphicalXslFile == null) {
 			File xsltFolder = getXSLTFolder();
 			if (xsltFolder != null) {
-				graphicalXslFile = new File(xsltFolder, getGraphicalXslFileName());
+				graphicalXslFile = new File(xsltFolder,
+						getGraphicalXslFileName());
 			}
 		}
 		return graphicalXslFile;
 	}
-	
+
 	public File getSourceRepositorySchemaFile() {
 		if (sourceRepositorySchemaFile == null) {
 			File xsltFolder = getXSLTFolder();
 			if (xsltFolder != null) {
-				sourceRepositorySchemaFile = new File(xsltFolder, getSourceRepositorySchemaFileName());
+				sourceRepositorySchemaFile = new File(xsltFolder,
+						getSourceRepositorySchemaFileName());
 			}
 		}
 		return sourceRepositorySchemaFile;
 	}
-	
+
 	public File getTargetRepositorySchemaFile() {
 		if (targetRepositorySchemaFile == null) {
 			File xsltFolder = getXSLTFolder();
 			if (xsltFolder != null) {
-				targetRepositorySchemaFile = new File(xsltFolder, getTargetRepositorySchemaFileName());
+				targetRepositorySchemaFile = new File(xsltFolder,
+						getTargetRepositorySchemaFileName());
 			}
 		}
 		return targetRepositorySchemaFile;
 	}
-	
+
 	public File getGenericArtifactToSourceRepositorySchemaFile() {
 		if (genericArtifactToSourceRepositorySchemaFile == null) {
 			File xsltFolder = getXSLTFolder();
 			if (xsltFolder != null) {
-				genericArtifactToSourceRepositorySchemaFile = new File(xsltFolder, getGenericArtifactToSourceRepositorySchemaFileName());
+				genericArtifactToSourceRepositorySchemaFile = new File(
+						xsltFolder,
+						getGenericArtifactToSourceRepositorySchemaFileName());
 			}
 		}
 		return genericArtifactToSourceRepositorySchemaFile;
 	}
-	
+
 	public File getGenericArtifactToTargetRepositorySchemaFile() {
 		if (genericArtifactToTargetRepositorySchemaFile == null) {
 			File xsltFolder = getXSLTFolder();
 			if (xsltFolder != null) {
-				genericArtifactToTargetRepositorySchemaFile = new File(xsltFolder, getGenericArtifactToTargetRepositorySchemaFileName());
+				genericArtifactToTargetRepositorySchemaFile = new File(
+						xsltFolder,
+						getGenericArtifactToTargetRepositorySchemaFileName());
 			}
 		}
 		return genericArtifactToTargetRepositorySchemaFile;
 	}
-	
+
 	public File getSourceRepositorySchemaToGenericArtifactFile() {
 		if (sourceRepositorySchemaToGenericArtifactFile == null) {
 			File xsltFolder = getXSLTFolder();
 			if (xsltFolder != null) {
-				sourceRepositorySchemaToGenericArtifactFile = new File(xsltFolder, getSourceRepositorySchemaToGenericArtifactFileName());
+				sourceRepositorySchemaToGenericArtifactFile = new File(
+						xsltFolder,
+						getSourceRepositorySchemaToGenericArtifactFileName());
 			}
 		}
 		return sourceRepositorySchemaToGenericArtifactFile;
 	}
-	
+
 	public File getTargetRepositorySchemaToGenericArtifactFile() {
 		if (targetRepositorySchemaToGenericArtifactFile == null) {
 			File xsltFolder = getXSLTFolder();
 			if (xsltFolder != null) {
-				targetRepositorySchemaToGenericArtifactFile = new File(xsltFolder, getTargetRepositorySchemaToGenericArtifactFileName());
+				targetRepositorySchemaToGenericArtifactFile = new File(
+						xsltFolder,
+						getTargetRepositorySchemaToGenericArtifactFileName());
 			}
 		}
 		return targetRepositorySchemaToGenericArtifactFile;

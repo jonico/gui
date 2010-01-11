@@ -161,9 +161,12 @@ public class EditFieldMappingsWizard extends Wizard {
 								.getMFDFileName());
 						if (mfdFile != null && !mfdFile.exists()) {
 							monitor.subTask("Generating MFD-File");
+							File createInitialMFDFile = projectMapping.getCreateInitialMFDFile();
+							if (!createInitialMFDFile.exists()) {
+								createInitialMFDFile = projectMapping.getFallbackCreateInitialMFDFile();
+							}
 							XSLTInitialMFDGenerator mfdFileGenerator = new XSLTInitialMFDGenerator(
-									projectMapping.getXSLTFolder()
-											.getAbsolutePath());
+									createInitialMFDFile);
 							Document mfdDocument = mfdFileGenerator
 									.generateInitialMFD(
 											projectMapping
