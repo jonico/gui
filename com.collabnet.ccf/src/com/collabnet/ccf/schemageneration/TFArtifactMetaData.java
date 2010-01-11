@@ -75,8 +75,6 @@ public class TFArtifactMetaData {
 	public enum SFEEFields {
 		id("id", "ID", FIELD_TYPE.SYSTEM_DEFINED, GenericArtifactField.FieldValueTypeValue.STRING, true,"",false),
 		actualHours("actualHours", "Actual hours", FIELD_TYPE.CONFIGURABLE,GenericArtifactField.FieldValueTypeValue.INTEGER, false,"",false),
-		actualEffort("actualEffort", "Actual Effort", FIELD_TYPE.CONFIGURABLE,GenericArtifactField.FieldValueTypeValue.INTEGER, false,"",false),
-		estimatedEffort("estimatedEffort", "Estimated Effort", FIELD_TYPE.CONFIGURABLE,GenericArtifactField.FieldValueTypeValue.INTEGER, false,"",false),
 		remainingEffort("remainingEffort", "Remaining Effort", FIELD_TYPE.CONFIGURABLE,GenericArtifactField.FieldValueTypeValue.INTEGER, false,"",false),
 		autosumming("autosumming", "Calculate Effort", FIELD_TYPE.CONFIGURABLE,GenericArtifactField.FieldValueTypeValue.BOOLEAN, false,"",false),
 		planningFolder("planningFolder", "Planning Folder", FIELD_TYPE.CONFIGURABLE,GenericArtifactField.FieldValueTypeValue.STRING, false,"",true),

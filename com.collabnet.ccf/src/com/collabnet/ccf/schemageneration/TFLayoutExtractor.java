@@ -234,10 +234,10 @@ public class TFLayoutExtractor implements RepositoryLayoutExtractor {
 			// write schema for system defined and configurable fields
 			if (soapClient.supports53()) {
 				createGenericArtifactField(
-						TFArtifactMetaData.SFEEFields.actualEffort,
+						TFArtifactMetaData.SFEEFields.actualHours,
 						genericArtifact, null);
 				createGenericArtifactField(
-						TFArtifactMetaData.SFEEFields.estimatedEffort,
+						TFArtifactMetaData.SFEEFields.estimatedHours,
 						genericArtifact, null);
 				createGenericArtifactField(
 						TFArtifactMetaData.SFEEFields.remainingEffort,
