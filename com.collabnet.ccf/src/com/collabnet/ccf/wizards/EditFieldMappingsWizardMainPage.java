@@ -48,6 +48,8 @@ public class EditFieldMappingsWizardMainPage extends WizardPage {
 	private Button copySampleButton;
 	private Button switchOnlyButton;
 	
+	private Button restoreDefaultMappingButton;
+	
 	private final static String MAP_FORCE_URL = "http://www.altova.com/products/mapforce/data_mapping.html";
 
 	public EditFieldMappingsWizardMainPage(String pageName, String title, ImageDescriptor titleImage) {
@@ -232,6 +234,21 @@ public class EditFieldMappingsWizardMainPage extends WizardPage {
 			editButton.setSelection(true);
 		}
 		
+		Composite restoreGroup = new Composite(outerContainer, SWT.NONE);
+		GridLayout restoreLayout = new GridLayout();
+		restoreLayout.numColumns = 1;
+		restoreGroup.setLayout(restoreLayout);
+		data = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
+		data.verticalIndent = 10;
+		data.horizontalIndent = 0;
+		restoreGroup.setLayoutData(data);
+		
+		restoreDefaultMappingButton = new Button(restoreGroup, SWT.CHECK);
+		data = new GridData();
+		data.horizontalIndent = 0;
+		restoreDefaultMappingButton.setLayoutData(data);
+		restoreDefaultMappingButton.setText("Restore default mapping");
+		
 		SelectionListener selectionListener = new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent se) {
 				setEnablement();
@@ -269,6 +286,9 @@ public class EditFieldMappingsWizardMainPage extends WizardPage {
 		if (switchToNonGraphicalButton != null) {
 			switchToNonGraphicalButton.setEnabled(editButton.getSelection());
 		}
+		if (restoreDefaultMappingButton != null) {
+			restoreDefaultMappingButton.setEnabled(mapForceEditButton.getSelection() || editButton.getSelection());
+		}
 	}		
 
 	public boolean isGenerate() {
@@ -293,6 +313,10 @@ public class EditFieldMappingsWizardMainPage extends WizardPage {
 	
 	public boolean isSwitchOnly() {
 		return switchOnlyButton.getSelection();
+	}
+	
+	public boolean isRestoreDefaultMapping() {
+		return restoreDefaultMappingButton != null && restoreDefaultMappingButton.getSelection();
 	}
 	
 	public String getMapForcePath() {

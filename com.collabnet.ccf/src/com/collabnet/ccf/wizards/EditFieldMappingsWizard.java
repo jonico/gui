@@ -112,6 +112,14 @@ public class EditFieldMappingsWizard extends Wizard {
 	}
 	
 	public boolean editWithMapForce() {
+		final File mfdFile = projectMapping.getMappingFile(projectMapping
+				.getMFDFileName());
+		if (mainPage.isRestoreDefaultMapping() && mfdFile.exists()) {
+			if (!confirmRestoreDefaultMapping()) {
+				return false;
+			}
+			mfdFile.delete();
+		}
 		canceled = false;
 		mapForceException = null;
 		final String mapForcePath = getMapForcePath();
@@ -130,7 +138,7 @@ public class EditFieldMappingsWizard extends Wizard {
 						return;
 					}
 				}
-				if (generate) {
+				if (generate || mainPage.isRestoreDefaultMapping()) {
 					monitor.beginTask("Generate Files", 7);
 					try {
 						CCFSchemaAndXSLTFileGenerator xmlFileGenerator = new CCFXSLTSchemaAndXSLTFileGenerator(
@@ -156,9 +164,6 @@ public class EditFieldMappingsWizard extends Wizard {
 							canceled = true;
 							return;
 						}
-
-						File mfdFile = projectMapping.getMappingFile(projectMapping
-								.getMFDFileName());
 						if (mfdFile != null && !mfdFile.exists()) {
 							monitor.subTask("Generating MFD-File");
 							File createInitialMFDFile = projectMapping.getCreateInitialMFDFile();
@@ -296,6 +301,12 @@ public class EditFieldMappingsWizard extends Wizard {
 			}
 		}
 		File xslFile = projectMapping.getXslFile();
+		if (mainPage != null && mainPage.isRestoreDefaultMapping() && xslFile.exists()) {
+			if (!confirmRestoreDefaultMapping()) {
+				return false;
+			}
+			xslFile.delete();
+		}
 		if (!xslFile.exists()) {
 			if (prompt && !MessageDialog.openQuestion(Display.getDefault().getActiveShell(), "Edit Field Mappings", "File " + xslFile.getName() + " does not exist.\n\nDo you wish to create it by copying sample.xsl?")) {
 				return false;
@@ -331,6 +342,10 @@ public class EditFieldMappingsWizard extends Wizard {
 			return false;
 		}
 		return true;
+	}
+
+	private boolean confirmRestoreDefaultMapping() {
+		return MessageDialog.openConfirm(Display.getDefault().getActiveShell(), "Edit Field Mappings", "WARNING:  Restoring default mapping will cause any previously-defined field mapping to be overlaid.\n\nAre you sure you wish to restore default mapping?");
 	}
 	
 	private void extractQC(SynchronizationStatus status,
