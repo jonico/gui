@@ -260,6 +260,7 @@ public class EditFieldMappingsWizardMainPage extends WizardPage {
 		generateButton.addSelectionListener(selectionListener);
 		editButton.addSelectionListener(selectionListener);
 		switchOnlyButton.addSelectionListener(selectionListener);
+		restoreDefaultMappingButton.addSelectionListener(selectionListener);
 		if (copySampleButton != null) copySampleButton.addSelectionListener(selectionListener);
 		if (switchToGraphicalButton != null) switchToGraphicalButton.addSelectionListener(selectionListener);
 		if (switchToNonGraphicalButton != null) switchToNonGraphicalButton.addSelectionListener(selectionListener);
@@ -273,7 +274,7 @@ public class EditFieldMappingsWizardMainPage extends WizardPage {
 	}
 	
 	private void setEnablement() {
-		generateButton.setEnabled(mapForceEditButton.getSelection() && graphicalXslFile.exists());
+		generateButton.setEnabled(mapForceEditButton.getSelection() && graphicalXslFile.exists() && (restoreDefaultMappingButton == null || !restoreDefaultMappingButton.getSelection()));
 		if (copySampleButton != null) {
 			copySampleButton.setEnabled(editButton.getSelection());
 		}
@@ -288,6 +289,9 @@ public class EditFieldMappingsWizardMainPage extends WizardPage {
 		}
 		if (restoreDefaultMappingButton != null) {
 			restoreDefaultMappingButton.setEnabled(mapForceEditButton.getSelection() || editButton.getSelection());
+			if (restoreDefaultMappingButton.getSelection() && mapForceEditButton.getSelection()) {
+				generateButton.setSelection(true);
+			}
 		}
 	}		
 
