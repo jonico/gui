@@ -114,7 +114,8 @@ public class EditFieldMappingsWizard extends Wizard {
 	public boolean editWithMapForce() {
 		final File mfdFile = projectMapping.getMappingFile(projectMapping
 				.getMFDFileName());
-		if (mainPage.isRestoreDefaultMapping() && mfdFile.exists()) {
+		final boolean restoreDefaultMapping = mainPage.isRestoreDefaultMapping();
+		if (restoreDefaultMapping && mfdFile.exists()) {
 			if (!confirmRestoreDefaultMapping()) {
 				return false;
 			}
@@ -138,7 +139,7 @@ public class EditFieldMappingsWizard extends Wizard {
 						return;
 					}
 				}
-				if (generate || mainPage.isRestoreDefaultMapping()) {
+				if (generate || restoreDefaultMapping) {
 					monitor.beginTask("Generate Files", 7);
 					try {
 						CCFSchemaAndXSLTFileGenerator xmlFileGenerator = new CCFXSLTSchemaAndXSLTFileGenerator(
