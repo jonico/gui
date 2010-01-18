@@ -2,8 +2,9 @@ package com.collabnet.ccf.dialogs;
 
 import java.util.Properties;
 
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.IDialogConstants;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.events.MouseAdapter;
@@ -116,7 +117,8 @@ public class RequirementTypeSelectionDialog extends CcfDialog {
 					qcLayoutExtractor.setPassword(password);
 					types = qcLayoutExtractor.getRequirementTypes(domain, project);
 				} catch (Exception e) {
-					MessageDialog.openError(getShell(), "Select Requirement Type", e.getMessage());
+					Activator.handleError(e);
+					ExceptionDetailsErrorDialog.openError(getShell(), "Select Requirement Type", e.getMessage(), new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getLocalizedMessage(), e));
 				}
 			}			
 		});

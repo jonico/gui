@@ -11,6 +11,8 @@ import java.util.Iterator;
 import org.dom4j.Document;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
@@ -19,6 +21,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.actions.ActionDelegate;
 
 import com.collabnet.ccf.Activator;
+import com.collabnet.ccf.dialogs.ExceptionDetailsErrorDialog;
 import com.collabnet.ccf.model.SynchronizationStatus;
 import com.collabnet.ccf.schemageneration.XSLTInitialMFDGeneratorScriptGenerator;
 
@@ -77,9 +80,7 @@ public class DefaultMappingAction extends ActionDelegate {
 					}
 				} catch (Exception e) {
 					Activator.handleError(e);
-					MessageDialog.openError(Display.getDefault()
-							.getActiveShell(), "Set Default Mapping Template",
-							e.getMessage());
+					ExceptionDetailsErrorDialog.openError(Display.getDefault().getActiveShell(), "Set Default Mapping Template", e.getMessage(), new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getLocalizedMessage(), e));
 				}
 			}
 		}

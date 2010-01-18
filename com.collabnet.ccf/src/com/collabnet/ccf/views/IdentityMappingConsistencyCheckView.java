@@ -106,6 +106,7 @@ public class IdentityMappingConsistencyCheckView extends ViewPart implements IPr
 						if (exception.getCause() != null && exception.getCause().getLocalizedMessage() != null) {
 							errorMessage.append("\n\nCause:\n\n" + exception.getCause().getLocalizedMessage());
 						}
+						Activator.handleError(exception);
 						MessageDialog.openError(Display.getCurrent().getActiveShell(), "Exception", errorMessage.toString());					
 					}
 					if (action != null) {

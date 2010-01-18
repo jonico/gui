@@ -3,8 +3,9 @@ package com.collabnet.ccf.editors;
 import java.sql.Timestamp;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.IDialogSettings;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
@@ -34,6 +35,7 @@ import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.db.CcfDataProvider;
 import com.collabnet.ccf.db.Filter;
 import com.collabnet.ccf.db.Update;
+import com.collabnet.ccf.dialogs.ExceptionDetailsErrorDialog;
 import com.collabnet.ccf.model.IdentityMapping;
 
 public class IdentityMappingEditorPage extends FormPage {
@@ -715,7 +717,7 @@ public class IdentityMappingEditorPage extends FormPage {
 				} catch (Exception e) {
 					saveError = true;
 					Activator.handleError(e);
-					MessageDialog.openError(Display.getDefault().getActiveShell(), "Save Identity Mapping", e.getMessage());
+					ExceptionDetailsErrorDialog.openError(Display.getDefault().getActiveShell(), "Save Identity Mapping", e.getMessage(), new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getLocalizedMessage(), e));
 				}
 			}			
 		});

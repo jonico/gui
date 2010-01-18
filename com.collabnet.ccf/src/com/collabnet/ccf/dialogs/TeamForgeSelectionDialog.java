@@ -2,8 +2,9 @@ package com.collabnet.ccf.dialogs;
 
 import java.rmi.RemoteException;
 
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.IDialogConstants;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -157,7 +158,8 @@ public class TeamForgeSelectionDialog extends CcfDialog {
 				try {
 					projects = getSoapClient().getAllProjects();
 				} catch (RemoteException e) {
-					MessageDialog.openError(getShell(), title, e.getMessage());
+					Activator.handleError(e);
+					ExceptionDetailsErrorDialog.openError(getShell(), title, e.getMessage(), new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getLocalizedMessage(), e));
 				}
 			}
 		});
@@ -172,7 +174,8 @@ public class TeamForgeSelectionDialog extends CcfDialog {
 				try {
 					trackers = getSoapClient().getAllTrackersOfProject(projectId);
 				} catch (RemoteException e) {
-					MessageDialog.openError(getShell(), title, e.getMessage());
+					Activator.handleError(e);
+					ExceptionDetailsErrorDialog.openError(getShell(), title, e.getMessage(), new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getLocalizedMessage(), e));
 				}
 			}
 		});

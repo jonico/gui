@@ -2,6 +2,8 @@ package com.collabnet.ccf.dialogs;
 
 import java.util.List;
 
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.DoubleClickEvent;
@@ -147,7 +149,8 @@ public class ProjectTrackerSelectionDialog extends CcfDialog {
 						projects[i++] = new Project(projectName, getProjectUrl(projectName));
 					}
 				} catch (Exception e) {
-					MessageDialog.openError(getShell(), title, e.getMessage());
+					Activator.handleError(e);
+					ExceptionDetailsErrorDialog.openError(getShell(), title, e.getMessage(), new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getLocalizedMessage(), e));
 				}
 			}
 		});

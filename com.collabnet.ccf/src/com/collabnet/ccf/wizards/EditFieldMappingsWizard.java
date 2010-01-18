@@ -14,7 +14,9 @@ import org.dom4j.Document;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.wizard.Wizard;
@@ -26,16 +28,17 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 
 import com.collabnet.ccf.Activator;
-import com.collabnet.ccf.db.CcfDataProvider;
-import com.collabnet.ccf.editors.ExternalFileEditorInput;
-import com.collabnet.ccf.model.Landscape;
-import com.collabnet.ccf.model.SynchronizationStatus;
 import com.collabnet.ccf.core.CCFRuntimeException;
-import com.collabnet.ccf.schemageneration.CCFSchemaAndXSLTFileGenerator;
-import com.collabnet.ccf.schemageneration.CCFXSLTSchemaAndXSLTFileGenerator;
 import com.collabnet.ccf.core.GenericArtifact;
 import com.collabnet.ccf.core.GenericArtifactHelper;
 import com.collabnet.ccf.core.GenericArtifactParsingException;
+import com.collabnet.ccf.db.CcfDataProvider;
+import com.collabnet.ccf.dialogs.ExceptionDetailsErrorDialog;
+import com.collabnet.ccf.editors.ExternalFileEditorInput;
+import com.collabnet.ccf.model.Landscape;
+import com.collabnet.ccf.model.SynchronizationStatus;
+import com.collabnet.ccf.schemageneration.CCFSchemaAndXSLTFileGenerator;
+import com.collabnet.ccf.schemageneration.CCFXSLTSchemaAndXSLTFileGenerator;
 import com.collabnet.ccf.schemageneration.PTLayoutExtractor;
 import com.collabnet.ccf.schemageneration.QCLayoutExtractor;
 import com.collabnet.ccf.schemageneration.RepositoryLayoutExtractor;
@@ -103,7 +106,7 @@ public class EditFieldMappingsWizard extends Wizard {
 		try {
 			dataProvider.setFieldMappingMode(projectMapping);
 		} catch (Exception e) {
-			MessageDialog.openError(getShell(), "Edit Field Mappings", e.getMessage());
+			ExceptionDetailsErrorDialog.openError(getShell(), "Edit Field Mappings", e.getMessage(), new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getLocalizedMessage(), e));
 			Activator.handleError(e);
 			return false;
 		}
@@ -283,6 +286,7 @@ public class EditFieldMappingsWizard extends Wizard {
 					errorMessage = mapForceException.getMessage();
 				}
 			}
+			Activator.handleError(mapForceException);
 			MessageDialog.openError(Display.getDefault()
 					.getActiveShell(), "Edit Field Mappings",
 					errorMessage);
@@ -319,7 +323,7 @@ public class EditFieldMappingsWizard extends Wizard {
 					CcfDataProvider.copyFile(sampleFile, xslFile);
 				}
 			} catch (IOException e) {
-				MessageDialog.openError(Display.getDefault().getActiveShell(), "Edit Field Mappings", "Unable to create file " + xslFile.getName() + ":\n\n" + e.getMessage());
+				ExceptionDetailsErrorDialog.openError(getShell(), "Edit Field Mappings", e.getMessage(), new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getLocalizedMessage(), e));
 				Activator.handleError(e);
 				return false;
 			}
@@ -338,7 +342,7 @@ public class EditFieldMappingsWizard extends Wizard {
 		try {
 			page.openEditor(input, id);
 		} catch (PartInitException e) {
-			MessageDialog.openError(Display.getDefault().getActiveShell(), "Edit Field Mappings", "Unable to open editor:\n\n" + e.getMessage());
+			ExceptionDetailsErrorDialog.openError(getShell(), "Edit Field Mappings", e.getMessage(), new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getLocalizedMessage(), e));
 			Activator.handleError(e);
 			return false;
 		}

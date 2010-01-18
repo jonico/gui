@@ -4,8 +4,9 @@ import java.io.File;
 import java.net.URL;
 
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
@@ -29,6 +30,7 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Hyperlink;
 
 import com.collabnet.ccf.Activator;
+import com.collabnet.ccf.dialogs.ExceptionDetailsErrorDialog;
 import com.collabnet.ccf.model.SynchronizationStatus;
 
 public class EditFieldMappingsWizardMainPage extends WizardPage {
@@ -111,7 +113,7 @@ public class EditFieldMappingsWizardMainPage extends WizardPage {
 						PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(url);
 					} catch (Exception e) {
 						Activator.handleError("Edit Field Mappings", e);
-						MessageDialog.openError(getShell(), "Edit Field Mappings", e.getMessage()); //$NON-NLS-1$
+						ExceptionDetailsErrorDialog.openError(getShell(), "Edit Field Mappings", e.getMessage(), new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getLocalizedMessage(), e));
 					}
 				}
 	        };

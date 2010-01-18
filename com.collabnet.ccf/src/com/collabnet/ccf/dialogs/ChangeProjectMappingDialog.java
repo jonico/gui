@@ -2,6 +2,8 @@ package com.collabnet.ccf.dialogs;
 
 import java.util.Properties;
 
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
@@ -294,7 +296,7 @@ public class ChangeProjectMappingDialog extends CcfDialog {
 				} catch (Exception e) {
 					Activator.handleError(e);
 					changeError = true;
-					MessageDialog.openError(getShell(), "Change Project Mapping", e.getMessage());
+					ExceptionDetailsErrorDialog.openError(getShell(), "Change Project Mapping", e.getMessage(), new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getLocalizedMessage(), e));
 				}
 			}			
 		});
