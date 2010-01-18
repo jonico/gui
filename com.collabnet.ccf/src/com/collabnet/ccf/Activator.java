@@ -223,6 +223,9 @@ public class Activator extends AbstractUIPlugin {
 		landscapeContributors = getLandscapeContributors();
 	
 		plugin = this;
+		
+		proxyServiceTracker = new ServiceTracker(getBundle().getBundleContext(), IProxyService.class.getName(), null);
+		proxyServiceTracker.open();	
 	}
 
 	/*
@@ -231,6 +234,7 @@ public class Activator extends AbstractUIPlugin {
 	 */
 	public void stop(BundleContext context) throws Exception {
 		plugin = null;
+		proxyServiceTracker.close();
 		Iterator<Image> iter = landscapeContributorImages.iterator();
 		while(iter.hasNext()) {
 			Image image = (Image)iter.next();
@@ -718,7 +722,12 @@ public class Activator extends AbstractUIPlugin {
 	}
 	
 	public IProxyService getProxyService() {
-		return (IProxyService) proxyServiceTracker.getService();
+		IProxyService proxyService = null;
+		if (proxyServiceTracker != null) {
+			proxyService = (IProxyService)proxyServiceTracker.getService();
+		}
+		return proxyService;
+//		return (IProxyService) proxyServiceTracker.getService();
 	}    
 	
 	public static Proxy getPlatformProxy(String url) {
