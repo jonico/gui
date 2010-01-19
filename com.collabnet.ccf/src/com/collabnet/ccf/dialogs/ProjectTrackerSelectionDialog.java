@@ -5,7 +5,6 @@ import java.util.List;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.IDialogConstants;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -35,7 +34,7 @@ public class ProjectTrackerSelectionDialog extends CcfDialog {
 	private TreeViewer treeViewer;
 	
 	private String title;
-	
+
 	private PTClient ptClient;
 	private Project[] projects;
 	private ArtifactType[] artifactTypes;
@@ -44,6 +43,10 @@ public class ProjectTrackerSelectionDialog extends CcfDialog {
 	
 	public static final int BROWSER_TYPE_PROJECT = 0;
 	public static final int BROWSER_TYPE_ARTIFACT_TYPE = 1;
+	
+	public static final String HTTP = "http://";
+	public static final String HTTPS = "https://";
+	public static final String WWW = "www.";
 	
 	private Button okButton;
 
@@ -170,7 +173,8 @@ public class ProjectTrackerSelectionDialog extends CcfDialog {
 						artifactTypes[i++] = new ArtifactType(artifactTypeName, project.getName());
 					}
 				} catch (Exception e) {
-					MessageDialog.openError(getShell(), title, e.getMessage());
+					Activator.handleError(e);
+					ExceptionDetailsErrorDialog.openError(getShell(), title, e.getMessage(), new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getLocalizedMessage(), e));
 				}
 			}
 		});
@@ -180,22 +184,45 @@ public class ProjectTrackerSelectionDialog extends CcfDialog {
 	
 	private String getProjectUrl(String projectName) {
 		String baseurl = landscape.getCeeProperties().getProperty(Activator.PROPERTIES_CEE_URL);
-		int prefixIndex = baseurl.indexOf("//"); //$NON-NLS-1$
-		int postfixIndex = baseurl.indexOf("."); //$NON-NLS-1$
-		
-		return baseurl.substring(0, prefixIndex+2) 
-		 	+ projectName
-		 	+ baseurl.substring(postfixIndex);		
+		if (baseurl != null) {
+			if (baseurl.toLowerCase().startsWith(HTTP)) {
+				if (!baseurl.toLowerCase().startsWith(HTTP + projectName + ".")) { //$NON-NLS-1$
+					return baseurl.replaceAll(HTTP, HTTP + projectName + "."); //$NON-NLS-1$
+				}
+			}
+			if (baseurl.toLowerCase().startsWith(HTTPS)) {
+				if (!baseurl.toLowerCase().startsWith(HTTPS + projectName + ".")) { //$NON-NLS-1$
+					return baseurl.replaceAll(HTTPS, HTTPS + projectName + "."); //$NON-NLS-1$
+				}		
+			}						
+		}
+		return baseurl;
 	}
 	
 	private PTClient getClient() {
 		if (ptClient == null) {
-			String serverUrl = landscape.getCeeProperties().getProperty(Activator.PROPERTIES_CEE_URL);
+			String serverUrl = getPickerUrl(landscape.getCeeProperties().getProperty(Activator.PROPERTIES_CEE_URL));
 			String userId = landscape.getCeeProperties().getProperty(Activator.PROPERTIES_CEE_USER);
 			String password = landscape.getCeeProperties().getProperty(Activator.PROPERTIES_CEE_PASSWORD);
 			ptClient = PTClient.getClient(serverUrl, userId, password);
 		}
 		return ptClient;
+	}
+	
+	private static String getPickerUrl(String serverUrl) {
+		if (serverUrl != null) {
+			if (serverUrl.toLowerCase().startsWith(HTTP)) {
+				if (!serverUrl.toLowerCase().startsWith(HTTP + WWW)) {
+					return serverUrl.replaceAll(HTTP, HTTP + WWW);
+				}
+			}
+			if (serverUrl.toLowerCase().startsWith(HTTPS)) {
+				if (!serverUrl.toLowerCase().startsWith(HTTPS + WWW)) {
+					return serverUrl.replaceAll(HTTPS, HTTPS + WWW);
+				}		
+			}			
+		}
+		return serverUrl;
 	}
 	
 	class ProjectTrackerSelectionLabelProvider extends LabelProvider {
