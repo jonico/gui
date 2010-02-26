@@ -10,8 +10,7 @@ import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.properties.PropertyDescriptor;
 
 import com.collabnet.ccf.Activator;
-import com.collabnet.ccf.schemageneration.QCLayoutExtractor;
-import com.collabnet.ccf.schemageneration.TFLayoutExtractor;
+import com.collabnet.ccf.ICcfParticipant;
 
 @SuppressWarnings("unchecked")
 public class SynchronizationStatus implements IPropertySource, Comparable {
@@ -420,78 +419,34 @@ public class SynchronizationStatus implements IPropertySource, Comparable {
 		if (createInitialMFDFile == null) {
 			File xsltFolder = getXSLTFolder();
 			if (xsltFolder != null) {
+				ICcfParticipant ccfParticipant = null;
 				String createInitialMFDFileName = Activator.CREATE_INITIAL_MFD_FILE_NAME;
-				if (getSourceSystemKind().startsWith(Landscape.TYPE_PT)) {
-					createInitialMFDFileName = Activator.CREATE_INITIAL_MFD_FILE_PREFIX
-							+ Activator.CREATE_INITIAL_MFD_FILE_SEPARATOR
-							+ Activator.CREATE_INITIAL_MFD_FILE_PT_ISSUE
-							+ Activator.CREATE_INITIAL_MFD_FILE_SEPARATOR;
-				} else if (getSourceSystemKind().startsWith(Landscape.TYPE_TF)) {
-					if (TFLayoutExtractor
-							.isTrackerRepository(getSourceRepositoryId())) {
-						createInitialMFDFileName = Activator.CREATE_INITIAL_MFD_FILE_PREFIX
-								+ Activator.CREATE_INITIAL_MFD_FILE_SEPARATOR
-								+ Activator.CREATE_INITIAL_MFD_FILE_TF_TRACKER_ITEM
-								+ Activator.CREATE_INITIAL_MFD_FILE_SEPARATOR;
-					} else {
-						createInitialMFDFileName = Activator.CREATE_INITIAL_MFD_FILE_PREFIX
-								+ Activator.CREATE_INITIAL_MFD_FILE_SEPARATOR
-								+ Activator.CREATE_INITIAL_MFD_FILE_TF_PF
-								+ Activator.CREATE_INITIAL_MFD_FILE_SEPARATOR;
-					}
-				} else if (getSourceSystemKind().startsWith(Landscape.TYPE_QC)) {
-					if (QCLayoutExtractor
-							.isDefectRepository(getSourceRepositoryId())) {
-						createInitialMFDFileName = Activator.CREATE_INITIAL_MFD_FILE_PREFIX
-								+ Activator.CREATE_INITIAL_MFD_FILE_SEPARATOR
-								+ Activator.CREATE_INITIAL_MFD_FILE_QC_DEFECT
-								+ Activator.CREATE_INITIAL_MFD_FILE_SEPARATOR;
-					} else {
-						createInitialMFDFileName = Activator.CREATE_INITIAL_MFD_FILE_PREFIX
-								+ Activator.CREATE_INITIAL_MFD_FILE_SEPARATOR
-								+ Activator.CREATE_INITIAL_MFD_FILE_QC_REQUIREMENT
-								+ Activator.CREATE_INITIAL_MFD_FILE_SEPARATOR;
-					}
-				} else {
+				try {
+					ccfParticipant = Activator.getCcfParticipantForType(getSourceSystemKind());
+				} catch (Exception e) {
+					Activator.handleError(e);
+				}
+				if (ccfParticipant == null) {
 					createInitialMFDFileName = Activator.CREATE_INITIAL_MFD_FILE_PREFIX
 					+ Activator.CREATE_INITIAL_MFD_FILE_SEPARATOR
 					+ Activator.CREATE_INITIAL_MFD_FILE_UNKNOWN_ENTITY
-					+ Activator.CREATE_INITIAL_MFD_FILE_SEPARATOR;
-				}
-
-				// now care about target system
-				if (getTargetSystemKind().startsWith(Landscape.TYPE_PT)) {
-					createInitialMFDFileName = createInitialMFDFileName
-							+ Activator.CREATE_INITIAL_MFD_FILE_PT_ISSUE
-							+ Activator.CREATE_INITIAL_MFD_FILE_SUFFIX;
-				} else if (getTargetSystemKind().startsWith(Landscape.TYPE_TF)) {
-					if (TFLayoutExtractor
-							.isTrackerRepository(getTargetRepositoryId())) {
-						createInitialMFDFileName = createInitialMFDFileName
-								+ Activator.CREATE_INITIAL_MFD_FILE_TF_TRACKER_ITEM
-								+ Activator.CREATE_INITIAL_MFD_FILE_SUFFIX;
-					} else {
-						createInitialMFDFileName = createInitialMFDFileName
-								+ Activator.CREATE_INITIAL_MFD_FILE_TF_PF
-								+ Activator.CREATE_INITIAL_MFD_FILE_SUFFIX;
-					}
-				} else if (getTargetSystemKind().startsWith(Landscape.TYPE_QC)) {
-					if (QCLayoutExtractor
-							.isDefectRepository(getTargetRepositoryId())) {
-						createInitialMFDFileName = createInitialMFDFileName
-								+ Activator.CREATE_INITIAL_MFD_FILE_QC_DEFECT
-								+ Activator.CREATE_INITIAL_MFD_FILE_SUFFIX;
-					} else {
-						createInitialMFDFileName = createInitialMFDFileName
-								+ Activator.CREATE_INITIAL_MFD_FILE_QC_REQUIREMENT
-								+ Activator.CREATE_INITIAL_MFD_FILE_SUFFIX;
-					}
+					+ Activator.CREATE_INITIAL_MFD_FILE_SEPARATOR;					
 				} else {
+					createInitialMFDFileName = ccfParticipant.getInitialMDFFileNameSegment(getSourceRepositoryId(), true);
+				}
+				try {
+					ccfParticipant = Activator.getCcfParticipantForType(getTargetSystemKind());
+				} catch (Exception e) {
+					Activator.handleError(e);
+					ccfParticipant = null;
+				}
+				if (ccfParticipant == null) {
 					createInitialMFDFileName = createInitialMFDFileName
 					+ Activator.CREATE_INITIAL_MFD_FILE_UNKNOWN_ENTITY
-					+ Activator.CREATE_INITIAL_MFD_FILE_SUFFIX;
+					+ Activator.CREATE_INITIAL_MFD_FILE_SUFFIX;					
+				} else {
+					createInitialMFDFileName = createInitialMFDFileName + ccfParticipant.getInitialMDFFileNameSegment(getTargetRepositoryId(), false);
 				}
-
 				createInitialMFDFile = new File(xsltFolder,
 						createInitialMFDFileName);
 			}

@@ -13,6 +13,7 @@ import org.eclipse.ui.part.EditorPart;
 
 import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.CCFJMXMonitorBean;
+import com.collabnet.ccf.ICcfParticipant;
 import com.collabnet.ccf.model.Landscape;
 import com.collabnet.ccf.views.CcfExplorerView;
 
@@ -23,9 +24,8 @@ public class CcfEditor extends FormEditor implements ISaveablePart2 {
 	private CCFJMXMonitorBean monitor2;
 	
 	private CcfCcfEditorPage ccfPage;
-	private CcfSystemEditorPage qcPage;
-	private CcfSystemEditorPage sfeePage;
-	private CcfSystemEditorPage ceePage;
+	private CcfEditorPage page1;
+	private CcfEditorPage page2;
 	private CcfProjectMappingsEditorPage mappingsPage;
 
 	private IDialogSettings settings = Activator.getDefault().getDialogSettings();
@@ -52,13 +52,12 @@ public class CcfEditor extends FormEditor implements ISaveablePart2 {
 	private void getMonitors() {
 		int port1 = 0;
 		int port2 = 0;
-		if (landscape.getType2().equals(Landscape.TYPE_TF)) {
-			port1 = 10001;
-			port2 = 10002;
-		}
-		if (landscape.getType2().equals(Landscape.TYPE_PT)) {
-			port1 = 10000;
-			port2 = 9999;
+		try {
+			ICcfParticipant ccfParticipant = Activator.getCcfParticipantForType(landscape.getType2());
+			port1 = ccfParticipant.getJmxMonitor1Port();
+			port2 = ccfParticipant.getJmxMonitor2Port();		
+		} catch (Exception e) {
+			Activator.handleError(e);
 		}
 		if (port1 != 0) {
 			monitor1 = new CCFJMXMonitorBean();
@@ -71,16 +70,28 @@ public class CcfEditor extends FormEditor implements ISaveablePart2 {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	protected void addPages() {
 		createCcfPage();
 		if (landscape.getRole() == Landscape.ROLE_ADMINISTRATOR) {
-			createQcPage();		
-			if (landscape.getType1().equals(Landscape.TYPE_TF) || landscape.getType2().equals(Landscape.TYPE_TF)) {
-				createSfeePage();
-			}		
-			if (landscape.getType1().equals(Landscape.TYPE_PT) || landscape.getType2().equals(Landscape.TYPE_PT)) {
-				createCeePage();
+			try {
+				ICcfParticipant ccfParticipant1 = Activator.getCcfParticipantForType(landscape.getType1());
+				page1 = ccfParticipant1.getEditorPage1(this, getEditorInput().getName());
+				if (page1 != null) {
+			        int index1 = addPage(page1);
+			        setPageText(index1, ccfParticipant1.getName() + " Properties");
+			        pages.add(page1);
+				}
+				ICcfParticipant ccfParticipant2 = Activator.getCcfParticipantForType(landscape.getType2());
+				page2 = ccfParticipant2.getEditorPage2(this, getEditorInput().getName());
+				if (page2 != null) {
+			        int index2 = addPage(page2);
+			        setPageText(index2, ccfParticipant2.getName() + " Properties");
+			        pages.add(page2);
+				}				
+			} catch (Exception e) {
+				Activator.handleError(e);
 			}
 		}
 		createMappingsPage();
@@ -100,16 +111,12 @@ public class CcfEditor extends FormEditor implements ISaveablePart2 {
 		
 		ccfPage.doSave(monitor);
 		
-		if (qcPage != null) {
-			qcPage.doSave(monitor);
+		if (page1 != null) {
+			page1.doSave(monitor);
 		}
 		
-		if (sfeePage != null) {
-			sfeePage.doSave(monitor);
-		}
-		
-		if (ceePage != null) {
-			ceePage.doSave(monitor);
+		if (page2 != null) {
+			page2.doSave(monitor);
 		}
 		
 		setDirty();
@@ -151,42 +158,6 @@ public class CcfEditor extends FormEditor implements ISaveablePart2 {
         }
     }
 
-    @SuppressWarnings("unchecked")
-	private void createQcPage() {
-        try {
-        	qcPage = new CcfSystemEditorPage(this, "qc", getEditorInput().getName(), CcfSystemEditorPage.QC);
-	        int qcIndex = addPage(qcPage);
-	        setPageText(qcIndex, "QC Properties");
-	        pages.add(qcPage);
-        } catch (Exception e) { 
-        	Activator.handleError(e);
-        }
-    }
-    
-    @SuppressWarnings("unchecked")
-	private void createSfeePage() {
-        try {
-        	sfeePage = new CcfSystemEditorPage(this, "sfee", getEditorInput().getName(), CcfSystemEditorPage.TF);
-	        int sfeeIndex = addPage(sfeePage);
-	        setPageText(sfeeIndex, "TeamForge Properties");
-	        pages.add(sfeePage);
-        } catch (Exception e) { 
-        	Activator.handleError(e);
-        }
-    }
-    
-    @SuppressWarnings("unchecked")
-	private void createCeePage() {
-        try {
-        	ceePage = new CcfSystemEditorPage(this, "cee", getEditorInput().getName(), CcfSystemEditorPage.PT);
-	        int ceeIndex = addPage(ceePage);
-	        setPageText(ceeIndex, "Project Tracker Properties");
-	        pages.add(ceePage);
-        } catch (Exception e) { 
-        	Activator.handleError(e);
-        }
-    }
-    
     @SuppressWarnings("unchecked")
 	private void createMappingsPage() {
         try {

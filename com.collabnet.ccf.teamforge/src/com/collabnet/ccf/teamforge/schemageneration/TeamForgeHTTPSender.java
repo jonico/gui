@@ -1,4 +1,4 @@
-package com.collabnet.ccf.schemageneration;
+package com.collabnet.ccf.teamforge.schemageneration;
 
 import java.net.URL;
 
@@ -10,6 +10,7 @@ import org.apache.commons.httpclient.HttpVersion;
 import org.apache.commons.httpclient.params.HttpClientParams;
 
 import com.collabnet.ccf.Activator;
+import com.collabnet.ccf.schemageneration.Proxy;
 
 public class TeamForgeHTTPSender extends CommonsHTTPSender {
 

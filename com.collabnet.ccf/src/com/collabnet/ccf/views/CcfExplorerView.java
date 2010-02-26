@@ -42,7 +42,6 @@ import org.eclipse.ui.model.WorkbenchContentProvider;
 import org.eclipse.ui.part.ViewPart;
 
 import com.collabnet.ccf.Activator;
-import com.collabnet.ccf.ILandscapeContributor;
 import com.collabnet.ccf.IProjectMappingsChangeListener;
 import com.collabnet.ccf.IRoleChangedListener;
 import com.collabnet.ccf.actions.ChangeSynchronizationStatusAction;
@@ -252,22 +251,6 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 			JmxBrowserAction jmxFromQcAction = new JmxBrowserAction((Landscape)selection.getFirstElement(), JmxBrowserAction.FROM_QC);
 			jmxMenu.add(jmxFromQcAction);			
 			manager.add(jmxMenu);
-			
-			ILandscapeContributor landscapeContributor = null;
-			try {
-				landscapeContributor = Activator.getLandscapeContributor((Landscape)selection.getFirstElement());
-			} catch (Exception e) {
-				Activator.handleError(e);
-			}
-			if (landscapeContributor != null) {
-				Action[] editPropertiesActions = landscapeContributor.getEditPropertiesActions((Landscape)selection.getFirstElement());
-				if (editPropertiesActions != null) {
-					for (int i = 0; i < editPropertiesActions.length; i++) {
-						manager.add(editPropertiesActions[i]);
-					}
-					manager.add(new Separator());
-				}
-			}
 		}
 	}
 	

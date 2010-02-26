@@ -1,4 +1,4 @@
-package com.collabnet.ccf.schemageneration;
+package com.collabnet.ccf.pt.schemageneration;
 
 import java.net.MalformedURLException;
 import java.net.URL;

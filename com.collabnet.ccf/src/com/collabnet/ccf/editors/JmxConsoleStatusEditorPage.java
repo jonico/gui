@@ -23,6 +23,7 @@ import org.eclipse.ui.forms.widgets.TableWrapLayout;
 
 import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.CCFJMXMonitorBean;
+import com.collabnet.ccf.ICcfParticipant;
 import com.collabnet.ccf.db.CcfDataProvider;
 import com.collabnet.ccf.model.Landscape;
 
@@ -61,9 +62,6 @@ public class JmxConsoleStatusEditorPage extends JmxConsoleEditorPage {
 	
 	private boolean running1;
 	private boolean running2;
-	
-	private int port1;
-	private int port2;
 
 	public JmxConsoleStatusEditorPage(FormEditor editor, String id, String title) {
 		super(editor, id, title);
@@ -86,13 +84,14 @@ public class JmxConsoleStatusEditorPage extends JmxConsoleEditorPage {
 		monitor2 = editor.getMonitor2();
 		dataProvider = editor.getDataProvider();
 		
-		if (landscape.getType2().equals(Landscape.TYPE_TF)) {
-			port1 = 10001;
-			port2 = 10002;
-		}
-		if (landscape.getType2().equals(Landscape.TYPE_PT)) {
-			port1 = 10000;
-			port2 = 9999;
+		int port1 = 0;
+		int port2 = 0;
+		try {
+			ICcfParticipant ccfParticipant = Activator.getCcfParticipantForType(landscape.getType2());
+			port1 = ccfParticipant.getJmxMonitor1Port();
+			port2 = ccfParticipant.getJmxMonitor2Port();		
+		} catch (Exception e) {
+			Activator.handleError(e);
 		}
 		
 		Section direction1Section = toolkit.createSection(composite, Section.TITLE_BAR | Section.TWISTIE | Section.EXPANDED);
@@ -319,12 +318,14 @@ public class JmxConsoleStatusEditorPage extends JmxConsoleEditorPage {
 		String writerMetricsName = null;
 		String extractionTime = null;
 		String updateTime = null;
-		if (landscape.getType2().equals(Landscape.TYPE_QC)) readerMetricsName = CCFJMXMonitorBean.QCREADER_METRICS;
-		else if (landscape.getType2().equals(Landscape.TYPE_TF)) readerMetricsName = CCFJMXMonitorBean.TFREADER_METRICS;
-		else if (landscape.getType2().equals(Landscape.TYPE_PT)) readerMetricsName = CCFJMXMonitorBean.PTREADER_METRICS;
-		if (landscape.getType1().equals(Landscape.TYPE_QC)) writerMetricsName = CCFJMXMonitorBean.QCWRITER_METRICS;
-		else if (landscape.getType1().equals(Landscape.TYPE_TF)) writerMetricsName = CCFJMXMonitorBean.TFWRITER_METRICS;
-		else if (landscape.getType1().equals(Landscape.TYPE_PT)) writerMetricsName = CCFJMXMonitorBean.PTWRITER_METRICS;		
+		try {
+			ICcfParticipant ccfParticipant = Activator.getCcfParticipantForType(landscape.getType2());
+			readerMetricsName = ccfParticipant.getReaderMetricsName();
+			ccfParticipant = Activator.getCcfParticipantForType(landscape.getType1());
+			writerMetricsName = ccfParticipant.getWriterMetricsName();
+		} catch (Exception e) {
+			Activator.handleError(e);
+		}
 		extractionTime = monitor1.getArtifactExtractionProcessingTime(readerMetricsName);
 		updateTime = monitor1.getArtifactUpdateProcessingTime(writerMetricsName);
 		if (extractionTime == null) extractionTimeText1.setText("");
@@ -359,12 +360,14 @@ public class JmxConsoleStatusEditorPage extends JmxConsoleEditorPage {
 		String writerMetricsName = null;
 		String extractionTime = null;
 		String updateTime = null;
-		if (landscape.getType1().equals(Landscape.TYPE_QC)) readerMetricsName = CCFJMXMonitorBean.QCREADER_METRICS;
-		else if (landscape.getType1().equals(Landscape.TYPE_TF)) readerMetricsName = CCFJMXMonitorBean.TFREADER_METRICS;
-		else if (landscape.getType1().equals(Landscape.TYPE_PT)) readerMetricsName = CCFJMXMonitorBean.PTREADER_METRICS;
-		if (landscape.getType2().equals(Landscape.TYPE_QC)) writerMetricsName = CCFJMXMonitorBean.QCWRITER_METRICS;
-		else if (landscape.getType2().equals(Landscape.TYPE_TF)) writerMetricsName = CCFJMXMonitorBean.TFWRITER_METRICS;
-		else if (landscape.getType2().equals(Landscape.TYPE_PT)) writerMetricsName = CCFJMXMonitorBean.PTWRITER_METRICS;		
+		try {
+			ICcfParticipant ccfParticipant = Activator.getCcfParticipantForType(landscape.getType1());
+			readerMetricsName = ccfParticipant.getReaderMetricsName();
+			ccfParticipant = Activator.getCcfParticipantForType(landscape.getType2());
+			writerMetricsName = ccfParticipant.getWriterMetricsName();
+		} catch (Exception e) {
+			Activator.handleError(e);
+		}
 		extractionTime = monitor2.getArtifactExtractionProcessingTime(readerMetricsName);
 		updateTime = monitor2.getArtifactUpdateProcessingTime(writerMetricsName);
 		if (extractionTime == null) extractionTimeText2.setText("");
@@ -422,13 +425,22 @@ public class JmxConsoleStatusEditorPage extends JmxConsoleEditorPage {
 	private int getHospitalCount(String target) {
 		String targetType = null;
 		String sourceType = null;
-		if (target.equals(Landscape.TYPE_QC)) {
+//		if (target.equals(Landscape.TYPE_QC)) {
+//			targetType = landscape.getType1();
+//			sourceType = landscape.getType2();
+//		} else {
+//			targetType = landscape.getType2();
+//			sourceType = landscape.getType1();
+//		}
+		
+		if (target.equals(landscape.getType1())) {
 			targetType = landscape.getType1();
 			sourceType = landscape.getType2();
 		} else {
 			targetType = landscape.getType2();
 			sourceType = landscape.getType1();
-		}
+		}		
+		
 		int hospitalCount = 0;
 		try {
 			hospitalCount = dataProvider.getHospitalCount(landscape, targetType, sourceType);

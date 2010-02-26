@@ -1,15 +1,10 @@
 package com.collabnet.ccf.dialogs;
 
-import java.util.Properties;
-
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.IDialogConstants;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
@@ -19,31 +14,26 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
 import com.collabnet.ccf.Activator;
+import com.collabnet.ccf.ICcfParticipant;
+import com.collabnet.ccf.IMappingSection;
+import com.collabnet.ccf.IPageCompleteListener;
 import com.collabnet.ccf.db.CcfDataProvider;
 import com.collabnet.ccf.db.Filter;
 import com.collabnet.ccf.db.Update;
 import com.collabnet.ccf.model.Landscape;
-import com.collabnet.ccf.model.ProjectMappings;
 import com.collabnet.ccf.model.SynchronizationStatus;
-import com.collabnet.ccf.schemageneration.QCLayoutExtractor;
 
-public class ChangeProjectMappingDialog extends CcfDialog {
+public class ChangeProjectMappingDialog extends CcfDialog implements IPageCompleteListener {
 	private SynchronizationStatus status;
-	
-	private Text trackerText;
-	private Text ptProjectText;
-	private Text ptIssueTypeText;
-	private Text qcProjectText;
-	private Text qcDomainText;
-	private Text qcRequirementTypeText;
-	private Button requirementTypeBrowseButton;
-	
+	private ICcfParticipant ccfParticipant1;
+	private ICcfParticipant ccfParticipant2;
+	private IMappingSection mappingSection1;
+	private IMappingSection mappingSection2;
+
 	private String oldXslFileName;
 	private String newXslFileName;
 	private String newGraphicalXslFileName;
@@ -64,6 +54,7 @@ public class ChangeProjectMappingDialog extends CcfDialog {
 		super(shell, "ChangeProjectMappingDialog");
 		this.status = status;
 		oldXslFileName = status.getXslFileName();
+		getCcfParticipants();
 	}
 	
 	protected Control createDialogArea(Composite parent) {
@@ -72,113 +63,23 @@ public class ChangeProjectMappingDialog extends CcfDialog {
 		GridLayout layout = new GridLayout();
 		composite.setLayout(layout);
 		composite.setLayoutData(new GridData(GridData.FILL_BOTH));
-
-		Group qcGroup = new Group(composite, SWT.NULL);
-		GridLayout qcLayout = new GridLayout();
-		qcLayout.numColumns = 3;
-		qcGroup.setLayout(qcLayout);
-		GridData gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
-		qcGroup.setLayoutData(gd);	
-		qcGroup.setText("Quality Center:");
 		
-		Label domainLabel = new Label(qcGroup, SWT.NONE);
-		domainLabel.setText("Domain:");
-		
-		qcDomainText = new Text(qcGroup, SWT.BORDER);
-		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
-		qcDomainText.setLayoutData(gd);	
-		qcDomainText.setText(getQcDomain());
-		
-		new Label(qcGroup, SWT.NONE);
-		
-		Label projectLabel = new Label(qcGroup, SWT.NONE);
-		projectLabel.setText("Project:");
-		
-		qcProjectText = new Text(qcGroup, SWT.BORDER);
-		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
-		qcProjectText.setLayoutData(gd);
-		qcProjectText.setText(getQcProject());
-		
-		new Label(qcGroup, SWT.NONE);
-		
-		String requirementType = getQcRequirementType();
-		if (requirementType != null) {
-			Label requirementTypeLabel = new Label(qcGroup, SWT.NONE);
-			requirementTypeLabel.setText("Requirement type:");
-			qcRequirementTypeText = new Text(qcGroup, SWT.BORDER);
-			gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
-			qcRequirementTypeText.setLayoutData(gd);
-			qcRequirementTypeText.setText(requirementType);
-			
-			requirementTypeBrowseButton = new Button(qcGroup, SWT.PUSH);
-			requirementTypeBrowseButton.setText("Browse...");
-			requirementTypeBrowseButton.setVisible("win32".equals(SWT.getPlatform()));
-
-			requirementTypeBrowseButton.addSelectionListener(new SelectionAdapter() {
-				public void widgetSelected(SelectionEvent arg0) {
-					if (!validate()) {
-						MessageDialog.openError(getShell(), "Select Requirement Type", "Invalid Quality Center Domain/Project entered.");
-						return;
-					}
-					RequirementTypeSelectionDialog dialog = new RequirementTypeSelectionDialog(getShell(), status.getLandscape(), qcDomainText.getText().trim(), qcProjectText.getText().trim());
-					if (dialog.open() == RequirementTypeSelectionDialog.OK) {
-						qcRequirementTypeText.setText(dialog.getType());
-						okButton.setEnabled(canFinish());
-					}
-				}			
-			});
+		if (ccfParticipant1 != null) {
+			mappingSection1 = ccfParticipant1.getMappingSection(1);
+			if (mappingSection1 != null) {
+				mappingSection1.getComposite(composite, status.getLandscape());
+				mappingSection1.initializeComposite(status, IMappingSection.TYPE_SOURCE);
+				mappingSection1.setProjectPage(this);
+			}
 		}
 		
-		Group otherGroup = new Group(composite, SWT.NULL);
-		GridLayout otherLayout = new GridLayout();
-		otherLayout.numColumns = 3;
-		otherGroup.setLayout(otherLayout);
-		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
-		otherGroup.setLayoutData(gd);	
-		if (status.getLandscape().getType1().equals(Landscape.TYPE_PT) || status.getLandscape().getType2().equals(Landscape.TYPE_PT)) {
-			otherGroup.setText(Landscape.TYPE_DESCRIPTION_PT + ":");
-			Label ptProjectLabel = new Label(otherGroup, SWT.NONE);
-			ptProjectLabel.setText("Project:");			
-			ptProjectText = new Text(otherGroup, SWT.BORDER);
-			gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
-			ptProjectText.setLayoutData(gd);
-			ptProjectText.setText(getPtProject());
-			new Label(otherGroup, SWT.NONE);
-			
-			Label ptIssueTypeLabel = new Label(otherGroup, SWT.NONE);
-			ptIssueTypeLabel.setText("Artifact type:");			
-			ptIssueTypeText = new Text(otherGroup, SWT.BORDER);
-			gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
-			ptIssueTypeText.setLayoutData(gd);
-			ptIssueTypeText.setText(getPtIssueType());
-			new Label(otherGroup, SWT.NONE);
-		} else {
-			otherGroup.setText(Landscape.TYPE_DESCRIPTION_TF + ":");
-			Label trackerLabel = new Label(otherGroup, SWT.NONE);
-			if (isPlanningFolderMapping()) {
-				trackerLabel.setText("Project ID:");
-			} else {
-				trackerLabel.setText("Tracker ID:");	
+		if (ccfParticipant2 != null) {
+			mappingSection2 = ccfParticipant2.getMappingSection(2);
+			if (mappingSection2 != null) {
+				mappingSection2.getComposite(composite, status.getLandscape());
+				mappingSection2.initializeComposite(status, IMappingSection.TYPE_TARGET);
+				mappingSection2.setProjectPage(this);
 			}
-			trackerText = new Text(otherGroup, SWT.BORDER);
-			gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
-			trackerText.setLayoutData(gd);
-			trackerText.setText(getTrackerId());
-			
-			Button teamForgeBrowseButton = new Button(otherGroup, SWT.PUSH);
-			teamForgeBrowseButton.setText("Browse...");
-			
-			teamForgeBrowseButton.addSelectionListener(new SelectionAdapter() {
-				public void widgetSelected(SelectionEvent se) {
-					int type;
-					if (getTrackerId().startsWith("proj")) type = TeamForgeSelectionDialog.BROWSER_TYPE_PROJECT;
-					else type = TeamForgeSelectionDialog.BROWSER_TYPE_TRACKER;
-					TeamForgeSelectionDialog dialog = new TeamForgeSelectionDialog(getShell(), status.getLandscape(), type);
-					if (dialog.open() == TeamForgeSelectionDialog.OK) {
-						trackerText.setText(dialog.getSelectedId());
-					}
-				}			
-			});
 		}
 
 		Label conflictResolutionPriorityLabel = new Label(composite, SWT.NONE);
@@ -196,33 +97,14 @@ public class ChangeProjectMappingDialog extends CcfDialog {
 				okButton.setEnabled(canFinish());
 			}			
 		});
-		
-		ModifyListener modifyListener = new ModifyListener() {
-			public void modifyText(ModifyEvent me) {
-				okButton.setEnabled(canFinish());
-			}			
-		};
 
-		if (trackerText != null) trackerText.addModifyListener(modifyListener);
-		if (ptProjectText != null) {
-			ptProjectText.addModifyListener(modifyListener);
-			ptIssueTypeText.addModifyListener(modifyListener);
-		}
-		qcProjectText.addModifyListener(modifyListener);
-		qcDomainText.addModifyListener(modifyListener);
-		if (qcRequirementTypeText != null) {
-			qcRequirementTypeText.addModifyListener(modifyListener);
-		}
-		
 		return composite;
 	}
 	
 	@Override
 	protected void okPressed() {
 		if (!validate()) {
-			if (!MessageDialog.openQuestion(getShell(), "Change Project Mapping", "Invalid Quality Center Domain/Project entered.  Change project mapping anyway?")) {
-				return;
-			}
+			return;
 		}
 		changeError = false;
 		BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
@@ -235,41 +117,12 @@ public class ChangeProjectMappingDialog extends CcfDialog {
 					Filter targetSystemFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_TARGET_SYSTEM_ID, status.getTargetSystemId(), true);
 					Filter targetRepositoryFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_TARGET_REPOSITORY_ID, status.getTargetRepositoryId(), true);
 					Filter[] filters = { sourceSystemFilter, sourceRepositoryFilter, targetSystemFilter, targetRepositoryFilter };
+
+					mappingSection1.updateSourceFields(status);
+					mappingSection2.updateTargetFields(status);
 					
-					String sourceRepository;
-					String targetRepository;
-					
-					if (status.getSourceSystemKind().startsWith(Landscape.TYPE_QC)) {
-						if (status.getTargetSystemKind().startsWith(Landscape.TYPE_PT)) {
-							targetRepository = ptProjectText.getText().trim() + ":" + ptIssueTypeText.getText().trim();
-						} else {
-							if (status.getTargetRepositoryId().endsWith(ProjectMappings.MAPPING_TYPE_PLANNING_FOLDERS)) {
-								targetRepository = trackerText.getText().trim() + "-" + ProjectMappings.MAPPING_TYPE_PLANNING_FOLDERS;
-							} else {
-								targetRepository = trackerText.getText().trim();
-							}
-						}
-						StringBuffer repository = new StringBuffer(qcDomainText.getText().trim() + "-" + qcProjectText.getText().trim());
-						if (qcRequirementTypeText != null) {
-							repository.append("-" + qcRequirementTypeText.getText().trim());
-						}
-						sourceRepository = repository.toString();
-					} else {
-						StringBuffer repository = new StringBuffer(qcDomainText.getText().trim() + "-" + qcProjectText.getText().trim());
-						if (qcRequirementTypeText != null) {
-							repository.append("-" + qcRequirementTypeText.getText().trim());
-						}
-						targetRepository = repository.toString();
-						if (status.getSourceSystemKind().startsWith(Landscape.TYPE_PT)) {
-							sourceRepository = ptProjectText.getText().trim() + ":" + ptIssueTypeText.getText().trim();
-						} else {
-							if (status.getSourceRepositoryId().endsWith(ProjectMappings.MAPPING_TYPE_PLANNING_FOLDERS)) {
-								sourceRepository = trackerText.getText().trim() + "-" + ProjectMappings.MAPPING_TYPE_PLANNING_FOLDERS;
-							} else {
-								sourceRepository = trackerText.getText().trim();
-							}
-						}
-					}
+					String sourceRepository = status.getSourceRepositoryId();
+					String targetRepository = status.getTargetRepositoryId();
 
 					Update sourceRepositoryUpdate = new Update(CcfDataProvider.SYNCHRONIZATION_STATUS_SOURCE_REPOSITORY_ID, sourceRepository);
 					Update targetRepositoryUpdate = new Update(CcfDataProvider.SYNCHRONIZATION_STATUS_TARGET_REPOSITORY_ID, targetRepository);
@@ -358,138 +211,36 @@ public class ChangeProjectMappingDialog extends CcfDialog {
     }
 
 	private boolean canFinish() {
-		if (requirementTypeBrowseButton != null && requirementTypeBrowseButton.isVisible()) {
-			requirementTypeBrowseButton.setEnabled(qcProjectText.getText().trim().length() > 0 && qcDomainText.getText().trim().length() > 0);
+		if (mappingSection1 != null && !mappingSection1.isPageComplete()) {
+			return false;
 		}
-		boolean canFinish = (trackerText == null || trackerText.getText().trim().length() > 0) &&
-		(ptProjectText == null || ptProjectText.getText().trim().length() > 0) &&
-		(ptIssueTypeText == null || ptIssueTypeText.getText().trim().length() > 0) &&
-		qcProjectText.getText().trim().length() > 0 &&
-		qcDomainText.getText().trim().length() > 0;
-		if (!canFinish) return false;
-		if (qcRequirementTypeText != null && qcRequirementTypeText.getText().trim().length() == 0) return false;
+		if (mappingSection2 != null && !mappingSection2.isPageComplete()) {
+			return false;
+		}
 		return true;
 	}
 	
-	private String getTrackerId() {
-		String trackerId;
-		if (status.getSourceSystemKind().startsWith(Landscape.TYPE_QC)) {
-			trackerId = status.getTargetRepositoryId();
-		} else {
-			trackerId = status.getSourceRepositoryId();
-		}
-		int index = trackerId.indexOf("-");
-		if (index != -1) {
-			trackerId = trackerId.substring(0, index);
-		}
-		return trackerId;
-	}
-	
-	private boolean isPlanningFolderMapping() {
-		String trackerId;
-		if (status.getSourceSystemKind().startsWith(Landscape.TYPE_QC)) {
-			trackerId = status.getTargetRepositoryId();
-		} else {
-			trackerId = status.getSourceRepositoryId();
-		}
-		return trackerId.indexOf("-") != -1;
-	}
-	
-	private String getQcDomain() {
-		String repositoryId;
-		if (status.getSourceSystemKind().startsWith(Landscape.TYPE_QC)) {
-			repositoryId = status.getSourceRepositoryId();
-		} else {
-			repositoryId = status.getTargetRepositoryId();
-		}
-		int index = repositoryId.indexOf("-");
-		if (index == -1) return "";
-		else return repositoryId.substring(0, index);
-	}
-	
-	private String getQcProject() {
-		String repositoryId;
-		if (status.getSourceSystemKind().startsWith(Landscape.TYPE_QC)) {
-			repositoryId = status.getSourceRepositoryId();
-		} else {
-			repositoryId = status.getTargetRepositoryId();
-		}
-		int index = repositoryId.indexOf("-");
-		if (index == -1) return "";
-		else {
-			String project = repositoryId = repositoryId.substring(index + 1);
-			index = project.indexOf("-");
-			if (index != -1) {
-				project = project.substring(0, index);
-			}
-			return project;
-		}
-	}
-	
-	private String getQcRequirementType() {
-		String repositoryId;
-		if (status.getSourceSystemKind().startsWith(Landscape.TYPE_QC)) {
-			repositoryId = status.getSourceRepositoryId();
-		} else {
-			repositoryId = status.getTargetRepositoryId();
-		}
-		int index = repositoryId.indexOf("-");
-		if (index != -1) {
-			String project = repositoryId.substring(index + 1);
-			index = project.indexOf("-");
-			if (index != -1) {
-				return project.substring(index + 1);
-			}
-		}
-		return null;
-	}
-	
-	private String getPtProject() {
-		String repositoryId;
-		if (status.getSourceSystemKind().startsWith(Landscape.TYPE_PT)) {
-			repositoryId = status.getSourceRepositoryId();
-		} else {
-			repositoryId = status.getTargetRepositoryId();
-		}
-		int index = repositoryId.indexOf(":");
-		if (index == -1) return "";
-		else return repositoryId.substring(0, index);
-	}
-	
-	private String getPtIssueType() {
-		String repositoryId;
-		if (status.getSourceSystemKind().startsWith(Landscape.TYPE_PT)) {
-			repositoryId = status.getSourceRepositoryId();
-		} else {
-			repositoryId = status.getTargetRepositoryId();
-		}
-		int index = repositoryId.indexOf(":");
-		if (index == -1) return "";
-		else return repositoryId.substring(index + 1);
-	}
-	
 	private boolean validate() {
-		// Only validate on windows.
-		if (!"win32".equals(SWT.getPlatform())) return true;
-		
-		QCLayoutExtractor qcLayoutExtractor = new QCLayoutExtractor();
-		Properties properties = status.getLandscape().getProperties1();
-		String url = properties.getProperty(Activator.PROPERTIES_QC_URL, "");
-		String user = properties.getProperty(Activator.PROPERTIES_QC_USER, "");
-		String password = properties.getProperty(
-				Activator.PROPERTIES_QC_PASSWORD, "");
-		qcLayoutExtractor.setServerUrl(url);
-		qcLayoutExtractor.setUserName(user);
-		qcLayoutExtractor.setPassword(password);
-		
-		boolean validDomainAndProject;
-		try {
-			qcLayoutExtractor.validateQCDomainAndProject(qcDomainText.getText().trim(), qcProjectText.getText().trim());
-			validDomainAndProject = true;
-		} catch (Exception e) {
-			validDomainAndProject = false;
+		if (mappingSection1 != null && !mappingSection1.validate(status.getLandscape())) {
+			return false;
 		}
-		return validDomainAndProject;
+		if (mappingSection2 != null && !mappingSection2.validate(status.getLandscape())) {
+			return false;
+		}		
+		return true;
+	}
+	
+	private void getCcfParticipants() {
+		try {
+			ccfParticipant1 = Activator.getCcfParticipantForType(status.getSourceSystemKind());
+			ccfParticipant2 = Activator.getCcfParticipantForType(status.getTargetSystemKind());
+		} catch (Exception e) {
+			Activator.handleError(e);
+		}
+	}
+	
+	public void setPageComplete() {
+		okButton.setEnabled(canFinish());
 	}
 
 }

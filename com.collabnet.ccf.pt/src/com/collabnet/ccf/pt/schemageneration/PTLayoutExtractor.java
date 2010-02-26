@@ -15,7 +15,7 @@
  *
  **/
 
-package com.collabnet.ccf.schemageneration;
+package com.collabnet.ccf.pt.schemageneration;
 
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
@@ -38,6 +38,8 @@ import com.collabnet.ccf.core.GenericArtifact.ArtifactModeValue;
 import com.collabnet.ccf.core.GenericArtifact.ArtifactTypeValue;
 import com.collabnet.ccf.core.GenericArtifact.IncludesFieldMetaDataValue;
 import com.collabnet.ccf.core.GenericArtifactField.FieldValueTypeValue;
+import com.collabnet.ccf.schemageneration.FieldNameAmbiguityDissolver;
+import com.collabnet.ccf.schemageneration.RepositoryLayoutExtractor;
 import com.collabnet.core.ws.exception.WSException;
 import com.collabnet.tracker.core.PTrackerWebServicesClient;
 import com.collabnet.tracker.core.TrackerClientManager;

@@ -45,6 +45,7 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 	
 	private int type;
 	private Properties properties;
+	private int systemNumber;
 	
 	private Text urlText;
 	private Text userText;
@@ -53,7 +54,6 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 	private Text resyncUserText;
 	private Text resyncDisplayNameText;
 	private Text resyncPasswordText;
-//	private Text encodingText;
 	private Text attachmentSizeText;
 	private Combo timeZonesCombo;
 	
@@ -64,7 +64,6 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 	private String resyncUser;
 	private String resyncDisplayName;
 	private String resyncPassword;
-//	private String encoding;
 	private String attachmentSize;
 	private String timezone;
 	
@@ -80,17 +79,20 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 		super(editor, id, title);
 		this.type = type;
 	}
-	
+
 	@Override
-	protected void createFormContent(IManagedForm managedForm) {
-		form = managedForm.getForm();
-        toolkit = getEditor().getToolkit();
-        TableWrapLayout formLayout = new TableWrapLayout();
-        formLayout.numColumns = 4;
-        form.getBody().setLayout(formLayout);
-		createControls(form.getBody());
+	public boolean canLeaveThePage() {
+		if (urlText.getText().trim().length() == 0) return false;
+		if (attachmentSizeText.getText().trim().length() > 0) {
+			int maxSize = 0;
+			try {
+				maxSize = Integer.parseInt(attachmentSizeText.getText().trim());
+			} catch (Exception e) {}
+			if (maxSize <= 0) return false;
+		}
+		return true;
 	}
-	
+
 	private void createControls(Composite composite) {		
 		Label headerImageLabel = new Label(composite, SWT.NONE);
 		headerImageLabel.setImage(Activator.getImage(getLandscape()));
@@ -102,26 +104,34 @@ public class CcfSystemEditorPage extends CcfEditorPage {
         TableWrapData td = new TableWrapData(TableWrapData.FILL);
         headerLabel.setLayoutData(td);
         
+        switch (systemNumber) {
+		case 1:
+			properties = getLandscape().getProperties1();
+			break;
+		case 2:
+			properties = getLandscape().getProperties2();
+			break;
+		default:
+			break;
+		}
+        
 		switch (type) {
 		case QC:
 			headerLabel.setText("QC Properties");
-			properties = getLandscape().getQcProperties();
 			initializeQcValues();
 			break;
 		case TF:
 			headerLabel.setText("TeamForge Properties");
-			properties = getLandscape().getSfeeProperties();
 			initializeTeamForgeValues();
 			break;
 		case PT:
 			headerLabel.setText("Project Tracker Properties");
-			properties = getLandscape().getCeeProperties();
 			initializeCeeValues();
 			break;			
 		default:
 			break;
 		}
-//		encoding = properties.getProperty(Activator.PROPERTIES_SYSTEM_ENCODING, ""); //$NON-NLS-1$
+		
 		timezone = properties.getProperty(Activator.PROPERTIES_SYSTEM_TIMEZONE, TimeZone.getDefault().getID()); //$NON-NLS-1$	
         
 		errorImageLabel = new Label(composite, SWT.NONE);
@@ -163,11 +173,6 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 		GridData gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
 		urlText.setLayoutData(gd);
 
-//      toolkit.createLabel(systemSectionClient, "Encoding:");
-//      encodingText = toolkit.createText(systemSectionClient, encoding);
-//		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
-//		encodingText.setLayoutData(gd);
-		
 		toolkit.createLabel(systemSectionClient, "Time zone:");
 		timeZonesCombo = new Combo(systemSectionClient, SWT.READ_ONLY);
 		String[] timeZoneIds = TimeZone.getAvailableIDs();
@@ -285,7 +290,6 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 		};
 		
 		urlText.addModifyListener(modifyListener);
-//		encodingText.addModifyListener(modifyListener);
 		attachmentSizeText.addModifyListener(modifyListener);
 		userText.addModifyListener(modifyListener);
 		if (displayNameText != null) displayNameText.addModifyListener(modifyListener);
@@ -312,7 +316,6 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 		};
 		
 		urlText.addFocusListener(focusListener);
-//		encodingText.addFocusListener(focusListener);
 		attachmentSizeText.addFocusListener(focusListener);
 		userText.addFocusListener(focusListener);
 		if (displayNameText != null) displayNameText.addFocusListener(focusListener);
@@ -325,30 +328,13 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 	}
 	
 	@Override
-	public boolean canLeaveThePage() {
-		if (urlText.getText().trim().length() == 0) return false;
-		if (attachmentSizeText.getText().trim().length() > 0) {
-			int maxSize = 0;
-			try {
-				maxSize = Integer.parseInt(attachmentSizeText.getText().trim());
-			} catch (Exception e) {}
-			if (maxSize <= 0) return false;
-		}
-		return true;
-	}
-
-	public boolean isDirty() {
-		if (urlText == null) return false;
-		return !urlText.getText().trim().equals(url) ||
-//		!encodingText.getText().trim().equals(encoding) ||
-		!attachmentSizeText.getText().trim().equals(attachmentSize) ||
-		!timeZonesCombo.getText().equals(timezone) ||
-		!userText.getText().trim().equals(user) ||
-		(displayNameText != null && !displayNameText.getText().trim().equals(displayName)) ||
-		!passwordText.getText().trim().equals(password) ||
-		!resyncUserText.getText().trim().equals(resyncUser) ||
-		(resyncDisplayNameText != null && !resyncDisplayNameText.getText().trim().equals(resyncDisplayName)) ||
-		!resyncPasswordText.getText().trim().equals(resyncPassword);
+	protected void createFormContent(IManagedForm managedForm) {
+		form = managedForm.getForm();
+        toolkit = getEditor().getToolkit();
+        TableWrapLayout formLayout = new TableWrapLayout();
+        formLayout.numColumns = 4;
+        form.getBody().setLayout(formLayout);
+		createControls(form.getBody());
 	}
 	
 	@Override
@@ -356,7 +342,6 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 		if (urlText == null) return;
 		try {
 			properties.setProperty(Activator.PROPERTIES_SYSTEM_TIMEZONE, timeZonesCombo.getText());
-//			properties.setProperty(Activator.PROPERTIES_SYSTEM_ENCODING, encodingText.getText().trim());
 			
 			File folder = new File(getLandscape().getConfigurationFolder());
 			File propertiesFile1 = null;
@@ -416,6 +401,17 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 			Activator.handleError(e);
 		}		
 	}
+
+	private void initializeCeeValues() {
+		url = properties.getProperty(Activator.PROPERTIES_CEE_URL, "");
+		user = properties.getProperty(Activator.PROPERTIES_CEE_USER, "");
+		displayName = properties.getProperty(Activator.PROPERTIES_CEE_DISPLAY_NAME, "");
+		password = properties.getProperty(Activator.PROPERTIES_CEE_PASSWORD, "");	
+		resyncUser = properties.getProperty(Activator.PROPERTIES_CEE_RESYNC_USER, "");
+		resyncDisplayName = properties.getProperty(Activator.PROPERTIES_CEE_RESYNC_DISPLAY_NAME, "");
+		resyncPassword = properties.getProperty(Activator.PROPERTIES_CEE_RESYNC_PASSWORD, "");
+		attachmentSize = properties.getProperty(Activator.PROPERTIES_CEE_ATTACHMENT_SIZE, "10485760");			
+	}
 	
 	private void initializeQcValues() {
 		url = properties.getProperty(Activator.PROPERTIES_QC_URL, "");
@@ -435,33 +431,17 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 		attachmentSize = properties.getProperty(Activator.PROPERTIES_SFEE_ATTACHMENT_SIZE, "10485760");	
 	}
 	
-	private void initializeCeeValues() {
-		url = properties.getProperty(Activator.PROPERTIES_CEE_URL, "");
-		user = properties.getProperty(Activator.PROPERTIES_CEE_USER, "");
-		displayName = properties.getProperty(Activator.PROPERTIES_CEE_DISPLAY_NAME, "");
-		password = properties.getProperty(Activator.PROPERTIES_CEE_PASSWORD, "");	
-		resyncUser = properties.getProperty(Activator.PROPERTIES_CEE_RESYNC_USER, "");
-		resyncDisplayName = properties.getProperty(Activator.PROPERTIES_CEE_RESYNC_DISPLAY_NAME, "");
-		resyncPassword = properties.getProperty(Activator.PROPERTIES_CEE_RESYNC_PASSWORD, "");
-		attachmentSize = properties.getProperty(Activator.PROPERTIES_CEE_ATTACHMENT_SIZE, "10485760");			
-	}
-	
-	private void setQcProperties() throws Exception {
-		properties.setProperty(Activator.PROPERTIES_QC_URL, urlText.getText().trim());
-		properties.setProperty(Activator.PROPERTIES_QC_USER, userText.getText().trim());
-		properties.setProperty(Activator.PROPERTIES_QC_PASSWORD, passwordText.getText().trim());		
-		properties.setProperty(Activator.PROPERTIES_QC_RESYNC_USER, resyncUserText.getText().trim());
-		properties.setProperty(Activator.PROPERTIES_QC_RESYNC_PASSWORD, resyncPasswordText.getText().trim());
-		properties.setProperty(Activator.PROPERTIES_QC_ATTACHMENT_SIZE, attachmentSizeText.getText().trim());
-	}
-	
-	private void setTeamForgeProperties() throws Exception {
-		properties.setProperty(Activator.PROPERTIES_SFEE_URL, urlText.getText().trim());
-		properties.setProperty(Activator.PROPERTIES_SFEE_USER, userText.getText().trim());
-		properties.setProperty(Activator.PROPERTIES_SFEE_PASSWORD, passwordText.getText().trim());		
-		properties.setProperty(Activator.PROPERTIES_SFEE_RESYNC_USER, resyncUserText.getText().trim());
-		properties.setProperty(Activator.PROPERTIES_SFEE_RESYNC_PASSWORD, resyncPasswordText.getText().trim());
-		properties.setProperty(Activator.PROPERTIES_SFEE_ATTACHMENT_SIZE, attachmentSizeText.getText().trim());
+	public boolean isDirty() {
+		if (urlText == null) return false;
+		return !urlText.getText().trim().equals(url) ||
+		!attachmentSizeText.getText().trim().equals(attachmentSize) ||
+		!timeZonesCombo.getText().equals(timezone) ||
+		!userText.getText().trim().equals(user) ||
+		(displayNameText != null && !displayNameText.getText().trim().equals(displayName)) ||
+		!passwordText.getText().trim().equals(password) ||
+		!resyncUserText.getText().trim().equals(resyncUser) ||
+		(resyncDisplayNameText != null && !resyncDisplayNameText.getText().trim().equals(resyncDisplayName)) ||
+		!resyncPasswordText.getText().trim().equals(resyncPassword);
 	}
 	
 	private void setCeeProperties() throws Exception {
@@ -473,6 +453,29 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 		properties.setProperty(Activator.PROPERTIES_CEE_RESYNC_DISPLAY_NAME, resyncDisplayNameText.getText().trim());
 		properties.setProperty(Activator.PROPERTIES_CEE_RESYNC_PASSWORD, resyncPasswordText.getText().trim());
 		properties.setProperty(Activator.PROPERTIES_CEE_ATTACHMENT_SIZE, attachmentSizeText.getText().trim());		
+	}
+	
+	private void setQcProperties() throws Exception {
+		properties.setProperty(Activator.PROPERTIES_QC_URL, urlText.getText().trim());
+		properties.setProperty(Activator.PROPERTIES_QC_USER, userText.getText().trim());
+		properties.setProperty(Activator.PROPERTIES_QC_PASSWORD, passwordText.getText().trim());		
+		properties.setProperty(Activator.PROPERTIES_QC_RESYNC_USER, resyncUserText.getText().trim());
+		properties.setProperty(Activator.PROPERTIES_QC_RESYNC_PASSWORD, resyncPasswordText.getText().trim());
+		properties.setProperty(Activator.PROPERTIES_QC_ATTACHMENT_SIZE, attachmentSizeText.getText().trim());
+	}
+	
+	@Override
+	public void setSystemNumber(int systemNumber) {
+		this.systemNumber = systemNumber;
+	}
+	
+	private void setTeamForgeProperties() throws Exception {
+		properties.setProperty(Activator.PROPERTIES_SFEE_URL, urlText.getText().trim());
+		properties.setProperty(Activator.PROPERTIES_SFEE_USER, userText.getText().trim());
+		properties.setProperty(Activator.PROPERTIES_SFEE_PASSWORD, passwordText.getText().trim());		
+		properties.setProperty(Activator.PROPERTIES_SFEE_RESYNC_USER, resyncUserText.getText().trim());
+		properties.setProperty(Activator.PROPERTIES_SFEE_RESYNC_PASSWORD, resyncPasswordText.getText().trim());
+		properties.setProperty(Activator.PROPERTIES_SFEE_ATTACHMENT_SIZE, attachmentSizeText.getText().trim());
 	}
 
 }

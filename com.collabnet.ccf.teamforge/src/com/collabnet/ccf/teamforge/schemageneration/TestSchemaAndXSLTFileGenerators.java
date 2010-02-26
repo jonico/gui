@@ -1,18 +1,15 @@
-package com.collabnet.ccf;
+package com.collabnet.ccf.teamforge.schemageneration;
 
 import javax.xml.transform.TransformerException;
 
 import org.dom4j.Document;
 
-import com.collabnet.ccf.schemageneration.CCFSchemaAndXSLTFileGenerator;
-import com.collabnet.ccf.schemageneration.CCFXSLTSchemaAndXSLTFileGenerator;
 import com.collabnet.ccf.core.GenericArtifact;
 import com.collabnet.ccf.core.GenericArtifactHelper;
 import com.collabnet.ccf.core.GenericArtifactParsingException;
-import com.collabnet.ccf.schemageneration.PTLayoutExtractor;
-import com.collabnet.ccf.schemageneration.QCLayoutExtractor;
+import com.collabnet.ccf.schemageneration.CCFSchemaAndXSLTFileGenerator;
+import com.collabnet.ccf.schemageneration.CCFXSLTSchemaAndXSLTFileGenerator;
 import com.collabnet.ccf.schemageneration.RepositoryLayoutExtractor;
-import com.collabnet.ccf.schemageneration.TFLayoutExtractor;
 
 public class TestSchemaAndXSLTFileGenerators {
 
@@ -20,25 +17,9 @@ public class TestSchemaAndXSLTFileGenerators {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		PTLayoutExtractor ptLayoutExtractor = new PTLayoutExtractor();
-		ptLayoutExtractor.setUsername("ccfconnector");
-		ptLayoutExtractor.setPassword("<secret>");
-		ptLayoutExtractor.setServerUrl("http://open.collab.net");
-
 		TFLayoutExtractor tfLayoutExtractor = new TFLayoutExtractor("http://cu085.cubit.sp.collab.net", "CCFConnectorUser", "CCF11");
-
-		QCLayoutExtractor qcLayoutExtractor = new QCLayoutExtractor();
-		qcLayoutExtractor.setUserName("alex_qc");
-		qcLayoutExtractor.setPassword("");
-		qcLayoutExtractor.setServerUrl("http://10.2.1.114:8080/qcbin/");
-
 		CCFSchemaAndXSLTFileGenerator generator = new CCFXSLTSchemaAndXSLTFileGenerator(".");
-
-		outputSchemaAndXSLTFiles(ptLayoutExtractor, "ccf:Issue", generator);
 		outputSchemaAndXSLTFiles(tfLayoutExtractor, "tracker1008", generator);
-		outputSchemaAndXSLTFiles(qcLayoutExtractor, "QC2CSFE-FeatureRequests",
-				generator);
-
 	}
 
 	private static void outputSchemaAndXSLTFiles(

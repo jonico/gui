@@ -53,11 +53,11 @@ public class Activator extends AbstractUIPlugin {
 
 	// The plug-in ID
 	public static final String PLUGIN_ID = "com.collabnet.ccf"; //$NON-NLS-1$
-	
-	// Landscape contributor extension point ID
-	public static final String LANDSCAPE_CONTRIBUTORS = "com.collabnet.ccf.landscapeContributors"; //$NON-NLS-1$	
-	
-	private static ILandscapeContributor[] landscapeContributors;
+
+	// CCF participants extension point ID
+	public static final String CCF_PARTICIPANTS = "com.collabnet.ccf.ccfParticipants"; //$NON-NLS-1$	
+
+	private static ICcfParticipant[] ccfParticipants;
 	private static List<IProjectMappingsChangeListener> changeListeners = new ArrayList<IProjectMappingsChangeListener>();
 	private static List<IRoleChangedListener> roleChangedListeners = new ArrayList<IRoleChangedListener>();
 	
@@ -93,6 +93,7 @@ public class Activator extends AbstractUIPlugin {
 	public static final String IMAGE_ONE_WAY = "one_way.gif"; //$NON-NLS-1$
 	public static final String IMAGE_NO_INCONSISTENCIES = "no_inconsistencies.gif"; //$NON-NLS-1$
 	public static final String IMAGE_MONITOR = "monitor.gif"; //$NON-NLS-1$
+	public static final String IMAGE_ARROWS = "arrows.png"; //$NON-NLS-1$
 	
 	// Preferences
 	public static final String PREFERENCES_DATABASE_DESCRIPTION = "pref_db_description"; //$NON-NLS-1$
@@ -161,10 +162,10 @@ public class Activator extends AbstractUIPlugin {
 	public static final String DEFAULT_MAPFORCE_PATH = "C:\\Program Files\\Altova\\Mapforce2009\\MapForce.exe";
 	
 	public static final String DEFAULT_CCF_HOST = "http://localhost"; //$NON-NLS-1$
-	public static final String DEFAULT_JMX_PORT_PT2QC = "8082";
-	public static final String DEFAULT_JMX_PORT_QC2PT = "8083";
-	public static final String DEFAULT_JMX_PORT_QC2SFEE = "8084";
-	public static final String DEFAULT_JMX_PORT_SFEE2QC = "8085";
+//	public static final String DEFAULT_JMX_PORT_PT2QC = "8082";
+//	public static final String DEFAULT_JMX_PORT_QC2PT = "8083";
+//	public static final String DEFAULT_JMX_PORT_QC2SFEE = "8084";
+//	public static final String DEFAULT_JMX_PORT_SFEE2QC = "8085";
 	public static final String DEFAULT_LOG_MESSAGE_TEMPLATE = "An Artifact has been quarantined.\n\nSOURCE_SYSTEM_ID: <SOURCE_SYSTEM_ID> \nSOURCE_REPOSITORY_ID: <SOURCE_REPOSITORY_ID> \nSOURCE_ARTIFACT_ID: <SOURCE_ARTIFACT_ID> \nTARGET_SYSTEM_ID: <TARGET_SYSTEM_ID> \nTARGET_REPOSITORY_ID: <TARGET_REPOSITORY_ID> \nTARGET_ARTIFACT_ID: <TARGET_ARTIFACT_ID> \nERROR_CODE: <ERROR_CODE> \nTIMESTAMP: <TIMESTAMP> \nEXCEPTION_CLASS_NAME: <EXCEPTION_CLASS_NAME> \nEXCEPTION_MESSAGE: <EXCEPTION_MESSAGE> \nCAUSE_EXCEPTION_CLASS_NAME: <CAUSE_EXCEPTION_CLASS_NAME> \nCAUSE_EXCEPTION_MESSAGE: <CAUSE_EXCEPTION_MESSAGE> \nSTACK_TRACE: <STACK_TRACE> \nADAPTOR_NAME: <ADAPTOR_NAME> \nORIGINATING_COMPONENT: <ORIGINATING_COMPONENT> \nDATA_TYPE: <DATA_TYPE> \nDATA: <DATA> \nTHREAD_NAME: <THREAD_NAME> \nFIXED: <FIXED> \nREPROCESSED: <REPROCESSED> \nSOURCE_SYSTEM_KIND: <SOURCE_SYSTEM_KIND> \nSOURCE_REPOSITORY_KIND: <SOURCE_REPOSITORY_KIND> \nTARGET_SYSTEM_KIND: <TARGET_SYSTEM_KIND> \nTARGET_REPOSITORY_KIND: <TARGET_REPOSITORY_KIND> \nSOURCE_LAST_MODIFICATION_TIME: <SOURCE_LAST_MODIFICATION_TIME> \nTARGET_LAST_MODIFICATION_TIME: <TARGET_LAST_MODIFICATION_TIME> \nSOURCE_ARTIFACT_VERSION: <SOURCE_ARTIFACT_VERSION> \nTARGET_ARTIFACT_VERSION: <TARGET_ARTIFACT_VERSION> \nARTIFACT_TYPE: <ARTIFACT_TYPE> \nGENERIC_ARTIFACT: <GENERIC_ARTIFACT>"; //$NON-NLS-1$
 	public static final int DEFAULT_RESET_DELAY = 10;
 	
@@ -172,6 +173,8 @@ public class Activator extends AbstractUIPlugin {
 	private static Activator plugin;
 	
 	private static List<Image> landscapeContributorImages = new ArrayList<Image>();
+	
+	private static List<Image> ccfParticipantImages = new ArrayList<Image>();
 	
 	public static final String PREF_CCF_LANDSCAPES_NODE = "ccfLandscapes"; //$NON-NLS-1$
 	public static final String PREF_CCF_ROLES_NODE = "ccfRoles"; //$NON-NLS-1$
@@ -205,11 +208,6 @@ public class Activator extends AbstractUIPlugin {
 	public static final String CREATE_INITIAL_MFD_FILE_PREFIX = "CreateInitialMFD"; //$NON-NLS-1$
 	public static final String CREATE_INITIAL_MFD_FILE_SUFFIX = ".xsl"; //$NON-NLS-1$
 	public static final String CREATE_INITIAL_MFD_FILE_SEPARATOR = "-"; //$NON-NLS-1$
-	public static final String CREATE_INITIAL_MFD_FILE_PT_ISSUE = "PTIssue"; //$NON-NLS-1$
-	public static final String CREATE_INITIAL_MFD_FILE_TF_PF = "TFPlanningFolder"; //$NON-NLS-1$
-	public static final String CREATE_INITIAL_MFD_FILE_TF_TRACKER_ITEM = "TFTrackerItem"; //$NON-NLS-1$
-	public static final String CREATE_INITIAL_MFD_FILE_QC_DEFECT = "QCDefect"; //$NON-NLS-1$
-	public static final String CREATE_INITIAL_MFD_FILE_QC_REQUIREMENT = "QCRequirement"; //$NON-NLS-1$
 	public static final String CREATE_INITIAL_MFD_FILE_UNKNOWN_ENTITY = "Unknown"; //$NON-NLS-1$
 	
 	
@@ -219,8 +217,8 @@ public class Activator extends AbstractUIPlugin {
 	 */
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
-		
-		landscapeContributors = getLandscapeContributors();
+
+		ccfParticipants = getCcfParticipants();
 	
 		plugin = this;
 		
@@ -236,6 +234,11 @@ public class Activator extends AbstractUIPlugin {
 		plugin = null;
 		proxyServiceTracker.close();
 		Iterator<Image> iter = landscapeContributorImages.iterator();
+		while(iter.hasNext()) {
+			Image image = (Image)iter.next();
+			if (!image.isDisposed()) image.dispose();
+		}
+		iter = ccfParticipantImages.iterator();
 		while(iter.hasNext()) {
 			Image image = (Image)iter.next();
 			if (!image.isDisposed()) image.dispose();
@@ -271,50 +274,70 @@ public class Activator extends AbstractUIPlugin {
 		}
 	}
 
-	// Initialize the landscape contributors by searching the registry for users of the
-	// landscape contributors extension point.	
-	public static ILandscapeContributor[] getLandscapeContributors() throws Exception {
-		if (landscapeContributors == null) {
-			ArrayList<ILandscapeContributor> landscapeContributorList = new ArrayList<ILandscapeContributor>();
+	// Initialize the CCF participants by searching the registry for users of the
+	// CCF participants extension point.	
+	public static ICcfParticipant[] getCcfParticipants() throws Exception {
+		if (ccfParticipants == null) {
+			ArrayList<ICcfParticipant> ccfParticipantList = new ArrayList<ICcfParticipant>();
 			IExtensionRegistry extensionRegistry = Platform.getExtensionRegistry();
-			IConfigurationElement[] configurationElements = extensionRegistry.getConfigurationElementsFor(LANDSCAPE_CONTRIBUTORS);
+			IConfigurationElement[] configurationElements = extensionRegistry.getConfigurationElementsFor(CCF_PARTICIPANTS);
 			for (int i = 0; i < configurationElements.length; i++) {
 				IConfigurationElement configurationElement = configurationElements[i];
-				ILandscapeContributor landscapeContributor = (ILandscapeContributor)configurationElement.createExecutableExtension("class"); //$NON-NLS-1$
-				landscapeContributor.setId(configurationElement.getAttribute("id")); //$NON-NLS-1$
-				landscapeContributor.setName(configurationElement.getAttribute("name")); //$NON-NLS-1$
-				landscapeContributor.setDescription(configurationElement.getAttribute("description")); //$NON-NLS-1$
+				ICcfParticipant ccfParticipant = (ICcfParticipant)configurationElement.createExecutableExtension("class"); //$NON-NLS-1$
+				ccfParticipant.setId(configurationElement.getAttribute("id")); //$NON-NLS-1$
+				ccfParticipant.setName(configurationElement.getAttribute("name")); //$NON-NLS-1$
+				ccfParticipant.setType(configurationElement.getAttribute("type")); //$NON-NLS-1$
+				ccfParticipant.setRepositoryKind(configurationElement.getAttribute("repositoryKind")); //$NON-NLS-1$
+				ccfParticipant.setDescription(configurationElement.getAttribute("description")); //$NON-NLS-1$
+				ccfParticipant.setPropertiesFileName(configurationElement.getAttribute("propertyFile")); //$NON-NLS-1$
 				String imageKey = configurationElement.getAttribute("image"); //$NON-NLS-1$
 				if (imageKey != null) {
 					ImageDescriptor imageDescriptor = imageDescriptorFromPlugin(PLUGIN_ID, "icons/" + imageKey); //$NON-NLS-1$
 					Image image = imageDescriptor.createImage();
-					landscapeContributorImages.add(image);
-					landscapeContributor.setImage(image);
+					ccfParticipantImages.add(image);
+					ccfParticipant.setImage(image);
 				}
 				String seq = configurationElement.getAttribute("sequence"); //$NON-NLS-1$
-				if (seq != null) landscapeContributor.setSequence(Integer.parseInt(seq));				
-				landscapeContributorList.add(landscapeContributor);
+				if (seq != null) ccfParticipant.setSequence(Integer.parseInt(seq));				
+				ccfParticipantList.add(ccfParticipant);
 			}
-			landscapeContributors = new ILandscapeContributor[landscapeContributorList.size()];
-			landscapeContributorList.toArray(landscapeContributors);	
-			Arrays.sort(landscapeContributors);
+			ccfParticipants = new ICcfParticipant[ccfParticipantList.size()];
+			ccfParticipantList.toArray(ccfParticipants);	
+			Arrays.sort(ccfParticipants);
 		}
-		return landscapeContributors;
+		return ccfParticipants;
 	}
-	
-	public static ILandscapeContributor getLandscapeContributor(Landscape landscape) throws Exception {
-		ILandscapeContributor landscapeContributor = null;
-		landscapeContributors = getLandscapeContributors();
-		for (int i = 0; i < landscapeContributors.length; i++) {
-			if (landscapeContributors[i].getId().equals(landscape.getContributorId())) {
-				landscapeContributor = landscapeContributors[i];
+
+	public static ICcfParticipant getCcfParticipantForId(String id) throws Exception {
+		ICcfParticipant ccfParticipant = null;
+		ccfParticipants = getCcfParticipants();
+		for (int i = 0; i < ccfParticipants.length; i++) {
+			if (ccfParticipants[i].getId().equals(id)) {
+				ccfParticipant = ccfParticipants[i];
 				break;
 			}
 		}
-		return landscapeContributor;
+		return ccfParticipant;
 	}
 	
-	public boolean storeLandscape(String description, int role, Database database, ILandscapeContributor landscapeContributor) {
+	public static ICcfParticipant getCcfParticipantForType(String type) throws Exception {
+		String key = type;
+		int pausedIndex = type.indexOf("_paused");
+		if (pausedIndex > -1) {
+			key = type.substring(0, pausedIndex);
+		}		
+		ICcfParticipant ccfParticipant = null;
+		ccfParticipants = getCcfParticipants();
+		for (int i = 0; i < ccfParticipants.length; i++) {
+			if (ccfParticipants[i].getType().equals(key)) {
+				ccfParticipant = ccfParticipants[i];
+				break;
+			}
+		}
+		return ccfParticipant;
+	}
+
+	public boolean storeLandscape(String description, int role, Database database, ICcfParticipant ccfParticipant1, ICcfParticipant ccfParticipant2, String configurationFolder1, String configurationFolder2) {
 		Landscape landscape = new Landscape();
 		landscape.setDescription(description);
 		landscape.setRole(role);
@@ -324,11 +347,32 @@ public class Activator extends AbstractUIPlugin {
 			landscape.setDatabaseUser(database.getUser());
 			landscape.setDatabasePassword(database.getPassword());
 		}
-		landscape.setType1(landscapeContributor.getType1());
-		landscape.setType2(landscapeContributor.getType2());
-		landscape.setConfigurationFolder1(landscapeContributor.getConfigurationFolder1());
-		landscape.setConfigurationFolder2(landscapeContributor.getConfigurationFolder2());
-		landscape.setContributorId(landscapeContributor.getId());
+		
+		ICcfParticipant p1;
+		ICcfParticipant p2;
+		String cf1;
+		String cf2;
+		
+		if (ccfParticipant1.getSequence() > ccfParticipant2.getSequence()) {
+			p1 = ccfParticipant2;
+			p2 = ccfParticipant1;
+			cf1 = configurationFolder2;
+			cf2 = configurationFolder1;
+		} else {
+			p1 = ccfParticipant1;
+			p2 = ccfParticipant2;
+			cf1 = configurationFolder1;
+			cf2 = configurationFolder2;			
+		}
+	
+		landscape.setType1(p1.getType());
+		landscape.setType2(p2.getType());
+		
+		landscape.setConfigurationFolder1(cf1);
+		landscape.setConfigurationFolder2(cf2);
+		landscape.setParticipantId1(p1.getId());
+		landscape.setParticipantId2(p2.getId());
+		
 		return storeLandscape(landscape);
 	}
 	
@@ -387,7 +431,8 @@ public class Activator extends AbstractUIPlugin {
 			if (landscape.getJmxPort1() != null) prefs.put("jmxPort1", landscape.getJmxPort1()); //$NON-NLS-1$
 			if (landscape.getJmxPort2() != null) prefs.put("jmxPort2", landscape.getJmxPort2()); //$NON-NLS-1$
 		}
-		prefs.put("contributorId", landscape.getContributorId()); //$NON-NLS-1$
+		prefs.put("participantId1", landscape.getParticipantId1()); //$NON-NLS-1$
+		prefs.put("participantId2", landscape.getParticipantId2()); //$NON-NLS-1$
 		try {
 			prefs.flush();
 		} catch (BackingStoreException e) {
@@ -529,14 +574,18 @@ public class Activator extends AbstractUIPlugin {
 					String defaultJmxPort1 = null;
 					String defaultJmxPort2 = null;
 					
-					if (landscape.getType2().equals(Landscape.TYPE_PT)) {
-						defaultJmxPort1 = DEFAULT_JMX_PORT_PT2QC;
-						defaultJmxPort2 = DEFAULT_JMX_PORT_QC2PT;
-					}
-					if (landscape.getType2().equals(Landscape.TYPE_TF)) {
-						defaultJmxPort1 = DEFAULT_JMX_PORT_SFEE2QC;
-						defaultJmxPort2 = DEFAULT_JMX_PORT_QC2SFEE;
-					}
+					ICcfParticipant ccfParticipant = Activator.getCcfParticipantForType(landscape.getType2());
+					defaultJmxPort1 = ccfParticipant.getDefaultJmxPort1();
+					defaultJmxPort2 = ccfParticipant.getDefaultJmxPort2();
+//					
+//					if (landscape.getType2().equals(Landscape.TYPE_PT)) {
+//						defaultJmxPort1 = DEFAULT_JMX_PORT_PT2QC;
+//						defaultJmxPort2 = DEFAULT_JMX_PORT_QC2PT;
+//					}
+//					if (landscape.getType2().equals(Landscape.TYPE_TF)) {
+//						defaultJmxPort1 = DEFAULT_JMX_PORT_SFEE2QC;
+//						defaultJmxPort2 = DEFAULT_JMX_PORT_QC2SFEE;
+//					}
 					
 					landscape.setJmxPort1(node.get("jmxPort1", defaultJmxPort1)); //$NON-NLS-1$
 					landscape.setJmxPort2(node.get("jmxPort2", defaultJmxPort2)); //$NON-NLS-1$
@@ -544,7 +593,8 @@ public class Activator extends AbstractUIPlugin {
 				landscape.setConfigurationFolder1(node.get("configFolder1", "")); //$NON-NLS-1$ //$NON-NLS-2$
 				landscape.setConfigurationFolder2(node.get("configFolder2", "")); //$NON-NLS-1$ //$NON-NLS-2$
 				landscape.setNode(node);
-				landscape.setContributorId(node.get("contributorId", "")); //$NON-NLS-1$ //$NON-NLS-2$
+				landscape.setParticipantId1(node.get("participantId1", "")); //$NON-NLS-1$ //$NON-NLS-2$
+				landscape.setParticipantId2(node.get("participantId2", "")); //$NON-NLS-1$ //$NON-NLS-2$
 				landscapes.add(landscape);
 			}
 			Landscape[] landscapeArray = new Landscape[landscapes.size()];
@@ -640,6 +690,7 @@ public class Activator extends AbstractUIPlugin {
 		createImageDescriptor(IMAGE_ONE_WAY);
 		createImageDescriptor(IMAGE_NO_INCONSISTENCIES);
 		createImageDescriptor(IMAGE_MONITOR);
+		createImageDescriptor(IMAGE_ARROWS);
 	}
 	
 	protected void initializeImageRegistry(ImageRegistry reg) {
@@ -675,6 +726,7 @@ public class Activator extends AbstractUIPlugin {
 		reg.put(IMAGE_ONE_WAY, getImageDescriptor(IMAGE_ONE_WAY));
 		reg.put(IMAGE_NO_INCONSISTENCIES, getImageDescriptor(IMAGE_NO_INCONSISTENCIES));
 		reg.put(IMAGE_MONITOR, getImageDescriptor(IMAGE_MONITOR));
+		reg.put(IMAGE_ARROWS, getImageDescriptor(IMAGE_ARROWS));
 	}
 	
 	public static IProject getTemporaryFilesProject() throws CoreException {
@@ -727,7 +779,6 @@ public class Activator extends AbstractUIPlugin {
 			proxyService = (IProxyService)proxyServiceTracker.getService();
 		}
 		return proxyService;
-//		return (IProxyService) proxyServiceTracker.getService();
 	}    
 	
 	public static Proxy getPlatformProxy(String url) {

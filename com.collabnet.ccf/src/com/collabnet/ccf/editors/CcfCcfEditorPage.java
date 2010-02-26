@@ -492,6 +492,10 @@ public class CcfCcfEditorPage extends CcfEditorPage {
 	}
 	
 	@Override
+	public void setSystemNumber(int systemNumber) {
+	}
+
+	@Override
 	public void doSave(IProgressMonitor monitor) {
 		if (descriptionText == null) return;
 		if (ccfPropertiesUpdated()) {

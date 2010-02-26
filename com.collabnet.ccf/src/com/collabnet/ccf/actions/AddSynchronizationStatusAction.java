@@ -10,7 +10,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.actions.ActionDelegate;
 
 import com.collabnet.ccf.Activator;
-import com.collabnet.ccf.model.Landscape;
 import com.collabnet.ccf.model.ProjectMappings;
 import com.collabnet.ccf.views.CcfExplorerView;
 import com.collabnet.ccf.wizards.CustomWizardDialog;
@@ -26,13 +25,7 @@ public class AddSynchronizationStatusAction extends ActionDelegate {
 			Object object = iter.next();
 			if (object instanceof ProjectMappings) {
 				ProjectMappings projectMappings = (ProjectMappings)object;	
-				int type;
-				if (projectMappings.getLandscape().getType1().equals(Landscape.TYPE_TF) || projectMappings.getLandscape().getType2().equals(Landscape.TYPE_TF)) {
-					type = NewProjectMappingWizard.TYPE_TF;
-				} else {			
-					type = NewProjectMappingWizard.TYPE_PT;
-				}
-				NewProjectMappingWizard wizard = new NewProjectMappingWizard(projectMappings, type);
+				NewProjectMappingWizard wizard = new NewProjectMappingWizard(projectMappings);
 				WizardDialog dialog = new CustomWizardDialog(Display.getDefault().getActiveShell(), wizard);
 				if (dialog.open() == WizardDialog.OK && CcfExplorerView.getView() != null) {
 					Activator.notifyChanged(projectMappings);

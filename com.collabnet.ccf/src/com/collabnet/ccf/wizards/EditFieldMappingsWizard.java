@@ -6,9 +6,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Properties;
-
-import javax.xml.transform.TransformerException;
 
 import org.dom4j.Document;
 import org.eclipse.core.filesystem.EFS;
@@ -28,21 +25,14 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 
 import com.collabnet.ccf.Activator;
+import com.collabnet.ccf.ICcfParticipant;
 import com.collabnet.ccf.core.CCFRuntimeException;
-import com.collabnet.ccf.core.GenericArtifact;
-import com.collabnet.ccf.core.GenericArtifactHelper;
-import com.collabnet.ccf.core.GenericArtifactParsingException;
 import com.collabnet.ccf.db.CcfDataProvider;
 import com.collabnet.ccf.dialogs.ExceptionDetailsErrorDialog;
 import com.collabnet.ccf.editors.ExternalFileEditorInput;
-import com.collabnet.ccf.model.Landscape;
 import com.collabnet.ccf.model.SynchronizationStatus;
 import com.collabnet.ccf.schemageneration.CCFSchemaAndXSLTFileGenerator;
 import com.collabnet.ccf.schemageneration.CCFXSLTSchemaAndXSLTFileGenerator;
-import com.collabnet.ccf.schemageneration.PTLayoutExtractor;
-import com.collabnet.ccf.schemageneration.QCLayoutExtractor;
-import com.collabnet.ccf.schemageneration.RepositoryLayoutExtractor;
-import com.collabnet.ccf.schemageneration.TFLayoutExtractor;
 import com.collabnet.ccf.schemageneration.XSLTInitialMFDGenerator;
 
 public class EditFieldMappingsWizard extends Wizard {
@@ -147,23 +137,14 @@ public class EditFieldMappingsWizard extends Wizard {
 					try {
 						CCFSchemaAndXSLTFileGenerator xmlFileGenerator = new CCFXSLTSchemaAndXSLTFileGenerator(
 								projectMapping.getXSLTFolder().getAbsolutePath());
-						if (projectMapping.getLandscape().getType2().equals(
-								Landscape.TYPE_TF)) {
-							extractTF(projectMapping, xmlFileGenerator, monitor);
-							if (monitor.isCanceled()) {
-								canceled = true;
-								return;
-							}
+						ICcfParticipant ccfParticipant = Activator.getCcfParticipantForType(projectMapping.getLandscape().getType2());
+						ccfParticipant.extract(projectMapping, xmlFileGenerator, monitor);
+						if (monitor.isCanceled()) {
+							canceled = true;
+							return;
 						}
-						if (projectMapping.getLandscape().getType2().equals(
-								Landscape.TYPE_PT)) {
-							extractPT(projectMapping, xmlFileGenerator, monitor);
-							if (monitor.isCanceled()) {
-								canceled = true;
-								return;
-							}
-						}
-						extractQC(projectMapping, xmlFileGenerator, monitor);
+						ccfParticipant = Activator.getCcfParticipantForType(projectMapping.getLandscape().getType1());
+						ccfParticipant.extract(projectMapping, xmlFileGenerator, monitor);
 						if (monitor.isCanceled()) {
 							canceled = true;
 							return;
@@ -352,134 +333,6 @@ public class EditFieldMappingsWizard extends Wizard {
 	private boolean confirmRestoreDefaultMapping() {
 		return MessageDialog.openConfirm(Display.getDefault().getActiveShell(), "Edit Field Mappings", "WARNING:  Restoring default mapping will cause any previously-defined field mapping to be overlaid.\n\nAre you sure you wish to restore default mapping?");
 	}
-	
-	private void extractQC(SynchronizationStatus status,
-			CCFSchemaAndXSLTFileGenerator xmlFileGenerator,
-			IProgressMonitor monitor) throws GenericArtifactParsingException,
-			IOException, TransformerException {
-		QCLayoutExtractor qcLayoutExtractor = new QCLayoutExtractor();
-		Properties properties = status.getLandscape().getProperties1();
-		String url = properties.getProperty(Activator.PROPERTIES_QC_URL, "");
-		String user = properties.getProperty(Activator.PROPERTIES_QC_USER, "");
-		String password = properties.getProperty(
-				Activator.PROPERTIES_QC_PASSWORD, "");
-		qcLayoutExtractor.setServerUrl(url);
-		qcLayoutExtractor.setUserName(user);
-		qcLayoutExtractor.setPassword(password);
-		String repositoryId = null;
-
-		File artifactToSchemaFile = null;
-		File schemaToArtifactFile = null;
-		File repositorySchemaFile = null;
-
-		boolean isSourceSystem = false;
-		if (status.getSourceSystemKind().startsWith(Landscape.TYPE_QC)) {
-			isSourceSystem = true;
-			repositoryId = status.getSourceRepositoryId();
-			artifactToSchemaFile = status.getMappingFile(status
-					.getGenericArtifactToSourceRepositorySchemaFileName());
-			schemaToArtifactFile = status.getMappingFile(status
-					.getSourceRepositorySchemaToGenericArtifactFileName());
-			repositorySchemaFile = status.getMappingFile(status
-					.getSourceRepositorySchemaFileName());
-		} else {
-			repositoryId = status.getTargetRepositoryId();
-			artifactToSchemaFile = status.getMappingFile(status
-					.getGenericArtifactToTargetRepositorySchemaFileName());
-			schemaToArtifactFile = status.getMappingFile(status
-					.getTargetRepositorySchemaToGenericArtifactFileName());
-			repositorySchemaFile = status.getMappingFile(status
-					.getTargetRepositorySchemaFileName());
-		}
-
-		outputSchemaAndXSLTFiles(qcLayoutExtractor, repositoryId,
-				xmlFileGenerator, artifactToSchemaFile, schemaToArtifactFile,
-				repositorySchemaFile, isSourceSystem, monitor);
-	}
-
-	private void extractTF(SynchronizationStatus status,
-			CCFSchemaAndXSLTFileGenerator xmlFileGenerator,
-			IProgressMonitor monitor) throws GenericArtifactParsingException,
-			IOException, TransformerException {
-		Properties properties = status.getLandscape().getProperties2();
-		String url = properties.getProperty(Activator.PROPERTIES_SFEE_URL, "");
-		String user = properties
-				.getProperty(Activator.PROPERTIES_SFEE_USER, "");
-		String password = properties.getProperty(
-				Activator.PROPERTIES_SFEE_PASSWORD, "");
-		TFLayoutExtractor tfLayoutExtractor = new TFLayoutExtractor(url, user, password);
-		String repositoryId = null;
-
-		File artifactToSchemaFile = null;
-		File schemaToArtifactFile = null;
-		File repositorySchemaFile = null;
-
-		boolean isSourceSystem = false;
-		if (status.getSourceSystemKind().startsWith(Landscape.TYPE_TF)) {
-			isSourceSystem = true;
-			repositoryId = status.getSourceRepositoryId();
-			artifactToSchemaFile = status.getMappingFile(status
-					.getGenericArtifactToSourceRepositorySchemaFileName());
-			schemaToArtifactFile = status.getMappingFile(status
-					.getSourceRepositorySchemaToGenericArtifactFileName());
-			repositorySchemaFile = status.getMappingFile(status
-					.getSourceRepositorySchemaFileName());
-		} else {
-			repositoryId = status.getTargetRepositoryId();
-			artifactToSchemaFile = status.getMappingFile(status
-					.getGenericArtifactToTargetRepositorySchemaFileName());
-			schemaToArtifactFile = status.getMappingFile(status
-					.getTargetRepositorySchemaToGenericArtifactFileName());
-			repositorySchemaFile = status.getMappingFile(status
-					.getTargetRepositorySchemaFileName());
-		}
-		outputSchemaAndXSLTFiles(tfLayoutExtractor, repositoryId,
-				xmlFileGenerator, artifactToSchemaFile, schemaToArtifactFile,
-				repositorySchemaFile, isSourceSystem, monitor);
-	}
-
-	private void extractPT(SynchronizationStatus status,
-			CCFSchemaAndXSLTFileGenerator xmlFileGenerator,
-			IProgressMonitor monitor) throws GenericArtifactParsingException,
-			IOException, TransformerException {
-		PTLayoutExtractor ptLayoutExtractor = new PTLayoutExtractor();
-		Properties properties = status.getLandscape().getProperties2();
-		String url = properties.getProperty(Activator.PROPERTIES_CEE_URL, "");
-		String user = properties.getProperty(Activator.PROPERTIES_CEE_USER, "");
-		String password = properties.getProperty(
-				Activator.PROPERTIES_CEE_PASSWORD, "");
-		ptLayoutExtractor.setServerUrl(url);
-		ptLayoutExtractor.setUsername(user);
-		ptLayoutExtractor.setPassword(password);
-		String repositoryId = null;
-
-		File artifactToSchemaFile = null;
-		File schemaToArtifactFile = null;
-		File repositorySchemaFile = null;
-
-		boolean isSourceSystem = false;
-		if (status.getSourceSystemKind().startsWith(Landscape.TYPE_PT)) {
-			isSourceSystem = true;
-			repositoryId = status.getSourceRepositoryId();
-			artifactToSchemaFile = status.getMappingFile(status
-					.getGenericArtifactToSourceRepositorySchemaFileName());
-			// schemaToArtifactFile = status.getMappingFile(status.
-			// getSourceRepositorySchemaToGenericArtifactFileName());
-			repositorySchemaFile = status.getMappingFile(status
-					.getSourceRepositorySchemaFileName());
-		} else {
-			repositoryId = status.getTargetRepositoryId();
-			artifactToSchemaFile = status.getMappingFile(status
-					.getGenericArtifactToTargetRepositorySchemaFileName());
-			schemaToArtifactFile = status.getMappingFile(status
-					.getTargetRepositorySchemaToGenericArtifactFileName());
-			repositorySchemaFile = status.getMappingFile(status
-					.getTargetRepositorySchemaFileName());
-		}
-		outputSchemaAndXSLTFiles(ptLayoutExtractor, repositoryId,
-				xmlFileGenerator, artifactToSchemaFile, schemaToArtifactFile,
-				repositorySchemaFile, isSourceSystem, monitor);
-	}
 
 	private static void writeFile(File file, Document content)
 			throws IOException {
@@ -501,62 +354,6 @@ public class EditFieldMappingsWizard extends Wizard {
 				}
 			}
 		}
-	}
-
-	private static void outputSchemaAndXSLTFiles(
-			RepositoryLayoutExtractor extractor, String repositoryId,
-			CCFSchemaAndXSLTFileGenerator generator, File artifactToSchemaFile,
-			File schemaToArtifactFile, File repositorySchemaFile,
-			boolean isSourceSystem, IProgressMonitor monitor)
-			throws GenericArtifactParsingException, IOException,
-			TransformerException {
-
-		monitor.subTask("Creating generic artifact XML document for "
-				+ repositorySchemaFile.getName());
-
-		GenericArtifact genericArtifact = extractor
-				.getRepositoryLayout(repositoryId);
-		Document genericArtifactDocument = GenericArtifactHelper
-				.createGenericArtifactXMLDocument(genericArtifact);
-
-		monitor.worked(1);
-		if (monitor.isCanceled()) 
-			return;
-
-		monitor.subTask("Generating " + repositorySchemaFile.getName());
-
-		writeFile(repositorySchemaFile, generator
-				.getRepositorySpecificLayout(genericArtifactDocument));
-
-		monitor.worked(1);
-		if (monitor.isCanceled())
-			return;
-
-		if (isSourceSystem) {
-			monitor.subTask("Generating " + artifactToSchemaFile.getName());
-
-			writeFile(
-					artifactToSchemaFile,
-					generator
-							.getGenericArtifactToRepositoryXSLTFile(genericArtifactDocument));
-			monitor.worked(1);
-		}
-
-		if (monitor.isCanceled())
-			return;
-
-		if (!isSourceSystem) {
-			monitor.subTask("Generating " + schemaToArtifactFile.getName());
-
-			writeFile(
-					schemaToArtifactFile,
-					generator
-							.getRepositoryToGenericArtifactXSLTFile(genericArtifactDocument));
-			monitor.worked(1);
-		}
-
-		if (monitor.isCanceled())
-			return;
 	}
 
 }

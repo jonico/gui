@@ -13,6 +13,7 @@ import org.eclipse.ui.views.properties.PropertyDescriptor;
 import org.osgi.service.prefs.Preferences;
 
 import com.collabnet.ccf.Activator;
+import com.collabnet.ccf.ICcfParticipant;
 
 public class Landscape implements IPropertySource {
 	private String description;
@@ -34,7 +35,8 @@ public class Landscape implements IPropertySource {
 	private String type2;
 	private String configurationFolder1;
 	private String configurationFolder2;
-	private String contributorId;
+	private String participantId1;
+	private String participantId2;
 	private Preferences node;
 
 	private Properties ccfProperties1;
@@ -55,14 +57,11 @@ public class Landscape implements IPropertySource {
 	public final static int ROLE_ADMINISTRATOR = 0;
 	public final static int ROLE_OPERATOR = 1;
 	
-	public final static String TYPE_QC = "QC";
-	public final static String TYPE_TF = "TF";
-	public final static String TYPE_PT = "PT";
 	public final static String TYPE_CCF = "CCF";
 	
-	public final static String TYPE_DESCRIPTION_QC = "Quality Center";
-	public final static String TYPE_DESCRIPTION_TF = "TeamForge";
-	public final static String TYPE_DESCRIPTION_PT = "Project Tracker";
+//	public final static String TYPE_QC = "QC";
+//	public final static String TYPE_TF = "TF";
+//	public final static String TYPE_PT = "PT";
 	
 	public static String P_ID_DESCRIPTION = "desc"; //$NON-NLS-1$
 	public static String P_DESCRIPTION = "Description";
@@ -138,18 +137,22 @@ public class Landscape implements IPropertySource {
 		this.node = node;
 	}
 
-	public String getContributorId() {
-		return contributorId;
-	}
-	
-	public void setContributorId(String contributorId) {
-		this.contributorId = contributorId;
-	}
-	
 	public void setDatabaseUrl(String databaseUrl) {
 		this.databaseUrl = databaseUrl;
 	}
 	
+	public String getParticipantId1() {
+		return participantId1;
+	}
+	public void setParticipantId1(String participantId1) {
+		this.participantId1 = participantId1;
+	}
+	public String getParticipantId2() {
+		return participantId2;
+	}
+	public void setParticipantId2(String participantId2) {
+		this.participantId2 = participantId2;
+	}
 	public void setDatabaseDriver(String databaseDriver) {
 		this.databaseDriver = databaseDriver;
 	}
@@ -385,25 +388,7 @@ public class Landscape implements IPropertySource {
 		}
 		return ccfProperties2;
 	}
-	
-	public Properties getQcProperties() {
-		if (type1.equals(TYPE_QC)) return getProperties1();
-		if (type2.equals(TYPE_QC)) return getProperties2();
-		return null;
-	}
-	
-	public Properties getSfeeProperties() {
-		if (type1.equals(TYPE_TF)) return getProperties1();
-		if (type2.equals(TYPE_TF)) return getProperties2();
-		return null;
-	}
-	
-	public Properties getCeeProperties() {
-		if (type1.equals(TYPE_PT)) return getProperties1();
-		if (type2.equals(TYPE_PT)) return getProperties2();
-		return null;
-	}
-	
+
 	public Properties getProperties1() {
 		if (properties1 == null) {
 			properties1 = getProperties(configurationFolder1, type1);
@@ -561,18 +546,39 @@ public class Landscape implements IPropertySource {
 		else return getLogs2(logs);
 	}
 	
-	public static String getTypeDescription(String type) {
-		String description;
-		if (type.equals(TYPE_QC)) {
-			description = TYPE_DESCRIPTION_QC;
-		}
-		else if (type.equals(TYPE_TF)) {
-			description = TYPE_DESCRIPTION_TF;
-		}
-		else if (type.equals(TYPE_PT)) {
-			description = TYPE_DESCRIPTION_PT;
+	public String getDirectionButtonText(boolean reversed) {
+		String t1;
+		String t2;
+		if (reversed) {
+			t1 = type2;
+			t2 = type1;
 		} else {
-			description = type;
+			t1 = type1;
+			t2 = type2;			
+		}
+		StringBuffer d1 = new StringBuffer(getTypeDescription(t1));
+		StringBuffer d2 = new StringBuffer(getTypeDescription(t2));
+		if (t1.equals(t2)) {
+			if (reversed) {
+				d1.append("(2)");
+				d2.append("(1)");
+			} else {
+				d1.append("(1)");
+				d2.append("(2)");				
+			}
+		}
+		return d1 + " => " + d2;
+	}
+	
+	public static String getTypeDescription(String type) {
+		String description = null;
+		try {
+			ICcfParticipant ccfParticipant = Activator.getCcfParticipantForType(type);
+			if (ccfParticipant != null) {
+				return ccfParticipant.getName();
+			}
+		} catch (Exception e) {
+			Activator.handleError(e);
 		}
 		return description;
 	}
@@ -611,14 +617,12 @@ public class Landscape implements IPropertySource {
 		if (type.equals(TYPE_CCF)) {
 			propertyFile = "ccf.properties";
 		}
-		else if (type.equals(TYPE_QC)) {
-			propertyFile = "qc.properties";
-		}
-		else if (type.equals(TYPE_TF)) {
-			propertyFile = "sfee.properties";
-		}
-		else if (type.equals(TYPE_PT)) {
-			propertyFile = "cee.properties";
+		else {
+			try {
+				propertyFile = Activator.getCcfParticipantForType(type).getPropertiesFileName();
+			} catch (Exception e) {
+				Activator.handleError(e);
+			}
 		}
 		if (propertyFile != null) {
 			File propertiesFile = new File(folder, propertyFile);

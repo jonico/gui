@@ -505,12 +505,7 @@ public class CcfDataProvider {
 			Landscape landscape = projectMappings.getLandscape();
 			connection = getConnection(landscape);
 			stmt = connection.createStatement();
-			String version;
-			if (synchronizationStatus.getSourceSystemKind().startsWith(Landscape.TYPE_PT)) {
-				version = Long.toString(Timestamp.valueOf("1999-01-01 00:00:00.0").getTime());	
-			} else {
-				version = "0";
-			}
+			String version = Activator.getCcfParticipantForType(synchronizationStatus.getSourceSystemKind()).getNewProjectMappingVersion();
 			StringBuffer insertStatement = new StringBuffer(SQL_SYNCHRONIZATION_STATUS_INSERT +
 			" VALUES('" + synchronizationStatus.getSourceSystemId() + "','" +
 			synchronizationStatus.getSourceRepositoryId() + "','" +
@@ -850,9 +845,10 @@ public class CcfDataProvider {
 				Filter[] filters = { sourceSystemFilter, sourceRepositoryFilter, targetSystemFilter, targetRepositoryFilter };
 				Update dateUpdate = new Update(CcfDataProvider.SYNCHRONIZATION_STATUS_LAST_SOURCE_ARTIFACT_MODIFICATION_DATE, timestamp.toString());
 				String version;
-				if (status.getSourceSystemKind().startsWith(Landscape.TYPE_PT)) {
-					version = Long.toString(timestamp.getTime());	
-				} else {
+				try {
+					version = Activator.getCcfParticipantForType(status.getSourceSystemKind()).getResetProjectMappingVersion(timestamp);
+				} catch (Exception e1) {
+					Activator.handleError(e1);
 					version = "0";
 				}
 				Update versionUpdate = new Update(CcfDataProvider.SYNCHRONIZATION_STATUS_LAST_SOURCE_ARTIFACT_VERSION, version);

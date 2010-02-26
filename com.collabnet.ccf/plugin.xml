@@ -2,27 +2,7 @@
 <?eclipse version="3.2"?>
 <plugin>
 
-   <extension-point id="landscapeContributors" name="CCF Landscape Contributors" schema="schema/landscapeContributors.exsd"/>
-
-   <extension
-         point="com.collabnet.ccf.landscapeContributors">
-      <landscape
-            name="TeamForge/QC"
-            description="Bidirectional TeamForge and QC synchronizations"
-            class="com.collabnet.ccf.TeamForgeQCLandscapeContributor"
-            sequence="10"
-            image="teamForgeQC.png"
-            id="com.collabnet.ccf.TeamForgeQCLandscapeContributor">
-      </landscape> 
-      <landscape
-            name="Project Tracker/QC"
-            description="Bidirectional Project Tracker and QC synchronizations"
-            class="com.collabnet.ccf.ProjectTrackerQCLandscapeContributor"
-            sequence="20"
-            image="projectTrackerQC.png"
-            id="com.collabnet.ccf.ProjectTrackerQCLandscapeContributor">
-      </landscape>         
-   </extension>
+   <extension-point id="ccfParticipants" name="CCF Participants" schema="schema/ccfParticipants.exsd"/>
 
    <extension
          point="org.eclipse.core.runtime.preferences">

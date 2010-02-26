@@ -15,7 +15,7 @@
  *
  **/
 
-package com.collabnet.ccf.schemageneration;
+package com.collabnet.ccf.pt.schemageneration;
 
 import com.collabnet.ccf.core.CCFRuntimeException;
 

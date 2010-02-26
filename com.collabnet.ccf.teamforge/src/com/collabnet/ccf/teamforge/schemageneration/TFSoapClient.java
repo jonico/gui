@@ -1,4 +1,4 @@
-package com.collabnet.ccf.schemageneration;
+package com.collabnet.ccf.teamforge.schemageneration;
 
 import java.rmi.RemoteException;
 import java.util.HashMap;

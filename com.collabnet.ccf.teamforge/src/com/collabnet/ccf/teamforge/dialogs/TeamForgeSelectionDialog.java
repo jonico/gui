@@ -1,6 +1,7 @@
-package com.collabnet.ccf.dialogs;
+package com.collabnet.ccf.teamforge.dialogs;
 
 import java.rmi.RemoteException;
+import java.util.Properties;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -25,14 +26,17 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.model.WorkbenchContentProvider;
 
 import com.collabnet.ccf.Activator;
+import com.collabnet.ccf.dialogs.CcfDialog;
+import com.collabnet.ccf.dialogs.ExceptionDetailsErrorDialog;
 import com.collabnet.ccf.model.Landscape;
-import com.collabnet.ccf.schemageneration.TFSoapClient;
+import com.collabnet.ccf.teamforge.schemageneration.TFSoapClient;
 import com.collabnet.teamforge.api.main.ProjectRow;
 import com.collabnet.teamforge.api.tracker.TrackerRow;
 
 public class TeamForgeSelectionDialog extends CcfDialog {
 	private Landscape landscape;
 	private int type;
+	private int systemNumber;
 	private TreeViewer treeViewer;
 	private String projectId;
 	private String trackerId;
@@ -46,10 +50,11 @@ public class TeamForgeSelectionDialog extends CcfDialog {
 	
 	private Button okButton;
 
-	public TeamForgeSelectionDialog(Shell parentShell, Landscape landscape, int type) {
+	public TeamForgeSelectionDialog(Shell parentShell, Landscape landscape, int type, int systemNumber) {
 		super(parentShell, "TeamForgeSelectionDialog");
 		this.landscape = landscape;
 		this.type = type;
+		this.systemNumber = systemNumber;
 	}
 	
 	protected Control createDialogArea(Composite parent) {
@@ -135,10 +140,23 @@ public class TeamForgeSelectionDialog extends CcfDialog {
 	
 	private TFSoapClient getSoapClient() {
 		if (soapClient == null) {
-			String serverUrl = landscape.getSfeeProperties().getProperty(Activator.PROPERTIES_SFEE_URL);
-			String userId = landscape.getSfeeProperties().getProperty(Activator.PROPERTIES_SFEE_USER);
-			String password = landscape.getSfeeProperties().getProperty(Activator.PROPERTIES_SFEE_PASSWORD);
-			soapClient = TFSoapClient.getSoapClient(serverUrl, userId, password);
+			Properties properties = null;
+			switch (systemNumber) {
+			case 1:
+				properties = landscape.getProperties1();
+				break;
+			case 2:
+				properties = landscape.getProperties2();
+				break;
+			default:
+				break;
+			}
+			if (properties != null) {
+				String serverUrl = properties.getProperty(Activator.PROPERTIES_SFEE_URL);
+				String userId = properties.getProperty(Activator.PROPERTIES_SFEE_USER);
+				String password = properties.getProperty(Activator.PROPERTIES_SFEE_PASSWORD);
+				soapClient = TFSoapClient.getSoapClient(serverUrl, userId, password);
+			}
 		}
 		return soapClient;
 	}

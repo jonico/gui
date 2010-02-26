@@ -30,4 +30,10 @@ Bundle-ClassPath: lib/hsqldb.jar,
  lib/jacob.jar,
  lib/jaxen_1.1-beta-9.jar,
  .
-Export-Package: com.collabnet.tracker.common.httpClient
+Export-Package: com.collabnet.ccf,
+ com.collabnet.ccf.core,
+ com.collabnet.ccf.dialogs,
+ com.collabnet.ccf.editors,
+ com.collabnet.ccf.model,
+ com.collabnet.ccf.schemageneration,
+ org.dom4j

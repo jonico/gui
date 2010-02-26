@@ -26,27 +26,14 @@ public class NewProjectMappingWizardMainPage extends WizardPage {
 	protected Button system1ToSystem2Button;
 	protected Button system2ToSystem1Button;
 	protected Button bothButton;
-	
-	private Button defectsButton;
-	protected Button requirementsButton;
-	
-	private Button trackerButton;
-	protected Button planningFoldersButton;
-	
+
 	private Label system1ToSystem2ConflictResolutionLabel;
 	protected Combo system1ToSystem2ConflictResolutionCombo;
 	private Label system2ToSystem1ConflictResolutionLabel;
 	protected Combo system2ToSystem1ConflictResolutionCombo;
 	
 	private IDialogSettings settings = Activator.getDefault().getDialogSettings();
-	private static final String PREVIOUS_DIRECTION = "NewProjectMappingDialog.direction";
-	private static final String PREVIOUS_QUALITY_CENTER_TYPE = "NewProjectMappingDialog.qualityCenterType";
-	private static final String PREVIOUS_TEAMFORGE_TYPE = "NewProjectMappingDialog.teamforgeType";
-
-	private static final int QUALITY_CENTER_TYPE_DEFECTS = 0;
-	private static final int QUALITY_CENTER_TYPE_REQUIREMENTS = 1;
-	private static final int TEAMFORGE_TYPE_TRACKER = 0;
-	private static final int TEAMFORGE_TYPE_PLANNING_FOLDERS = 1;
+	private static final String PREVIOUS_DIRECTION = "NewProjectMapping.direction";
 	
 	public NewProjectMappingWizardMainPage(ProjectMappings projectMappings) {
 		super("mainPage", "Mapping Type", Activator.getDefault().getImageDescriptor(Activator.IMAGE_NEW_PROJECT_MAPPING_WIZBAN));
@@ -59,8 +46,6 @@ public class NewProjectMappingWizardMainPage extends WizardPage {
 	}
 	
 	public void createControl(Composite parent) {
-		NewProjectMappingWizard wizard = (NewProjectMappingWizard)getWizard();
-		
 		Composite outerContainer = new Composite(parent,SWT.NONE);
 		outerContainer.setLayout(new GridLayout());
 		outerContainer.setLayoutData(
@@ -122,102 +107,7 @@ public class NewProjectMappingWizardMainPage extends WizardPage {
 		system2ToSystem1Button.addSelectionListener(selectionListener);
 		system1ToSystem2Button.addSelectionListener(selectionListener);
 		bothButton.addSelectionListener(selectionListener);
-		
-		Group qcGroup = new Group(outerContainer, SWT.NULL);
-		GridLayout qcLayout = new GridLayout();
-		qcLayout.numColumns = 1;
-		qcGroup.setLayout(qcLayout);
-		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
-		qcGroup.setLayoutData(gd);	
-		qcGroup.setText("Quality Center:");
-		
-		defectsButton = new Button(qcGroup, SWT.RADIO);
-		defectsButton.setText("Defects");
-		requirementsButton = new Button(qcGroup, SWT.RADIO);
-		requirementsButton.setText("Requirements");
-		
-		int qcType;
-		try {
-			qcType = settings.getInt(PREVIOUS_QUALITY_CENTER_TYPE);
-		} catch (Exception e) { qcType = QUALITY_CENTER_TYPE_DEFECTS; }
-		switch (qcType) {
-		case QUALITY_CENTER_TYPE_REQUIREMENTS:
-			requirementsButton.setSelection(true);
-			break;
-		default:
-			defectsButton.setSelection(true);
-			break;
-		}
-		
-		wizard.setRequirementsSelected(requirementsButton.getSelection());
-		
-		if (wizard.getType() == NewProjectMappingWizard.TYPE_TF) {
-			Group tfGroup = new Group(outerContainer, SWT.NULL);
-			GridLayout tfLayout = new GridLayout();
-			tfLayout.numColumns = 1;
-			tfGroup.setLayout(tfLayout);
-			gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
-			tfGroup.setLayoutData(gd);	
-			tfGroup.setText("TeamForge:");
-			
-			trackerButton = new Button(tfGroup, SWT.RADIO);
-			trackerButton.setText("Tracker");
-			planningFoldersButton = new Button(tfGroup, SWT.RADIO);
-			planningFoldersButton.setText("Planning folders (requires TeamForge 5.3 or later)");
-			
-			if (defectsButton.getSelection()) {
-				trackerButton.setSelection(true);
-			} else {
-				int tfType;
-				try {
-					tfType = settings.getInt(PREVIOUS_TEAMFORGE_TYPE);
-				} catch (Exception e) { tfType = TEAMFORGE_TYPE_TRACKER; }
-				switch (tfType) {
-				case TEAMFORGE_TYPE_PLANNING_FOLDERS:
-					planningFoldersButton.setSelection(true);
-					break;
-				default:
-					trackerButton.setSelection(true);
-					break;
-				}
-			}
-			
-			wizard.setPlanningFoldersSelected(planningFoldersButton.getSelection());
-			planningFoldersButton.setEnabled(requirementsButton.getSelection());
-		}
-		
-		SelectionListener typeListener = new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent se) {
-				NewProjectMappingWizard wizard = (NewProjectMappingWizard)getWizard();
-				if (wizard.getType() == NewProjectMappingWizard.TYPE_TF) {
-					if (defectsButton.getSelection()) {
-						trackerButton.setSelection(true);
-						planningFoldersButton.setSelection(false);
-					}
-					wizard.setPlanningFoldersSelected(planningFoldersButton.getSelection());
-					planningFoldersButton.setEnabled(requirementsButton.getSelection());
-					if (planningFoldersButton.getSelection()) {
-						settings.put(PREVIOUS_TEAMFORGE_TYPE, TEAMFORGE_TYPE_PLANNING_FOLDERS);
-					} else {
-						settings.put(PREVIOUS_TEAMFORGE_TYPE, TEAMFORGE_TYPE_TRACKER);
-					}	
-				}
-				wizard.setRequirementsSelected(requirementsButton.getSelection());
-				if (requirementsButton.getSelection()) {
-					settings.put(PREVIOUS_QUALITY_CENTER_TYPE, QUALITY_CENTER_TYPE_REQUIREMENTS);
-				} else {
-					settings.put(PREVIOUS_QUALITY_CENTER_TYPE, QUALITY_CENTER_TYPE_DEFECTS);
-				}
-			}			
-		};
-		
-		defectsButton.addSelectionListener(typeListener);
-		requirementsButton.addSelectionListener(typeListener);
-		if (wizard.getType() == NewProjectMappingWizard.TYPE_TF) {
-			trackerButton.addSelectionListener(typeListener);
-			planningFoldersButton.addSelectionListener(typeListener);
-		}
-		
+
 		Group conflictGroup = new Group(outerContainer, SWT.NULL);
 		GridLayout conflictLayout = new GridLayout();
 		conflictLayout.numColumns = 2;
@@ -246,7 +136,7 @@ public class NewProjectMappingWizardMainPage extends WizardPage {
 
 		setComboEnablement();
 		
-		setMessage("Select the mapping type and conflict resolution handling");
+		setMessage("Select the mapping direction and conflict resolution handling");
 
 		setControl(outerContainer);
 	}

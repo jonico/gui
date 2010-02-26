@@ -14,7 +14,7 @@
  * limitations under the License.
  *
  **/
-package com.collabnet.ccf.schemageneration;
+package com.collabnet.ccf.qc.schemageneration;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,11 +22,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
-import com.collabnet.ccf.pi.qc.v90.api.ICommand;
-import com.collabnet.ccf.pi.qc.v90.api.IConnection;
-import com.collabnet.ccf.pi.qc.v90.api.IRecordSet;
-import com.collabnet.ccf.pi.qc.v90.api.dcom.Connection;
 import com.collabnet.ccf.core.CCFRuntimeException;
 import com.collabnet.ccf.core.GenericArtifact;
 import com.collabnet.ccf.core.GenericArtifactField;
@@ -35,6 +30,12 @@ import com.collabnet.ccf.core.GenericArtifact.ArtifactModeValue;
 import com.collabnet.ccf.core.GenericArtifact.ArtifactTypeValue;
 import com.collabnet.ccf.core.GenericArtifact.IncludesFieldMetaDataValue;
 import com.collabnet.ccf.core.GenericArtifactField.FieldValueTypeValue;
+import com.collabnet.ccf.pi.qc.v90.api.ICommand;
+import com.collabnet.ccf.pi.qc.v90.api.IConnection;
+import com.collabnet.ccf.pi.qc.v90.api.IRecordSet;
+import com.collabnet.ccf.pi.qc.v90.api.dcom.Connection;
+import com.collabnet.ccf.schemageneration.ComHandle;
+import com.collabnet.ccf.schemageneration.RepositoryLayoutExtractor;
 
 /**
  * The QCSchemaGenerator is responsible for generating a generic artifact that
@@ -308,7 +309,8 @@ public class QCLayoutExtractor implements RepositoryLayoutExtractor {
 
 					if (columnType.equals("char") && editStyle != null
 							&& isMultiValue != null
-							&& !StringUtils.isEmpty(isMultiValue)
+							&& isMultiValue.trim().length() > 0
+//							&& !StringUtils.isEmpty(isMultiValue)
 							&& isMultiValue.equals("Y")) {
 						if (editStyle.equals("ListCombo")
 								|| editStyle.equals("TreeCombo")
@@ -494,7 +496,8 @@ public class QCLayoutExtractor implements RepositoryLayoutExtractor {
 
 					if (columnType.equals("char") && editStyle != null
 							&& isMultiValue != null
-							&& !StringUtils.isEmpty(isMultiValue)
+							&& isMultiValue.trim().length() > 0
+//							&& !StringUtils.isEmpty(isMultiValue)
 							&& isMultiValue.equals("Y")) {
 						if (editStyle.equals("ListCombo")
 								|| editStyle.equals("TreeCombo")) {

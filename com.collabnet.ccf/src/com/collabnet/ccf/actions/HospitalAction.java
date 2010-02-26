@@ -52,11 +52,12 @@ public class HospitalAction extends ActionDelegate {
 //						Filter[][] filterGroups = { orGroup1, orGroup2 };
 						
 						String adaptorName = null;
-						if (landscape.getType1().equals(Landscape.TYPE_PT) || landscape.getType2().equals(Landscape.TYPE_PT)) {
-							adaptorName = Landscape.TYPE_PT;
-						} else {
-							adaptorName = Landscape.TYPE_TF;
-						}
+//						if (landscape.getType1().equals(Landscape.TYPE_PT) || landscape.getType2().equals(Landscape.TYPE_PT)) {
+//							adaptorName = Landscape.TYPE_PT;
+//						} else {
+//							adaptorName = Landscape.TYPE_TF;
+//						}
+						adaptorName = landscape.getType2();
 						
 						Filter adaptorNameFilter = new Filter(CcfDataProvider.HOSPITAL_ADAPTOR_NAME, adaptorName, true, Filter.FILTER_TYPE_LIKE);
 						Filter[] filters = { adaptorNameFilter };

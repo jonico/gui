@@ -15,7 +15,7 @@
  *
  **/
 
-package com.collabnet.ccf.schemageneration;
+package com.collabnet.ccf.teamforge.schemageneration;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -31,8 +31,10 @@ import com.collabnet.ccf.core.GenericArtifact.ArtifactModeValue;
 import com.collabnet.ccf.core.GenericArtifact.ArtifactTypeValue;
 import com.collabnet.ccf.core.GenericArtifact.IncludesFieldMetaDataValue;
 import com.collabnet.ccf.core.GenericArtifactField.FieldValueTypeValue;
-import com.collabnet.ccf.schemageneration.TFArtifactMetaData.FIELD_TYPE;
-import com.collabnet.ccf.schemageneration.TFArtifactMetaData.SFEEFields;
+import com.collabnet.ccf.schemageneration.FieldNameAmbiguityDissolver;
+import com.collabnet.ccf.schemageneration.RepositoryLayoutExtractor;
+import com.collabnet.ccf.teamforge.schemageneration.TFArtifactMetaData.FIELD_TYPE;
+import com.collabnet.ccf.teamforge.schemageneration.TFArtifactMetaData.SFEEFields;
 import com.collabnet.teamforge.api.tracker.TrackerFieldDO;
 import com.collabnet.teamforge.api.tracker.TrackerFieldValueDO;
 

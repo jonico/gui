@@ -38,7 +38,6 @@ import org.eclipse.ui.forms.widgets.TableWrapLayout;
 import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.CCFJMXMonitorBean;
 import com.collabnet.ccf.db.CcfDataProvider;
-import com.collabnet.ccf.model.Landscape;
 import com.collabnet.ccf.model.SynchronizationStatus;
 
 public class JmxConsoleProjectMappingsEditorPage extends JmxConsoleEditorPage {
@@ -223,11 +222,18 @@ public class JmxConsoleProjectMappingsEditorPage extends JmxConsoleEditorPage {
 					projectMappings = dataProvider.getSynchronizationStatuses(getLandscape(), null);
 					for (SynchronizationStatus projectMapping : projectMappings) {
 						String queueCount = null;
-						if (projectMapping.getTargetSystemKind().equals(Landscape.TYPE_QC)) {
+//						if (projectMapping.getTargetSystemKind().equals(Landscape.TYPE_QC)) {
+//							queueCount = monitor1.getNumberOfWaitingArtifacts(projectMapping.getSourceSystemId(), projectMapping.getSourceRepositoryId(), projectMapping.getTargetSystemId(), projectMapping.getTargetRepositoryId());
+//						} else {
+//							queueCount = monitor2.getNumberOfWaitingArtifacts(projectMapping.getSourceSystemId(), projectMapping.getSourceRepositoryId(), projectMapping.getTargetSystemId(), projectMapping.getTargetRepositoryId());
+//						}
+						
+						if (projectMapping.getTargetSystemKind().equals(getLandscape().getType1())) {
 							queueCount = monitor1.getNumberOfWaitingArtifacts(projectMapping.getSourceSystemId(), projectMapping.getSourceRepositoryId(), projectMapping.getTargetSystemId(), projectMapping.getTargetRepositoryId());
 						} else {
 							queueCount = monitor2.getNumberOfWaitingArtifacts(projectMapping.getSourceSystemId(), projectMapping.getSourceRepositoryId(), projectMapping.getTargetSystemId(), projectMapping.getTargetRepositoryId());
-						}
+						}						
+						
 						if (queueCount != null) {
 							int count = 0;
 							try {

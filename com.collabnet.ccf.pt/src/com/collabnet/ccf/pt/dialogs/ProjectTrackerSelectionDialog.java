@@ -1,6 +1,7 @@
-package com.collabnet.ccf.dialogs;
+package com.collabnet.ccf.pt.dialogs;
 
 import java.util.List;
+import java.util.Properties;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -25,11 +26,13 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.model.WorkbenchContentProvider;
 
 import com.collabnet.ccf.Activator;
+import com.collabnet.ccf.dialogs.CcfDialog;
+import com.collabnet.ccf.dialogs.ExceptionDetailsErrorDialog;
 import com.collabnet.ccf.model.Landscape;
-import com.collabnet.ccf.schemageneration.PTClient;
+import com.collabnet.ccf.pt.schemageneration.PTClient;
 
 public class ProjectTrackerSelectionDialog extends CcfDialog {
-	private Landscape landscape;
+	private Properties properties;
 	private int type;
 	private TreeViewer treeViewer;
 	
@@ -50,10 +53,19 @@ public class ProjectTrackerSelectionDialog extends CcfDialog {
 	
 	private Button okButton;
 
-	public ProjectTrackerSelectionDialog(Shell shell, Landscape landscape, int type) {
+	public ProjectTrackerSelectionDialog(Shell shell, Landscape landscape, int type, int systemNumber) {
 		super(shell, "ProjectTrackerSelectionDialog");
-		this.landscape = landscape;
 		this.type = type;
+		switch (systemNumber) {
+		case 1:
+			properties = landscape.getProperties1();
+			break;
+		case 2:
+			properties = landscape.getProperties2();
+			break;
+		default:
+			break;
+		}
 	}
 	
 	protected Control createDialogArea(Composite parent) {
@@ -183,7 +195,7 @@ public class ProjectTrackerSelectionDialog extends CcfDialog {
 	}
 	
 	private String getProjectUrl(String projectName) {
-		String baseurl = landscape.getCeeProperties().getProperty(Activator.PROPERTIES_CEE_URL);
+		String baseurl = properties.getProperty(Activator.PROPERTIES_CEE_URL);
 		if (baseurl != null) {
 			if (baseurl.toLowerCase().startsWith(HTTP)) {
 				if (!baseurl.toLowerCase().startsWith(HTTP + projectName + ".")) { //$NON-NLS-1$
@@ -201,9 +213,9 @@ public class ProjectTrackerSelectionDialog extends CcfDialog {
 	
 	private PTClient getClient() {
 		if (ptClient == null) {
-			String serverUrl = getPickerUrl(landscape.getCeeProperties().getProperty(Activator.PROPERTIES_CEE_URL));
-			String userId = landscape.getCeeProperties().getProperty(Activator.PROPERTIES_CEE_USER);
-			String password = landscape.getCeeProperties().getProperty(Activator.PROPERTIES_CEE_PASSWORD);
+			String serverUrl = getPickerUrl(properties.getProperty(Activator.PROPERTIES_CEE_URL));
+			String userId = properties.getProperty(Activator.PROPERTIES_CEE_USER);
+			String password = properties.getProperty(Activator.PROPERTIES_CEE_PASSWORD);
 			ptClient = PTClient.getClient(serverUrl, userId, password);
 		}
 		return ptClient;

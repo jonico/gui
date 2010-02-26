@@ -1,0 +1,224 @@
+package com.collabnet.ccf.teamforge;
+
+import java.util.Properties;
+
+import org.eclipse.jface.dialogs.IDialogSettings;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
+
+import com.collabnet.ccf.Activator;
+import com.collabnet.ccf.IMappingSection;
+import com.collabnet.ccf.MappingSection;
+import com.collabnet.ccf.model.Landscape;
+import com.collabnet.ccf.model.ProjectMappings;
+import com.collabnet.ccf.model.SynchronizationStatus;
+import com.collabnet.ccf.teamforge.dialogs.TeamForgeSelectionDialog;
+import com.collabnet.ccf.teamforge.schemageneration.TFSoapClient;
+
+public class TeamForgeMappingSection extends MappingSection {
+	private Label teamForgeLabel;
+	protected Text teamForgeText;
+	private Button teamForgeBrowseButton;
+	private Button trackerButton;
+	private Button planningFoldersButton;
+	
+	private IDialogSettings settings = Activator.getDefault().getDialogSettings();
+	
+	private static final int TYPE_TRACKER = 0;
+	private static final int TYPE_PLANNING_FOLDERS = 1;
+	private static final String PREVIOUS_TYPE = "TeamForgeMappingSection.type";
+
+	public void updateSourceFields(SynchronizationStatus projectMapping) {
+		projectMapping.setSourceRepositoryId(getRepositoryId());
+		projectMapping.setSourceRepositoryKind("TRACKER");
+	}
+	
+	public void updateTargetFields(SynchronizationStatus projectMapping) {
+		projectMapping.setTargetRepositoryId(getRepositoryId());
+		projectMapping.setTargetRepositoryKind("TRACKER");
+	}
+	
+	private String getRepositoryId() {
+		String repositoryId;
+		if (planningFoldersButton.getSelection()) {
+			repositoryId = teamForgeText.getText().trim() + "-" + ProjectMappings.MAPPING_TYPE_PLANNING_FOLDERS;
+		} else {
+			repositoryId = teamForgeText.getText().trim();
+		}
+		return repositoryId;
+	}
+
+	public Composite getComposite(Composite parent, final Landscape landscape) {
+		Group tfGroup = new Group(parent, SWT.NULL);
+		GridLayout tfLayout = new GridLayout();
+		tfLayout.numColumns = 3;
+		tfGroup.setLayout(tfLayout);
+		GridData gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
+		tfGroup.setLayoutData(gd);	
+		tfGroup.setText("TeamForge:");
+		
+		trackerButton = new Button(tfGroup, SWT.RADIO);
+		trackerButton.setText("Tracker");
+		gd = new GridData();
+		gd.horizontalSpan = 3;
+		trackerButton.setLayoutData(gd);
+		planningFoldersButton = new Button(tfGroup, SWT.RADIO);
+		planningFoldersButton.setText("Planning folders (requires TeamForge 5.3 or later)");
+		gd = new GridData();
+		gd.horizontalSpan = 3;
+		planningFoldersButton.setLayoutData(gd);
+		int tfType;
+		try {
+			tfType = settings.getInt(PREVIOUS_TYPE);
+		} catch (Exception e) { tfType = TYPE_TRACKER; }
+		switch (tfType) {
+		case TYPE_PLANNING_FOLDERS:
+			planningFoldersButton.setSelection(true);
+			break;
+		default:
+			trackerButton.setSelection(true);
+			break;
+		}
+		
+		teamForgeLabel = new Label(tfGroup, SWT.NONE);
+		if (planningFoldersButton.getSelection()) {
+			teamForgeLabel.setText("Project ID: ");
+		} else {
+			teamForgeLabel.setText("Tracker ID:");
+		}	
+		teamForgeText = new Text(tfGroup, SWT.BORDER);
+		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
+		teamForgeText.setLayoutData(gd);
+		teamForgeBrowseButton = new Button(tfGroup, SWT.PUSH);
+		teamForgeBrowseButton.setText("Browse...");
+		teamForgeBrowseButton.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent se) {
+				int type;
+				if (planningFoldersButton.getSelection()) type = TeamForgeSelectionDialog.BROWSER_TYPE_PROJECT;
+				else type = TeamForgeSelectionDialog.BROWSER_TYPE_TRACKER;
+
+				TeamForgeSelectionDialog dialog = new TeamForgeSelectionDialog(Display.getDefault().getActiveShell(), landscape, type, getSystemNumber());
+				if (dialog.open() == TeamForgeSelectionDialog.OK) {
+					teamForgeText.setText(dialog.getSelectedId());
+				}
+			}			
+		});
+		ModifyListener modifyListener = new ModifyListener() {
+			public void modifyText(ModifyEvent me) {
+				if (getProjectPage() != null) {
+					getProjectPage().setPageComplete();
+				}
+			}			
+		};
+		teamForgeText.addModifyListener(modifyListener);	
+		
+		SelectionListener typeListener = new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent se) {
+				setPlanningFoldersSelected(planningFoldersButton.getSelection());
+				if (getProjectPage() != null) {
+					getProjectPage().setPageComplete();
+				}
+			}			
+		};
+
+		trackerButton.addSelectionListener(typeListener);
+		planningFoldersButton.addSelectionListener(typeListener);	
+		
+		return tfGroup;
+	}
+
+	public void initializeComposite(SynchronizationStatus projectMapping, int type) {
+		teamForgeText.setText(getTrackerId(projectMapping, type));
+		if (teamForgeText.getText().startsWith("proj")) {
+			planningFoldersButton.setSelection(true);
+			trackerButton.setSelection(false);
+		} else {
+			planningFoldersButton.setSelection(false);
+			trackerButton.setSelection(true);
+		}
+	}
+
+	public boolean isPageComplete() {
+		if (teamForgeText == null) {
+			return false;
+		}
+		if (planningFoldersButton.getSelection()) {
+			if (!teamForgeText.getText().trim().startsWith("proj")) return false;
+			if (teamForgeText.getText().trim().length() < 5) return false;
+		} else {
+			if (!teamForgeText.getText().trim().startsWith("tracker")) return false;
+			if (teamForgeText.getText().trim().length() < 8) return false;
+		}
+		return true;
+	}
+
+	public boolean validate(Landscape landscape) {
+		if (planningFoldersButton != null && planningFoldersButton.getSelection()) {
+			Properties properties = null;
+			switch (getSystemNumber()) {
+			case 1:
+				properties = landscape.getProperties1();
+				break;
+			case 2:
+				properties = landscape.getProperties2();
+				break;
+			default:
+				break;
+			}
+			if (properties != null) {
+				String serverUrl = properties.getProperty(Activator.PROPERTIES_SFEE_URL);
+				String userId = properties.getProperty(Activator.PROPERTIES_SFEE_USER);
+				String password = properties.getProperty(Activator.PROPERTIES_SFEE_PASSWORD);
+				TFSoapClient soapClient = TFSoapClient.getSoapClient(serverUrl, userId, password);
+				if (!soapClient.supports53()) {
+					MessageDialog.openError(Display.getDefault().getActiveShell(), "New Project Mapping", "Server does not support planning folders.");
+					return false;
+				}
+			}
+	 	}		
+		return true;
+	}
+	
+	private void setPlanningFoldersSelected(boolean planningFoldersSelected) {
+		if (teamForgeLabel != null) {
+			if (planningFoldersSelected) {
+				teamForgeLabel.setText("Project ID: ");
+			} else {
+				teamForgeLabel.setText("Tracker ID:");
+			}
+		}
+		if (planningFoldersSelected) {
+			settings.put(PREVIOUS_TYPE, TYPE_PLANNING_FOLDERS);
+		} else {
+			settings.put(PREVIOUS_TYPE, TYPE_TRACKER);
+		}	
+	}
+	
+	private String getTrackerId(SynchronizationStatus projectMapping, int type) {
+		String trackerId;
+		if (type == IMappingSection.TYPE_SOURCE) {
+			trackerId = projectMapping.getSourceRepositoryId();
+		} else {
+			trackerId = projectMapping.getTargetRepositoryId();
+		}
+		int index = trackerId.indexOf("-");
+		if (index != -1) {
+			trackerId = trackerId.substring(0, index);
+		}
+		return trackerId;
+	}
+
+}

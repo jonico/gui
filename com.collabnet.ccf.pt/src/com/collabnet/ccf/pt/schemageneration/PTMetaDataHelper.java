@@ -15,7 +15,7 @@
  *
  **/
 
-package com.collabnet.ccf.schemageneration;
+package com.collabnet.ccf.pt.schemageneration;
 
 import java.rmi.RemoteException;
 import java.util.Collection;

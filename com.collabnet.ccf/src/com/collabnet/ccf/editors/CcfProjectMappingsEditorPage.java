@@ -3,6 +3,7 @@ package com.collabnet.ccf.editors;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
@@ -333,13 +334,7 @@ public class CcfProjectMappingsEditorPage extends CcfEditorPage implements IProj
 					} else {
 						projectMappings = new ProjectMappings(getLandscape());
 					}
-					int type;
-					if (projectMappings.getLandscape().getType1().equals(Landscape.TYPE_TF) || projectMappings.getLandscape().getType2().equals(Landscape.TYPE_TF)) {
-						type = NewProjectMappingWizard.TYPE_TF;
-					} else {
-						type = NewProjectMappingWizard.TYPE_PT;
-					}
-					NewProjectMappingWizard wizard = new NewProjectMappingWizard(projectMappings, type);
+					NewProjectMappingWizard wizard = new NewProjectMappingWizard(projectMappings);
 					if (tableViewer == tableViewer1) wizard.setDirection(0);
 					else wizard.setDirection(1);
 					WizardDialog dialog = new CustomWizardDialog(Display.getDefault().getActiveShell(), wizard);
@@ -738,6 +733,14 @@ public class CcfProjectMappingsEditorPage extends CcfEditorPage implements IProj
 			}
 		}
 
+	}
+
+	@Override
+	public void doSave(IProgressMonitor monitor) {
+	}
+
+	@Override
+	public void setSystemNumber(int systemNumber) {
 	}
 
 }

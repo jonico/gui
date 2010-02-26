@@ -3,14 +3,14 @@
 <schema targetNamespace="com.collabnet.ccf">
 <annotation>
       <appInfo>
-         <meta.schema plugin="com.collabnet.ccf" id="com.collabnet.ccf.landscapeContributors" name="CCF Landscape Contributors"/>
+         <meta.schema plugin="com.collabnet.ccf" id="com.collabnet.ccf.ccfParticipants" name="CCF Participants"/>
       </appInfo>
       <documentation>
          
       </documentation>
    </annotation>
 
-   <element name="landscape">
+   <element name="participant">
       <complexType>
          <attribute name="id" type="string" use="required">
             <annotation>
@@ -26,7 +26,28 @@
                </documentation>
             </annotation>
          </attribute>
-         <attribute name="description" type="string" use="required">
+         <attribute name="type" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="repositoryKind" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>         
+         <attribute name="propertyFile" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>                       
+         <attribute name="description" type="string">
             <annotation>
                <documentation>
                   
@@ -39,7 +60,7 @@
                   
                </documentation>
                <appInfo>
-                  <meta.attribute kind="java" basedOn="com.collabnet.ccf.ILandscapeContributor"/>
+                  <meta.attribute kind="java" basedOn="com.collabnet.ccf.ICcfParticipant"/>
                </appInfo>
             </annotation>
          </attribute>

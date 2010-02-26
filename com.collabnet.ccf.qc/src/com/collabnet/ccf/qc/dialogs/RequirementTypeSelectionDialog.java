@@ -1,4 +1,4 @@
-package com.collabnet.ccf.dialogs;
+package com.collabnet.ccf.qc.dialogs;
 
 import java.util.Properties;
 
@@ -22,8 +22,10 @@ import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
 
 import com.collabnet.ccf.Activator;
+import com.collabnet.ccf.dialogs.CcfDialog;
+import com.collabnet.ccf.dialogs.ExceptionDetailsErrorDialog;
 import com.collabnet.ccf.model.Landscape;
-import com.collabnet.ccf.schemageneration.QCLayoutExtractor;
+import com.collabnet.ccf.qc.schemageneration.QCLayoutExtractor;
 
 public class RequirementTypeSelectionDialog extends CcfDialog {
 	private Landscape landscape;

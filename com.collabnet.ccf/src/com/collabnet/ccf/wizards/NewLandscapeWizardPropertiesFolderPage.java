@@ -19,20 +19,21 @@ import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Text;
 
+import com.collabnet.ccf.ICcfParticipant;
+
 public class NewLandscapeWizardPropertiesFolderPage extends WizardPage {
-	private int type;
-	
+	private ICcfParticipant ccfParticipant1;
+	private ICcfParticipant ccfParticipant2;
+
+	private Group fileGroup1;
+	private Group fileGroup2;
 	private Text configFileText1;
 	private Text configFileText2;
 	private File parent1;
 	private File parent2;
-	
-	public final static int TYPE_TF = 0;
-	public final static int TYPE_PT = 1;
 
-	public NewLandscapeWizardPropertiesFolderPage(String pageName, String title, ImageDescriptor titleImage, int type) {
+	public NewLandscapeWizardPropertiesFolderPage(String pageName, String title, ImageDescriptor titleImage) {
 		super(pageName, title, titleImage);
-		this.type = type;
 		setPageComplete(false);
 	}
 
@@ -42,24 +43,17 @@ public class NewLandscapeWizardPropertiesFolderPage extends WizardPage {
 		outerContainer.setLayoutData(
 		new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));
 		
-		Group fileGroup1 = new Group(outerContainer, SWT.NULL);
+		fileGroup1 = new Group(outerContainer, SWT.NULL);
 		GridLayout fileLayout1 = new GridLayout();
 		fileLayout1.numColumns = 2;
 		fileGroup1.setLayout(fileLayout1);
 		GridData data = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
 		fileGroup1.setLayoutData(data);
-
-		switch (type) {
-		case TYPE_TF:
-			fileGroup1.setText("TeamForge => QC config.xml:");
-			break;
-		case TYPE_PT:
-			fileGroup1.setText("PT => QC config.xml:");
-			break;
-		default:
-			break;
-		}
 		
+		if (ccfParticipant1 != null && ccfParticipant2 != null) {
+			fileGroup1.setText(getGroup1Text());
+		}
+
 		configFileText1 = new Text(fileGroup1, SWT.BORDER);
 		data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
 		data.widthHint = 350;
@@ -76,16 +70,17 @@ public class NewLandscapeWizardPropertiesFolderPage extends WizardPage {
 		browseButton1.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				FileDialog d = new FileDialog(getShell(), SWT.PRIMARY_MODAL | SWT.OPEN);				
-				switch (type) {
-				case TYPE_TF:
-					d.setText("Select TeamForge => QC config.xml file");
-					break;
-				case TYPE_PT:
-					d.setText("Select PT => QC config.xml file");
-					break;
-				default:
-					break;
+				StringBuffer browseTitle = new StringBuffer("Select " + ccfParticipant1.getName());
+				if (ccfParticipant1 == ccfParticipant2) {
+					browseTitle.append("(1)");
 				}
+				browseTitle.append(" => " + ccfParticipant2.getName());
+				if (ccfParticipant1 == ccfParticipant2) {
+					browseTitle.append("(2)");
+				}
+				browseTitle.append(" config.xml file");
+				d.setText(browseTitle.toString());
+				
 				d.setFileName("config.xml"); //$NON-NLS-1$
 				String[] filterExtensions = { "*.xml" }; //$NON-NLS-1$
 				d.setFilterExtensions(filterExtensions);
@@ -98,22 +93,14 @@ public class NewLandscapeWizardPropertiesFolderPage extends WizardPage {
 			}
 		});
 		
-		Group fileGroup2 = new Group(outerContainer, SWT.NULL);
+		fileGroup2 = new Group(outerContainer, SWT.NULL);
 		GridLayout fileLayout2 = new GridLayout();
 		fileLayout2.numColumns = 2;
 		fileGroup2.setLayout(fileLayout2);
 		data = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
 		fileGroup2.setLayoutData(data);
-
-		switch (type) {
-		case TYPE_TF:
-			fileGroup2.setText("QC => TeamForge config.xml:");
-			break;
-		case TYPE_PT:
-			fileGroup2.setText("QC => PT config.xml:");
-			break;
-		default:
-			break;
+		if (ccfParticipant1 != null && ccfParticipant2 != null) {
+			fileGroup2.setText(getGroup2Text());
 		}
 		
 		configFileText2 = new Text(fileGroup2, SWT.BORDER);
@@ -132,16 +119,17 @@ public class NewLandscapeWizardPropertiesFolderPage extends WizardPage {
 		browseButton2.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				FileDialog d = new FileDialog(getShell(), SWT.PRIMARY_MODAL | SWT.OPEN);				
-				switch (type) {
-				case TYPE_TF:
-					d.setText("Select QC => TeamForge config.xml file");
-					break;
-				case TYPE_PT:
-					d.setText("Select QC => PT config.xml file");
-					break;
-				default:
-					break;
+				StringBuffer browseTitle = new StringBuffer("Select " + ccfParticipant2.getName());
+				if (ccfParticipant1 == ccfParticipant2) {
+					browseTitle.append("(2)");
 				}
+				browseTitle.append(" => " + ccfParticipant1.getName());
+				if (ccfParticipant1 == ccfParticipant2) {
+					browseTitle.append("(1)");
+				}
+				browseTitle.append(" config.xml file");
+				d.setText(browseTitle.toString());
+				
 				d.setFileName("config.xml"); //$NON-NLS-1$
 				String[] filterExtensions = { "*.xml" }; //$NON-NLS-1$
 				d.setFilterExtensions(filterExtensions);
@@ -174,19 +162,8 @@ public class NewLandscapeWizardPropertiesFolderPage extends WizardPage {
 	}
 	
 	private boolean canFinish() {
-		String errorMessage;
-		String propFileName;
-		switch (type) {
-		case TYPE_TF:
-			propFileName = "sfee.properties"; //$NON-NLS-1$
-			break;
-		case TYPE_PT:
-			propFileName = "cee.properties"; //$NON-NLS-1$
-			break;
-		default:
-			propFileName = "sfee.properties"; //$NON-NLS-1$
-			break;
-		}
+		String propFileName1 = ccfParticipant1.getPropertiesFileName();
+		String propFileName2 = ccfParticipant2.getPropertiesFileName();
 		setErrorMessage(null);
 		if (configFileText1.getText().trim().length() == 0 && configFileText2.getText().trim().length() == 0) {
 			setErrorMessage("At least one config.xml file must be selected");
@@ -196,18 +173,17 @@ public class NewLandscapeWizardPropertiesFolderPage extends WizardPage {
 			if (!configFileText1.getText().endsWith("config.xml")) return false;
 			File file = new File(configFileText1.getText());
 			if (!file.exists()) {				
-				switch (type) {
-				case TYPE_TF:
-					errorMessage = "TeamForge => QC config.xml does not exist";
-					break;
-				case TYPE_PT:
-					errorMessage = "PT => QC config.xml does not exist";
-					break;
-				default:
-					errorMessage = "File does not exist";
-					break;
-				}				
-				setErrorMessage(errorMessage);
+				StringBuffer errorText = new StringBuffer(ccfParticipant1.getName());
+				if (ccfParticipant1 == ccfParticipant2) {
+					errorText.append("(1)");
+				}
+				errorText.append(" => " + ccfParticipant2.getName());
+				if (ccfParticipant1 == ccfParticipant2) {
+					errorText.append("(2)");
+				}
+				errorText.append(" config.xml does not exist");
+				
+				setErrorMessage(errorText.toString());
 				return false;
 			}
 			parent1 = file.getParentFile();
@@ -216,14 +192,15 @@ public class NewLandscapeWizardPropertiesFolderPage extends WizardPage {
 				setErrorMessage("File ccf.properties must exist in same folder as config.xml");
 				return false;
 			}
-			File qcFile = new File(parent1, "qc.properties");
-			if (!qcFile.exists()) {
-				setErrorMessage("File qc.properties must exist in same folder as config.xml");
+			File propFile1 = new File(parent1, propFileName1);
+			if (!propFile1.exists()) {
+				setErrorMessage("File " + propFileName1 + " must exist in same folder as config.xml");
 				return false;
 			}
-			File propFile = new File(parent1, propFileName);
-			if (!propFile.exists()) {
-				setErrorMessage("File " + propFileName + " must exist in same folder as config.xml");
+			
+			File propFile2 = new File(parent1, propFileName2);
+			if (!propFile2.exists()) {
+				setErrorMessage("File " + propFileName2 + " must exist in same folder as config.xml");
 				return false;
 			}
 		}
@@ -232,18 +209,18 @@ public class NewLandscapeWizardPropertiesFolderPage extends WizardPage {
 			if (!configFileText2.getText().endsWith("config.xml")) return false;
 			File file = new File(configFileText2.getText());
 			if (!file.exists()) {				
-				switch (type) {
-				case TYPE_TF:
-					errorMessage = "QC => TeamForge config.xml does not exist";
-					break;
-				case TYPE_PT:
-					errorMessage = "QC => PT config.xml does not exist";
-					break;
-				default:
-					errorMessage = "File does not exist";
-					break;
-				}				
-				setErrorMessage(errorMessage);
+				StringBuffer errorText = new StringBuffer(ccfParticipant2.getName());
+				if (ccfParticipant1 == ccfParticipant2) {
+					errorText.append("(2)");
+				}
+				errorText.append(" => " + ccfParticipant1.getName());
+				if (ccfParticipant1 == ccfParticipant2) {
+					errorText.append("(1)");
+				}
+				errorText.append(" config.xml does not exist");
+				
+				setErrorMessage(errorText.toString());
+				
 				return false;
 			}
 			parent2 = file.getParentFile();
@@ -252,14 +229,14 @@ public class NewLandscapeWizardPropertiesFolderPage extends WizardPage {
 				setErrorMessage("File ccf.properties must exist in same folder as config.xml");
 				return false;
 			}
-			File qcFile = new File(parent2, "qc.properties");
-			if (!qcFile.exists()) {
-				setErrorMessage("File qc.properties must exist in same folder as config.xml");
+			File propFile1 = new File(parent2, propFileName2);
+			if (!propFile1.exists()) {
+				setErrorMessage("File " + propFileName2 + " must exist in same folder as config.xml");
 				return false;
 			}
-			File propFile = new File(parent2, propFileName);
-			if (!propFile.exists()) {
-				setErrorMessage("File " + propFileName + " must exist in same folder as config.xml");
+			File propFile2 = new File(parent2, propFileName1);
+			if (!propFile2.exists()) {
+				setErrorMessage("File " + propFileName1 + " must exist in same folder as config.xml");
 				return false;
 			}
 		}
@@ -270,6 +247,44 @@ public class NewLandscapeWizardPropertiesFolderPage extends WizardPage {
 		}
 		
 		return true;
+	}
+	
+	private String getGroup1Text() {
+		StringBuffer groupLabel = new StringBuffer(ccfParticipant1.getName());
+		if (ccfParticipant1 == ccfParticipant2) {
+			groupLabel.append("(1)");
+		}
+		groupLabel.append(" => " + ccfParticipant2.getName());
+		if (ccfParticipant1 == ccfParticipant2) {
+			groupLabel.append("(2)");
+		}
+		groupLabel.append(" config.xml:");
+		return groupLabel.toString();
+	}
+	
+	public String getGroup2Text() {
+		StringBuffer groupLabel = new StringBuffer(ccfParticipant2.getName());
+		if (ccfParticipant1 == ccfParticipant2) {
+			groupLabel.append("(2)");
+		}
+		groupLabel.append(" => " + ccfParticipant1.getName());
+		if (ccfParticipant1 == ccfParticipant2) {
+			groupLabel.append("(1)");
+		}
+		groupLabel.append(" config.xml:");
+		return groupLabel.toString();
+	}
+
+	public void setCcfParticipant1(ICcfParticipant ccfParticipant1) {
+		this.ccfParticipant1 = ccfParticipant1;
+		if (fileGroup1 != null) fileGroup1.setText(getGroup1Text());
+		if (fileGroup2 != null) fileGroup2.setText(getGroup2Text());
+	}
+
+	public void setCcfParticipant2(ICcfParticipant ccfParticipant2) {
+		this.ccfParticipant2 = ccfParticipant2;
+		if (fileGroup1 != null) fileGroup1.setText(getGroup1Text());
+		if (fileGroup2 != null) fileGroup2.setText(getGroup2Text());
 	}
 
 }

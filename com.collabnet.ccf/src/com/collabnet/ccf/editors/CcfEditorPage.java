@@ -1,5 +1,6 @@
 package com.collabnet.ccf.editors;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.ui.forms.editor.FormEditor;
 import org.eclipse.ui.forms.editor.FormPage;
@@ -39,5 +40,9 @@ public abstract class CcfEditorPage extends FormPage {
 	public void setLandscape(Landscape landscape) {
 		((CcfEditorInput)getEditorInput()).setLandscape(landscape);
 	}
+	
+	public abstract void doSave(IProgressMonitor monitor);
+	
+	public abstract void setSystemNumber(int systemNumber);
 
 }
