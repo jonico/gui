@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension
+         point="com.collabnet.ccf.ccfParticipants">
+      <participant
+            name="ScrumWorks"
+            type="SW"
+            repositoryKind="TRACKER"
+            class="com.collabnet.ccf.sw.ScrumWorksCcfParticipant"
+            sequence="40"
+            propertyFile="sw.properties"
+            id="com.collabnet.ccf.sw.ScrumWorksCcfParticipant">
+      </participant>                   
+   </extension>
+
+</plugin>
