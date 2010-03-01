@@ -426,6 +426,13 @@ public class IdentityMappingView extends ViewPart {
 	private void getIdentityMappings() {
 		BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
 			public void run() {
+				if (landscape == null || landscape.getDescription() == null) {
+					landscape = new Landscape();
+					landscape.setDatabaseUrl(Activator.getDefault().getPreferenceStore().getString(Activator.PREFERENCES_DATABASE_URL));
+					landscape.setDatabaseDriver(Activator.getDefault().getPreferenceStore().getString(Activator.PREFERENCES_DATABASE_DRIVER));
+					landscape.setDatabaseUser(Activator.getDefault().getPreferenceStore().getString(Activator.PREFERENCES_DATABASE_USER));
+					landscape.setDatabasePassword(Activator.getDefault().getPreferenceStore().getString(Activator.PREFERENCES_DATABASE_PASSWORD));
+				}
 				if (contentDescription == null) setContentDescription("");
 				else setContentDescription(contentDescription);
 				try {
