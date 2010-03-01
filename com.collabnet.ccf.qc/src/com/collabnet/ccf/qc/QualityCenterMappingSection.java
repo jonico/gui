@@ -71,8 +71,19 @@ public class QualityCenterMappingSection extends MappingSection {
 		qcGroup.setLayout(qcLayout);
 		GridData gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
 		qcGroup.setLayoutData(gd);	
-		qcGroup.setText("Quality Center:");
-	
+		
+		if (landscape.getType1().equals("QC") && landscape.getType2().equals("QC")) {
+			String url;
+			if (getSystemNumber() == 1) {
+				url = landscape.getProperties1().getProperty(QualityCenterCcfParticipant.PROPERTIES_QC_URL);
+			} else {
+				url = landscape.getProperties2().getProperty(QualityCenterCcfParticipant.PROPERTIES_QC_URL);
+			}
+			qcGroup.setText("Quality Center (" + url + "):");
+		} else {
+			qcGroup.setText("Quality Center:");
+		}		
+		
 		Label domainLabel = new Label(qcGroup, SWT.NONE);
 		domainLabel.setText("Domain:");
 

@@ -67,7 +67,17 @@ public class TeamForgeMappingSection extends MappingSection {
 		tfGroup.setLayout(tfLayout);
 		GridData gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
 		tfGroup.setLayoutData(gd);	
-		tfGroup.setText("TeamForge:");
+		if (landscape.getType1().equals("TF") && landscape.getType2().equals("TF")) {
+			String url;
+			if (getSystemNumber() == 1) {
+				url = landscape.getProperties1().getProperty(TeamForgeCcfParticipant.PROPERTIES_SFEE_URL);
+			} else {
+				url = landscape.getProperties2().getProperty(TeamForgeCcfParticipant.PROPERTIES_SFEE_URL);
+			}
+			tfGroup.setText("TeamForge (" + url + "):");
+		} else {
+			tfGroup.setText("TeamForge:");
+		}
 		
 		trackerButton = new Button(tfGroup, SWT.RADIO);
 		trackerButton.setText("Tracker");

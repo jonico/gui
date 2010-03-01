@@ -60,11 +60,18 @@ public class NewProjectMappingWizardMainPage extends WizardPage {
 		directionGroup.setText("Direction:");
 		
 		system2ToSystem1Button = new Button(directionGroup, SWT.RADIO);
-		system2ToSystem1Button.setText(Landscape.getTypeDescription(projectMappings.getLandscape().getType2()) + " => " + Landscape.getTypeDescription(projectMappings.getLandscape().getType1()));
-
 		system1ToSystem2Button = new Button(directionGroup, SWT.RADIO);
-		system1ToSystem2Button.setText(Landscape.getTypeDescription(projectMappings.getLandscape().getType1()) + " => " + Landscape.getTypeDescription(projectMappings.getLandscape().getType2()));
 		
+		if (projectMappings.getLandscape().getType1().equals(projectMappings.getLandscape().getType2())) {
+			String url1 = projectMappings.getLandscape().getUrl(1);
+			String url2 = projectMappings.getLandscape().getUrl(2);
+			system2ToSystem1Button.setText(Landscape.getTypeDescription(projectMappings.getLandscape().getType2()) + " (" + url2 + ") => " + Landscape.getTypeDescription(projectMappings.getLandscape().getType1()) + " (" + url1 + ")");			
+			system1ToSystem2Button.setText(Landscape.getTypeDescription(projectMappings.getLandscape().getType1()) + " (" + url1 + ") => " + Landscape.getTypeDescription(projectMappings.getLandscape().getType2()) + " (" + url2 + ")");	
+		} else {
+			system2ToSystem1Button.setText(Landscape.getTypeDescription(projectMappings.getLandscape().getType2()) + " => " + Landscape.getTypeDescription(projectMappings.getLandscape().getType1()));			
+			system1ToSystem2Button.setText(Landscape.getTypeDescription(projectMappings.getLandscape().getType1()) + " => " + Landscape.getTypeDescription(projectMappings.getLandscape().getType2()));	
+		}
+				
 		bothButton = new Button(directionGroup, SWT.RADIO);
 		bothButton.setText("Create mappings for both directions");
 		

@@ -546,6 +546,22 @@ public class Landscape implements IPropertySource {
 		else return getLogs2(logs);
 	}
 	
+	public String getUrl(int systemNumber) {
+		String url = null;
+		try {
+		ICcfParticipant ccfParticipant;
+			if (systemNumber == 1 ) {
+				ccfParticipant = Activator.getCcfParticipantForType(getType1());
+			} else {
+				ccfParticipant = Activator.getCcfParticipantForType(getType2());
+			}
+			url = ccfParticipant.getUrl(this, systemNumber);
+		} catch (Exception e) {
+			Activator.handleError(e);
+		}
+		return url;
+	}
+	
 	public String getDirectionButtonText(boolean reversed) {
 		String t1;
 		String t2;

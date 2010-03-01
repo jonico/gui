@@ -13,6 +13,7 @@ import com.collabnet.ccf.CcfParticipant;
 import com.collabnet.ccf.IMappingSection;
 import com.collabnet.ccf.core.GenericArtifactParsingException;
 import com.collabnet.ccf.editors.CcfEditorPage;
+import com.collabnet.ccf.model.Landscape;
 import com.collabnet.ccf.model.SynchronizationStatus;
 import com.collabnet.ccf.schemageneration.CCFSchemaAndXSLTFileGenerator;
 
@@ -28,6 +29,11 @@ public class ScrumWorksCcfParticipant extends CcfParticipant {
 			IProgressMonitor monitor) throws GenericArtifactParsingException,
 			IOException, TransformerException {
 
+	}
+
+	public String getUrl(Landscape landscape, int systemNumber) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	public String getDefaultJmxPort1() {

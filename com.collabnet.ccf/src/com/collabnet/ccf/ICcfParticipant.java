@@ -11,6 +11,7 @@ import org.eclipse.ui.forms.editor.FormEditor;
 
 import com.collabnet.ccf.core.GenericArtifactParsingException;
 import com.collabnet.ccf.editors.CcfEditorPage;
+import com.collabnet.ccf.model.Landscape;
 import com.collabnet.ccf.model.SynchronizationStatus;
 import com.collabnet.ccf.schemageneration.CCFSchemaAndXSLTFileGenerator;
 
@@ -34,6 +35,8 @@ public interface ICcfParticipant extends Comparable {
 	public void setSequence(int sequence);
 	
 	public void setPropertiesFileName(String propertiesFile);
+	
+	public String getUrl(Landscape landscape, int systemNumber);
 	
 	public String getId();
 	

@@ -47,8 +47,19 @@ public class ProjectTrackerMappingSection extends MappingSection {
 		ptGroup.setLayout(ptLayout);
 		GridData gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
 		ptGroup.setLayoutData(gd);	
-		ptGroup.setText("Project Tracker:");			
 		
+		if (landscape.getType1().equals("PT") && landscape.getType2().equals("PT")) {
+			String url;
+			if (getSystemNumber() == 1) {
+				url = landscape.getProperties1().getProperty(ProjectTrackerCcfParticipant.PROPERTIES_CEE_URL);
+			} else {
+				url = landscape.getProperties2().getProperty(ProjectTrackerCcfParticipant.PROPERTIES_CEE_URL);
+			}
+			ptGroup.setText("Project Tracker (" + url + "):");
+		} else {
+			ptGroup.setText("Project Tracker:");
+		}
+							
 		Label ptProjectLabel = new Label(ptGroup, SWT.NONE);
 		ptProjectLabel.setText("Project:");			
 		projectText = new Text(ptGroup, SWT.BORDER);

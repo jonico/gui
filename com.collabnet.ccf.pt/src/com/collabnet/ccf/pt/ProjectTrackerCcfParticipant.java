@@ -16,6 +16,7 @@ import com.collabnet.ccf.IMappingSection;
 import com.collabnet.ccf.core.GenericArtifactParsingException;
 import com.collabnet.ccf.editors.CcfEditorPage;
 import com.collabnet.ccf.editors.CcfSystemEditorPage;
+import com.collabnet.ccf.model.Landscape;
 import com.collabnet.ccf.model.SynchronizationStatus;
 import com.collabnet.ccf.pt.schemageneration.PTLayoutExtractor;
 import com.collabnet.ccf.schemageneration.CCFSchemaAndXSLTFileGenerator;
@@ -144,6 +145,16 @@ public class ProjectTrackerCcfParticipant extends CcfParticipant {
 		outputSchemaAndXSLTFiles(ptLayoutExtractor, repositoryId,
 				xmlFileGenerator, artifactToSchemaFile, schemaToArtifactFile,
 				repositorySchemaFile, isSourceSystem, monitor);
+	}
+
+	public String getUrl(Landscape landscape, int systemNumber) {
+		Properties properties;
+		if (systemNumber == 1) {
+			properties = landscape.getProperties1();
+		} else {
+			properties = landscape.getProperties2();
+		}
+		return properties.getProperty(PROPERTIES_CEE_URL);
 	}
 
 }

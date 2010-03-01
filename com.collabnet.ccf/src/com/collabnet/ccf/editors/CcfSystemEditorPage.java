@@ -387,12 +387,12 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 			default:
 				break;
 			}
-			if (propertiesFile1 != null) {
+			if (propertiesFile1 != null && systemNumber == 1) {
 				FileOutputStream outputStream = new FileOutputStream(propertiesFile1);
 				properties.store(outputStream, null);
 				outputStream.close();
 			}
-			if (propertiesFile2 != null) {
+			if (propertiesFile2 != null && systemNumber == 2) {
 				FileOutputStream outputStream = new FileOutputStream(propertiesFile2);
 				properties.store(outputStream, null);
 				outputStream.close();
