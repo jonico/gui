@@ -1,5 +1,8 @@
 package com.collabnet.ccf;
 
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.widgets.Display;
+
 
 public abstract class MappingSection implements IMappingSection {
 	private IPageCompleteListener projectPage;
@@ -19,6 +22,14 @@ public abstract class MappingSection implements IMappingSection {
 
 	public void setSystemNumber(int systemNumber) {
 		this.systemNumber = systemNumber;
+	}
+	
+	public void showValidationErrorDialog(String errorMessage) {
+		MessageDialog.openError(Display.getDefault().getActiveShell(), "New Project Mapping", errorMessage);
+	}
+	
+	public boolean showValidationQuestionDialog(String question) {
+		return MessageDialog.openQuestion(Display.getDefault().getActiveShell(), "New Project Mapping", question);
 	}
 
 }

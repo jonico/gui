@@ -242,7 +242,7 @@ public class QualityCenterMappingSection extends MappingSection {
 			validDomainAndProject = false;
 		}
 		if (!validDomainAndProject) {
-			if (!MessageDialog.openQuestion(Display.getDefault().getActiveShell(), "New Project Mapping", "Invalid Quality Center Domain/Project entered.  Add project mapping anyway?")) {
+			if (!showValidationQuestionDialog("Invalid Quality Center Domain/Project entered.  Add project mapping anyway?")) {
 				return false;
 			}
 		}

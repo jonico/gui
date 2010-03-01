@@ -3,7 +3,6 @@ package com.collabnet.ccf.teamforge;
 import java.util.Properties;
 
 import org.eclipse.jface.dialogs.IDialogSettings;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -184,7 +183,7 @@ public class TeamForgeMappingSection extends MappingSection {
 				String password = properties.getProperty(Activator.PROPERTIES_SFEE_PASSWORD);
 				TFSoapClient soapClient = TFSoapClient.getSoapClient(serverUrl, userId, password);
 				if (!soapClient.supports53()) {
-					MessageDialog.openError(Display.getDefault().getActiveShell(), "New Project Mapping", "Server does not support planning folders.");
+					showValidationErrorDialog("Server does not support planning folders.");
 					return false;
 				}
 			}
