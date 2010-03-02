@@ -63,10 +63,15 @@ public class NewProjectMappingWizardMainPage extends WizardPage {
 		system1ToSystem2Button = new Button(directionGroup, SWT.RADIO);
 		
 		if (projectMappings.getLandscape().getType1().equals(projectMappings.getLandscape().getType2())) {
-			String url1 = projectMappings.getLandscape().getUrl(1);
-			String url2 = projectMappings.getLandscape().getUrl(2);
-			system2ToSystem1Button.setText(Landscape.getTypeDescription(projectMappings.getLandscape().getType2()) + " (" + url2 + ") => " + Landscape.getTypeDescription(projectMappings.getLandscape().getType1()) + " (" + url1 + ")");			
-			system1ToSystem2Button.setText(Landscape.getTypeDescription(projectMappings.getLandscape().getType1()) + " (" + url1 + ") => " + Landscape.getTypeDescription(projectMappings.getLandscape().getType2()) + " (" + url2 + ")");	
+			if (projectMappings.getLandscape().getRole() == Landscape.ROLE_ADMINISTRATOR) {
+				String url1 = projectMappings.getLandscape().getUrl(1);
+				String url2 = projectMappings.getLandscape().getUrl(2);
+				system2ToSystem1Button.setText(Landscape.getTypeDescription(projectMappings.getLandscape().getType2()) + " (" + url2 + ") => " + Landscape.getTypeDescription(projectMappings.getLandscape().getType1()) + " (" + url1 + ")");			
+				system1ToSystem2Button.setText(Landscape.getTypeDescription(projectMappings.getLandscape().getType1()) + " (" + url1 + ") => " + Landscape.getTypeDescription(projectMappings.getLandscape().getType2()) + " (" + url2 + ")");
+			} else {
+				system2ToSystem1Button.setText(Landscape.getTypeDescription(projectMappings.getLandscape().getType2()) + " (2) => " + Landscape.getTypeDescription(projectMappings.getLandscape().getType1()) + " (1)");			
+				system1ToSystem2Button.setText(Landscape.getTypeDescription(projectMappings.getLandscape().getType1()) + " (1) => " + Landscape.getTypeDescription(projectMappings.getLandscape().getType2()) + " (2)");				
+			}
 		} else {
 			system2ToSystem1Button.setText(Landscape.getTypeDescription(projectMappings.getLandscape().getType2()) + " => " + Landscape.getTypeDescription(projectMappings.getLandscape().getType1()));			
 			system1ToSystem2Button.setText(Landscape.getTypeDescription(projectMappings.getLandscape().getType1()) + " => " + Landscape.getTypeDescription(projectMappings.getLandscape().getType2()));	

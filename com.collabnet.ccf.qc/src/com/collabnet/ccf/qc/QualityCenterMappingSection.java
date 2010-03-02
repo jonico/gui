@@ -73,13 +73,17 @@ public class QualityCenterMappingSection extends MappingSection {
 		qcGroup.setLayoutData(gd);	
 		
 		if (landscape.getType1().equals("QC") && landscape.getType2().equals("QC")) {
-			String url;
-			if (getSystemNumber() == 1) {
-				url = landscape.getProperties1().getProperty(QualityCenterCcfParticipant.PROPERTIES_QC_URL);
+			if (landscape.getRole() == Landscape.ROLE_ADMINISTRATOR) {
+				String url;
+				if (getSystemNumber() == 1) {
+					url = landscape.getProperties1().getProperty(QualityCenterCcfParticipant.PROPERTIES_QC_URL);
+				} else {
+					url = landscape.getProperties2().getProperty(QualityCenterCcfParticipant.PROPERTIES_QC_URL);
+				}
+				qcGroup.setText("Quality Center (" + url + "):");
 			} else {
-				url = landscape.getProperties2().getProperty(QualityCenterCcfParticipant.PROPERTIES_QC_URL);
+				qcGroup.setText("Quality Center " + getSystemNumber());
 			}
-			qcGroup.setText("Quality Center (" + url + "):");
 		} else {
 			qcGroup.setText("Quality Center:");
 		}		
@@ -157,6 +161,10 @@ public class QualityCenterMappingSection extends MappingSection {
 				}
 			}			
 		});
+		
+		if (landscape.getRole() == Landscape.ROLE_OPERATOR) {
+			requirementTypeBrowseButton.setEnabled(false);
+		}
 	
 		ModifyListener modifyListener = new ModifyListener() {
 			public void modifyText(ModifyEvent me) {
@@ -234,7 +242,7 @@ public class QualityCenterMappingSection extends MappingSection {
 
 	public boolean validate(Landscape landscape) {
 		// Only validate on windows.
-		if (!"win32".equals(SWT.getPlatform())) return true;
+		if (landscape.getRole() == Landscape.ROLE_OPERATOR || !"win32".equals(SWT.getPlatform())) return true;
 		QCLayoutExtractor qcLayoutExtractor = new QCLayoutExtractor();
 		Properties properties = landscape.getProperties1();
 		String url = properties.getProperty(Activator.PROPERTIES_QC_URL, "");

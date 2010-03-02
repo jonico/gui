@@ -74,7 +74,8 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 	public static final String PROJECT_MAPPING_SORT_ORDER = "CcfExplorerView.projectMappingSort";
 	public static final int SORT_BY_SOURCE_REPOSITORY = 0;
 	public static final int SORT_BY_TARGET_REPOSITORY = 1;	
-	public static final int SORT_BY_QC_REPOSITORY = 2;
+//	public static final int SORT_BY_QC_REPOSITORY = 2;
+	public static final int SORT_BY_GROUP = 3;
 	
 	public static final String ID = "com.collabnet.ccf.views.CcfExplorerView";
 
@@ -194,10 +195,13 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
         		MenuManager sortMenu = new MenuManager("Sort project mappings by");
         		SortAction bySourceAction = new SortAction("Source repository", SORT_BY_SOURCE_REPOSITORY);
         		SortAction byTargetAction = new SortAction("Target repository", SORT_BY_TARGET_REPOSITORY);
-        		SortAction byQcAction = new SortAction("Quality Center repository", SORT_BY_QC_REPOSITORY);
+//        		SortAction byQcAction = new SortAction("Quality Center repository", SORT_BY_QC_REPOSITORY);
+        		SortAction byGroupAction = new SortAction("Group", SORT_BY_GROUP);
         		sortMenu.add(bySourceAction);
         		sortMenu.add(byTargetAction);
-        		sortMenu.add(byQcAction);
+//        		sortMenu.add(byQcAction);
+        		sortMenu.add(byGroupAction);
+        		
         		switch (ccfComparator.getSortOrder()) {
 				case SORT_BY_SOURCE_REPOSITORY:
 					bySourceAction.setChecked(true);
@@ -205,9 +209,12 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 				case SORT_BY_TARGET_REPOSITORY:
 					byTargetAction.setChecked(true);
 					break;
-				case SORT_BY_QC_REPOSITORY:
-					byQcAction.setChecked(true);
-					break;					
+//				case SORT_BY_QC_REPOSITORY:
+//					byQcAction.setChecked(true);
+//					break;
+				case SORT_BY_GROUP:
+					byGroupAction.setChecked(true);
+					break;
 				default:
 					bySourceAction.setChecked(true);
 					break;
@@ -514,18 +521,30 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 					cmp1 = s1.getTargetRepositoryId() + s1.getSourceRepositoryId();
 					cmp2 = s2.getTargetRepositoryId() + s2.getSourceRepositoryId();	
 					break;
-				case SORT_BY_QC_REPOSITORY:
-					if (s1.getSourceSystemKind().startsWith("QC")) {
-						cmp1 = s1.getSourceRepositoryId() + s1.getTargetRepositoryId();
+				case SORT_BY_GROUP:
+					if (s1.getSourceSystemEncoding() == null) {
+						cmp1 = "";
 					} else {
-						cmp1 = s1.getTargetRepositoryId() + s1.getSourceRepositoryId();
+						cmp1 = s1.getSourceSystemEncoding();
 					}
-					if (s2.getSourceSystemKind().startsWith("QC")) {
-						cmp2 = s2.getSourceRepositoryId() + s2.getTargetRepositoryId();
+					if (s2.getSourceSystemEncoding() == null) {
+						cmp2 = "";
 					} else {
-						cmp2 = s2.getTargetRepositoryId() + s2.getSourceRepositoryId();
-					}
+						cmp2 = s2.getSourceSystemEncoding();
+					}					
 					break;					
+//				case SORT_BY_QC_REPOSITORY:
+//					if (s1.getSourceSystemKind().startsWith("QC")) {
+//						cmp1 = s1.getSourceRepositoryId() + s1.getTargetRepositoryId();
+//					} else {
+//						cmp1 = s1.getTargetRepositoryId() + s1.getSourceRepositoryId();
+//					}
+//					if (s2.getSourceSystemKind().startsWith("QC")) {
+//						cmp2 = s2.getSourceRepositoryId() + s2.getTargetRepositoryId();
+//					} else {
+//						cmp2 = s2.getTargetRepositoryId() + s2.getSourceRepositoryId();
+//					}
+//					break;					
 				default:
 					cmp1 = s1.toString();
 					cmp2 = s2.toString();		

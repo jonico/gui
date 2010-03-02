@@ -18,6 +18,7 @@ import com.collabnet.ccf.ICcfParticipant;
 public class Landscape implements IPropertySource {
 	private String description;
 	private int role;
+	private String group;
 	
 	private String databaseUrl;
 	private String databaseDriver;
@@ -67,6 +68,8 @@ public class Landscape implements IPropertySource {
 	public static String P_DESCRIPTION = "Description";
 	public static String P_ID_ROLE = "role"; //$NON-NLS-1$
 	public static String P_ROLE = "Role";
+	public static String P_ID_GROUP = "group"; //$NON-NLS-1$
+	public static String P_GROUP = "Group";
 	public static String P_ID_TYPE1 = "type1"; //$NON-NLS-1$
 	public static String P_TYPE1 = "System 1 type";
 	public static String P_ID_TYPE2 = "type2"; //$NON-NLS-1$
@@ -82,6 +85,7 @@ public class Landscape implements IPropertySource {
 		descriptors = new ArrayList<PropertyDescriptor>();
 		descriptors.add(new PropertyDescriptor(P_ID_DESCRIPTION, P_DESCRIPTION));
 		descriptors.add(new PropertyDescriptor(P_ID_ROLE, P_ROLE));
+		descriptors.add(new PropertyDescriptor(P_ID_GROUP, P_GROUP));
 		descriptors.add(new PropertyDescriptor(P_ID_TYPE1, P_TYPE1));
 		descriptors.add(new PropertyDescriptor(P_ID_TYPE2, P_TYPE2));
 		descriptors.add(new PropertyDescriptor(P_ID_FOLDER1, P_FOLDER1));
@@ -100,6 +104,12 @@ public class Landscape implements IPropertySource {
 	}
 	public void setRole(int role) {
 		this.role = role;
+	}
+	public String getGroup() {
+		return group;
+	}
+	public void setGroup(String group) {
+		this.group = group;
 	}
 	public String getType1() {
 		return type1;
@@ -673,6 +683,7 @@ public class Landscape implements IPropertySource {
 			if (role == ROLE_OPERATOR) return "Operator";
 			else return "Administrator";
 		}
+		if (P_ID_GROUP.equals(id)) return group;
 		if (P_ID_TYPE1.equals(id)) return type1;
 		if (P_ID_TYPE2.equals(id)) return type2;
 		if (P_ID_FOLDER1.equals(id)) return configurationFolder1;

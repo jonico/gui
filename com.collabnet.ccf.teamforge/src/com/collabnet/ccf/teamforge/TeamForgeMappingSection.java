@@ -68,13 +68,17 @@ public class TeamForgeMappingSection extends MappingSection {
 		GridData gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
 		tfGroup.setLayoutData(gd);	
 		if (landscape.getType1().equals("TF") && landscape.getType2().equals("TF")) {
-			String url;
-			if (getSystemNumber() == 1) {
-				url = landscape.getProperties1().getProperty(TeamForgeCcfParticipant.PROPERTIES_SFEE_URL);
+			if (landscape.getRole() == Landscape.ROLE_ADMINISTRATOR) {
+				String url;
+				if (getSystemNumber() == 1) {
+					url = landscape.getProperties1().getProperty(TeamForgeCcfParticipant.PROPERTIES_SFEE_URL);
+				} else {
+					url = landscape.getProperties2().getProperty(TeamForgeCcfParticipant.PROPERTIES_SFEE_URL);
+				}
+				tfGroup.setText("TeamForge (" + url + "):");
 			} else {
-				url = landscape.getProperties2().getProperty(TeamForgeCcfParticipant.PROPERTIES_SFEE_URL);
+				tfGroup.setText("TeamForge " + getSystemNumber());
 			}
-			tfGroup.setText("TeamForge (" + url + "):");
 		} else {
 			tfGroup.setText("TeamForge:");
 		}
@@ -125,6 +129,9 @@ public class TeamForgeMappingSection extends MappingSection {
 				}
 			}			
 		});
+		if (landscape.getRole() == Landscape.ROLE_OPERATOR) {
+			teamForgeBrowseButton.setVisible(false);
+		}
 		ModifyListener modifyListener = new ModifyListener() {
 			public void modifyText(ModifyEvent me) {
 				if (getProjectPage() != null) {
@@ -175,6 +182,9 @@ public class TeamForgeMappingSection extends MappingSection {
 	}
 
 	public boolean validate(Landscape landscape) {
+		if (landscape.getRole() == Landscape.ROLE_ADMINISTRATOR) {
+			return true;
+		}
 		if (planningFoldersButton != null && planningFoldersButton.getSelection()) {
 			Properties properties = null;
 			switch (getSystemNumber()) {

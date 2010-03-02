@@ -20,6 +20,7 @@ import org.eclipse.swt.widgets.Display;
 
 import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.model.AdministratorSynchronizationStatus;
+import com.collabnet.ccf.model.Database;
 import com.collabnet.ccf.model.IdentityMapping;
 import com.collabnet.ccf.model.IdentityMappingConsistencyCheck;
 import com.collabnet.ccf.model.InconsistentIdentityMapping;
@@ -199,6 +200,12 @@ public class CcfDataProvider {
 	private final static String SQL_SYNCHRONIZATION_STATUS_UPDATE = "UPDATE SYNCHRONIZATION_STATUS";
 	private final static String SQL_SYNCHRONIZATION_STATUS_DELETE = "DELETE FROM SYNCHRONIZATION_STATUS";
 	private final static String SQL_SYNCHRONIZATION_STATUS_INSERT = "INSERT INTO SYNCHRONIZATION_STATUS";
+
+	private final static String SQL_CHECK_SYNCHRONIZATION_STATUS_GROUP = "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.SYSTEM_TABLES WHERE TABLE_NAME='SYNCHRONIZATION_STATUS_GROUP'";
+	private final static String SQL_CREATE_SYNCHRONIZATION_STATUS_GROUP = "CREATE TABLE SYNCHRONIZATION_STATUS_GROUP (GROUP_NAME VARCHAR(100), PRIMARY KEY(GROUP_NAME))";
+	private final static String SQL_SYNCHRONIZATION_STATUS_GROUP = "SELECT * FROM SYNCHRONIZATION_STATUS_GROUP ORDER BY GROUP_NAME";
+	private final static String SQL_SYNCHRONIZATION_STATUS_GROUP_SELECT = "SELECT * FROM SYNCHRONIZATION_STATUS_GROUP WHERE GROUP_NAME = ?";
+	private final static String SQL_SYNCHRONIZATION_STATUS_GROUP_INSERT = "INSERT INTO SYNCHRONIZATION_STATUS_GROUP (GROUP_NAME) VALUES(?)";
 	
 	private final static String SQL_IDENTITY_MAPPING_SELECT = "SELECT * FROM IDENTITY_MAPPING";
 	private final static String SQL_IDENTITY_MAPPING_UPDATE = "UPDATE IDENTITY_MAPPING";
@@ -557,18 +564,233 @@ public class CcfDataProvider {
 	}
 	
 	public SynchronizationStatus[] getSynchronizationStatuses(Landscape landscape, ProjectMappings projectMappings)  throws Exception {
+		List<Filter> group1Filters = new ArrayList<Filter>();
 		Filter filter1 = new Filter(SYNCHRONIZATION_STATUS_SOURCE_SYSTEM_KIND, landscape.getType1(), true, Filter.FILTER_TYPE_LIKE);
+		group1Filters.add(filter1);
 		Filter filter2 = new Filter(SYNCHRONIZATION_STATUS_TARGET_SYSTEM_KIND, landscape.getType2(), true, Filter.FILTER_TYPE_LIKE);
-		Filter[] orGroup1 = { filter1, filter2 };
+		group1Filters.add(filter2);
+		if (landscape.getGroup() != null && landscape.getGroup().trim().length() > 0) {
+			Filter groupFilter1 = new Filter(SYNCHRONIZATION_STATUS_SOURCE_SYSTEM_ENCODING, landscape.getGroup(), true, Filter.FILTER_TYPE_EQUAL);
+			group1Filters.add(groupFilter1);
+		}
+		Filter[] orGroup1 = new Filter[group1Filters.size()];
+		group1Filters.toArray(orGroup1);
+		
+		List<Filter> group2Filters = new ArrayList<Filter>();
 		Filter filter3 = new Filter(SYNCHRONIZATION_STATUS_SOURCE_SYSTEM_KIND, landscape.getType2(), true, Filter.FILTER_TYPE_LIKE);
+		group2Filters.add(filter3);
 		Filter filter4 = new Filter(SYNCHRONIZATION_STATUS_TARGET_SYSTEM_KIND, landscape.getType1(), true, Filter.FILTER_TYPE_LIKE);
-		Filter[] orGroup2 = { filter3, filter4 };
-
+		group2Filters.add(filter4);
+		if (landscape.getGroup() != null && landscape.getGroup().trim().length() > 0) {
+			Filter groupFilter2 = new Filter(SYNCHRONIZATION_STATUS_SOURCE_SYSTEM_ENCODING, landscape.getGroup(), true, Filter.FILTER_TYPE_EQUAL);
+			group2Filters.add(groupFilter2);
+		}
+		Filter[] orGroup2 = new Filter[group2Filters.size()];
+		group2Filters.toArray(orGroup2);
 		Filter[][] filters = { orGroup1, orGroup2 };
-
 		SynchronizationStatus[] statuses = getSynchronizationStatuses(landscape, projectMappings, filters);
 		Arrays.sort(statuses);
 		return statuses;
+	}
+	
+	private void checkGroupTable(String driver, String url, String user, String password) throws Exception {
+		Connection connection = null;
+		Statement stmt = null;
+		ResultSet rs = null;
+		try {
+			boolean tableExists = false;
+			connection = getConnection(driver, url, user, password);
+			stmt = connection.createStatement();		
+			String query = SQL_CHECK_SYNCHRONIZATION_STATUS_GROUP;
+			rs = stmt.executeQuery(query);	
+			if (rs != null && rs.next()) {
+				tableExists = true;
+			}
+			if (!tableExists) {
+				stmt.execute(SQL_CREATE_SYNCHRONIZATION_STATUS_GROUP);
+			}
+		}
+		catch (Exception e) {
+			Activator.handleError(e);
+			throw e;
+		}
+		finally {
+	        try
+	        {
+	            if (rs != null)
+	                rs.close();
+	        }
+	        catch (Exception e)
+	        {
+	            Activator.handleError("Could not close ResultSet" ,e);
+	        }
+	        try
+	        {
+	            if (stmt != null)
+	                stmt.close();
+	        }
+	        catch (Exception e)
+	        {
+	        	 Activator.handleError("Could not close Statement" ,e);
+	        }
+	        try
+	        {
+	            if (connection  != null)
+	                connection.close();
+	        }
+	        catch (SQLException e)
+	        {
+	        	 Activator.handleError("Could not close Connection" ,e);
+	        }			
+		}		
+	}
+	
+	public boolean groupExists(String groupName, Database database) throws Exception {
+		return groupExists(groupName, database.getDriver(), database.getUrl(), database.getUser(), database.getPassword());
+	}
+	
+	public boolean groupExists(String groupName, String driver, String url, String user, String password) throws Exception {
+		checkGroupTable(driver, url, user, password);
+		boolean groupExists = false;
+		Connection connection = null;
+		PreparedStatement stmt = null;
+		try {
+			String query = SQL_SYNCHRONIZATION_STATUS_GROUP_SELECT;
+			connection = getConnection(driver, url, user, password);
+			stmt = connection.prepareStatement(query);
+			stmt.setString(1, groupName);	
+			ResultSet rs = stmt.executeQuery();	
+			if (rs != null && rs.next()) {
+				groupExists = true;
+			}
+		}
+		catch (Exception e) {
+			Activator.handleError(e);
+			throw e;
+		}
+		finally {
+	        try
+	        {
+	            if (stmt != null)
+	                stmt.close();
+	        }
+	        catch (Exception e)
+	        {
+	        	 Activator.handleError("Could not close Statement" ,e);
+	        }
+	        try
+	        {
+	            if (connection  != null)
+	                connection.close();
+	        }
+	        catch (SQLException e)
+	        {
+	        	 Activator.handleError("Could not close Connection" ,e);
+	        }			
+		}			
+		return groupExists;
+	}
+	
+	public void addGroup(String groupName, Database database) throws Exception {
+		addGroup(groupName, database.getDriver(), database.getUrl(), database.getUser(), database.getPassword());
+	}
+	
+	public void addGroup(String groupName, String driver, String url, String user, String password) throws Exception {
+		checkGroupTable(driver, url, user, password);
+		Connection connection = null;
+		PreparedStatement stmt = null;
+		try {
+			String insert = SQL_SYNCHRONIZATION_STATUS_GROUP_INSERT;
+			connection = getConnection(driver, url, user, password);
+			stmt = connection.prepareStatement(insert);
+			stmt.setString(1, groupName);	
+			stmt.executeUpdate();	
+		}
+		catch (Exception e) {
+			Activator.handleError(e);
+			throw e;
+		}
+		finally {
+	        try
+	        {
+	            if (stmt != null)
+	                stmt.close();
+	        }
+	        catch (Exception e)
+	        {
+	        	 Activator.handleError("Could not close Statement" ,e);
+	        }
+	        try
+	        {
+	            if (connection  != null)
+	                connection.close();
+	        }
+	        catch (SQLException e)
+	        {
+	        	 Activator.handleError("Could not close Connection" ,e);
+	        }			
+		}					
+	}
+	
+	public String[] getGroups(Database database) throws Exception {
+		return getGroups(database.getDriver(), database.getUrl(), database.getUser(), database.getPassword());
+	}
+	
+	public String[] getGroups(String driver, String url, String user, String password) throws Exception {
+		checkGroupTable(driver, url, user, password);
+		
+		List<String> groups = new ArrayList<String>();
+		
+		Connection connection = null;
+		Statement stmt = null;
+		ResultSet rs = null;
+		try {
+			connection = getConnection(driver, url, user, password);
+			stmt = connection.createStatement();
+			rs = stmt.executeQuery(SQL_SYNCHRONIZATION_STATUS_GROUP);			
+			if (rs != null) {
+				while (rs.next()) {
+					groups.add(rs.getString("GROUP_NAME"));
+				}
+			}
+		}
+		catch (Exception e) {
+			Activator.handleError(e);
+			throw e;
+		}
+		finally {
+	        try
+	        {
+	            if (rs != null)
+	                rs.close();
+	        }
+	        catch (Exception e)
+	        {
+	            Activator.handleError("Could not close ResultSet" ,e);
+	        }
+	        try
+	        {
+	            if (stmt != null)
+	                stmt.close();
+	        }
+	        catch (Exception e)
+	        {
+	        	 Activator.handleError("Could not close Statement" ,e);
+	        }
+	        try
+	        {
+	            if (connection  != null)
+	                connection.close();
+	        }
+	        catch (SQLException e)
+	        {
+	        	 Activator.handleError("Could not close Connection" ,e);
+	        }			
+		}
+		
+		String[] groupArray = new String[groups.size()];
+		groups.toArray(groupArray);
+		return groupArray;
 	}
 	
 	public int getHospitalCount(Landscape landscape, String targetSystemKind, String sourceSystemKind) throws Exception {

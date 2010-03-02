@@ -91,7 +91,7 @@ public class SynchronizationStatus implements IPropertySource, Comparable {
 	public static String P_ID_TARGET_SYSTEM_TIMEZONE = "tgtTimezone"; //$NON-NLS-1$
 	public static String P_TARGET_SYSTEM_TIMEZONE = "Target system timezone";
 	public static String P_ID_SOURCE_SYSTEM_ENCODING = "srcEncoding"; //$NON-NLS-1$
-	public static String P_SOURCE_SYSTEM_ENCODING = "Source system encoding";
+	public static String P_SOURCE_SYSTEM_ENCODING = "Group";
 	public static String P_ID_TARGET_SYSTEM_ENCODING = "tgtEncoding"; //$NON-NLS-1$
 	public static String P_TARGET_SYSTEM_ENCODING = "Target system encoding";
 

@@ -7,6 +7,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.events.VerifyEvent;
+import org.eclipse.swt.events.VerifyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -18,6 +20,8 @@ import org.eclipse.swt.widgets.Text;
 
 import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.ICcfParticipant;
+import com.collabnet.ccf.dialogs.GroupSelectionDialog;
+import com.collabnet.ccf.model.Database;
 import com.collabnet.ccf.model.Landscape;
 
 public class NewLandscapeWizardMainPage extends WizardPage {
@@ -25,6 +29,9 @@ public class NewLandscapeWizardMainPage extends WizardPage {
 	private Text descriptionText;
 	private Button administratorButton;
 	private Button operatorButton;
+	private Label groupLabel;
+	private Text groupText;
+	private Button groupBrowseButton;
 	private Combo participant1Combo;
 	private Combo participant2Combo;
 	private Group descriptionGroup;
@@ -74,15 +81,50 @@ public class NewLandscapeWizardMainPage extends WizardPage {
 		Group roleGroup = new Group(outerContainer, SWT.NONE);
 		roleGroup.setText("Role:");
 		GridLayout roleLayout = new GridLayout();
-		roleLayout.numColumns = 1;
+		roleLayout.numColumns = 4;
 		roleGroup.setLayout(roleLayout);
 		roleGroup.setLayoutData(
 		new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));
 		
 		administratorButton = new Button(roleGroup, SWT.RADIO);
 		administratorButton.setText("Administrator");
+		gd = new GridData();
+		gd.horizontalSpan = 4;
+		administratorButton.setLayoutData(gd);
 		operatorButton = new Button(roleGroup, SWT.RADIO);
 		operatorButton.setText("Operator");
+		groupLabel = new Label(roleGroup, SWT.NONE);
+		groupLabel.setText("Group:");
+		groupText = new Text(roleGroup, SWT.BORDER);
+		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.FILL_HORIZONTAL);
+		groupText.setLayoutData(gd);
+		groupText.addVerifyListener(new VerifyListener() {
+			public void verifyText(VerifyEvent e) {
+		    	String text = e.text;
+		    	for (int i = 0; i < text.length(); i++) {
+		    		if (text.substring(i, i+1).trim().length() > 0 && !text.substring(i, i+1).matches("\\p{Alnum}+")) {
+		    			e.doit = false;
+		    			break;
+		    		}
+		    	}
+			}			
+		});
+		groupBrowseButton = new Button(roleGroup, SWT.PUSH);
+		groupBrowseButton.setText("Browse...");
+		groupBrowseButton.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent se) {
+				NewLandscapeWizard wizard = (NewLandscapeWizard)getWizard();
+				Database database = new Database();
+				database.setDriver(wizard.getDatabaseDriver());
+				database.setPassword(wizard.getDatabasePassword());
+				database.setUrl(wizard.getDatabaseUrl());
+				database.setPassword(wizard.getDatabasePassword());			
+				GroupSelectionDialog dialog = new GroupSelectionDialog(getShell(), database);
+				if (dialog.open() == GroupSelectionDialog.OK) {
+					groupText.setText(dialog.getSelectedGroup());
+				}
+			}			
+		});
 		
 		int lastRole = Landscape.ROLE_ADMINISTRATOR;
 		try {
@@ -91,10 +133,23 @@ public class NewLandscapeWizardMainPage extends WizardPage {
 		if (lastRole == Landscape.ROLE_OPERATOR) operatorButton.setSelection(true);
 		else administratorButton.setSelection(true);
 		
+		if (!operatorButton.getSelection()) {
+			groupLabel.setEnabled(false);
+			groupText.setEnabled(false);
+			groupBrowseButton.setEnabled(false);
+		}
+		
 		SelectionListener roleListener = new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent se) {
 				if (operatorButton.getSelection()) settings.put(LAST_ROLE, Landscape.ROLE_OPERATOR);
 				else settings.put(LAST_ROLE, Landscape.ROLE_ADMINISTRATOR);
+				groupLabel.setEnabled(operatorButton.getSelection());
+				groupText.setEnabled(operatorButton.getSelection());
+				groupBrowseButton.setEnabled(operatorButton.getSelection());
+				if (se.getSource() == operatorButton) {
+					groupText.setFocus();
+					groupText.selectAll();
+				}
 				setPageComplete(true);
 			}		
 		};
@@ -250,6 +305,11 @@ public class NewLandscapeWizardMainPage extends WizardPage {
 	public int getRole() {
 		if (operatorButton.getSelection()) return Landscape.ROLE_OPERATOR;
 		else return Landscape.ROLE_ADMINISTRATOR;
+	}
+	
+	public String getGroup() {
+		if (administratorButton.getSelection() || groupText.getText().trim().length() == 0) return null;
+		else return groupText.getText().trim();
 	}
 
 	public void setPropertiesPage(

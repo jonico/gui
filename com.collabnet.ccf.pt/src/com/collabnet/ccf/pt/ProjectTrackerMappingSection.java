@@ -49,13 +49,17 @@ public class ProjectTrackerMappingSection extends MappingSection {
 		ptGroup.setLayoutData(gd);	
 		
 		if (landscape.getType1().equals("PT") && landscape.getType2().equals("PT")) {
-			String url;
-			if (getSystemNumber() == 1) {
-				url = landscape.getProperties1().getProperty(ProjectTrackerCcfParticipant.PROPERTIES_CEE_URL);
+			if (landscape.getRole() == Landscape.ROLE_ADMINISTRATOR) {
+				String url;
+				if (getSystemNumber() == 1) {
+					url = landscape.getProperties1().getProperty(ProjectTrackerCcfParticipant.PROPERTIES_CEE_URL);
+				} else {
+					url = landscape.getProperties2().getProperty(ProjectTrackerCcfParticipant.PROPERTIES_CEE_URL);
+				}
+				ptGroup.setText("Project Tracker (" + url + "):");
 			} else {
-				url = landscape.getProperties2().getProperty(ProjectTrackerCcfParticipant.PROPERTIES_CEE_URL);
+				ptGroup.setText("Project Tracker " + getSystemNumber());
 			}
-			ptGroup.setText("Project Tracker (" + url + "):");
 		} else {
 			ptGroup.setText("Project Tracker:");
 		}
@@ -100,6 +104,11 @@ public class ProjectTrackerMappingSection extends MappingSection {
 				}
 			}			
 		});
+		
+		if (landscape.getRole() == Landscape.ROLE_OPERATOR) {
+			projectBrowseButton.setVisible(false);
+			artifactTypeBrowseButton.setVisible(false);
+		}
 
 		ModifyListener modifyListener = new ModifyListener() {
 			public void modifyText(ModifyEvent me) {

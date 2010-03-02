@@ -337,10 +337,11 @@ public class Activator extends AbstractUIPlugin {
 		return ccfParticipant;
 	}
 
-	public boolean storeLandscape(String description, int role, Database database, ICcfParticipant ccfParticipant1, ICcfParticipant ccfParticipant2, String configurationFolder1, String configurationFolder2) {
+	public boolean storeLandscape(String description, int role, String group, Database database, ICcfParticipant ccfParticipant1, ICcfParticipant ccfParticipant2, String configurationFolder1, String configurationFolder2) {
 		Landscape landscape = new Landscape();
 		landscape.setDescription(description);
 		landscape.setRole(role);
+		landscape.setGroup(group);
 		if (database != null) {
 			landscape.setDatabaseUrl(database.getUrl());
 			landscape.setDatabaseDriver(database.getDriver());
@@ -423,7 +424,8 @@ public class Activator extends AbstractUIPlugin {
 			prefs.put("databaseUrl", landscape.getDatabaseUrl()); //$NON-NLS-1$
 			prefs.put("databaseDriver", landscape.getDatabaseDriver()); //$NON-NLS-1$
 			prefs.put("databaseUser", landscape.getDatabaseUser()); //$NON-NLS-1$
-			prefs.put("databasePassword", landscape.getDatabasePassword()); //$NON-NLS-1$			
+			prefs.put("databasePassword", landscape.getDatabasePassword()); //$NON-NLS-1$	
+			if (landscape.getGroup() != null) prefs.put("group", landscape.getGroup());
 			if (landscape.getCcfHost1() != null) prefs.put("ccfHost1", landscape.getCcfHost1()); //$NON-NLS-1$
 			if (landscape.getCcfHost2() != null) prefs.put("ccfHost2", landscape.getCcfHost2()); //$NON-NLS-1$
 			if (landscape.getLogsPath1() != null) prefs.put("logsPath1", landscape.getLogsPath1()); //$NON-NLS-1$
@@ -568,6 +570,7 @@ public class Activator extends AbstractUIPlugin {
 					landscape.setLogsPath1(node.get("logsPath1", "")); //$NON-NLS-1$ //$NON-NLS-2$
 					landscape.setLogsPath2(node.get("logsPath2", "")); //$NON-NLS-1$ //$NON-NLS-2$
 					
+					landscape.setGroup(node.get("group", ""));
 					landscape.setCcfHost1(node.get("ccfHost1", DEFAULT_CCF_HOST)); //$NON-NLS-1$
 					landscape.setCcfHost2(node.get("ccfHost2", DEFAULT_CCF_HOST)); //$NON-NLS-1$
 				

@@ -11,6 +11,7 @@ import org.eclipse.swt.widgets.Display;
 import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.IMappingSection;
 import com.collabnet.ccf.db.CcfDataProvider;
+import com.collabnet.ccf.model.Landscape;
 import com.collabnet.ccf.model.ProjectMappings;
 import com.collabnet.ccf.model.SynchronizationStatus;
 
@@ -67,9 +68,10 @@ public class NewProjectMappingWizard extends Wizard {
 			status.setTargetSystemKind(projectMappings.getLandscape().getType2());
 			status.setSourceSystemTimezone(projectMappings.getLandscape().getTimezone1());
 			status.setTargetSystemTimezone(projectMappings.getLandscape().getTimezone2());
-			if (projectMappings.getLandscape().getEncoding1() != null && projectMappings.getLandscape().getEncoding1().trim().length() > 0) {
-				status.setSourceSystemEncoding(projectMappings.getLandscape().getEncoding1());
-			}
+//			if (projectMappings.getLandscape().getEncoding1() != null && projectMappings.getLandscape().getEncoding1().trim().length() > 0) {
+//				status.setSourceSystemEncoding(projectMappings.getLandscape().getEncoding1());
+//			}
+			status.setSourceSystemEncoding(projectMappings.getLandscape().getGroup());
 			if (projectMappings.getLandscape().getEncoding2() != null && projectMappings.getLandscape().getEncoding2().trim().length() > 0) {
 				status.setTargetSystemEncoding(projectMappings.getLandscape().getEncoding2());
 			}
@@ -77,7 +79,9 @@ public class NewProjectMappingWizard extends Wizard {
 			projectPage.getMappingSection2().updateTargetFields(status);
 			
 			createMapping(status);
-			createFieldMappingFile(status);
+			if (projectMappings.getLandscape().getRole() == Landscape.ROLE_ADMINISTRATOR) {
+				createFieldMappingFile(status);
+			}
 			if (addError) return;
 		}
 		if (mainPage.system2ToSystem1Button.getSelection() || mainPage.bothButton.getSelection()) {
@@ -88,9 +92,10 @@ public class NewProjectMappingWizard extends Wizard {
 			status.setTargetSystemKind(projectMappings.getLandscape().getType1());
 			status.setSourceSystemTimezone(projectMappings.getLandscape().getTimezone2());
 			status.setTargetSystemTimezone(projectMappings.getLandscape().getTimezone1());
-			if (projectMappings.getLandscape().getEncoding2() != null && projectMappings.getLandscape().getEncoding2().trim().length() > 0) {
-				status.setSourceSystemEncoding(projectMappings.getLandscape().getEncoding2());
-			}
+//			if (projectMappings.getLandscape().getEncoding2() != null && projectMappings.getLandscape().getEncoding2().trim().length() > 0) {
+//				status.setSourceSystemEncoding(projectMappings.getLandscape().getEncoding2());
+//			}
+			status.setSourceSystemEncoding(projectMappings.getLandscape().getGroup());
 			if (projectMappings.getLandscape().getEncoding1() != null && projectMappings.getLandscape().getEncoding1().trim().length() > 0) {
 				status.setTargetSystemEncoding(projectMappings.getLandscape().getEncoding1());
 			}
@@ -98,7 +103,9 @@ public class NewProjectMappingWizard extends Wizard {
 			projectPage.getMappingSection1().updateTargetFields(status);
 			
 			createMapping(status);
-			createFieldMappingFile(status);
+			if (projectMappings.getLandscape().getRole() == Landscape.ROLE_ADMINISTRATOR) {
+				createFieldMappingFile(status);
+			}
 		}
 	}
 	
