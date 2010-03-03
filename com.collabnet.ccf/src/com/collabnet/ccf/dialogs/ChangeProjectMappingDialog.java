@@ -33,7 +33,6 @@ import com.collabnet.ccf.db.Update;
 import com.collabnet.ccf.model.Database;
 import com.collabnet.ccf.model.Landscape;
 import com.collabnet.ccf.model.SynchronizationStatus;
-import com.collabnet.ccf.wizards.NewLandscapeWizard;
 
 public class ChangeProjectMappingDialog extends CcfDialog implements IPageCompleteListener {
 	private SynchronizationStatus status;
@@ -66,11 +65,7 @@ public class ChangeProjectMappingDialog extends CcfDialog implements IPageComple
 		this.status = status;
 		oldXslFileName = status.getXslFileName();
 		oldGroup = status.getGroup();
-		database = new Database();
-		database.setDriver(status.getLandscape().getDatabaseDriver());
-		database.setPassword(status.getLandscape().getDatabasePassword());
-		database.setUrl(status.getLandscape().getDatabaseUrl());
-		database.setPassword(status.getLandscape().getDatabasePassword());	
+		database = status.getLandscape().getDatabase();
 		getCcfParticipants();
 	}
 	

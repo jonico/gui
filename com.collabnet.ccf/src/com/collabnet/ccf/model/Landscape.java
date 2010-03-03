@@ -163,6 +163,7 @@ public class Landscape implements IPropertySource {
 	public void setParticipantId2(String participantId2) {
 		this.participantId2 = participantId2;
 	}
+	
 	public void setDatabaseDriver(String databaseDriver) {
 		this.databaseDriver = databaseDriver;
 	}
@@ -173,6 +174,15 @@ public class Landscape implements IPropertySource {
 	
 	public void setDatabasePassword(String databasePassword) {
 		this.databasePassword = databasePassword;
+	}
+	
+	public Database getDatabase() {
+		Database database = new Database();
+		database.setDriver(getDatabaseDriver());
+		database.setPassword(getDatabasePassword());
+		database.setUrl(getDatabaseUrl());
+		database.setPassword(getDatabasePassword());
+		return database;
 	}
 	
 	public String getDatabaseUrl() {
