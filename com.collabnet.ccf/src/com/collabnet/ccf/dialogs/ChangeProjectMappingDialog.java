@@ -5,8 +5,12 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.VerifyEvent;
+import org.eclipse.swt.events.VerifyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -14,8 +18,10 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
 import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.ICcfParticipant;
@@ -24,8 +30,10 @@ import com.collabnet.ccf.IPageCompleteListener;
 import com.collabnet.ccf.db.CcfDataProvider;
 import com.collabnet.ccf.db.Filter;
 import com.collabnet.ccf.db.Update;
+import com.collabnet.ccf.model.Database;
 import com.collabnet.ccf.model.Landscape;
 import com.collabnet.ccf.model.SynchronizationStatus;
+import com.collabnet.ccf.wizards.NewLandscapeWizard;
 
 public class ChangeProjectMappingDialog extends CcfDialog implements IPageCompleteListener {
 	private SynchronizationStatus status;
@@ -34,6 +42,7 @@ public class ChangeProjectMappingDialog extends CcfDialog implements IPageComple
 	private IMappingSection mappingSection1;
 	private IMappingSection mappingSection2;
 
+	private String oldGroup;
 	private String oldXslFileName;
 	private String newXslFileName;
 	private String newGraphicalXslFileName;
@@ -45,15 +54,23 @@ public class ChangeProjectMappingDialog extends CcfDialog implements IPageComple
 	private String newTargetRepositorySchemaToGenericArtifactFileName;
 	
 	private Combo conflictResolutionCombo;
+	private Text groupText;
 	
 	private Button okButton;
 	
+	private Database database;
 	private boolean changeError;
 
 	public ChangeProjectMappingDialog(Shell shell, SynchronizationStatus status) {
 		super(shell, "ChangeProjectMappingDialog");
 		this.status = status;
 		oldXslFileName = status.getXslFileName();
+		oldGroup = status.getGroup();
+		database = new Database();
+		database.setDriver(status.getLandscape().getDatabaseDriver());
+		database.setPassword(status.getLandscape().getDatabasePassword());
+		database.setUrl(status.getLandscape().getDatabaseUrl());
+		database.setPassword(status.getLandscape().getDatabasePassword());	
 		getCcfParticipants();
 	}
 	
@@ -81,11 +98,16 @@ public class ChangeProjectMappingDialog extends CcfDialog implements IPageComple
 				mappingSection2.setProjectPage(this);
 			}
 		}
-
-		Label conflictResolutionPriorityLabel = new Label(composite, SWT.NONE);
-		conflictResolutionPriorityLabel.setText("Conflict resolution priority:");
 		
-		conflictResolutionCombo = new Combo(composite, SWT.READ_ONLY);
+		Group conflictGroup = new Group(composite, SWT.NULL);
+		GridLayout conflictLayout = new GridLayout();
+		conflictLayout.numColumns = 1;
+		conflictGroup.setLayout(conflictLayout);
+		GridData gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
+		conflictGroup.setLayoutData(gd);	
+		conflictGroup.setText("Conflict resolution priority:");
+
+		conflictResolutionCombo = new Combo(conflictGroup, SWT.READ_ONLY);
 		conflictResolutionCombo.add(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_ALWAYS_IGNORE);
 		conflictResolutionCombo.add(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_ALWAYS_OVERRIDE);
 		conflictResolutionCombo.add(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_QUARANTINE_ARTIFACT);
@@ -97,7 +119,49 @@ public class ChangeProjectMappingDialog extends CcfDialog implements IPageComple
 				okButton.setEnabled(canFinish());
 			}			
 		});
-
+		
+		Composite groupGroup = new Group(composite, SWT.NULL);
+		GridLayout groupLayout = new GridLayout();
+		groupLayout.numColumns = 3;
+		groupGroup.setLayout(groupLayout);
+		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
+		groupGroup.setLayoutData(gd);	
+		
+		Label groupLabel = new Label(groupGroup, SWT.NONE);
+		groupLabel.setText("Group:");
+		groupText = new Text(groupGroup, SWT.BORDER);
+		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.FILL_HORIZONTAL);
+		groupText.setLayoutData(gd);
+		if (status.getGroup() != null) {
+			groupText.setText(status.getGroup());
+		}
+		groupText.addVerifyListener(new VerifyListener() {
+			public void verifyText(VerifyEvent e) {
+		    	String text = e.text;
+		    	for (int i = 0; i < text.length(); i++) {
+		    		if (text.substring(i, i+1).trim().length() > 0 && !text.substring(i, i+1).matches("\\p{Alnum}+")) {
+		    			e.doit = false;
+		    			break;
+		    		}
+		    	}
+			}			
+		});
+		groupText.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent arg0) {
+				setPageComplete();
+			}			
+		});
+		Button groupBrowseButton = new Button(groupGroup, SWT.PUSH);
+		groupBrowseButton.setText("Browse...");
+		groupBrowseButton.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent se) {		
+				GroupSelectionDialog dialog = new GroupSelectionDialog(getShell(), database);
+				if (dialog.open() == GroupSelectionDialog.OK) {
+					groupText.setText(dialog.getSelectedGroup());
+				}
+			}			
+		});
+		
 		return composite;
 	}
 	
@@ -127,7 +191,8 @@ public class ChangeProjectMappingDialog extends CcfDialog implements IPageComple
 					Update sourceRepositoryUpdate = new Update(CcfDataProvider.SYNCHRONIZATION_STATUS_SOURCE_REPOSITORY_ID, sourceRepository);
 					Update targetRepositoryUpdate = new Update(CcfDataProvider.SYNCHRONIZATION_STATUS_TARGET_REPOSITORY_ID, targetRepository);
 					Update conflictResolutionPriorityUpdate = new Update(CcfDataProvider.SYNCHRONIZATION_STATUS_CONFLICT_RESOLUTION_PRIORITY, SynchronizationStatus.CONFLICT_RESOLUTIONS[conflictResolutionCombo.getSelectionIndex()]);
-					Update[] updates = { sourceRepositoryUpdate, targetRepositoryUpdate, conflictResolutionPriorityUpdate };						
+					Update groupUpdate = new Update(CcfDataProvider.SYNCHRONIZATION_STATUS_SOURCE_SYSTEM_ENCODING, groupText.getText().trim());
+					Update[] updates = { sourceRepositoryUpdate, targetRepositoryUpdate, conflictResolutionPriorityUpdate, groupUpdate };						
 					dataProvider.updateSynchronizationStatuses(landscape, updates, filters);
 
 					status.setSourceRepositoryId(sourceRepository);
@@ -144,6 +209,12 @@ public class ChangeProjectMappingDialog extends CcfDialog implements IPageComple
 					if (status.usesGraphicalMapping() && !newXslFileName.equals(oldXslFileName)) {
 						status.switchToGraphicalMapping();
 						dataProvider.setFieldMappingMode(status);
+					}
+					
+					if (groupText.getText().trim().length() > 0 && !groupText.getText().trim().equals(oldGroup)) {
+						if (!dataProvider.groupExists(groupText.getText().trim(), database)) {
+							dataProvider.addGroup(groupText.getText().trim(), database);
+						}
 					}
 				
 				} catch (Exception e) {

@@ -28,7 +28,7 @@ public class SynchronizationStatus implements IPropertySource, Comparable {
 	private String conflictResolutionPriority;
 	private String sourceSystemTimezone;
 	private String targetSystemTimezone;
-	private String sourceSystemEncoding;
+	private String group;
 	private String targetSystemEncoding;
 	private Landscape landscape;
 	private ProjectMappings projectMappings;
@@ -248,12 +248,12 @@ public class SynchronizationStatus implements IPropertySource, Comparable {
 		this.targetSystemTimezone = targetSystemTimezone;
 	}
 
-	public String getSourceSystemEncoding() {
-		return sourceSystemEncoding;
+	public String getGroup() {
+		return group;
 	}
 
-	public void setSourceSystemEncoding(String sourceSystemEncoding) {
-		this.sourceSystemEncoding = sourceSystemEncoding;
+	public void setGroup(String group) {
+		this.group = group;
 	}
 
 	public String getTargetSystemEncoding() {
@@ -657,7 +657,7 @@ public class SynchronizationStatus implements IPropertySource, Comparable {
 		if (P_ID_SOURCE_SYSTEM_TIMEZONE.equals(id))
 			return sourceSystemTimezone;
 		if (P_ID_SOURCE_SYSTEM_ENCODING.equals(id))
-			return sourceSystemEncoding;
+			return group;
 		if (P_ID_TARGET_SYSTEM_TIMEZONE.equals(id))
 			return targetSystemTimezone;
 		if (P_ID_TARGET_SYSTEM_ENCODING.equals(id))

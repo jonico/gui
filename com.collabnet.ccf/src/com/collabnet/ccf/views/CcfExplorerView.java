@@ -522,15 +522,15 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 					cmp2 = s2.getTargetRepositoryId() + s2.getSourceRepositoryId();	
 					break;
 				case SORT_BY_GROUP:
-					if (s1.getSourceSystemEncoding() == null) {
+					if (s1.getGroup() == null) {
 						cmp1 = "";
 					} else {
-						cmp1 = s1.getSourceSystemEncoding();
+						cmp1 = s1.getGroup();
 					}
-					if (s2.getSourceSystemEncoding() == null) {
+					if (s2.getGroup() == null) {
 						cmp2 = "";
 					} else {
-						cmp2 = s2.getSourceSystemEncoding();
+						cmp2 = s2.getGroup();
 					}					
 					break;					
 //				case SORT_BY_QC_REPOSITORY:

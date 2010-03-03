@@ -525,10 +525,10 @@ public class CcfDataProvider {
 			synchronizationStatus.getConflictResolutionPriority() + "','" +
 			synchronizationStatus.getSourceSystemTimezone() + "','" +
 			synchronizationStatus.getTargetSystemTimezone() + "',");
-			if (synchronizationStatus.getSourceSystemEncoding() == null) {
+			if (synchronizationStatus.getGroup() == null) {
 				insertStatement.append("NULL,");
 			} else {
-				insertStatement.append("'" + synchronizationStatus.getSourceSystemEncoding() + "',");
+				insertStatement.append("'" + synchronizationStatus.getGroup() + "',");
 			}
 			if (synchronizationStatus.getTargetSystemEncoding() == null) {
 				insertStatement.append("NULL)");
@@ -1249,7 +1249,7 @@ public class CcfDataProvider {
 			status.setSourceLastArtifactId(rs.getString(SYNCHRONIZATION_STATUS_LAST_SOURCE_ARTIFACT_ID));
 			status.setConflictResolutionPriority(rs.getString(SYNCHRONIZATION_STATUS_CONFLICT_RESOLUTION_PRIORITY));
 			status.setSourceSystemTimezone(rs.getString(SYNCHRONIZATION_STATUS_SOURCE_SYSTEM_TIMEZONE));
-			status.setSourceSystemEncoding(rs.getString(SYNCHRONIZATION_STATUS_SOURCE_SYSTEM_ENCODING));
+			status.setGroup(rs.getString(SYNCHRONIZATION_STATUS_SOURCE_SYSTEM_ENCODING));
 			status.setTargetSystemTimezone(rs.getString(SYNCHRONIZATION_STATUS_TARGET_SYSTEM_TIMEZONE));
 			status.setTargetSystemEncoding(rs.getString(SYNCHRONIZATION_STATUS_TARGET_SYSTEM_ENCODING));			
 			status.setProjectMappings(projectMappings);

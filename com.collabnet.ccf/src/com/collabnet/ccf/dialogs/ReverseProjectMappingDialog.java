@@ -114,8 +114,8 @@ public class ReverseProjectMappingDialog extends CcfDialog implements IPageCompl
 		status.setSourceSystemTimezone(reverseStatus.getTargetSystemTimezone());
 		status.setTargetSystemTimezone(reverseStatus.getSourceSystemTimezone());
 //		status.setSourceSystemEncoding(reverseStatus.getTargetSystemEncoding());
-		status.setSourceSystemEncoding(reverseStatus.getSourceSystemEncoding());
-		status.setTargetSystemEncoding(reverseStatus.getSourceSystemEncoding());
+		status.setGroup(reverseStatus.getGroup());
+		status.setTargetSystemEncoding(reverseStatus.getGroup());
 		mappingSection1.updateSourceFields(status);
 		mappingSection2.updateTargetFields(status);		
 	

@@ -71,7 +71,7 @@ public class NewProjectMappingWizard extends Wizard {
 //			if (projectMappings.getLandscape().getEncoding1() != null && projectMappings.getLandscape().getEncoding1().trim().length() > 0) {
 //				status.setSourceSystemEncoding(projectMappings.getLandscape().getEncoding1());
 //			}
-			status.setSourceSystemEncoding(projectMappings.getLandscape().getGroup());
+			status.setGroup(projectMappings.getLandscape().getGroup());
 			if (projectMappings.getLandscape().getEncoding2() != null && projectMappings.getLandscape().getEncoding2().trim().length() > 0) {
 				status.setTargetSystemEncoding(projectMappings.getLandscape().getEncoding2());
 			}
@@ -95,7 +95,7 @@ public class NewProjectMappingWizard extends Wizard {
 //			if (projectMappings.getLandscape().getEncoding2() != null && projectMappings.getLandscape().getEncoding2().trim().length() > 0) {
 //				status.setSourceSystemEncoding(projectMappings.getLandscape().getEncoding2());
 //			}
-			status.setSourceSystemEncoding(projectMappings.getLandscape().getGroup());
+			status.setGroup(projectMappings.getLandscape().getGroup());
 			if (projectMappings.getLandscape().getEncoding1() != null && projectMappings.getLandscape().getEncoding1().trim().length() > 0) {
 				status.setTargetSystemEncoding(projectMappings.getLandscape().getEncoding1());
 			}

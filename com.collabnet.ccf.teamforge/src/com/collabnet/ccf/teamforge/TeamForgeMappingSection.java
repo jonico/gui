@@ -147,6 +147,8 @@ public class TeamForgeMappingSection extends MappingSection {
 				if (getProjectPage() != null) {
 					getProjectPage().setPageComplete();
 				}
+				teamForgeText.setFocus();
+				teamForgeText.selectAll();
 			}			
 		};
 
