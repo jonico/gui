@@ -51,19 +51,21 @@ public class HospitalAction extends ActionDelegate {
 						
 //						Filter[][] filterGroups = { orGroup1, orGroup2 };
 						
-						String adaptorName = null;
+//						String adaptorName = null;
 //						if (landscape.getType1().equals(Landscape.TYPE_PT) || landscape.getType2().equals(Landscape.TYPE_PT)) {
 //							adaptorName = Landscape.TYPE_PT;
 //						} else {
 //							adaptorName = Landscape.TYPE_TF;
 //						}
-						adaptorName = landscape.getType2();
 						
-						Filter adaptorNameFilter = new Filter(CcfDataProvider.HOSPITAL_ADAPTOR_NAME, adaptorName, true, Filter.FILTER_TYPE_LIKE);
-						Filter[] filters = { adaptorNameFilter };
-						Filter[][] filterGroups = { filters };
+//						adaptorName = landscape.getType2();
+//						
+//						Filter adaptorNameFilter = new Filter(CcfDataProvider.HOSPITAL_ADAPTOR_NAME, adaptorName, true, Filter.FILTER_TYPE_LIKE);
+//						Filter[] filters = { adaptorNameFilter };
+//						Filter[][] filterGroups = { filters };
 						
-						HospitalView.setFilters(filterGroups, true, landscape.getDescription());
+//						HospitalView.setFilters(filterGroups, true, landscape.getDescription());
+						HospitalView.setFilters(null, true, landscape.getDescription());
 					} else {
 						String sourceSystemKind;
 						if (status.isPaused()) sourceSystemKind = status.getSourceSystemKind().substring(0, 2);

@@ -279,6 +279,15 @@ public class SynchronizationStatus implements IPropertySource, Comparable {
 	public void setQueuedArtifacts(int queuedArtifacts) {
 		this.queuedArtifacts = queuedArtifacts;
 	}
+	
+	public static SynchronizationStatus getProjectMapping(Patient patient) {
+		SynchronizationStatus projectMapping = new SynchronizationStatus();
+		projectMapping.setSourceSystemId(patient.getSourceSystemId());
+		projectMapping.setSourceRepositoryId(patient.getSourceRepositoryId());
+		projectMapping.setTargetSystemId(patient.getTargetSystemId());
+		projectMapping.setTargetRepositoryId(patient.getTargetRepositoryId());
+		return projectMapping;
+	}
 
 	@Override
 	public boolean equals(Object obj) {

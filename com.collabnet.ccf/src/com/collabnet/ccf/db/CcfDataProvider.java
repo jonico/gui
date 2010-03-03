@@ -202,7 +202,7 @@ public class CcfDataProvider {
 	private final static String SQL_SYNCHRONIZATION_STATUS_INSERT = "INSERT INTO SYNCHRONIZATION_STATUS";
 
 	private final static String SQL_CHECK_SYNCHRONIZATION_STATUS_GROUP = "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.SYSTEM_TABLES WHERE TABLE_NAME='SYNCHRONIZATION_STATUS_GROUP'";
-	private final static String SQL_CREATE_SYNCHRONIZATION_STATUS_GROUP = "CREATE TABLE SYNCHRONIZATION_STATUS_GROUP (GROUP_NAME VARCHAR(100), PRIMARY KEY(GROUP_NAME))";
+	private final static String SQL_CREATE_SYNCHRONIZATION_STATUS_GROUP = "CREATE TABLE SYNCHRONIZATION_STATUS_GROUP (GROUP_NAME VARCHAR(128), PRIMARY KEY(GROUP_NAME))";
 	private final static String SQL_SYNCHRONIZATION_STATUS_GROUP = "SELECT * FROM SYNCHRONIZATION_STATUS_GROUP ORDER BY GROUP_NAME";
 	private final static String SQL_SYNCHRONIZATION_STATUS_GROUP_SELECT = "SELECT * FROM SYNCHRONIZATION_STATUS_GROUP WHERE GROUP_NAME = ?";
 	private final static String SQL_SYNCHRONIZATION_STATUS_GROUP_INSERT = "INSERT INTO SYNCHRONIZATION_STATUS_GROUP (GROUP_NAME) VALUES(?)";
@@ -1174,7 +1174,15 @@ public class CcfDataProvider {
 		return DriverManager.getConnection(url, user, password);	
 	}	
 	
-	private Patient[] getPatients(ResultSet rs, Landscape landscape) throws SQLException {
+	private Patient[] getPatients(ResultSet rs, Landscape landscape) throws Exception {
+		List<SynchronizationStatus> projectMappingList = null;
+		projectMappingList = new ArrayList<SynchronizationStatus>();
+		SynchronizationStatus[] projectMappings = getSynchronizationStatuses(landscape, null);
+		for (SynchronizationStatus projectMapping : projectMappings) {
+			projectMappingList.add(projectMapping);
+		}
+
+		
 		List<Patient> patients = new ArrayList<Patient>();
 		while (rs.next()) {
 			Patient patient = new Patient();
@@ -1209,7 +1217,9 @@ public class CcfDataProvider {
 			patient.setArtifactType(rs.getString(HOSPITAL_ARTIFACT_TYPE));
 			patient.setGenericArtifact(rs.getString(HOSPITAL_GENERIC_ARTIFACT));
 			patient.setLandscape(landscape);
-			patients.add(patient);
+			if (projectMappingList == null || projectMappingList.contains(SynchronizationStatus.getProjectMapping(patient))) {
+				patients.add(patient);
+			}
 		}
 		Patient[] patientArray = new Patient[patients.size()];
 		patients.toArray(patientArray);
