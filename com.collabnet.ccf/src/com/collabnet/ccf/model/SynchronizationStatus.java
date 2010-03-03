@@ -288,6 +288,15 @@ public class SynchronizationStatus implements IPropertySource, Comparable {
 		projectMapping.setTargetRepositoryId(patient.getTargetRepositoryId());
 		return projectMapping;
 	}
+	
+	public static SynchronizationStatus getProjectMapping(IdentityMapping identityMapping) {
+		SynchronizationStatus projectMapping = new SynchronizationStatus();
+		projectMapping.setSourceSystemId(identityMapping.getSourceSystemId());
+		projectMapping.setSourceRepositoryId(identityMapping.getSourceRepositoryId());
+		projectMapping.setTargetSystemId(identityMapping.getTargetSystemId());
+		projectMapping.setTargetRepositoryId(identityMapping.getTargetRepositoryId());
+		return projectMapping;		
+	}
 
 	@Override
 	public boolean equals(Object obj) {

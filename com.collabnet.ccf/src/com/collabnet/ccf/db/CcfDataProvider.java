@@ -1277,7 +1277,13 @@ public class CcfDataProvider {
 		return statusArray;
 	}
 	
-	private IdentityMapping[] getIdentityMappings(ResultSet rs, Landscape landscape, IdentityMappingConsistencyCheck consistencyCheck) throws SQLException {
+	private IdentityMapping[] getIdentityMappings(ResultSet rs, Landscape landscape, IdentityMappingConsistencyCheck consistencyCheck) throws Exception {
+		List<SynchronizationStatus> projectMappingList = null;
+		projectMappingList = new ArrayList<SynchronizationStatus>();
+		SynchronizationStatus[] projectMappings = getSynchronizationStatuses(landscape, null);
+		for (SynchronizationStatus projectMapping : projectMappings) {
+			projectMappingList.add(projectMapping);
+		}
 		List<IdentityMapping> identityMappings = new ArrayList<IdentityMapping>();
 		while (rs.next()) {
 			IdentityMapping identityMapping;
@@ -1314,7 +1320,9 @@ public class CcfDataProvider {
 			identityMapping.setParentTargetRepositoryId(rs.getString(IDENTITY_MAPPING_DEP_PARENT_TARGET_REPOSITORY_ID));
 			identityMapping.setParentTargetRepositoryKind(rs.getString(IDENTITY_MAPPING_DEP_PARENT_TARGET_REPOSITORY_KIND));			
 			identityMapping.setLandscape(landscape);
-			identityMappings.add(identityMapping);
+			if (projectMappingList == null || projectMappingList.contains(SynchronizationStatus.getProjectMapping(identityMapping))) {
+				identityMappings.add(identityMapping);
+			}
 		}
 		IdentityMapping[] identityMappingArray = new IdentityMapping[identityMappings.size()];
 		identityMappings.toArray(identityMappingArray);
