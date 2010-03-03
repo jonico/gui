@@ -19,6 +19,8 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.VerifyEvent;
+import org.eclipse.swt.events.VerifyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -38,7 +40,10 @@ import org.eclipse.ui.forms.widgets.TableWrapData;
 import org.eclipse.ui.forms.widgets.TableWrapLayout;
 
 import com.collabnet.ccf.Activator;
+import com.collabnet.ccf.db.CcfDataProvider;
+import com.collabnet.ccf.dialogs.GroupSelectionDialog;
 import com.collabnet.ccf.dialogs.HospitalColumnSelectionDialog;
+import com.collabnet.ccf.model.Database;
 import com.collabnet.ccf.model.Landscape;
 
 public class CcfCcfEditorPage extends CcfEditorPage {
@@ -49,6 +54,7 @@ public class CcfCcfEditorPage extends CcfEditorPage {
 	private Label errorTextLabel;
 	
 	private Text descriptionText;
+	private Text groupText;
 	
 	private Text urlText;
 	private Text driverText;
@@ -67,6 +73,7 @@ public class CcfCcfEditorPage extends CcfEditorPage {
 	private Text templateText;
 	
 	private String description;
+	private String group;
 	private String url;
 	private String driver;
 	private String user;
@@ -110,6 +117,8 @@ public class CcfCcfEditorPage extends CcfEditorPage {
 	private void createControls(Composite composite) {
 		description = getLandscape().getDescription();
 		if (description == null) description = "";
+		group = getLandscape().getGroup();
+		if (group == null) group = "";
 		url = getLandscape().getDatabaseUrl();
 		if (url == null) url = "";
 		driver = getLandscape().getDatabaseDriver();
@@ -159,7 +168,7 @@ public class CcfCcfEditorPage extends CcfEditorPage {
 		
 	    Composite propertiesGroup = toolkit.createComposite(composite);
 	    GridLayout propertiesLayout = new GridLayout();
-	    propertiesLayout.numColumns = 2;
+	    propertiesLayout.numColumns = 3;
 	    propertiesGroup.setLayout(propertiesLayout);
         td = new TableWrapData(TableWrapData.FILL_GRAB);
         td.colspan = 4;
@@ -168,7 +177,38 @@ public class CcfCcfEditorPage extends CcfEditorPage {
         toolkit.createLabel(propertiesGroup, "Description:");
         descriptionText = toolkit.createText(propertiesGroup, getLandscape().getDescription());
 		GridData gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
+		gd.horizontalSpan = 2;
 		descriptionText.setLayoutData(gd);
+		
+		if (getLandscape().getRole() == Landscape.ROLE_OPERATOR) {
+			Label groupLabel = new Label(propertiesGroup, SWT.NONE);
+			groupLabel.setText("Group:");
+			groupText = toolkit.createText(propertiesGroup, group);
+			gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
+			groupText.setLayoutData(gd);
+			groupText.addVerifyListener(new VerifyListener() {
+				public void verifyText(VerifyEvent e) {
+			    	String text = e.text;
+			    	for (int i = 0; i < text.length(); i++) {
+			    		if (text.substring(i, i+1).trim().length() > 0 && !text.substring(i, i+1).matches("\\p{Alnum}+")) {
+			    			e.doit = false;
+			    			break;
+			    		}
+			    	}
+				}			
+			});
+			Button groupBrowseButton = new Button(propertiesGroup, SWT.PUSH);
+			groupBrowseButton.setText("Browse:");
+			groupBrowseButton.addSelectionListener(new SelectionAdapter() {
+				public void widgetSelected(SelectionEvent se) {
+					Database database = getLandscape().getDatabase();	
+					GroupSelectionDialog dialog = new GroupSelectionDialog(Display.getDefault().getActiveShell(), database);
+					if (dialog.open() == GroupSelectionDialog.OK) {
+						groupText.setText(dialog.getSelectedGroup());
+					}
+				}			
+			});
+		}
 		
 		Section databaseSection = toolkit.createSection(composite, Section.TITLE_BAR | Section.TWISTIE | Section.EXPANDED);
         td = new TableWrapData(TableWrapData.FILL_GRAB);
@@ -396,13 +436,16 @@ public class CcfCcfEditorPage extends CcfEditorPage {
 				errorImageLabel.setVisible(!canLeaveThePage());
 				errorTextLabel.setVisible(!canLeaveThePage());
 				((CcfEditor)getEditor()).setDirty();
-				if (me.getSource() != descriptionText) {
+				if (me.getSource() != descriptionText && me.getSource() != groupText) {
 					ccfPropertiesUpdated = true;
 				}
 			}			
 		};
 		
 		descriptionText.addModifyListener(modifyListener);
+		if (groupText != null) {
+			groupText.addModifyListener(modifyListener);
+		}
 		urlText.addModifyListener(modifyListener);
 		driverText.addModifyListener(modifyListener);
 		userText.addModifyListener(modifyListener);
@@ -425,6 +468,9 @@ public class CcfCcfEditorPage extends CcfEditorPage {
 		};
 		
 		descriptionText.addFocusListener(focusListener);
+		if (groupText != null) {
+			groupText.addFocusListener(focusListener);
+		}
 		urlText.addFocusListener(focusListener);
 		driverText.addFocusListener(focusListener);
 		userText.addFocusListener(focusListener);
@@ -478,6 +524,7 @@ public class CcfCcfEditorPage extends CcfEditorPage {
 	public boolean isDirty() {
 		if (urlText == null) return false;
 		return !descriptionText.getText().trim().equals(description) ||
+		(groupText != null && !groupText.getText().trim().equals(group)) ||
 		!urlText.getText().trim().equals(url) ||
 		!driverText.getText().trim().equals(driver) ||
 		!userText.getText().trim().equals(user) ||
@@ -503,6 +550,19 @@ public class CcfCcfEditorPage extends CcfEditorPage {
 		}
 		boolean descriptionChanged = !descriptionText.getText().trim().equals(getLandscape().getDescription());
 		if (descriptionChanged || getLandscape().getRole() == Landscape.ROLE_OPERATOR) {
+			if (groupText != null) {
+				getLandscape().setGroup(groupText.getText().trim());
+				if (groupText.getText().trim().length() > 0 && !groupText.getText().trim().equals(group)) {
+					CcfDataProvider dataProvider = new CcfDataProvider();
+					try {
+						if (!dataProvider.groupExists(groupText.getText().trim(), getLandscape().getDatabase())) {
+							dataProvider.addGroup(groupText.getText().trim(), getLandscape().getDatabase());
+						}
+					} catch (Exception e) {
+						Activator.handleError(e);
+					}
+				}
+			}
 			getLandscape().setDescription(descriptionText.getText().trim().replaceAll("/", "%slash%"));
 			getLandscape().setDatabaseUrl(urlText.getText().trim());
 			getLandscape().setDatabaseDriver(driverText.getText().trim());
@@ -522,6 +582,9 @@ public class CcfCcfEditorPage extends CcfEditorPage {
 			if (landscape != null) setLandscape(landscape);
 		}
 		description = descriptionText.getText().trim();
+		if (groupText != null) {
+			group = groupText.getText().trim();
+		}
 		url = urlText.getText().trim();
 		driver = driverText.getText().trim();
 		user = userText.getText().trim();
@@ -585,6 +648,14 @@ public class CcfCcfEditorPage extends CcfEditorPage {
 
 	public String getDescription() {
 		return descriptionText.getText().trim();
+	}
+	
+	public String getGroup() {
+		if (groupText == null) {
+			return "";
+		} else {
+			return groupText.getText().trim();
+		}
 	}
 	
 	public String getUrl() {
