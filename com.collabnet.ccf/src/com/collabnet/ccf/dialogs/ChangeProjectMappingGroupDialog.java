@@ -158,7 +158,7 @@ public class ChangeProjectMappingGroupDialog extends CcfDialog {
 	private String getCurrentGroup() {
 		String currentGroup = null;
 		for (SynchronizationStatus projectMapping : projectMappings) {
-			if (currentGroup != null && !projectMapping.getGroup().equals(currentGroup)) {
+			if (currentGroup != null && (projectMapping.getGroup() == null || !projectMapping.getGroup().equals(currentGroup))) {
 				currentGroup = "(Multiple groups selected)";
 				multipleGroupsSelected = true;
 				break;
