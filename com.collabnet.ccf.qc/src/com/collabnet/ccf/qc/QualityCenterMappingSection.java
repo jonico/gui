@@ -214,6 +214,9 @@ public class QualityCenterMappingSection extends MappingSection {
 		projectText.setText(getProject(projectMapping, type));
 		String requirementType = getRequirementType(projectMapping, type);
 		if (requirementType != null) {
+			requirementTypeLabel.setVisible(true);
+			requirementTypeText.setVisible(true);
+			requirementTypeBrowseButton.setVisible(true);
 			requirementTypeText.setText(requirementType);
 			requirementsButton.setSelection(true);
 			defectsButton.setSelection(false);
