@@ -148,7 +148,7 @@ public class QualityCenterMappingSection extends MappingSection {
 		requirementTypeBrowseButton.setVisible("win32".equals(SWT.getPlatform()) && requirementsButton.getSelection());
 		requirementTypeBrowseButton.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent arg0) {
-				if (validate(landscape)) {
+				if (!validate(landscape)) {
 					MessageDialog.openError(Display.getDefault().getActiveShell(), "Select Requirement Type", "Invalid Quality Center Domain/Project entered.");
 					return;
 				}
