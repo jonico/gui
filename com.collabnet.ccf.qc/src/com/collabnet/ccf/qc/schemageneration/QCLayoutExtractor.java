@@ -34,7 +34,6 @@ import com.collabnet.ccf.pi.qc.v90.api.ICommand;
 import com.collabnet.ccf.pi.qc.v90.api.IConnection;
 import com.collabnet.ccf.pi.qc.v90.api.IRecordSet;
 import com.collabnet.ccf.pi.qc.v90.api.dcom.Connection;
-import com.collabnet.ccf.schemageneration.ComHandle;
 import com.collabnet.ccf.schemageneration.RepositoryLayoutExtractor;
 
 /**

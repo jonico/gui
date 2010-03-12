@@ -15,7 +15,7 @@
  *
  **/
 
-package com.collabnet.ccf.schemageneration;
+package com.collabnet.ccf.qc.schemageneration;
 
 import com.jacob.com.ComThread;
 
