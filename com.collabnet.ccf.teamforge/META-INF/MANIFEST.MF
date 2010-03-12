@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: CCF Teamforge UI
+Bundle-Name: TeamForge Connector for CCF
 Bundle-SymbolicName: com.collabnet.ccf.teamforge;singleton:=true
 Bundle-Version: 1.3.1.qualifier
 Bundle-Activator: com.collabnet.ccf.teamforge.Activator
