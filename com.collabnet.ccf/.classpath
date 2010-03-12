@@ -6,7 +6,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/hsqldb.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-collections_3.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/dom4j_1.6.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jacob.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jaxen_1.1-beta-9.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
