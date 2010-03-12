@@ -2,7 +2,7 @@
 <feature
       id="com.collabnet.ccf.qc.feature"
       label="Quality Center Connector for CCF"
-      version="1.3.1.qualifier"
+      version="1.4.0"
       provider-name="CollabNet"
       plugin="com.collabnet.ccf.qc"
       os="win32">
@@ -38,6 +38,6 @@
          id="com.collabnet.ccf.qc"
          download-size="0"
          install-size="0"
-         version="1.3.1.qualifier"/>
+         version="0.0.0"/>
 
 </feature>
