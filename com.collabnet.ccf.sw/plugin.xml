@@ -9,7 +9,7 @@
             repositoryKind="TRACKER"
             class="com.collabnet.ccf.sw.ScrumWorksCcfParticipant"
             sequence="40"
-            propertyFile="sw.properties"
+            propertyFile="swp.properties"
             id="com.collabnet.ccf.sw.ScrumWorksCcfParticipant">
       </participant>                   
    </extension>
