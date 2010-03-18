@@ -70,6 +70,7 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 	public static final int QC = 0;
 	public static final int TF = 1;
 	public static final int PT = 2;
+	public static final int SW = 3;
 	
 	public final static String SYSTEM_SECTION_STATE = "CcfSystemEditorPage.systemSectionExpanded";
 	public final static String CREDENTIALS_SECTION_STATE = "CcfSystemEditorPage.credentialsSectionExpanded";
@@ -127,7 +128,11 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 		case PT:
 			headerLabel.setText("Project Tracker Properties");
 			initializeCeeValues();
-			break;			
+			break;
+		case SW:
+			headerLabel.setText("ScrumWorks Properties");
+			initializeSwValues();
+			break;					
 		default:
 			break;
 		}
@@ -383,7 +388,19 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 					propertiesFile2 = new File(folder, "cee.properties");
 				}
 				initializeCeeValues();
-				break;				
+				break;
+			case SW:
+				setSwProperties();
+				if (getLandscape().getConfigurationFolder1() != null) {
+					folder = new File(getLandscape().getConfigurationFolder1());
+					propertiesFile1 = new File(folder, "swp.properties");
+				}			
+				if (getLandscape().getConfigurationFolder2() != null) {
+					folder = new File(getLandscape().getConfigurationFolder2());
+					propertiesFile2 = new File(folder, "swp.properties");
+				}
+				initializeSwValues();
+				break;							
 			default:
 				break;
 			}
@@ -431,6 +448,15 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 		attachmentSize = properties.getProperty(Activator.PROPERTIES_SFEE_ATTACHMENT_SIZE, "10485760");	
 	}
 	
+	private void initializeSwValues() {
+		url = properties.getProperty(Activator.PROPERTIES_SW_URL, "");
+		user = properties.getProperty(Activator.PROPERTIES_SW_USER, "");
+		password = properties.getProperty(Activator.PROPERTIES_SW_PASSWORD, "");	
+		resyncUser = properties.getProperty(Activator.PROPERTIES_SW_RESYNC_USER, "");
+		resyncPassword = properties.getProperty(Activator.PROPERTIES_SW_RESYNC_PASSWORD, "");	
+		attachmentSize = properties.getProperty(Activator.PROPERTIES_SW_ATTACHMENT_SIZE, "10485760");	
+	}
+	
 	public boolean isDirty() {
 		if (urlText == null) return false;
 		return !urlText.getText().trim().equals(url) ||
@@ -476,6 +502,15 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 		properties.setProperty(Activator.PROPERTIES_SFEE_RESYNC_USER, resyncUserText.getText().trim());
 		properties.setProperty(Activator.PROPERTIES_SFEE_RESYNC_PASSWORD, resyncPasswordText.getText().trim());
 		properties.setProperty(Activator.PROPERTIES_SFEE_ATTACHMENT_SIZE, attachmentSizeText.getText().trim());
+	}
+	
+	private void setSwProperties() throws Exception {
+		properties.setProperty(Activator.PROPERTIES_SW_URL, urlText.getText().trim());
+		properties.setProperty(Activator.PROPERTIES_SW_USER, userText.getText().trim());
+		properties.setProperty(Activator.PROPERTIES_SW_PASSWORD, passwordText.getText().trim());		
+		properties.setProperty(Activator.PROPERTIES_SW_RESYNC_USER, resyncUserText.getText().trim());
+		properties.setProperty(Activator.PROPERTIES_SW_RESYNC_PASSWORD, resyncPasswordText.getText().trim());
+		properties.setProperty(Activator.PROPERTIES_SW_ATTACHMENT_SIZE, attachmentSizeText.getText().trim());
 	}
 
 }

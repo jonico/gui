@@ -147,6 +147,14 @@ public class Activator extends AbstractUIPlugin {
 	public static final String PROPERTIES_CEE_RESYNC_DISPLAY_NAME = "cee.server.1.resync.user.displayName"; //$NON-NLS-1$
 	public static final String PROPERTIES_CEE_RESYNC_PASSWORD = "cee.server.1.resync.password"; //$NON-NLS-1$
 	public static final String PROPERTIES_CEE_ATTACHMENT_SIZE = "cee.max.attachmentsize.per.artifact";	 //$NON-NLS-1$
+
+	// ScrumWorks Properties
+	public static final String PROPERTIES_SW_URL = "swp.server.url"; //$NON-NLS-1$
+	public static final String PROPERTIES_SW_USER = "swp.server.username"; //$NON-NLS-1$
+	public static final String PROPERTIES_SW_PASSWORD = "swp.server.password"; //$NON-NLS-1$
+	public static final String PROPERTIES_SW_RESYNC_USER = "swp.server.resync.username"; //$NON-NLS-1$
+	public static final String PROPERTIES_SW_RESYNC_PASSWORD = "swp.server.resync.password"; //$NON-NLS-1$
+	public static final String PROPERTIES_SW_ATTACHMENT_SIZE = "swp.max.attachmentsize.per.artifact"; //$NON-NLS-1$
 	
 	// Default database
 	public static final String DATABASE_DEFAULT_DESCRIPTION = "Default"; //$NON-NLS-1$

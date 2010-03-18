@@ -13,6 +13,7 @@ import com.collabnet.ccf.CcfParticipant;
 import com.collabnet.ccf.IMappingSection;
 import com.collabnet.ccf.core.GenericArtifactParsingException;
 import com.collabnet.ccf.editors.CcfEditorPage;
+import com.collabnet.ccf.editors.CcfSystemEditorPage;
 import com.collabnet.ccf.model.Landscape;
 import com.collabnet.ccf.model.SynchronizationStatus;
 import com.collabnet.ccf.schemageneration.CCFSchemaAndXSLTFileGenerator;
@@ -47,13 +48,15 @@ public class ScrumWorksCcfParticipant extends CcfParticipant {
 	}
 
 	public CcfEditorPage getEditorPage1(FormEditor formEditor, String title) {
-		// TODO Auto-generated method stub
-		return null;
+		CcfSystemEditorPage editorPage = new CcfSystemEditorPage(formEditor, "sw1", title, CcfSystemEditorPage.SW);
+		editorPage.setSystemNumber(1);
+		return editorPage;
 	}
 
 	public CcfEditorPage getEditorPage2(FormEditor formEditor, String title) {
-		// TODO Auto-generated method stub
-		return null;
+		CcfSystemEditorPage editorPage = new CcfSystemEditorPage(formEditor, "sw2", title, CcfSystemEditorPage.SW);
+		editorPage.setSystemNumber(2);
+		return editorPage;
 	}
 
 	public String getInitialMDFFileNameSegment(String repositoryId,
