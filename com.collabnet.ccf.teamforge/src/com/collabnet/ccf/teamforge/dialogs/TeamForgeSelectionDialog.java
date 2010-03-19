@@ -36,6 +36,7 @@ import com.collabnet.teamforge.api.tracker.TrackerRow;
 public class TeamForgeSelectionDialog extends CcfDialog {
 	private Landscape landscape;
 	private int type;
+	@SuppressWarnings("unused")
 	private int systemNumber;
 	private TreeViewer treeViewer;
 	private String projectId;
@@ -141,15 +142,10 @@ public class TeamForgeSelectionDialog extends CcfDialog {
 	private TFSoapClient getSoapClient() {
 		if (soapClient == null) {
 			Properties properties = null;
-			switch (systemNumber) {
-			case 1:
+			if (landscape.getType1().equals("TF")) {
 				properties = landscape.getProperties1();
-				break;
-			case 2:
+			} else {
 				properties = landscape.getProperties2();
-				break;
-			default:
-				break;
 			}
 			if (properties != null) {
 				String serverUrl = properties.getProperty(Activator.PROPERTIES_SFEE_URL);
