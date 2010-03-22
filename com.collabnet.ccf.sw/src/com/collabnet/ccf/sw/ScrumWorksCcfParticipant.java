@@ -2,6 +2,7 @@ package com.collabnet.ccf.sw;
 
 import java.io.IOException;
 import java.sql.Timestamp;
+import java.util.Properties;
 
 import javax.xml.transform.TransformerException;
 
@@ -35,8 +36,13 @@ public class ScrumWorksCcfParticipant extends CcfParticipant {
 	}
 
 	public String getUrl(Landscape landscape, int systemNumber) {
-		// TODO Auto-generated method stub
-		return null;
+		Properties properties;
+		if (systemNumber == 1) {
+			properties = landscape.getProperties1();
+		} else {
+			properties = landscape.getProperties2();
+		}
+		return properties.getProperty(com.collabnet.ccf.Activator.PROPERTIES_SW_URL);
 	}
 
 	public CcfEditorPage getEditorPage1(FormEditor formEditor, String title) {
