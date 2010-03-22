@@ -284,12 +284,12 @@ public class CcfCcfEditorPage extends CcfEditorPage {
             }
         });	
         
-		toolkit.createLabel(hostSectionClient, getLandscape().getType2() + " => " + getLandscape().getType1() + " host name:");
+		toolkit.createLabel(hostSectionClient, getLandscape().getType1() + " => " + getLandscape().getType2() + " host name:");
 		host1Text = toolkit.createText(hostSectionClient, ccfHost1);
 		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
 		host1Text.setLayoutData(gd);
         
-		toolkit.createLabel(hostSectionClient, getLandscape().getType2() + " => " + getLandscape().getType1() + " JMX port:");
+		toolkit.createLabel(hostSectionClient, getLandscape().getType1() + " => " + getLandscape().getType2() + " JMX port:");
 		jmxPort1Text = toolkit.createText(hostSectionClient, jmxPort1);
 		gd = new GridData();
 		gd.widthHint = 100;
@@ -324,12 +324,12 @@ public class CcfCcfEditorPage extends CcfEditorPage {
 			});
 		}
 		
-		toolkit.createLabel(hostSectionClient, getLandscape().getType1() + " => " + getLandscape().getType2() + " host name:");
+		toolkit.createLabel(hostSectionClient, getLandscape().getType2() + " => " + getLandscape().getType1() + " host name:");
 		host2Text = toolkit.createText(hostSectionClient, ccfHost2);
 		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
 		host2Text.setLayoutData(gd);
 		
-		toolkit.createLabel(hostSectionClient, getLandscape().getType1() + " => " + getLandscape().getType2() + " JMX port:");
+		toolkit.createLabel(hostSectionClient, getLandscape().getType2() + " => " + getLandscape().getType1() + " JMX port:");
 		jmxPort2Text = toolkit.createText(hostSectionClient, jmxPort2);
 		gd = new GridData();
 		gd.widthHint = 100;
