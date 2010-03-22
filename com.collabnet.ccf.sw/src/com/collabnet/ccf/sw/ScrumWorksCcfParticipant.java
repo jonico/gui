@@ -82,16 +82,14 @@ public class ScrumWorksCcfParticipant extends CcfParticipant {
 	}
 
 	public String getNewProjectMappingVersion() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public String getReaderMetricsName() {
-		// TODO Auto-generated method stub
-		return null;
+		return "0";
 	}
 
 	public String getResetProjectMappingVersion(Timestamp timestamp) {
+		return "0";
+	}
+	
+	public String getReaderMetricsName() {
 		// TODO Auto-generated method stub
 		return null;
 	}
