@@ -74,6 +74,7 @@ public class ScrumWorksMappingSection extends MappingSection {
 		typeCombo = new Combo(swGroup, SWT.BORDER | SWT.READ_ONLY);
 		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
 		typeCombo.setLayoutData(gd);
+		typeCombo.add(SWPMetaData.PRODUCT.toString());
 		typeCombo.add(SWPMetaData.TASK.toString());
 		typeCombo.add(SWPMetaData.PBI.toString());	
 		String previousType = null;
@@ -117,7 +118,10 @@ public class ScrumWorksMappingSection extends MappingSection {
 			swpType = SWPMetaData.retrieveSWPTypeFromRepositoryId(projectMapping.getTargetRepositoryId());
 		}
 		productText.setText(product);
-		if (swpType == SWPType.PBI) {
+		if (swpType == SWPType.PRODUCT) {
+			typeCombo.setText(SWPMetaData.PRODUCT.toString());
+		}
+		else if (swpType == SWPType.PBI) {
 			typeCombo.setText(SWPMetaData.PBI.toString());
 		} else {
 			typeCombo.setText(SWPMetaData.TASK.toString());
