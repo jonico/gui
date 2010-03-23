@@ -31,4 +31,6 @@ Export-Package: com.collabnet.ccf,
  com.collabnet.ccf.editors,
  com.collabnet.ccf.model,
  com.collabnet.ccf.schemageneration,
+ com.collabnet.ccf.views,
+ com.collabnet.ccf.wizards,
  org.dom4j
