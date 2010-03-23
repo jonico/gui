@@ -24,3 +24,4 @@ Require-Bundle: org.eclipse.ui,
 Eclipse-RegisterBuddy: com.collabnet.webservices.common, com.collabnet.ee.api
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-ActivationPolicy: lazy
+Export-Package: com.collabnet.ccf.teamforge.schemageneration
