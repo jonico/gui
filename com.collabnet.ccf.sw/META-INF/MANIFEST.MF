@@ -26,3 +26,5 @@ Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .,
  lib/ScrumWorks-soap.jar
+Export-Package: com.danube.scrumworks.api.client,
+ com.danube.scrumworks.api.client.types
