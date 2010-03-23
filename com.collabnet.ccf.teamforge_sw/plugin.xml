@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+	<extension point="org.eclipse.ui.commands">
+		<category
+        	name="CollabNet CCF GUI TeamForge/ScrumWorks Commands"
+        	description="Collabnet CCF GUI TeamForge/ScrumWorks Commands"
+        	id="com.collabnet.ccf.teamforge_sw.commands">
+		</category>
+		<command
+	        categoryId="com.collabnet.ccf.teamforge_sw.commands"
+	        id="com.collabnet.ccf.teamforge_sw.commands.mapProjects"
+	        name="Map Projects">
+		</command>
+	</extension>
+
+	<extension
+         point="org.eclipse.ui.menus">        
+	 	<menuContribution
+	          locationURI="popup:org.eclipse.ui.popup.any?after=additions">
+	        <command
+	             commandId="com.collabnet.ccf.teamforge_sw.commands.mapProjects"
+	             label="Map projects..."
+	             style="push">
+	        	<visibleWhen
+	                checkEnabled="true">
+	             <and>
+	                <count
+	                      value="1">
+	                </count>  
+	             </and>
+	          	</visibleWhen>
+	        </command>
+	    </menuContribution>            
+	</extension>
+   
+    <extension
+       point="org.eclipse.ui.handlers">
+     <handler
+          class="com.collabnet.ccf.teamforge_sw.MapProjectsHandler"
+          commandId="com.collabnet.ccf.teamforge_sw.commands.mapProjects">
+       <enabledWhen>
+          <iterate>
+              <and>
+                <adapt
+                      type="com.collabnet.ccf.model.AdministratorProjectMappings">
+                </adapt>
+                <test
+                	  forcePluginActivation="true"
+                      property="com.collabnet.ccf.teamforge_sw.isTeamForgeSwpLandscape"
+                      value="true">
+                </test>                                    
+			 </and>
+          </iterate>
+       </enabledWhen>
+    </handler>
+ </extension>
+      
+    <extension
+         point="org.eclipse.core.expressions.propertyTesters">
+      <propertyTester
+            class="com.collabnet.ccf.teamforge_sw.ProjectMappingsPropertyTester"
+            id="com.collabnet.ccf.teamforge_sw.ProjectMappingsPropertyTester"
+            namespace="com.collabnet.ccf.teamforge_sw"
+            properties="isTeamForgeSwpLandscape"
+            type="com.collabnet.ccf.model.AdministratorProjectMappings">
+      </propertyTester>
+   </extension>   
+
+</plugin>
