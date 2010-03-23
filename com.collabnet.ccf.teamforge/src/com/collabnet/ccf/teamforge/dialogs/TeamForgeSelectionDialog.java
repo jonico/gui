@@ -13,6 +13,8 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerSorter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.graphics.Image;
@@ -98,7 +100,19 @@ public class TeamForgeSelectionDialog extends CcfDialog {
             public void doubleClick(DoubleClickEvent e) {
                 if (okButton.isEnabled()) okPressed();
             }
-        });  
+        }); 
+        
+        treeViewer.setSorter(new ViewerSorter() {
+			@Override
+			public int compare(Viewer viewer, Object e1, Object e2) {
+				if (e1 instanceof ProjectRow && e2 instanceof ProjectRow) {
+					ProjectRow p1 = (ProjectRow)e1;
+					ProjectRow p2 = (ProjectRow)e2;
+					return p1.getTitle().compareTo(p2.getTitle());
+				}
+				return super.compare(viewer, e1, e2);
+			}
+        });
 		
 		return composite;
 	}
