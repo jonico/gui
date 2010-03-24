@@ -3,9 +3,12 @@ package com.collabnet.ccf.teamforge_sw.wizards;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.wizard.Wizard;
 
@@ -28,6 +31,9 @@ public class ProjectMappingWizard extends Wizard {
 	private ProjectMappingWizardPreviewPage previewPage;
 	
 	private TFSoapClient soapClient;
+	private List<SynchronizationStatus> existingMappings;
+	private List<Exception> errors;
+	private List<String> notCreated;
 
 	public ProjectMappingWizard(ProjectMappings projectMappings) {
 		super();
@@ -55,12 +61,18 @@ public class ProjectMappingWizard extends Wizard {
 
 	@Override
 	public boolean performFinish() {
+		errors = new ArrayList<Exception>();
+		notCreated = new ArrayList<String>();
 		IRunnableWithProgress runnable = new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 				CcfDataProvider dataProvider = new CcfDataProvider();
 				String taskName = "Creating project mappings";
 				monitor.setTaskName(taskName);
-				monitor.beginTask(taskName, 6);
+				monitor.beginTask(taskName, 7);
+				
+				monitor.subTask("");
+				getExistingMappings(dataProvider);
+				monitor.worked(1);
 				
 				monitor.subTask(previewPage.getTrackerTaskMapping());
 				SynchronizationStatus projectMapping = new SynchronizationStatus();
@@ -148,6 +160,26 @@ public class ProjectMappingWizard extends Wizard {
 			getContainer().run(true, false, runnable);
 		} catch (Exception e) {
 			Activator.handleError(e);
+			MessageDialog.openError(getShell(), "Create Project Mappings", e.getMessage());
+			return false;
+		}
+		if (errors.size() > 0) {
+			StringBuffer errorMessage = new StringBuffer();
+			for (Exception error : errors) {
+				if (errorMessage.length() > 0) {
+					errorMessage.append("\n\n");
+				}
+				errorMessage.append(error.getMessage());
+			}
+			MessageDialog.openError(getShell(), "Create Project Mappings", errorMessage.toString());
+			return false;
+		}
+		if (notCreated.size() > 0) {
+			StringBuffer notCreatedMessage = new StringBuffer("The following mappings already existed and were not created:\n");
+			for (String mapping : notCreated) {
+				notCreatedMessage.append("\n" + mapping);
+			}
+			MessageDialog.openInformation(getShell(), "Create Project Mappings", notCreatedMessage.toString());
 		}
 		return true;
 	}
@@ -192,11 +224,16 @@ public class ProjectMappingWizard extends Wizard {
 	}
 
 	private void createMapping(SynchronizationStatus status, CcfDataProvider dataProvider) {
+		if (existingMappings.contains(status)) {
+			notCreated.add(status.toString());
+			return;
+		}
 		status.setSourceSystemKind(status.getSourceSystemKind() + "_paused");
 		try {
 			dataProvider.addSynchronizationStatus(projectMappings, status);
 		} catch (Exception e) {
 			Activator.handleError(e);
+			errors.add(e);
 			return;
 		}
 		if (projectMappings.getLandscape().getRole() == Landscape.ROLE_ADMINISTRATOR) {
@@ -217,7 +254,20 @@ public class ProjectMappingWizard extends Wizard {
 				}
 			} catch (IOException e) {
 				Activator.handleError(e);
+				errors.add(e);
 			}
+		}
+	}
+	
+	private void getExistingMappings(CcfDataProvider dataProvider) {
+		existingMappings = new ArrayList<SynchronizationStatus>();
+		try {
+			SynchronizationStatus[] existingMappingsArray = dataProvider.getSynchronizationStatuses(projectMappings.getLandscape(), projectMappings);
+			for (SynchronizationStatus mapping : existingMappingsArray) {
+				existingMappings.add(mapping);
+			}
+		} catch (Exception e) {
+			Activator.handleError(e);
 		}
 	}
 
