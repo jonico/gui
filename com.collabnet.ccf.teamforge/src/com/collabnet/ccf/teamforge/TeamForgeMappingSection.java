@@ -163,9 +163,11 @@ public class TeamForgeMappingSection extends MappingSection {
 		if (teamForgeText.getText().startsWith("proj")) {
 			planningFoldersButton.setSelection(true);
 			trackerButton.setSelection(false);
+			teamForgeLabel.setText("Project ID: ");
 		} else {
 			planningFoldersButton.setSelection(false);
 			trackerButton.setSelection(true);
+			teamForgeLabel.setText("Tracker ID: ");
 		}
 	}
 
