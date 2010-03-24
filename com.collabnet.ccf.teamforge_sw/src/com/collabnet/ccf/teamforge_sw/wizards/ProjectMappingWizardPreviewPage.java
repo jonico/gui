@@ -92,10 +92,11 @@ public class ProjectMappingWizardPreviewPage extends WizardPage {
 		ProjectMappingWizard wizard = (ProjectMappingWizard)getWizard();
 		String trackerTaskMapping = wizard.getSelectedTaskTracker().getId() + "=>" + wizard.getSelectedProduct().getName() + "-Task";
 		String trackerPbiMapping = wizard.getSelectedPbiTracker().getId() + "=>" + wizard.getSelectedProduct().getName() + "-PBI";
-		String planningFolderMapping = wizard.getSelectedProduct().getName() + "-Product=>" + wizard.getSelectedProject().getId() + "-planningFolders";
+		String planningFolderProductMapping = wizard.getSelectedProject().getId() + "-planningFolders=>" + wizard.getSelectedProduct().getName() + "-Product";
 		String taskTrackerMapping = wizard.getSelectedProduct().getName() + "-Task=>" + wizard.getSelectedTaskTracker().getId();
 		String pbiTrackerMapping = wizard.getSelectedProduct().getName() + "-PBI=>" + wizard.getSelectedPbiTracker().getId();
-		String[] mappings = { trackerTaskMapping, trackerPbiMapping, planningFolderMapping, taskTrackerMapping, pbiTrackerMapping };
+		String productPlanningFolderMapping = wizard.getSelectedProduct().getName() + "-Product=>" + wizard.getSelectedProject().getId() + "-planningFolders";
+		String[] mappings = { trackerTaskMapping, trackerPbiMapping, planningFolderProductMapping, taskTrackerMapping, pbiTrackerMapping, productPlanningFolderMapping };
 		return mappings;
 	}
 	

@@ -42,6 +42,11 @@ public class ProjectMappingWizard extends Wizard {
 	}
 
 	@Override
+	public boolean needsProgressMonitor() {
+		return true;
+	}
+
+	@Override
 	public boolean performFinish() {
 		return true;
 	}

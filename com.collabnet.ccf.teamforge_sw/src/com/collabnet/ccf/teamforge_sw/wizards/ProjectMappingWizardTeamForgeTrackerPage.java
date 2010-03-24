@@ -1,9 +1,12 @@
 package com.collabnet.ccf.teamforge_sw.wizards;
 
+import java.lang.reflect.InvocationTargetException;
 import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ColumnLayoutData;
 import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -17,12 +20,10 @@ import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
@@ -155,16 +156,33 @@ public class ProjectMappingWizardTeamForgeTrackerPage extends WizardPage {
 	private TrackerRow[] getTrackers(final String projectId) {
 		trackers = trackerMap.get(projectId);
 		if (trackers == null) {
-			BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
-				public void run() {
+			
+			IRunnableWithProgress runnable = new IRunnableWithProgress() {
+				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+					String taskName = "Retrieving TeamForge trackers";
+					monitor.setTaskName(taskName);
+					monitor.beginTask(taskName, IProgressMonitor.UNKNOWN);
+					monitor.subTask("");
 					try {
 						trackers = ((ProjectMappingWizard)getWizard()).getSoapClient().getAllTrackersOfProject(projectId);
+						if (trackers != null) {
+							trackerMap.put(projectId, trackers);
+						}
 					} catch (RemoteException e) {
 						Activator.handleError(e);
 						setErrorMessage(e.getMessage());
 					}
+					monitor.done();
 				}
-			});
+			};
+			
+			try {
+				getContainer().run(true, false, runnable);
+			} catch (Exception e) {
+				Activator.handleError(e);
+				setErrorMessage(e.getMessage());
+			}
+
 		}
 		return trackers;
 	}
