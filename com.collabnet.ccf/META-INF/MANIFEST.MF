@@ -27,6 +27,7 @@ Bundle-ClassPath: lib/hsqldb.jar,
  .
 Export-Package: com.collabnet.ccf,
  com.collabnet.ccf.core,
+ com.collabnet.ccf.db,
  com.collabnet.ccf.dialogs,
  com.collabnet.ccf.editors,
  com.collabnet.ccf.model,
