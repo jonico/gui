@@ -376,9 +376,9 @@ public class SynchronizationStatus implements IPropertySource, Comparable {
 	public File getXSLTFolder() {
 		File xsltFolder = null;
 		if (sourceSystemKind.startsWith(landscape.getType1())) {
-			xsltFolder = landscape.getXsltFolder2();
-		} else if (sourceSystemKind.startsWith(landscape.getType2())) {
 			xsltFolder = landscape.getXsltFolder1();
+		} else if (sourceSystemKind.startsWith(landscape.getType2())) {
+			xsltFolder = landscape.getXsltFolder2();
 		}
 		return xsltFolder;
 	}
