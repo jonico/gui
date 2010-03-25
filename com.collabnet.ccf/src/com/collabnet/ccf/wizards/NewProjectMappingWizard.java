@@ -135,9 +135,9 @@ public class NewProjectMappingWizard extends Wizard {
 		File xslFile = status.getXslFile();
 		if (!xslFile.exists()) {
 			try {
-				xslFile.createNewFile();
 				File sampleFile = status.getSampleXslFile();
 				if (sampleFile != null && sampleFile.exists()) {
+					xslFile.createNewFile();
 					CcfDataProvider.copyFile(sampleFile, xslFile);
 				}
 			} catch (IOException e) {

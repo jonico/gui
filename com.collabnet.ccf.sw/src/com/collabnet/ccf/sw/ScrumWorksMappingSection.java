@@ -137,7 +137,15 @@ public class ScrumWorksMappingSection extends MappingSection {
 
 	public void updateSourceFields(SynchronizationStatus projectMapping) {
 		projectMapping.setSourceRepositoryId(getRepositoryId());
-		projectMapping.setSourceRepositoryKind("TRACKER");
+		if (projectMapping.getSourceRepositoryId().endsWith("PBI")) {
+			projectMapping.setSourceRepositoryKind("TemplatePBIs.xsl");
+		} else if (projectMapping.getSourceRepositoryId().endsWith("Task")) {
+			projectMapping.setSourceRepositoryKind("TemplateTasks.xsl");
+		} else if (projectMapping.getSourceRepositoryId().endsWith("Product")) {
+			projectMapping.setSourceRepositoryKind("TemplateProducts.xsl");
+		} else {
+			projectMapping.setSourceRepositoryKind("TRACKER");
+		}
 	}
 	
 	public void updateTargetFields(SynchronizationStatus projectMapping) {

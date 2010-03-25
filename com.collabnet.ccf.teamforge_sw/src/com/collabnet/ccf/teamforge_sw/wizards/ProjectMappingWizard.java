@@ -77,7 +77,6 @@ public class ProjectMappingWizard extends Wizard {
 				monitor.subTask(previewPage.getTrackerTaskMapping());
 				SynchronizationStatus projectMapping = new SynchronizationStatus();
 				projectMapping.setGroup(projectMappings.getLandscape().getGroup());
-				projectMapping.setSourceRepositoryKind("TRACKER");
 				projectMapping.setTargetRepositoryKind("TRACKER");
 				if (projectMappings.getLandscape().getEncoding2() != null && projectMappings.getLandscape().getEncoding2().trim().length() > 0) {
 					projectMapping.setTargetSystemEncoding(projectMappings.getLandscape().getEncoding2());
@@ -100,6 +99,7 @@ public class ProjectMappingWizard extends Wizard {
 				projectMapping.setSourceRepositoryId(getSelectedTaskTracker().getId());
 				projectMapping.setTargetRepositoryId(getSelectedProduct().getName() + "-Task");
 				projectMapping.setConflictResolutionPriority(previewPage.getTrackerTaskConflictResolutionPriority());
+				projectMapping.setSourceRepositoryKind("TRACKER");
 				createMapping(projectMapping, dataProvider);
 				monitor.worked(1);
 				
@@ -134,6 +134,7 @@ public class ProjectMappingWizard extends Wizard {
 					projectMapping.setTargetSystemTimezone(projectMappings.getLandscape().getTimezone1());					
 				}
 				projectMapping.setSourceRepositoryId(getSelectedProduct().getName() + "-Task");
+				projectMapping.setSourceRepositoryKind("TemplateTasks.xsl");
 				projectMapping.setTargetRepositoryId(getSelectedTaskTracker().getId());
 				projectMapping.setConflictResolutionPriority(previewPage.getTaskTrackerConflictResolutionPriority());
 				createMapping(projectMapping, dataProvider);
@@ -141,6 +142,7 @@ public class ProjectMappingWizard extends Wizard {
 				
 				monitor.subTask(previewPage.getPbiTrackerMapping());
 				projectMapping.setSourceRepositoryId(getSelectedProduct().getName() + "-PBI");
+				projectMapping.setSourceRepositoryKind("TemplatePBIs.xsl");
 				projectMapping.setTargetRepositoryId(getSelectedPbiTracker().getId());
 				projectMapping.setConflictResolutionPriority(previewPage.getPbiTrackerConflictResolutionPriority());
 				createMapping(projectMapping, dataProvider);
@@ -148,6 +150,7 @@ public class ProjectMappingWizard extends Wizard {
 				
 				monitor.subTask(previewPage.getProductPlanningFolderMapping());
 				projectMapping.setSourceRepositoryId(getSelectedProduct().getName() + "-Product");
+				projectMapping.setSourceRepositoryKind("TemplateProducts.xsl");
 				projectMapping.setTargetRepositoryId(getSelectedProject().getId() + "-planningFolders");
 				projectMapping.setConflictResolutionPriority(previewPage.getProductPlanningFolderConflictResolutionPriority());
 				createMapping(projectMapping, dataProvider);
@@ -242,6 +245,9 @@ public class ProjectMappingWizard extends Wizard {
 	}
 	
 	private void createFieldMappingFile(SynchronizationStatus status) {
+		if (status.getSourceRepositoryKind().startsWith("Template")) {
+			return;
+		}
 		status.setLandscape(projectMappings.getLandscape());
 		status.clearXslInfo();
 		File xslFile = status.getXslFile();
