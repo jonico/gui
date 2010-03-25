@@ -13,8 +13,8 @@ public class ProjectMappingsPropertyTester extends PropertyTester {
 			Landscape landscape = projectMappings.getLandscape();
 			if (landscape != null) {
 				if (!landscape.getType1().equals(landscape.getType2())) {
-					if (landscape.getType1().equals("TF") || landscape.getType1().equals("SW")) {
-						if (landscape.getType2().equals("TF") || landscape.getType2().equals("SW")) {
+					if (landscape.getType1().equals("TF") || landscape.getType1().equals("SWP")) {
+						if (landscape.getType2().equals("TF") || landscape.getType2().equals("SWP")) {
 							return true;
 						}
 					}
