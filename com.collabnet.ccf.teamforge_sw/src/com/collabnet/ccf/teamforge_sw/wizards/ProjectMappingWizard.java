@@ -3,6 +3,7 @@ package com.collabnet.ccf.teamforge_sw.wizards;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -19,6 +20,8 @@ import com.collabnet.ccf.model.ProjectMappings;
 import com.collabnet.ccf.model.SynchronizationStatus;
 import com.collabnet.ccf.teamforge.schemageneration.TFSoapClient;
 import com.collabnet.teamforge.api.main.ProjectRow;
+import com.collabnet.teamforge.api.tracker.TrackerDO;
+import com.collabnet.teamforge.api.tracker.TrackerFieldDO;
 import com.collabnet.teamforge.api.tracker.TrackerRow;
 import com.danube.scrumworks.api.client.types.ProductWSO;
 
@@ -34,6 +37,11 @@ public class ProjectMappingWizard extends Wizard {
 	private List<SynchronizationStatus> existingMappings;
 	private List<Exception> errors;
 	private List<String> notCreated;
+	
+	private final static String TRACKER_DESCRIPTION_PBIS = "SWP Product Backlog Items";
+	private final static String TRACKER_DESCRIPTION_TASKS = "SWP Tasks";
+	private final static String TRACKER_ICON_PBIS = "icon_41.png";
+	private final static String TRACKER_ICON_TASKS = "icon_35.png";
 
 	public ProjectMappingWizard(ProjectMappings projectMappings) {
 		super();
@@ -65,14 +73,95 @@ public class ProjectMappingWizard extends Wizard {
 		notCreated = new ArrayList<String>();
 		IRunnableWithProgress runnable = new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+				// Create 6 mappings.
+				int totalWork = 6;
+				
+				if (getSelectedPbiTracker() != null || getSelectedTaskTracker() != null) {
+					// If we are using an existing tracker, we will first need to retrieve the
+					// existing mappings to make sure we don't try to add one that already exists.
+					totalWork++;
+				}
+				
+				// Need to create PBIs tracker.
+				if (getSelectedPbiTracker() == null) {
+					totalWork++;
+				}
+				
+				// Need to create Tasks tracker.
+				if (getSelectedTaskTracker() == null) {
+					totalWork++;
+				}
+				
 				CcfDataProvider dataProvider = new CcfDataProvider();
 				String taskName = "Creating project mappings";
 				monitor.setTaskName(taskName);
-				monitor.beginTask(taskName, 7);
+				monitor.beginTask(taskName, totalWork);
 				
-				monitor.subTask("");
-				getExistingMappings(dataProvider);
-				monitor.worked(1);
+				existingMappings = new ArrayList<SynchronizationStatus>();
+				if (getSelectedPbiTracker() != null || getSelectedTaskTracker() != null) {
+					monitor.subTask("");
+					getExistingMappings(dataProvider);
+					monitor.worked(1);
+				}
+				
+				String pbiTrackerId = null;
+				String taskTrackerId = null;
+				
+				try {
+					if (getSelectedPbiTracker() == null) {
+						monitor.subTask("Creating tracker " + trackerPage.getNewPbiTrackerTitle());
+						TrackerDO trackerDO = getSoapClient().createTracker(getSelectedProject().getId(), trackerPage.getNewPbiTrackerTitle(), trackerPage.getNewPbiTrackerTitle(), TRACKER_DESCRIPTION_PBIS, TRACKER_ICON_PBIS);
+						pbiTrackerId = trackerDO.getId();
+						TrackerFieldDO[] fields = getSoapClient().getFields(pbiTrackerId);
+						for (TrackerFieldDO field : fields) {
+							String fieldName = field.getName();
+							if (fieldName.equals("group") ||
+							    fieldName.equals("customer") ||
+							    fieldName.equals("reportedInRelease") ||
+							    fieldName.equals("resolvedInRelease") ||
+							    fieldName.startsWith("estimated") ||
+							    fieldName.startsWith("actual")) {
+								field.setDisabled(true);
+								getSoapClient().setField(pbiTrackerId, field);
+							}
+						}
+						getSoapClient().addTextField(pbiTrackerId, "Benefit", 5, 1, false, false, false, null);
+						getSoapClient().addTextField(pbiTrackerId, "Penalty", 30, 1, false, false, false, null);
+						getSoapClient().addTextField(pbiTrackerId, "Estimate", 5, 1, false, false, false, null);
+						getSoapClient().addTextField(pbiTrackerId, "SWP-Key", 30, 1, false, false, false, null);
+						monitor.worked(1);
+					} else {
+						pbiTrackerId = getSelectedPbiTracker().getId();
+					}
+					
+					if (getSelectedTaskTracker() == null) {
+						monitor.subTask("Creating tracker " + trackerPage.getNewTaskTrackerTitle());
+						TrackerDO trackerDO = getSoapClient().createTracker(getSelectedProject().getId(), trackerPage.getNewTaskTrackerTitle(), trackerPage.getNewTaskTrackerTitle(), TRACKER_DESCRIPTION_TASKS, TRACKER_ICON_TASKS);
+						taskTrackerId = trackerDO.getId();
+						TrackerFieldDO[] fields = getSoapClient().getFields(taskTrackerId);
+						for (TrackerFieldDO field : fields) {
+							String fieldName = field.getName();
+							if (fieldName.equals("group") ||
+							    fieldName.equals("customer") ||
+							    fieldName.equals("reportedInRelease") ||
+							    fieldName.equals("resolvedInRelease") ||
+							    fieldName.startsWith("autosumming") ||
+							    fieldName.startsWith("estimated") ||
+							    fieldName.startsWith("actual")) {
+								field.setDisabled(true);
+								getSoapClient().setField(taskTrackerId, field);
+							}
+						}
+						getSoapClient().addTextField(taskTrackerId, "Point Person", 30, 1, false, false, false, null);
+						monitor.worked(1);
+					} else {
+						taskTrackerId = getSelectedTaskTracker().getId();
+					}
+				} catch (RemoteException e) {
+					errors.add(e);
+					monitor.done();
+					return;
+				}
 				
 				monitor.subTask(previewPage.getTrackerTaskMapping());
 				SynchronizationStatus projectMapping = new SynchronizationStatus();
@@ -96,7 +185,7 @@ public class ProjectMappingWizard extends Wizard {
 					projectMapping.setSourceSystemTimezone(projectMappings.getLandscape().getTimezone2());
 					projectMapping.setTargetSystemTimezone(projectMappings.getLandscape().getTimezone1());					
 				}
-				projectMapping.setSourceRepositoryId(getSelectedTaskTracker().getId());
+				projectMapping.setSourceRepositoryId(taskTrackerId);
 				projectMapping.setTargetRepositoryId(getSelectedProduct().getName() + "-Task");
 				projectMapping.setConflictResolutionPriority(previewPage.getTrackerTaskConflictResolutionPriority());
 				projectMapping.setSourceRepositoryKind("TRACKER");
@@ -104,7 +193,7 @@ public class ProjectMappingWizard extends Wizard {
 				monitor.worked(1);
 				
 				monitor.subTask(previewPage.getTrackerPbiMapping());
-				projectMapping.setSourceRepositoryId(getSelectedPbiTracker().getId());
+				projectMapping.setSourceRepositoryId(pbiTrackerId);
 				projectMapping.setTargetRepositoryId(getSelectedProduct().getName() + "-PBI");
 				projectMapping.setConflictResolutionPriority(previewPage.getTrackerPbiConflictResolutionPriority());
 				createMapping(projectMapping, dataProvider);
@@ -135,7 +224,7 @@ public class ProjectMappingWizard extends Wizard {
 				}
 				projectMapping.setSourceRepositoryId(getSelectedProduct().getName() + "-Task");
 				projectMapping.setSourceRepositoryKind("TemplateTasks.xsl");
-				projectMapping.setTargetRepositoryId(getSelectedTaskTracker().getId());
+				projectMapping.setTargetRepositoryId(taskTrackerId);
 				projectMapping.setConflictResolutionPriority(previewPage.getTaskTrackerConflictResolutionPriority());
 				createMapping(projectMapping, dataProvider);
 				monitor.worked(1);
@@ -143,7 +232,7 @@ public class ProjectMappingWizard extends Wizard {
 				monitor.subTask(previewPage.getPbiTrackerMapping());
 				projectMapping.setSourceRepositoryId(getSelectedProduct().getName() + "-PBI");
 				projectMapping.setSourceRepositoryKind("TemplatePBIs.xsl");
-				projectMapping.setTargetRepositoryId(getSelectedPbiTracker().getId());
+				projectMapping.setTargetRepositoryId(pbiTrackerId);
 				projectMapping.setConflictResolutionPriority(previewPage.getPbiTrackerConflictResolutionPriority());
 				createMapping(projectMapping, dataProvider);
 				monitor.worked(1);
@@ -266,7 +355,6 @@ public class ProjectMappingWizard extends Wizard {
 	}
 	
 	private void getExistingMappings(CcfDataProvider dataProvider) {
-		existingMappings = new ArrayList<SynchronizationStatus>();
 		try {
 			SynchronizationStatus[] existingMappingsArray = dataProvider.getSynchronizationStatuses(projectMappings.getLandscape(), projectMappings);
 			for (SynchronizationStatus mapping : existingMappingsArray) {

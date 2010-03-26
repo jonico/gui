@@ -38,6 +38,7 @@ public class ProjectMappingWizardSwpProductPage extends WizardPage {
 	private TableViewer viewer;
 	private ProductWSO selectedProduct;
 	private boolean productsRetrieved;
+	private Exception getProductsError;
 	
 	private String[] columnHeaders = {"Product"};
 	private ColumnLayoutData columnLayouts[] = {
@@ -100,7 +101,7 @@ public class ProjectMappingWizardSwpProductPage extends WizardPage {
 	}
 
 	private ProductWSO[] getProducts() {
-		
+		getProductsError = null;
 		IRunnableWithProgress runnable = new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 				String taskName = "Retrieving ScrumWorks products";
@@ -131,7 +132,7 @@ public class ProjectMappingWizardSwpProductPage extends WizardPage {
 					products = endpoint.getProducts();
 				} catch (Exception e) {
 					Activator.handleError(e);
-					setErrorMessage(e.getMessage());
+					getProductsError = e;
 				}
 				monitor.done();
 			}		
@@ -142,6 +143,10 @@ public class ProjectMappingWizardSwpProductPage extends WizardPage {
 		} catch (Exception e) {
 			Activator.handleError(e);
 			setErrorMessage(e.getMessage());
+		}
+		
+		if (getProductsError != null) {
+			setErrorMessage("An unexpected error occurred while getting SWP products.  See error log for details.");
 		}
 		
 		return products;

@@ -105,8 +105,16 @@ public class ProjectMappingWizardPreviewPage extends WizardPage {
 				pbiTracker == null || !pbiTracker.equals(((ProjectMappingWizard)getWizard()).getSelectedPbiTracker().getId())) {
 				product = ((ProjectMappingWizard)getWizard()).getSelectedProduct().getName();
 				projectId = ((ProjectMappingWizard)getWizard()).getSelectedProject().getId();
-				taskTracker = ((ProjectMappingWizard)getWizard()).getSelectedTaskTracker().getId();
-				pbiTracker = ((ProjectMappingWizard)getWizard()).getSelectedPbiTracker().getId();
+				if (((ProjectMappingWizard)getWizard()).getSelectedTaskTracker() == null) {
+					taskTracker = null;
+				} else {
+					taskTracker = ((ProjectMappingWizard)getWizard()).getSelectedTaskTracker().getId();
+				}
+				if (((ProjectMappingWizard)getWizard()).getSelectedPbiTracker() == null) {
+					pbiTracker = null;
+				} else {
+					pbiTracker = ((ProjectMappingWizard)getWizard()).getSelectedPbiTracker().getId();
+				}
 				refreshMappings();
 				setPageComplete(true);
 			}
@@ -179,11 +187,23 @@ public class ProjectMappingWizardPreviewPage extends WizardPage {
 	
 	private void refreshMappings() {
 		ProjectMappingWizard wizard = (ProjectMappingWizard)getWizard();
-		trackerTaskMapping = wizard.getSelectedTaskTracker().getId() + " => " + wizard.getSelectedProduct().getName() + "-Task";
-		trackerPbiMapping = wizard.getSelectedPbiTracker().getId() + " => " + wizard.getSelectedProduct().getName() + "-PBI";
+		String pbiTracker;
+		if (wizard.getSelectedPbiTracker() == null) {
+			pbiTracker = "<new tracker id>";
+		} else {
+			pbiTracker = wizard.getSelectedPbiTracker().getId();
+		}
+		String taskTracker;
+		if (wizard.getSelectedTaskTracker() == null) {
+			taskTracker = "<new tracker id>";
+		} else {
+			taskTracker = wizard.getSelectedTaskTracker().getId();
+		}
+		trackerTaskMapping = taskTracker + " => " + wizard.getSelectedProduct().getName() + "-Task";
+		trackerPbiMapping = pbiTracker + " => " + wizard.getSelectedProduct().getName() + "-PBI";
 		planningFolderProductMapping = wizard.getSelectedProject().getId() + "-planningFolders => " + wizard.getSelectedProduct().getName() + "-Product";
-		taskTrackerMapping = wizard.getSelectedProduct().getName() + "-Task => " + wizard.getSelectedTaskTracker().getId();
-		pbiTrackerMapping = wizard.getSelectedProduct().getName() + "-PBI => " + wizard.getSelectedPbiTracker().getId();
+		taskTrackerMapping = wizard.getSelectedProduct().getName() + "-Task => " + taskTracker;
+		pbiTrackerMapping = wizard.getSelectedProduct().getName() + "-PBI => " + pbiTracker;
 		productPlanningFolderMapping = wizard.getSelectedProduct().getName() + "-Product => " + wizard.getSelectedProject().getId() + "-planningFolders";
 		trackerTaskText.setText(trackerTaskMapping);
 		trackerPbiText.setText(trackerPbiMapping);

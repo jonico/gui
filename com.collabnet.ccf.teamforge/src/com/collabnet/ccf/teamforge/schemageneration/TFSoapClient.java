@@ -37,6 +37,24 @@ public class TFSoapClient {
 		if (client == null) client = new TFSoapClient(serverUrl, userId, password);
 		return client;
 	}
+	
+	public TrackerDO createTracker(String projectId, String trackerName, String trackerTitle, String trackerDescription, String icon) throws RemoteException {
+		TrackerDO trackerDO = connection.getTrackerClient().createTracker(projectId, trackerName, trackerTitle, trackerDescription, icon);
+		return trackerDO;
+	}
+	
+	public TrackerFieldDO[] getFields(String trackerId) throws RemoteException {
+		TrackerFieldDO[] fields = connection.getTrackerClient().getFields(trackerId);
+		return fields;
+	}
+	
+	public void setField(String objectId, TrackerFieldDO fieldData) throws RemoteException {
+		connection.getTrackerClient().setField(objectId, fieldData);
+	}
+	
+	public void addTextField(String trackerId, String fieldName, int displayColumns, int displayLines, boolean isRequired, boolean isDisabled, boolean isHiddenOnCreate, String defaultValue) throws RemoteException {
+		connection.getTrackerClient().addTextField(trackerId, fieldName, displayColumns, displayLines, isRequired, isDisabled, isHiddenOnCreate, defaultValue);
+	}
 
 	/**
 	 * Get children dependencies of a given artifact
