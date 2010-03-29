@@ -2,7 +2,9 @@ package com.collabnet.ccf.teamforge_sw.wizards;
 
 import java.lang.reflect.InvocationTargetException;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -41,6 +43,7 @@ import com.collabnet.teamforge.api.tracker.TrackerRow;
 public class ProjectMappingWizardTeamForgeTrackerPage extends WizardPage {
 	private Map<String, TrackerRow[]> trackerMap = new HashMap<String, TrackerRow[]>();
 	private TrackerRow[] trackers;
+	List<String> trackerTitles;	
 	private Button newPbiTrackerButton;
 	private Text newPbiTrackerText;
 	private Table pbiTable;
@@ -112,11 +115,17 @@ public class ProjectMappingWizardTeamForgeTrackerPage extends WizardPage {
 				if (event.getSource() == newPbiTrackerButton) {
 					if (newPbiTrackerButton.getSelection()) {
 						pbiViewer.getTable().deselectAll();
+						if (newPbiTrackerText.getText().trim().length() == 0) {
+							newPbiTrackerText.setFocus();
+						}
 					}
 				}
 				if (event.getSource() == newTaskTrackerButton) {
 					if (newTaskTrackerButton.getSelection()) {
 						taskViewer.getTable().deselectAll();
+						if (newTaskTrackerText.getText().trim().length() == 0) {
+							newTaskTrackerText.setFocus();
+						}
 					}
 				}
 				setPageComplete(canFinish());
@@ -189,6 +198,24 @@ public class ProjectMappingWizardTeamForgeTrackerPage extends WizardPage {
 		else {
 			pageComplete = true;
 		}
+		if (pageComplete) {
+			StringBuffer errorMessage = null;
+			if (trackerTitles.contains(newPbiTrackerText.getText().trim())) {
+				errorMessage = new StringBuffer("Tracker " + newPbiTrackerText.getText().trim() + " already exists.");
+			}
+			if (trackerTitles.contains(newTaskTrackerText.getText().trim())) {
+				if (errorMessage == null) {
+					errorMessage = new StringBuffer();
+				} else {
+					errorMessage.append("\n");
+				}
+				errorMessage.append("Tracker " + newTaskTrackerText.getText().trim() + " already exists.");
+			}
+			if (errorMessage != null) {
+				setErrorMessage(errorMessage.toString());
+				pageComplete = false;
+			}
+		}
 		newPbiTrackerText.setEnabled(newPbiTrackerButton.getSelection());
 		newTaskTrackerText.setEnabled(newTaskTrackerButton.getSelection());
 		return pageComplete;
@@ -229,8 +256,27 @@ public class ProjectMappingWizardTeamForgeTrackerPage extends WizardPage {
 			if (projectId == null || !projectId.equals(((ProjectMappingWizard)getWizard()).getSelectedProject().getId())) {
 				projectId = ((ProjectMappingWizard)getWizard()).getSelectedProject().getId();
 				trackers = getTrackers(((ProjectMappingWizard)getWizard()).getSelectedProject().getId());
+				trackerTitles = new ArrayList<String>();
 				pbiViewer.refresh();
 				taskViewer.refresh();
+				for (int i = 0; i < trackers.length; i++) {
+					trackerTitles.add(trackers[i].getTitle());
+					if (trackers[i].getTitle().equals("PBIs")) {
+						pbiViewer.getTable().select(i);
+						selectedPbiTracker = trackers[i];
+						newPbiTrackerButton.setSelection(false);
+						newPbiTrackerText.setText("");
+						newPbiTrackerText.setEnabled(false);
+					}
+					if (trackers[i].getTitle().equals("Tasks")) {
+						taskViewer.getTable().select(i);
+						selectedTaskTracker = trackers[i];
+						newTaskTrackerButton.setSelection(false);
+						newTaskTrackerText.setText("");
+						newTaskTrackerText.setEnabled(false);
+					}
+				}
+				setPageComplete(canFinish());
 			}
 		}
 	}
