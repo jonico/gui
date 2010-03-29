@@ -1,7 +1,6 @@
 package com.collabnet.ccf.teamforge_sw.wizards;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.Properties;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -26,10 +25,6 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 
 import com.collabnet.ccf.Activator;
-import com.collabnet.ccf.model.Landscape;
-import com.danube.scrumworks.api.client.ScrumWorksEndpoint;
-import com.danube.scrumworks.api.client.ScrumWorksEndpointBindingStub;
-import com.danube.scrumworks.api.client.ScrumWorksServiceLocator;
 import com.danube.scrumworks.api.client.types.ProductWSO;
 
 public class ProjectMappingWizardSwpProductPage extends WizardPage {
@@ -108,32 +103,12 @@ public class ProjectMappingWizardSwpProductPage extends WizardPage {
 				monitor.setTaskName(taskName);
 				monitor.beginTask(taskName, IProgressMonitor.UNKNOWN);
 				monitor.subTask("");
-				Landscape landscape = ((ProjectMappingWizard)getWizard()).getProjectMappings().getLandscape();
-				Properties properties = null;
-				if (landscape.getType1().equals("SW")) {
-					properties = landscape.getProperties1();
-				} else {
-					properties = landscape.getProperties2();
-				}
-				
-				String url = properties.get(Activator.PROPERTIES_SW_URL).toString();
-				String user = properties.get(Activator.PROPERTIES_SW_USER).toString();
-				String password = properties.get(Activator.PROPERTIES_SW_PASSWORD).toString();
-				if (!url.endsWith("/")) {
-					url = url + "/";
-				}
-				url = url + "scrumworks-api/scrumworks";
-				ScrumWorksServiceLocator locator = new ScrumWorksServiceLocator();
-				locator.setScrumWorksEndpointPortEndpointAddress(url);
 				try {
-					ScrumWorksEndpoint endpoint = locator.getScrumWorksEndpointPort();
-					((ScrumWorksEndpointBindingStub) endpoint).setUsername(user);
-					((ScrumWorksEndpointBindingStub) endpoint).setPassword(password);
-					products = endpoint.getProducts();
+					products = ((ProjectMappingWizard)getWizard()).getProducts();
 				} catch (Exception e) {
 					Activator.handleError(e);
 					getProductsError = e;
-				}
+				}				
 				monitor.done();
 			}		
 		};

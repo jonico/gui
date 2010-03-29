@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import javax.xml.rpc.ServiceException;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -23,7 +25,12 @@ import com.collabnet.teamforge.api.main.ProjectRow;
 import com.collabnet.teamforge.api.tracker.TrackerDO;
 import com.collabnet.teamforge.api.tracker.TrackerFieldDO;
 import com.collabnet.teamforge.api.tracker.TrackerRow;
+import com.danube.scrumworks.api.client.ScrumWorksEndpoint;
+import com.danube.scrumworks.api.client.ScrumWorksEndpointBindingStub;
+import com.danube.scrumworks.api.client.ScrumWorksServiceLocator;
 import com.danube.scrumworks.api.client.types.ProductWSO;
+import com.danube.scrumworks.api.client.types.ServerException;
+import com.danube.scrumworks.api.client.types.ThemeWSO;
 
 public class ProjectMappingWizard extends Wizard {
 	private ProjectMappings projectMappings;
@@ -37,6 +44,8 @@ public class ProjectMappingWizard extends Wizard {
 	private List<SynchronizationStatus> existingMappings;
 	private List<Exception> errors;
 	private List<String> notCreated;
+	
+	private ScrumWorksEndpoint scrumWorksEndpoint;
 	
 	private final static String TRACKER_DESCRIPTION_PBIS = "SWP Product Backlog Items";
 	private final static String TRACKER_DESCRIPTION_TASKS = "SWP Tasks";
@@ -129,6 +138,8 @@ public class ProjectMappingWizard extends Wizard {
 						getSoapClient().addTextField(pbiTrackerId, "Penalty", 30, 1, false, false, false, null);
 						getSoapClient().addTextField(pbiTrackerId, "Estimate", 5, 1, false, false, false, null);
 						getSoapClient().addTextField(pbiTrackerId, "SWP-Key", 30, 1, false, false, false, null);
+						String[] themeValues = getThemeValues();
+						getSoapClient().addMultiSelectField(pbiTrackerId, "Themes", 4, false, false, false, themeValues, null);
 						monitor.worked(1);
 					} else {
 						pbiTrackerId = getSelectedPbiTracker().getId();
@@ -157,7 +168,7 @@ public class ProjectMappingWizard extends Wizard {
 					} else {
 						taskTrackerId = getSelectedTaskTracker().getId();
 					}
-				} catch (RemoteException e) {
+				} catch (Exception e) {
 					errors.add(e);
 					monitor.done();
 					return;
@@ -313,6 +324,50 @@ public class ProjectMappingWizard extends Wizard {
 			}
 		}
 		return soapClient;
+	}
+	
+	public ProductWSO[] getProducts() throws ServerException, RemoteException, ServiceException {
+		return getScrumWorksEndpoint().getProducts();
+	}
+	
+	private ThemeWSO[] getThemes(ProductWSO product) throws ServerException, RemoteException, ServiceException {
+		return getScrumWorksEndpoint().getThemes(product);
+	}
+	
+	private String[] getThemeValues() throws ServerException, RemoteException, ServiceException {
+		List<String> themeList = new ArrayList<String>();
+		ThemeWSO[] themes = getThemes(getSelectedProduct());
+		for (ThemeWSO theme : themes) {
+			themeList.add(theme.getName());
+		}
+		String[] themeValues = new String[themeList.size()];
+		themeList.toArray(themeValues);
+		return themeValues;
+	}
+	
+	private ScrumWorksEndpoint getScrumWorksEndpoint() throws ServiceException {
+		if (scrumWorksEndpoint == null) {
+			Landscape landscape = projectMappings.getLandscape();
+			Properties properties = null;
+			if (landscape.getType1().equals("SW")) {
+				properties = landscape.getProperties1();
+			} else {
+				properties = landscape.getProperties2();
+			}	
+			String url = properties.get(Activator.PROPERTIES_SW_URL).toString();
+			String user = properties.get(Activator.PROPERTIES_SW_USER).toString();
+			String password = properties.get(Activator.PROPERTIES_SW_PASSWORD).toString();
+			if (!url.endsWith("/")) {
+				url = url + "/";
+			}
+			url = url + "scrumworks-api/scrumworks";
+			ScrumWorksServiceLocator locator = new ScrumWorksServiceLocator();
+			locator.setScrumWorksEndpointPortEndpointAddress(url);
+			scrumWorksEndpoint = locator.getScrumWorksEndpointPort();
+			((ScrumWorksEndpointBindingStub) scrumWorksEndpoint).setUsername(user);
+			((ScrumWorksEndpointBindingStub) scrumWorksEndpoint).setPassword(password);
+		}
+		return scrumWorksEndpoint;
 	}
 
 	private void createMapping(SynchronizationStatus status, CcfDataProvider dataProvider) {
