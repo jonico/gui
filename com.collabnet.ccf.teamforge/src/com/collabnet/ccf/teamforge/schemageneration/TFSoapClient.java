@@ -9,13 +9,16 @@ import org.apache.axis.SimpleTargetedChain;
 import org.apache.axis.configuration.SimpleProvider;
 
 import com.collabnet.teamforge.api.Connection;
+import com.collabnet.teamforge.api.Filter;
 import com.collabnet.teamforge.api.main.ProjectList;
 import com.collabnet.teamforge.api.main.ProjectMemberList;
 import com.collabnet.teamforge.api.main.ProjectMemberRow;
 import com.collabnet.teamforge.api.main.ProjectRow;
 import com.collabnet.teamforge.api.tracker.ArtifactDependencyRow;
+import com.collabnet.teamforge.api.tracker.ArtifactDetailList;
 import com.collabnet.teamforge.api.tracker.TrackerDO;
 import com.collabnet.teamforge.api.tracker.TrackerFieldDO;
+import com.collabnet.teamforge.api.tracker.TrackerFieldValueDO;
 import com.collabnet.teamforge.api.tracker.TrackerList;
 import com.collabnet.teamforge.api.tracker.TrackerRow;
 import com.collabnet.teamforge.api.tracker.WorkflowTransitionRow;
@@ -58,6 +61,22 @@ public class TFSoapClient {
 	
 	public void addMultiSelectField(String trackerId, String fieldName, int displayLines, boolean isRequired, boolean isDisabled, boolean isHiddenOnCreate, String[] fieldValues, String[] defaultValues) throws RemoteException {
 		connection.getTrackerClient().addMultiSelectField(trackerId, fieldName, displayLines, isRequired, isDisabled, isHiddenOnCreate, fieldValues, defaultValues);
+	}
+	
+	public boolean isFieldValueUsed(String trackerId, String fieldName, TrackerFieldValueDO fieldValue) throws RemoteException {
+		Filter filter = new Filter(fieldName, fieldValue.getValue());
+		Filter[] filters = { filter };
+		String[] selectedColumns = { "COLUMN_ID" };
+		ArtifactDetailList artifactList = connection.getTrackerClient().getArtifactDetailList(
+				trackerId, 
+				selectedColumns, 
+				filters, 
+				null, 
+				0, 
+				1, 
+				false, 
+				true);
+		return artifactList.getDataRows().length > 0;
 	}
 
 	/**
