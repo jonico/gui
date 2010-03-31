@@ -193,10 +193,12 @@ public class ScrumWorksMappingSection extends MappingSection {
 				String url = properties.get(Activator.PROPERTIES_SW_URL).toString();
 				String user = properties.get(Activator.PROPERTIES_SW_USER).toString();
 				String password = properties.get(Activator.PROPERTIES_SW_PASSWORD).toString();
-				if (!url.endsWith("/")) {
-					url = url + "/";
+				if (!url.endsWith("scrumworks-api/scrumworks")) {
+					if (!url.endsWith("/")) {
+						url = url + "/";
+					}
+					url = url + "scrumworks-api/scrumworks";
 				}
-				url = url + "scrumworks-api/scrumworks";
 				ScrumWorksServiceLocator locator = new ScrumWorksServiceLocator();
 				locator.setScrumWorksEndpointPortEndpointAddress(url);
 				try {
