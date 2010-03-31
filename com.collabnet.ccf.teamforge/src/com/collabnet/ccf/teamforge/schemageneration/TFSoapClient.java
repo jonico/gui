@@ -59,6 +59,10 @@ public class TFSoapClient {
 		connection.getTrackerClient().addTextField(trackerId, fieldName, displayColumns, displayLines, isRequired, isDisabled, isHiddenOnCreate, defaultValue);
 	}
 	
+	public void addDateField(String trackerId, String fieldName, boolean isRequired, boolean isDisabled, boolean isHiddenOnCreate) throws RemoteException {
+		connection.getTrackerClient().addDateField(trackerId, fieldName, isRequired, isDisabled, isHiddenOnCreate);
+	}
+	
 	public void addMultiSelectField(String trackerId, String fieldName, int displayLines, boolean isRequired, boolean isDisabled, boolean isHiddenOnCreate, String[] fieldValues, String[] defaultValues) throws RemoteException {
 		connection.getTrackerClient().addMultiSelectField(trackerId, fieldName, displayLines, isRequired, isDisabled, isHiddenOnCreate, fieldValues, defaultValues);
 	}

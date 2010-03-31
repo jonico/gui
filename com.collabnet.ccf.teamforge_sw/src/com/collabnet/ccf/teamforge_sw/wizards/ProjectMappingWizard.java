@@ -139,6 +139,11 @@ public class ProjectMappingWizard extends Wizard {
 						getSoapClient().addTextField(pbiTrackerId, "Penalty", 30, 1, false, false, false, null);
 						getSoapClient().addTextField(pbiTrackerId, "Estimate", 5, 1, false, false, false, null);
 						getSoapClient().addTextField(pbiTrackerId, "SWP-Key", 30, 1, false, false, false, null);
+						getSoapClient().addTextField(pbiTrackerId, "Team", 30, 1, false, false, false, null);
+						getSoapClient().addTextField(pbiTrackerId, "Sprint", 30, 1, false, false, false, null);
+						getSoapClient().addDateField(pbiTrackerId, "Sprint Start", false, false, false);
+						getSoapClient().addDateField(pbiTrackerId, "Sprint End", false, false, false);
+						
 						String[] themeValues = getThemeValues();
 						getSoapClient().addMultiSelectField(pbiTrackerId, "Themes", 4, false, false, false, themeValues, null);
 						monitor.worked(1);
