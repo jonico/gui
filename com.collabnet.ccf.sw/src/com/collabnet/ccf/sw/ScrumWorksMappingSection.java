@@ -77,6 +77,7 @@ public class ScrumWorksMappingSection extends MappingSection {
 		typeCombo.add(SWPMetaData.PRODUCT.toString());
 		typeCombo.add(SWPMetaData.TASK.toString());
 		typeCombo.add(SWPMetaData.PBI.toString());	
+		typeCombo.add(SWPMetaData.PRODUCT_RELEASE.toString());
 		String previousType = null;
 		try {
 			previousType = settings.get(PREVIOUS_TYPE);
@@ -118,7 +119,10 @@ public class ScrumWorksMappingSection extends MappingSection {
 			swpType = SWPMetaData.retrieveSWPTypeFromRepositoryId(projectMapping.getTargetRepositoryId());
 		}
 		productText.setText(product);
-		if (swpType == SWPType.PRODUCT) {
+		if (swpType == SWPType.PRODUCT_RELEASE) {
+			typeCombo.setText(SWPMetaData.PRODUCT_RELEASE.toString());
+		}
+		else if (swpType == SWPType.PRODUCT) {
 			typeCombo.setText(SWPMetaData.PRODUCT.toString());
 		}
 		else if (swpType == SWPType.PBI) {
@@ -137,7 +141,9 @@ public class ScrumWorksMappingSection extends MappingSection {
 
 	public void updateSourceFields(SynchronizationStatus projectMapping) {
 		projectMapping.setSourceRepositoryId(getRepositoryId());
-		if (projectMapping.getSourceRepositoryId().endsWith("PBI")) {
+		if (projectMapping.getSourceRepositoryId().endsWith("ProductRelease")) {
+			projectMapping.setSourceRepositoryKind("TemplateProductReleases.xsl");
+		} else if (projectMapping.getSourceRepositoryId().endsWith("PBI")) {
 			projectMapping.setSourceRepositoryKind("TemplatePBIs.xsl");
 		} else if (projectMapping.getSourceRepositoryId().endsWith("Task")) {
 			projectMapping.setSourceRepositoryKind("TemplateTasks.xsl");

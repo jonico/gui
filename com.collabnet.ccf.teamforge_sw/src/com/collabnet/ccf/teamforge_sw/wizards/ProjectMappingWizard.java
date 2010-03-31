@@ -84,7 +84,7 @@ public class ProjectMappingWizard extends Wizard {
 		IRunnableWithProgress runnable = new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 				// Create 6 mappings.
-				int totalWork = 6;
+				int totalWork = 8;
 				
 				if (getSelectedPbiTracker() != null || getSelectedTaskTracker() != null) {
 					// If we are using an existing tracker, we will first need to retrieve the
@@ -218,6 +218,12 @@ public class ProjectMappingWizard extends Wizard {
 				createMapping(projectMapping, dataProvider);
 				monitor.worked(1);
 				
+				monitor.subTask(previewPage.getPlanningFolderProductReleaseMapping());
+				projectMapping.setTargetRepositoryId(getSelectedProduct().getName() + "-ProductRelease");
+				projectMapping.setConflictResolutionPriority(previewPage.getPlanningFolderProductReleaseConflictResolutionPriority());
+				createMapping(projectMapping, dataProvider);
+				monitor.worked(1);
+				
 				monitor.subTask(previewPage.getTaskTrackerMapping());
 				if (projectMappings.getLandscape().getType1().equals(ScrumWorksCcfParticipant.TYPE)) {
 					projectMapping.setSourceSystemId(projectMappings.getLandscape().getId1());	
@@ -254,6 +260,13 @@ public class ProjectMappingWizard extends Wizard {
 				projectMapping.setSourceRepositoryKind("TemplateProducts.xsl");
 				projectMapping.setTargetRepositoryId(getSelectedProject().getId() + "-planningFolders");
 				projectMapping.setConflictResolutionPriority(previewPage.getProductPlanningFolderConflictResolutionPriority());
+				createMapping(projectMapping, dataProvider);
+				monitor.worked(1);
+				
+				monitor.subTask(previewPage.getProductReleasePlanningFolderMapping());
+				projectMapping.setSourceRepositoryId(getSelectedProduct().getName() + "-ProductRelease");
+				projectMapping.setSourceRepositoryKind("TemplateProductReleases.xsl");
+				projectMapping.setConflictResolutionPriority(previewPage.getProductReleasePlanningFolderConflictResolutionPriority());
 				createMapping(projectMapping, dataProvider);
 				monitor.worked(1);
 				

@@ -21,23 +21,29 @@ public class ProjectMappingWizardPreviewPage extends WizardPage {
 	private String trackerTaskMapping;
 	private String trackerPbiMapping;
 	private String planningFolderProductMapping;
+	private String planningFolderProductReleaseMapping;
 	private String taskTrackerMapping;
 	private String pbiTrackerMapping;
 	private String productPlanningFolderMapping;
+	private String productReleasePlanningFolderMapping;
 	
 	private Text trackerTaskText;
 	private Text trackerPbiText;
 	private Text planningFolderProductText;
+	private Text planningFolderProductReleaseText;
 	private Text taskTrackerText;
 	private Text pbiTrackerText;
 	private Text productPlanningFolderText;
+	private Text productReleasePlanningFolderText;
 	
 	private Combo trackerTaskCombo;
 	private Combo trackerPbiCombo;
 	private Combo planningFolderProductCombo;
+	private Combo planningFolderProductReleaseCombo;
 	private Combo taskTrackerCombo;
 	private Combo pbiTrackerCombo;
 	private Combo productPlanningFolderCombo;
+	private Combo productReleasePlanningFolderCombo;
 	
 	private int selectionIndex;
 
@@ -75,6 +81,11 @@ public class ProjectMappingWizardPreviewPage extends WizardPage {
 		planningFolderProductCombo = new Combo(outerContainer, SWT.READ_ONLY);
 		populateConflictResolutionCombo(planningFolderProductCombo);
 		
+		planningFolderProductReleaseText = new Text(outerContainer, SWT.READ_ONLY | SWT.BORDER);
+		planningFolderProductReleaseText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL));
+		planningFolderProductReleaseCombo = new Combo(outerContainer, SWT.READ_ONLY);
+		populateConflictResolutionCombo(planningFolderProductReleaseCombo);
+		
 		taskTrackerText = new Text(outerContainer, SWT.READ_ONLY | SWT.BORDER);
 		taskTrackerText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL));
 		taskTrackerCombo = new Combo(outerContainer, SWT.READ_ONLY);
@@ -89,6 +100,11 @@ public class ProjectMappingWizardPreviewPage extends WizardPage {
 		productPlanningFolderText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL));
 		productPlanningFolderCombo = new Combo(outerContainer, SWT.READ_ONLY);
 		populateConflictResolutionCombo(productPlanningFolderCombo);
+		
+		productReleasePlanningFolderText = new Text(outerContainer, SWT.READ_ONLY | SWT.BORDER);
+		productReleasePlanningFolderText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL));
+		productReleasePlanningFolderCombo = new Combo(outerContainer, SWT.READ_ONLY);
+		populateConflictResolutionCombo(productReleasePlanningFolderCombo);
 		
 		setMessage("The following mappings will be created.");
 
@@ -132,6 +148,10 @@ public class ProjectMappingWizardPreviewPage extends WizardPage {
 	public String getPlanningFolderProductMapping() {
 		return planningFolderProductMapping;
 	}
+	
+	public String getPlanningFolderProductReleaseMapping() {
+		return planningFolderProductReleaseMapping;
+	}
 
 	public String getTaskTrackerMapping() {
 		return taskTrackerMapping;
@@ -143,6 +163,10 @@ public class ProjectMappingWizardPreviewPage extends WizardPage {
 
 	public String getProductPlanningFolderMapping() {
 		return productPlanningFolderMapping;
+	}
+	
+	public String getProductReleasePlanningFolderMapping() {
+		return productReleasePlanningFolderMapping;
 	}
 
 	public String getTrackerTaskConflictResolutionPriority() {
@@ -157,6 +181,10 @@ public class ProjectMappingWizardPreviewPage extends WizardPage {
 		return SynchronizationStatus.CONFLICT_RESOLUTIONS[getSelectionIndex(planningFolderProductCombo)];
 	}
 	
+	public String getPlanningFolderProductReleaseConflictResolutionPriority() {
+		return SynchronizationStatus.CONFLICT_RESOLUTIONS[getSelectionIndex(planningFolderProductReleaseCombo)];
+	}
+	
 	public String getTaskTrackerConflictResolutionPriority() {
 		return SynchronizationStatus.CONFLICT_RESOLUTIONS[getSelectionIndex(taskTrackerCombo)];
 	}
@@ -167,6 +195,10 @@ public class ProjectMappingWizardPreviewPage extends WizardPage {
 	
 	public String getProductPlanningFolderConflictResolutionPriority() {
 		return SynchronizationStatus.CONFLICT_RESOLUTIONS[getSelectionIndex(productPlanningFolderCombo)];
+	}
+	
+	public String getProductReleasePlanningFolderConflictResolutionPriority() {
+		return SynchronizationStatus.CONFLICT_RESOLUTIONS[getSelectionIndex(productReleasePlanningFolderCombo)];
 	}
 	
 	private int getSelectionIndex(final Combo combo) {
@@ -202,15 +234,19 @@ public class ProjectMappingWizardPreviewPage extends WizardPage {
 		trackerTaskMapping = taskTracker + " => " + wizard.getSelectedProduct().getName() + "-Task";
 		trackerPbiMapping = pbiTracker + " => " + wizard.getSelectedProduct().getName() + "-PBI";
 		planningFolderProductMapping = wizard.getSelectedProject().getId() + "-planningFolders => " + wizard.getSelectedProduct().getName() + "-Product";
+		planningFolderProductReleaseMapping = wizard.getSelectedProject().getId() + "-planningFolders => " + wizard.getSelectedProduct().getName() + "-ProductRelease";
 		taskTrackerMapping = wizard.getSelectedProduct().getName() + "-Task => " + taskTracker;
 		pbiTrackerMapping = wizard.getSelectedProduct().getName() + "-PBI => " + pbiTracker;
 		productPlanningFolderMapping = wizard.getSelectedProduct().getName() + "-Product => " + wizard.getSelectedProject().getId() + "-planningFolders";
+		productReleasePlanningFolderMapping = wizard.getSelectedProduct().getName() + "-ProductRelease => " + wizard.getSelectedProject().getId() + "-planningFolders";
 		trackerTaskText.setText(trackerTaskMapping);
 		trackerPbiText.setText(trackerPbiMapping);
 		planningFolderProductText.setText(planningFolderProductMapping);
+		planningFolderProductReleaseText.setText(planningFolderProductReleaseMapping);
 		taskTrackerText.setText(taskTrackerMapping);
 		pbiTrackerText.setText(pbiTrackerMapping);
 		productPlanningFolderText.setText(productPlanningFolderMapping);
+		productReleasePlanningFolderText.setText(productReleasePlanningFolderMapping);
 	}
 
 }
