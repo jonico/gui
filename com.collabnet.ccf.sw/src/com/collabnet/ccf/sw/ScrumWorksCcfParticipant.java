@@ -22,6 +22,7 @@ import com.collabnet.ccf.schemageneration.CCFSchemaAndXSLTFileGenerator;
 public class ScrumWorksCcfParticipant extends CcfParticipant {
 	public static final String DEFAULT_JMX_PORT_1 = "8085";
 	public static final String DEFAULT_JMX_PORT_2 = "8084";
+	public static final String TYPE = "SWP";
 	
 	@Override
 	public Image getImage() {

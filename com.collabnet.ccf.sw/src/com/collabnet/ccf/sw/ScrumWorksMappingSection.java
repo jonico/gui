@@ -178,7 +178,7 @@ public class ScrumWorksMappingSection extends MappingSection {
 		BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
 			public void run() {
 				Properties properties = null;
-				if (landscape.getType1().equals("SW")) {
+				if (landscape.getType1().equals(ScrumWorksCcfParticipant.TYPE)) {
 					properties = landscape.getProperties1();
 				} else {
 					properties = landscape.getProperties2();

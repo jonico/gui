@@ -20,6 +20,7 @@ import com.collabnet.ccf.db.CcfDataProvider;
 import com.collabnet.ccf.model.Landscape;
 import com.collabnet.ccf.model.ProjectMappings;
 import com.collabnet.ccf.model.SynchronizationStatus;
+import com.collabnet.ccf.sw.ScrumWorksCcfParticipant;
 import com.collabnet.ccf.teamforge.schemageneration.TFSoapClient;
 import com.collabnet.teamforge.api.main.ProjectRow;
 import com.collabnet.teamforge.api.tracker.TrackerDO;
@@ -218,7 +219,7 @@ public class ProjectMappingWizard extends Wizard {
 				monitor.worked(1);
 				
 				monitor.subTask(previewPage.getTaskTrackerMapping());
-				if (projectMappings.getLandscape().getType1().equals("SW")) {
+				if (projectMappings.getLandscape().getType1().equals(ScrumWorksCcfParticipant.TYPE)) {
 					projectMapping.setSourceSystemId(projectMappings.getLandscape().getId1());	
 					projectMapping.setTargetSystemId(projectMappings.getLandscape().getId2());			
 					projectMapping.setSourceSystemKind(projectMappings.getLandscape().getType1());			
@@ -349,7 +350,7 @@ public class ProjectMappingWizard extends Wizard {
 		if (scrumWorksEndpoint == null) {
 			Landscape landscape = projectMappings.getLandscape();
 			Properties properties = null;
-			if (landscape.getType1().equals("SW")) {
+			if (landscape.getType1().equals(ScrumWorksCcfParticipant.TYPE)) {
 				properties = landscape.getProperties1();
 			} else {
 				properties = landscape.getProperties2();

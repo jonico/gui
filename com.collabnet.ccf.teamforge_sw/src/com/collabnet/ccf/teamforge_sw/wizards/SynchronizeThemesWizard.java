@@ -16,6 +16,7 @@ import org.eclipse.jface.wizard.Wizard;
 import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.model.Landscape;
 import com.collabnet.ccf.model.SynchronizationStatus;
+import com.collabnet.ccf.sw.ScrumWorksCcfParticipant;
 import com.collabnet.ccf.teamforge.schemageneration.TFSoapClient;
 import com.collabnet.teamforge.api.tracker.TrackerFieldDO;
 import com.collabnet.teamforge.api.tracker.TrackerFieldValueDO;
@@ -149,7 +150,7 @@ public class SynchronizeThemesWizard extends Wizard {
 		if (scrumWorksEndpoint == null) {
 			Landscape landscape = projectMapping.getProjectMappings().getLandscape();
 			Properties properties = null;
-			if (landscape.getType1().equals("SW")) {
+			if (landscape.getType1().equals(ScrumWorksCcfParticipant.TYPE)) {
 				properties = landscape.getProperties1();
 			} else {
 				properties = landscape.getProperties2();
