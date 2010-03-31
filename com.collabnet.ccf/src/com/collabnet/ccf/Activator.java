@@ -606,7 +606,9 @@ public class Activator extends AbstractUIPlugin {
 				landscape.setNode(node);
 				landscape.setParticipantId1(node.get("participantId1", "")); //$NON-NLS-1$ //$NON-NLS-2$
 				landscape.setParticipantId2(node.get("participantId2", "")); //$NON-NLS-1$ //$NON-NLS-2$
-				landscapes.add(landscape);
+				if (getCcfParticipantForType(landscape.getType1()) != null && getCcfParticipantForType(landscape.getType2()) != null) {
+					landscapes.add(landscape);
+				}
 			}
 			Landscape[] landscapeArray = new Landscape[landscapes.size()];
 			landscapes.toArray(landscapeArray);
