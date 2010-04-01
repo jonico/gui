@@ -128,19 +128,23 @@ public class SynchronizeThemesWizardPage extends WizardPage {
 					}
 					trackerThemes = themesField.getFieldValues();
 					
-					List<String> newValuesList = new ArrayList<String>();			
-					for (ThemeWSO productTheme : productThemes) {
-						newValuesList.add(productTheme.getName());
+					List<String> newValuesList = new ArrayList<String>();	
+					if (productThemes != null) {
+						for (ThemeWSO productTheme : productThemes) {
+							newValuesList.add(productTheme.getName());
+						}
 					}
 					for (TrackerFieldValueDO oldValue : themesField.getFieldValues()) {
 						oldValuesMap.put(oldValue.getValue(), oldValue.getId());
 						if (!newValuesList.contains(oldValue.getValue())) {
 							deletedValues.add(oldValue);
 						}
-					}	
-					for (ThemeWSO productTheme : productThemes) {
-						if (oldValuesMap.get(productTheme.getName()) == null) {
-							addedValues.add(productTheme);
+					}
+					if (productThemes != null) {
+						for (ThemeWSO productTheme : productThemes) {
+							if (oldValuesMap.get(productTheme.getName()) == null) {
+								addedValues.add(productTheme);
+							}
 						}
 					}
 					

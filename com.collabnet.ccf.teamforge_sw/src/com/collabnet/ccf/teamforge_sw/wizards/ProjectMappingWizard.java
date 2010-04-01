@@ -128,7 +128,7 @@ public class ProjectMappingWizard extends Wizard {
 					
 					if (getSelectedProject() == null) {
 						monitor.subTask("Creating project " + projectPage.getNewProjectTitle());
-						ProjectDO projectDO = getSoapClient().createProject(null, getSelectedProduct().getName(), getSelectedProduct().getName());
+						ProjectDO projectDO = getSoapClient().createProject(null, getSelectedProduct().getName(), previewPage.getNewProjectDescription());
 						projectId = projectDO.getId();
 						monitor.worked(1);
 					} else {
@@ -373,8 +373,10 @@ public class ProjectMappingWizard extends Wizard {
 	private String[] getThemeValues() throws ServerException, RemoteException, ServiceException {
 		List<String> themeList = new ArrayList<String>();
 		ThemeWSO[] themes = getThemes(getSelectedProduct());
-		for (ThemeWSO theme : themes) {
-			themeList.add(theme.getName());
+		if (themes != null) {
+			for (ThemeWSO theme : themes) {
+				themeList.add(theme.getName());
+			}
 		}
 		String[] themeValues = new String[themeList.size()];
 		themeList.toArray(themeValues);

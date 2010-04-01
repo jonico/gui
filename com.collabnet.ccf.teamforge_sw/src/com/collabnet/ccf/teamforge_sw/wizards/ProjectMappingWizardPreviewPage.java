@@ -2,11 +2,14 @@ package com.collabnet.ccf.teamforge_sw.wizards;
 
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
@@ -26,6 +29,7 @@ public class ProjectMappingWizardPreviewPage extends WizardPage {
 	private String pbiTrackerMapping;
 	private String productPlanningFolderMapping;
 	private String productReleasePlanningFolderMapping;
+	private String newProjectDescription = DEFAULT_PROJECT_DESCRIPTION;
 	
 	private Text trackerTaskText;
 	private Text trackerPbiText;
@@ -35,6 +39,8 @@ public class ProjectMappingWizardPreviewPage extends WizardPage {
 	private Text pbiTrackerText;
 	private Text productPlanningFolderText;
 	private Text productReleasePlanningFolderText;
+	private Group projectDescriptionGroup;
+	private Text projectDescriptionText;
 	
 	private Combo trackerTaskCombo;
 	private Combo trackerPbiCombo;
@@ -46,6 +52,8 @@ public class ProjectMappingWizardPreviewPage extends WizardPage {
 	private Combo productReleasePlanningFolderCombo;
 	
 	private int selectionIndex;
+	
+	private final static String DEFAULT_PROJECT_DESCRIPTION = "Project was automatically created for TeamForge-ScrumWorks integration.";
 
 	public ProjectMappingWizardPreviewPage() {
 		super("previewPage", "Mappings Preview", Activator.getDefault().getImageDescriptor(Activator.IMAGE_NEW_PROJECT_MAPPING_WIZBAN));
@@ -106,6 +114,25 @@ public class ProjectMappingWizardPreviewPage extends WizardPage {
 		productReleasePlanningFolderCombo = new Combo(outerContainer, SWT.READ_ONLY);
 		populateConflictResolutionCombo(productReleasePlanningFolderCombo);
 		
+		projectDescriptionGroup = new Group(outerContainer,SWT.NONE);
+		projectDescriptionGroup.setText("Description for new TeamForge Project:");
+		GridLayout descriptionLayout = new GridLayout();
+		projectDescriptionGroup.setLayout(descriptionLayout);
+		GridData data = new GridData(GridData.GRAB_HORIZONTAL | GridData.GRAB_VERTICAL | GridData.FILL_BOTH);
+		data.horizontalSpan = 2;
+		projectDescriptionGroup.setLayoutData(data);
+		
+		projectDescriptionText = new Text(projectDescriptionGroup, SWT.BORDER | SWT.MULTI | SWT.WRAP);
+		data = new GridData(GridData.GRAB_HORIZONTAL | GridData.GRAB_VERTICAL | GridData.FILL_BOTH);
+		data.heightHint = 75;
+		projectDescriptionText.setLayoutData(data);
+		projectDescriptionText.setText(newProjectDescription);
+		projectDescriptionText.addModifyListener(new ModifyListener() {			
+			public void modifyText(ModifyEvent e) {
+				newProjectDescription = projectDescriptionText.getText();
+			}
+		});
+		
 		setMessage("The following mappings will be created.");
 
 		setControl(outerContainer);
@@ -118,6 +145,9 @@ public class ProjectMappingWizardPreviewPage extends WizardPage {
 			String selectedProjectId = null;
 			if (((ProjectMappingWizard)getWizard()).getSelectedProject() != null) {
 				selectedProjectId = ((ProjectMappingWizard)getWizard()).getSelectedProject().getId();
+				projectDescriptionGroup.setVisible(false);
+			} else {
+				projectDescriptionGroup.setVisible(true);
 			}
 			if (product == null || !product.equals(((ProjectMappingWizard)getWizard()).getSelectedProduct().getName()) ||
 				projectId == null || !projectId.equals(selectedProjectId) ||
@@ -207,6 +237,10 @@ public class ProjectMappingWizardPreviewPage extends WizardPage {
 	
 	public String getProductReleasePlanningFolderConflictResolutionPriority() {
 		return SynchronizationStatus.CONFLICT_RESOLUTIONS[getSelectionIndex(productReleasePlanningFolderCombo)];
+	}
+	
+	public String getNewProjectDescription() {
+		return newProjectDescription;
 	}
 	
 	private int getSelectionIndex(final Combo combo) {
