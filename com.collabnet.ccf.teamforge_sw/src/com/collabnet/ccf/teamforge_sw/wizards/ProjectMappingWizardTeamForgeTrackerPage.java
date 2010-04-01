@@ -38,12 +38,13 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.Text;
 
 import com.collabnet.ccf.Activator;
+import com.collabnet.teamforge.api.main.ProjectRow;
 import com.collabnet.teamforge.api.tracker.TrackerRow;
 
 public class ProjectMappingWizardTeamForgeTrackerPage extends WizardPage {
 	private Map<String, TrackerRow[]> trackerMap = new HashMap<String, TrackerRow[]>();
 	private TrackerRow[] trackers;
-	List<String> trackerTitles;	
+	private List<String> trackerTitles;	
 	private Button newPbiTrackerButton;
 	private Text newPbiTrackerText;
 	private Table pbiTable;
@@ -198,12 +199,12 @@ public class ProjectMappingWizardTeamForgeTrackerPage extends WizardPage {
 		else {
 			pageComplete = true;
 		}
-		if (pageComplete) {
+		if (pageComplete && ((ProjectMappingWizard)getWizard()).getSelectedProject() != null) {
 			StringBuffer errorMessage = null;
-			if (trackerTitles.contains(newPbiTrackerText.getText().trim())) {
+			if (newPbiTrackerButton.getSelection() && trackerTitles.contains(newPbiTrackerText.getText().trim())) {
 				errorMessage = new StringBuffer("Tracker " + newPbiTrackerText.getText().trim() + " already exists.");
 			}
-			if (trackerTitles.contains(newTaskTrackerText.getText().trim())) {
+			if (newTaskTrackerButton.getSelection() && trackerTitles.contains(newTaskTrackerText.getText().trim())) {
 				if (errorMessage == null) {
 					errorMessage = new StringBuffer();
 				} else {
@@ -252,28 +253,40 @@ public class ProjectMappingWizardTeamForgeTrackerPage extends WizardPage {
 	@Override
 	public void setVisible(boolean visible) {
 		super.setVisible(visible);
-		if (visible) {		
-			if (projectId == null || !projectId.equals(((ProjectMappingWizard)getWizard()).getSelectedProject().getId())) {
-				projectId = ((ProjectMappingWizard)getWizard()).getSelectedProject().getId();
-				trackers = getTrackers(((ProjectMappingWizard)getWizard()).getSelectedProject().getId());
-				trackerTitles = new ArrayList<String>();
-				pbiViewer.refresh();
-				taskViewer.refresh();
-				for (int i = 0; i < trackers.length; i++) {
-					trackerTitles.add(trackers[i].getTitle());
-					if (trackers[i].getTitle().equals("PBIs")) {
-						pbiViewer.getTable().select(i);
-						selectedPbiTracker = trackers[i];
-						newPbiTrackerButton.setSelection(false);
-						newPbiTrackerText.setText("");
-						newPbiTrackerText.setEnabled(false);
-					}
-					if (trackers[i].getTitle().equals("Tasks")) {
-						taskViewer.getTable().select(i);
-						selectedTaskTracker = trackers[i];
-						newTaskTrackerButton.setSelection(false);
-						newTaskTrackerText.setText("");
-						newTaskTrackerText.setEnabled(false);
+		if (visible) {	
+			String selectedProjectId = null;
+			if (((ProjectMappingWizard)getWizard()).getSelectedProject() != null) {
+				selectedProjectId = ((ProjectMappingWizard)getWizard()).getSelectedProject().getId();
+			}
+			if (projectId == null || !projectId.equals(selectedProjectId)) {
+				ProjectRow selectedProject = ((ProjectMappingWizard)getWizard()).getSelectedProject();
+				if (selectedProject == null) {
+					projectId = null;
+					trackers = new TrackerRow[0];
+					pbiViewer.refresh();
+					taskViewer.refresh();
+				} else {
+					projectId = ((ProjectMappingWizard)getWizard()).getSelectedProject().getId();
+					trackers = getTrackers(((ProjectMappingWizard)getWizard()).getSelectedProject().getId());
+					trackerTitles = new ArrayList<String>();
+					pbiViewer.refresh();
+					taskViewer.refresh();
+					for (int i = 0; i < trackers.length; i++) {
+						trackerTitles.add(trackers[i].getTitle());
+						if (trackers[i].getTitle().equals("PBIs")) {
+							pbiViewer.getTable().select(i);
+							selectedPbiTracker = trackers[i];
+							newPbiTrackerButton.setSelection(false);
+							newPbiTrackerText.setText("");
+							newPbiTrackerText.setEnabled(false);
+						}
+						if (trackers[i].getTitle().equals("Tasks")) {
+							taskViewer.getTable().select(i);
+							selectedTaskTracker = trackers[i];
+							newTaskTrackerButton.setSelection(false);
+							newTaskTrackerText.setText("");
+							newTaskTrackerText.setEnabled(false);
+						}
 					}
 				}
 				setPageComplete(canFinish());

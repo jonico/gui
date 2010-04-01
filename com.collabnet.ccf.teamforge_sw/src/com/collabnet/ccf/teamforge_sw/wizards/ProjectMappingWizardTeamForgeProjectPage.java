@@ -2,6 +2,10 @@ package com.collabnet.ccf.teamforge_sw.wizards;
 
 import java.lang.reflect.InvocationTargetException;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -16,25 +20,35 @@ import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TableLayout;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.jface.viewers.ViewerSorter;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.Text;
 
 import com.collabnet.ccf.Activator;
 import com.collabnet.teamforge.api.main.ProjectRow;
 
 public class ProjectMappingWizardTeamForgeProjectPage extends WizardPage {
 	private ProjectRow[] projects;
+	private List<String> projectTitles;	
+	private Button newProjectButton;
+	private Text newProjectText;
 	private Table table;
 	private TableViewer viewer;
 	private ProjectRow selectedProject;
 	private boolean projectsRetrieved;
+	private String newProjectTitle;
+	private String selectedProduct;
 	
 	private String[] columnHeaders = {"Project"};
 	private ColumnLayoutData columnLayouts[] = {
@@ -48,15 +62,41 @@ public class ProjectMappingWizardTeamForgeProjectPage extends WizardPage {
 	public void createControl(Composite parent) {
 		setMessage("Select the TeamForge project to be mapped.");
 		Composite outerContainer = new Composite(parent,SWT.NONE);
-		outerContainer.setLayout(new GridLayout());
+		GridLayout layout = new GridLayout();
+		layout.numColumns = 2;
+		outerContainer.setLayout(layout);
 		outerContainer.setLayoutData(
 		new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));
-
+		
+		newProjectButton = new Button(outerContainer, SWT.CHECK);
+		newProjectButton.setText("Create new project:");
+		newProjectButton.setSelection(true);
+		newProjectButton.addSelectionListener(new SelectionAdapter() {			
+			public void widgetSelected(SelectionEvent e) {
+				if (newProjectButton.getSelection()) {
+					viewer.getTable().deselectAll();
+					if (newProjectText.getText().trim().length() == 0) {
+						newProjectText.setFocus();
+					}
+				}
+				setPageComplete(canFinish());
+			}
+		});
+		newProjectText = new Text(outerContainer, SWT.BORDER);
+		newProjectText.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));
+		newProjectText.addModifyListener(new ModifyListener() {			
+			public void modifyText(ModifyEvent e) {
+				newProjectTitle = newProjectText.getText().trim();
+				setPageComplete(canFinish());
+			}
+		});
+		
 		table = new Table(outerContainer, SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION);
 		table.setLinesVisible(true);
 		GridData gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL | GridData.GRAB_VERTICAL | GridData.VERTICAL_ALIGN_FILL);
 		gd.widthHint = 500;
 		gd.heightHint = 200;
+		gd.horizontalSpan = 2;
 		table.setLayoutData(gd);
 		TableLayout tableLayout = new TableLayout();
 		table.setLayout(tableLayout);
@@ -74,18 +114,13 @@ public class ProjectMappingWizardTeamForgeProjectPage extends WizardPage {
 		viewer.addSelectionChangedListener(new ISelectionChangedListener() {
 			public void selectionChanged(SelectionChangedEvent event) {
 				IStructuredSelection projectSelection = (IStructuredSelection)viewer.getSelection();
-				setPageComplete(!projectSelection.isEmpty());
+				if (!projectSelection.isEmpty()) {
+					newProjectButton.setSelection(false);
+				}
 				selectedProject = (ProjectRow)projectSelection.getFirstElement();
+				setPageComplete(canFinish());
 			}		
 		});	
-		viewer.setSorter(new ViewerSorter() {
-			@Override
-			public int compare(Viewer viewer, Object e1, Object e2) {
-				ProjectRow p1 = (ProjectRow)e1;
-				ProjectRow p2 = (ProjectRow)e2;
-				return p1.getTitle().compareTo(p2.getTitle());
-			}			
-		});
 
 		setControl(outerContainer);
 	}
@@ -97,11 +132,54 @@ public class ProjectMappingWizardTeamForgeProjectPage extends WizardPage {
 			getProjects();
 			viewer.refresh();
 		}
+		if (visible) {
+			if (selectedProduct == null || !selectedProduct.equals(((ProjectMappingWizard)getWizard()).getSelectedProduct().getName())) {
+				selectedProduct = ((ProjectMappingWizard)getWizard()).getSelectedProduct().getName();
+				newProjectText.setText(selectedProduct);
+				for (int i = 0; i < projects.length; i++) {
+					if (projects[i].getTitle().equals(selectedProduct)) {
+						table.select(i);
+						newProjectButton.setSelection(false);
+						newProjectText.setText("");
+						newProjectText.setEnabled(false);
+						viewer.reveal(projects[i]);
+					}
+				}
+				setPageComplete(canFinish());
+			}
+		}
 		super.setVisible(visible);
 	}
 	
 	public ProjectRow getSelectedProject() {
 		return selectedProject;
+	}
+
+	public String getNewProjectTitle() {
+		return newProjectTitle;
+	}
+	
+	private boolean canFinish() {
+		setErrorMessage(null);
+		boolean pageComplete;
+		IStructuredSelection selection = (IStructuredSelection)viewer.getSelection();
+		selectedProject = (ProjectRow)selection.getFirstElement();
+		if (!newProjectButton.getSelection() && selection.isEmpty()) {
+			pageComplete = false;
+		}
+		else if (newProjectButton.getSelection() && newProjectText.getText().trim().length() == 0) {
+			pageComplete = false;
+		} else {
+			pageComplete = true;
+		}
+		if (pageComplete) {
+			if (newProjectButton.getSelection() && projectTitles.contains(newProjectText.getText().trim())) {
+				setErrorMessage("Project " + newProjectText.getText().trim() + " already exists.");
+				pageComplete = false;
+			}
+		}
+		newProjectText.setEnabled(newProjectButton.getSelection());
+		return pageComplete;
 	}
 
 	private ProjectRow[] getProjects() {
@@ -114,6 +192,15 @@ public class ProjectMappingWizardTeamForgeProjectPage extends WizardPage {
 				monitor.subTask("");
 				try {
 					projects = ((ProjectMappingWizard)getWizard()).getSoapClient().getAllProjects();
+					Arrays.sort(projects, new Comparator<ProjectRow>() {
+						public int compare(ProjectRow p1, ProjectRow p2) {
+							return p1.getTitle().toLowerCase().compareTo(p2.getTitle().toLowerCase());
+						}
+					});
+					projectTitles = new ArrayList<String>();
+					for (ProjectRow project : projects) {
+						projectTitles.add(project.getTitle());
+					}
 				} catch (RemoteException e) {
 					Activator.handleError(e);
 					setErrorMessage(e.getMessage());

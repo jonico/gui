@@ -22,6 +22,7 @@ import com.collabnet.ccf.model.ProjectMappings;
 import com.collabnet.ccf.model.SynchronizationStatus;
 import com.collabnet.ccf.sw.ScrumWorksCcfParticipant;
 import com.collabnet.ccf.teamforge.schemageneration.TFSoapClient;
+import com.collabnet.teamforge.api.main.ProjectDO;
 import com.collabnet.teamforge.api.main.ProjectRow;
 import com.collabnet.teamforge.api.tracker.TrackerDO;
 import com.collabnet.teamforge.api.tracker.TrackerFieldDO;
@@ -83,8 +84,13 @@ public class ProjectMappingWizard extends Wizard {
 		notCreated = new ArrayList<String>();
 		IRunnableWithProgress runnable = new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-				// Create 6 mappings.
+				// Create 8 mappings.
 				int totalWork = 8;
+				
+				// Need to create project.
+				if (getSelectedProject() == null) {
+					totalWork++;
+				}
 				
 				if (getSelectedPbiTracker() != null || getSelectedTaskTracker() != null) {
 					// If we are using an existing tracker, we will first need to retrieve the
@@ -114,13 +120,24 @@ public class ProjectMappingWizard extends Wizard {
 					monitor.worked(1);
 				}
 				
+				String projectId = null;
 				String pbiTrackerId = null;
 				String taskTrackerId = null;
 				
 				try {
+					
+					if (getSelectedProject() == null) {
+						monitor.subTask("Creating project " + projectPage.getNewProjectTitle());
+						ProjectDO projectDO = getSoapClient().createProject(null, getSelectedProduct().getName(), getSelectedProduct().getName());
+						projectId = projectDO.getId();
+						monitor.worked(1);
+					} else {
+						projectId = getSelectedProject().getId();
+					}
+					
 					if (getSelectedPbiTracker() == null) {
 						monitor.subTask("Creating tracker " + trackerPage.getNewPbiTrackerTitle());
-						TrackerDO trackerDO = getSoapClient().createTracker(getSelectedProject().getId(), trackerPage.getNewPbiTrackerTitle(), trackerPage.getNewPbiTrackerTitle(), TRACKER_DESCRIPTION_PBIS, TRACKER_ICON_PBIS);
+						TrackerDO trackerDO = getSoapClient().createTracker(projectId, trackerPage.getNewPbiTrackerTitle(), trackerPage.getNewPbiTrackerTitle(), TRACKER_DESCRIPTION_PBIS, TRACKER_ICON_PBIS);
 						pbiTrackerId = trackerDO.getId();
 						TrackerFieldDO[] fields = getSoapClient().getFields(pbiTrackerId);
 						for (TrackerFieldDO field : fields) {
@@ -153,7 +170,7 @@ public class ProjectMappingWizard extends Wizard {
 					
 					if (getSelectedTaskTracker() == null) {
 						monitor.subTask("Creating tracker " + trackerPage.getNewTaskTrackerTitle());
-						TrackerDO trackerDO = getSoapClient().createTracker(getSelectedProject().getId(), trackerPage.getNewTaskTrackerTitle(), trackerPage.getNewTaskTrackerTitle(), TRACKER_DESCRIPTION_TASKS, TRACKER_ICON_TASKS);
+						TrackerDO trackerDO = getSoapClient().createTracker(projectId, trackerPage.getNewTaskTrackerTitle(), trackerPage.getNewTaskTrackerTitle(), TRACKER_DESCRIPTION_TASKS, TRACKER_ICON_TASKS);
 						taskTrackerId = trackerDO.getId();
 						TrackerFieldDO[] fields = getSoapClient().getFields(taskTrackerId);
 						for (TrackerFieldDO field : fields) {
@@ -217,7 +234,7 @@ public class ProjectMappingWizard extends Wizard {
 				monitor.worked(1);
 				
 				monitor.subTask(previewPage.getPlanningFolderProductMapping());
-				projectMapping.setSourceRepositoryId(getSelectedProject().getId() + "-planningFolders");
+				projectMapping.setSourceRepositoryId(projectId + "-planningFolders");
 				projectMapping.setTargetRepositoryId(getSelectedProduct().getName() + "-Product");
 				projectMapping.setConflictResolutionPriority(previewPage.getPlanningFolderProductConflictResolutionPriority());
 				createMapping(projectMapping, dataProvider);
@@ -263,7 +280,7 @@ public class ProjectMappingWizard extends Wizard {
 				monitor.subTask(previewPage.getProductPlanningFolderMapping());
 				projectMapping.setSourceRepositoryId(getSelectedProduct().getName() + "-Product");
 				projectMapping.setSourceRepositoryKind("TemplateProducts.xsl");
-				projectMapping.setTargetRepositoryId(getSelectedProject().getId() + "-planningFolders");
+				projectMapping.setTargetRepositoryId(projectId + "-planningFolders");
 				projectMapping.setConflictResolutionPriority(previewPage.getProductPlanningFolderConflictResolutionPriority());
 				createMapping(projectMapping, dataProvider);
 				monitor.worked(1);

@@ -115,12 +115,20 @@ public class ProjectMappingWizardPreviewPage extends WizardPage {
 	public void setVisible(boolean visible) {
 		super.setVisible(visible);
 		if (visible) {		
+			String selectedProjectId = null;
+			if (((ProjectMappingWizard)getWizard()).getSelectedProject() != null) {
+				selectedProjectId = ((ProjectMappingWizard)getWizard()).getSelectedProject().getId();
+			}
 			if (product == null || !product.equals(((ProjectMappingWizard)getWizard()).getSelectedProduct().getName()) ||
-				projectId == null || !projectId.equals(((ProjectMappingWizard)getWizard()).getSelectedProject().getId()) ||
+				projectId == null || !projectId.equals(selectedProjectId) ||
 				taskTracker == null || !taskTracker.equals(((ProjectMappingWizard)getWizard()).getSelectedTaskTracker().getId()) ||
 				pbiTracker == null || !pbiTracker.equals(((ProjectMappingWizard)getWizard()).getSelectedPbiTracker().getId())) {
 				product = ((ProjectMappingWizard)getWizard()).getSelectedProduct().getName();
-				projectId = ((ProjectMappingWizard)getWizard()).getSelectedProject().getId();
+				if (((ProjectMappingWizard)getWizard()).getSelectedProject() == null) {
+					projectId = null;
+				} else {
+					projectId = ((ProjectMappingWizard)getWizard()).getSelectedProject().getId();
+				}
 				if (((ProjectMappingWizard)getWizard()).getSelectedTaskTracker() == null) {
 					taskTracker = null;
 				} else {
@@ -231,14 +239,20 @@ public class ProjectMappingWizardPreviewPage extends WizardPage {
 		} else {
 			taskTracker = wizard.getSelectedTaskTracker().getId();
 		}
+		String project;
+		if (wizard.getSelectedProject() == null) {
+			project = "<new project id>";
+		} else {
+			project = wizard.getSelectedProject().getId();
+		}
 		trackerTaskMapping = taskTracker + " => " + wizard.getSelectedProduct().getName() + "-Task";
 		trackerPbiMapping = pbiTracker + " => " + wizard.getSelectedProduct().getName() + "-PBI";
-		planningFolderProductMapping = wizard.getSelectedProject().getId() + "-planningFolders => " + wizard.getSelectedProduct().getName() + "-Product";
-		planningFolderProductReleaseMapping = wizard.getSelectedProject().getId() + "-planningFolders => " + wizard.getSelectedProduct().getName() + "-ProductRelease";
+		planningFolderProductMapping = project + "-planningFolders => " + wizard.getSelectedProduct().getName() + "-Product";
+		planningFolderProductReleaseMapping = project + "-planningFolders => " + wizard.getSelectedProduct().getName() + "-ProductRelease";
 		taskTrackerMapping = wizard.getSelectedProduct().getName() + "-Task => " + taskTracker;
 		pbiTrackerMapping = wizard.getSelectedProduct().getName() + "-PBI => " + pbiTracker;
-		productPlanningFolderMapping = wizard.getSelectedProduct().getName() + "-Product => " + wizard.getSelectedProject().getId() + "-planningFolders";
-		productReleasePlanningFolderMapping = wizard.getSelectedProduct().getName() + "-ProductRelease => " + wizard.getSelectedProject().getId() + "-planningFolders";
+		productPlanningFolderMapping = wizard.getSelectedProduct().getName() + "-Product => " + project + "-planningFolders";
+		productReleasePlanningFolderMapping = wizard.getSelectedProduct().getName() + "-ProductRelease => " + project + "-planningFolders";
 		trackerTaskText.setText(trackerTaskMapping);
 		trackerPbiText.setText(trackerPbiMapping);
 		planningFolderProductText.setText(planningFolderProductMapping);

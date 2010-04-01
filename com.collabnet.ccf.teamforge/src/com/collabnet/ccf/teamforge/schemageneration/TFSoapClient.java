@@ -10,6 +10,7 @@ import org.apache.axis.configuration.SimpleProvider;
 
 import com.collabnet.teamforge.api.Connection;
 import com.collabnet.teamforge.api.Filter;
+import com.collabnet.teamforge.api.main.ProjectDO;
 import com.collabnet.teamforge.api.main.ProjectList;
 import com.collabnet.teamforge.api.main.ProjectMemberList;
 import com.collabnet.teamforge.api.main.ProjectMemberRow;
@@ -39,6 +40,11 @@ public class TFSoapClient {
 		TFSoapClient client = clients.get(serverUrl + userId + password);
 		if (client == null) client = new TFSoapClient(serverUrl, userId, password);
 		return client;
+	}
+	
+	public ProjectDO createProject(String name, String title, String description) throws RemoteException {
+		ProjectDO projectDO = connection.getTeamForgeClient().createProject(name, title, description);
+		return projectDO;
 	}
 	
 	public TrackerDO createTracker(String projectId, String trackerName, String trackerTitle, String trackerDescription, String icon) throws RemoteException {
