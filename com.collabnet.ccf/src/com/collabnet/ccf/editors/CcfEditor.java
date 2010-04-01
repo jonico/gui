@@ -125,7 +125,7 @@ public class CcfEditor extends FormEditor implements ISaveablePart2 {
 			CcfExplorerView.getView().refresh();
 		}
 		
-		if ((monitor1 != null && monitor1.isAlive()) || (monitor1 != null && monitor1.isAlive())) {
+		if ((monitor1 != null && monitor1.isAlive()) || (monitor2 != null && monitor2.isAlive())) {
 			if (MessageDialog.openQuestion(Display.getDefault().getActiveShell(), "Landscape","Changes will take effect when CCF is restarted.\n\nDo you wish to restart now?")) {
 				if (monitor1 != null && monitor1.isAlive()) {
 					monitor1.restartCCFInstance();
