@@ -128,7 +128,7 @@ public class ProjectMappingWizard extends Wizard {
 					
 					if (getSelectedProject() == null) {
 						monitor.subTask("Creating project " + projectPage.getNewProjectTitle());
-						ProjectDO projectDO = getSoapClient().createProject(null, getSelectedProduct().getName(), previewPage.getNewProjectDescription());
+						ProjectDO projectDO = getSoapClient().createProject(null, projectPage.getNewProjectTitle(), previewPage.getNewProjectDescription());
 						projectId = projectDO.getId();
 						monitor.worked(1);
 					} else {
