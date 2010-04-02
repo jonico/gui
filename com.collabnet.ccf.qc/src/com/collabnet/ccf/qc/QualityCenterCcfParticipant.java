@@ -35,6 +35,8 @@ public class QualityCenterCcfParticipant extends CcfParticipant {
 	public static final String QCREADER_METRICS = "openadaptor:id=QCReader-metrics";
 	public static final String QCWRITER_METRICS = "openadaptor:id=QCWriter-metrics";
 	
+	public static final String DEFAULT_JMX_PORT = "8085";
+	
 	public IMappingSection getMappingSection(int systemNumber) {
 		IMappingSection mappingSection = new QualityCenterMappingSection();
 		mappingSection.setSystemNumber(systemNumber);
@@ -66,20 +68,8 @@ public class QualityCenterCcfParticipant extends CcfParticipant {
 		return Activator.getImage(Activator.IMAGE_QC);
 	}
 
-	public int getJmxMonitor1Port() {
-		return 0;
-	}
-
-	public int getJmxMonitor2Port() {
-		return 0;
-	}
-
-	public String getDefaultJmxPort1() {
-		return null;
-	}
-
-	public String getDefaultJmxPort2() {
-		return null;
+	public String getDefaultJmxPort() {
+		return DEFAULT_JMX_PORT;
 	}
 
 	public String getReaderMetricsName() {

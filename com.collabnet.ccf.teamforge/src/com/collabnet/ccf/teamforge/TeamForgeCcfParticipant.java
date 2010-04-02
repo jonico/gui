@@ -34,9 +34,8 @@ public class TeamForgeCcfParticipant extends CcfParticipant {
 	
 	public static final String TFREADER_METRICS = "openadaptor:id=TFReader-metrics";
 	public static final String TFWRITER_METRICS = "openadaptor:id=TFWriter-metrics";
-	
-	public static final String DEFAULT_JMX_PORT_1 = "8085";
-	public static final String DEFAULT_JMX_PORT_2 = "8084";
+
+	public static final String DEFAULT_JMX_PORT = "8084";
 	
 	public IMappingSection getMappingSection(int systemNumber) {
 		IMappingSection mappingSection = new TeamForgeMappingSection();
@@ -69,20 +68,8 @@ public class TeamForgeCcfParticipant extends CcfParticipant {
 		return Activator.getImage(Activator.IMAGE_TEAM_FORGE);
 	}
 
-	public int getJmxMonitor1Port() {
-		return 10001;
-	}
-
-	public int getJmxMonitor2Port() {
-		return 10002;
-	}
-
-	public String getDefaultJmxPort1() {
-		return DEFAULT_JMX_PORT_1;
-	}
-
-	public String getDefaultJmxPort2() {
-		return DEFAULT_JMX_PORT_2;
+	public String getDefaultJmxPort() {
+		return DEFAULT_JMX_PORT;
 	}
 
 	public String getReaderMetricsName() {

@@ -16,8 +16,8 @@ public class JmxBrowserAction extends Action {
 	private Landscape landscape;
 	private int direction;
 	
-	public static final int TO_QC = 0;
-	public static final int FROM_QC = 1;
+	public static final int SYSTEM1_SYSTEM2 = 0;
+	public static final int SYSTEM2_SYSTEM1 = 1;
 
 	public JmxBrowserAction(Landscape landscape, int direction) {
 		super();
@@ -29,10 +29,10 @@ public class JmxBrowserAction extends Action {
 	public void run() {
 		String urlString = null;
 		switch (direction) {
-		case TO_QC:
+		case SYSTEM1_SYSTEM2:
 			urlString = landscape.getJmxUrl1();
 			break;
-		case FROM_QC:
+		case SYSTEM2_SYSTEM1:
 			urlString = landscape.getJmxUrl2();
 			break;
 		default:
@@ -62,10 +62,10 @@ public class JmxBrowserAction extends Action {
 	@Override
 	public String getText() {
 		switch (direction) {
-		case TO_QC:
-			return Landscape.getTypeDescription(landscape.getType2()) + " => " + Landscape.getTypeDescription(landscape.getType1());
-		case FROM_QC:
-			return Landscape.getTypeDescription(landscape.getType1()) + " => " + Landscape.getTypeDescription(landscape.getType2());		
+		case SYSTEM1_SYSTEM2:
+			return Landscape.getTypeDescription(landscape.getType1()) + " => " + Landscape.getTypeDescription(landscape.getType2());
+		case SYSTEM2_SYSTEM1:
+			return Landscape.getTypeDescription(landscape.getType2()) + " => " + Landscape.getTypeDescription(landscape.getType1());		
 		default:
 			break;
 		}

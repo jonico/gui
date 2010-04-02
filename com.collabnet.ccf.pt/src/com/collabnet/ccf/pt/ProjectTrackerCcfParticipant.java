@@ -35,9 +35,8 @@ public class ProjectTrackerCcfParticipant extends CcfParticipant {
 
 	public static final String PTREADER_METRICS = "openadaptor:id=PTReader-metrics";
 	public static final String PTWRITER_METRICS = "openadaptor:id=PTWriter-metrics";
-	
-	public static final String DEFAULT_JMX_PORT_1 = "8082";
-	public static final String DEFAULT_JMX_PORT_2 = "8083";
+
+	public static final String DEFAULT_JMX_PORT = "8083";
 	
 	public IMappingSection getMappingSection(int systemNumber) {
 		IMappingSection mappingSection = new ProjectTrackerMappingSection();
@@ -70,20 +69,8 @@ public class ProjectTrackerCcfParticipant extends CcfParticipant {
 		return Activator.getImage(Activator.IMAGE_PROJECT_TRACKER);
 	}
 
-	public int getJmxMonitor1Port() {
-		return 10000;
-	}
-
-	public int getJmxMonitor2Port() {
-		return 9999;
-	}
-
-	public String getDefaultJmxPort1() {
-		return DEFAULT_JMX_PORT_1;
-	}
-
-	public String getDefaultJmxPort2() {
-		return DEFAULT_JMX_PORT_2;
+	public String getDefaultJmxPort() {
+		return DEFAULT_JMX_PORT;
 	}
 
 	public String getReaderMetricsName() {

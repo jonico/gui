@@ -170,10 +170,6 @@ public class Activator extends AbstractUIPlugin {
 	public static final String DEFAULT_MAPFORCE_PATH = "C:\\Program Files\\Altova\\Mapforce2009\\MapForce.exe";
 	
 	public static final String DEFAULT_CCF_HOST = "http://localhost"; //$NON-NLS-1$
-//	public static final String DEFAULT_JMX_PORT_PT2QC = "8082";
-//	public static final String DEFAULT_JMX_PORT_QC2PT = "8083";
-//	public static final String DEFAULT_JMX_PORT_QC2SFEE = "8084";
-//	public static final String DEFAULT_JMX_PORT_SFEE2QC = "8085";
 	public static final String DEFAULT_LOG_MESSAGE_TEMPLATE = "An Artifact has been quarantined.\n\nSOURCE_SYSTEM_ID: <SOURCE_SYSTEM_ID> \nSOURCE_REPOSITORY_ID: <SOURCE_REPOSITORY_ID> \nSOURCE_ARTIFACT_ID: <SOURCE_ARTIFACT_ID> \nTARGET_SYSTEM_ID: <TARGET_SYSTEM_ID> \nTARGET_REPOSITORY_ID: <TARGET_REPOSITORY_ID> \nTARGET_ARTIFACT_ID: <TARGET_ARTIFACT_ID> \nERROR_CODE: <ERROR_CODE> \nTIMESTAMP: <TIMESTAMP> \nEXCEPTION_CLASS_NAME: <EXCEPTION_CLASS_NAME> \nEXCEPTION_MESSAGE: <EXCEPTION_MESSAGE> \nCAUSE_EXCEPTION_CLASS_NAME: <CAUSE_EXCEPTION_CLASS_NAME> \nCAUSE_EXCEPTION_MESSAGE: <CAUSE_EXCEPTION_MESSAGE> \nSTACK_TRACE: <STACK_TRACE> \nADAPTOR_NAME: <ADAPTOR_NAME> \nORIGINATING_COMPONENT: <ORIGINATING_COMPONENT> \nDATA_TYPE: <DATA_TYPE> \nDATA: <DATA> \nTHREAD_NAME: <THREAD_NAME> \nFIXED: <FIXED> \nREPROCESSED: <REPROCESSED> \nSOURCE_SYSTEM_KIND: <SOURCE_SYSTEM_KIND> \nSOURCE_REPOSITORY_KIND: <SOURCE_REPOSITORY_KIND> \nTARGET_SYSTEM_KIND: <TARGET_SYSTEM_KIND> \nTARGET_REPOSITORY_KIND: <TARGET_REPOSITORY_KIND> \nSOURCE_LAST_MODIFICATION_TIME: <SOURCE_LAST_MODIFICATION_TIME> \nTARGET_LAST_MODIFICATION_TIME: <TARGET_LAST_MODIFICATION_TIME> \nSOURCE_ARTIFACT_VERSION: <SOURCE_ARTIFACT_VERSION> \nTARGET_ARTIFACT_VERSION: <TARGET_ARTIFACT_VERSION> \nARTIFACT_TYPE: <ARTIFACT_TYPE> \nGENERIC_ARTIFACT: <GENERIC_ARTIFACT>"; //$NON-NLS-1$
 	public static final int DEFAULT_RESET_DELAY = 10;
 	
@@ -356,31 +352,14 @@ public class Activator extends AbstractUIPlugin {
 			landscape.setDatabaseUser(database.getUser());
 			landscape.setDatabasePassword(database.getPassword());
 		}
+
+		landscape.setType1(ccfParticipant1.getType());
+		landscape.setType2(ccfParticipant2.getType());
 		
-		ICcfParticipant p1;
-		ICcfParticipant p2;
-		String cf1;
-		String cf2;
-		
-		if (ccfParticipant1.getSequence() > ccfParticipant2.getSequence()) {
-			p1 = ccfParticipant2;
-			p2 = ccfParticipant1;
-			cf1 = configurationFolder2;
-			cf2 = configurationFolder1;
-		} else {
-			p1 = ccfParticipant1;
-			p2 = ccfParticipant2;
-			cf1 = configurationFolder1;
-			cf2 = configurationFolder2;			
-		}
-	
-		landscape.setType1(p1.getType());
-		landscape.setType2(p2.getType());
-		
-		landscape.setConfigurationFolder1(cf1);
-		landscape.setConfigurationFolder2(cf2);
-		landscape.setParticipantId1(p1.getId());
-		landscape.setParticipantId2(p2.getId());
+		landscape.setConfigurationFolder1(configurationFolder1);
+		landscape.setConfigurationFolder2(configurationFolder2);
+		landscape.setParticipantId1(ccfParticipant1.getId());
+		landscape.setParticipantId2(ccfParticipant2.getId());
 		
 		return storeLandscape(landscape);
 	}
@@ -585,21 +564,18 @@ public class Activator extends AbstractUIPlugin {
 					String defaultJmxPort1 = null;
 					String defaultJmxPort2 = null;
 					
-					ICcfParticipant ccfParticipant = Activator.getCcfParticipantForType(landscape.getType2());
-					defaultJmxPort1 = ccfParticipant.getDefaultJmxPort1();
-					defaultJmxPort2 = ccfParticipant.getDefaultJmxPort2();
-//					
-//					if (landscape.getType2().equals(Landscape.TYPE_PT)) {
-//						defaultJmxPort1 = DEFAULT_JMX_PORT_PT2QC;
-//						defaultJmxPort2 = DEFAULT_JMX_PORT_QC2PT;
-//					}
-//					if (landscape.getType2().equals(Landscape.TYPE_TF)) {
-//						defaultJmxPort1 = DEFAULT_JMX_PORT_SFEE2QC;
-//						defaultJmxPort2 = DEFAULT_JMX_PORT_QC2SFEE;
-//					}
+					ICcfParticipant ccfParticipant1 = Activator.getCcfParticipantForType(landscape.getType1());
+					if (ccfParticipant1 != null) {
+						defaultJmxPort1 = ccfParticipant1.getDefaultJmxPort();
+						landscape.setJmxPort1(node.get("jmxPort1", defaultJmxPort1)); //$NON-NLS-1$
+					}
 					
-					landscape.setJmxPort1(node.get("jmxPort1", defaultJmxPort1)); //$NON-NLS-1$
-					landscape.setJmxPort2(node.get("jmxPort2", defaultJmxPort2)); //$NON-NLS-1$
+					ICcfParticipant ccfParticipant2 = Activator.getCcfParticipantForType(landscape.getType2());
+					if (ccfParticipant2 != null) {
+						defaultJmxPort2 = ccfParticipant2.getDefaultJmxPort();
+						landscape.setJmxPort2(node.get("jmxPort2", defaultJmxPort1)); //$NON-NLS-1$
+					}
+
 				}
 				landscape.setConfigurationFolder1(node.get("configFolder1", "")); //$NON-NLS-1$ //$NON-NLS-2$
 				landscape.setConfigurationFolder2(node.get("configFolder2", "")); //$NON-NLS-1$ //$NON-NLS-2$

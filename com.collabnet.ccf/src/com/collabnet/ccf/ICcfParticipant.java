@@ -66,13 +66,7 @@ public interface ICcfParticipant extends Comparable {
 	
 	public String getInitialMDFFileNameSegment(String repositoryId, boolean isSource);
 	
-	public int getJmxMonitor1Port();
-	
-	public int getJmxMonitor2Port();
-	
-	public String getDefaultJmxPort1();
-	
-	public String getDefaultJmxPort2();
+	public String getDefaultJmxPort();
 	
 	public String getReaderMetricsName();
 	

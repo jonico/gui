@@ -87,9 +87,8 @@ public class JmxConsoleStatusEditorPage extends JmxConsoleEditorPage {
 		int port1 = 0;
 		int port2 = 0;
 		try {
-			ICcfParticipant ccfParticipant = Activator.getCcfParticipantForType(landscape.getType2());
-			port1 = ccfParticipant.getJmxMonitor1Port();
-			port2 = ccfParticipant.getJmxMonitor2Port();		
+			port1 = Integer.parseInt(landscape.getJmxPort1());
+			port2 = Integer.parseInt(landscape.getJmxPort2());			
 		} catch (Exception e) {
 			Activator.handleError(e);
 		}
@@ -98,7 +97,7 @@ public class JmxConsoleStatusEditorPage extends JmxConsoleEditorPage {
         TableWrapData td = new TableWrapData(TableWrapData.FILL_GRAB);
         td.colspan = 1;
         direction1Section.setLayoutData(td);
-        direction1Section.setText(Landscape.getTypeDescription(landscape.getType2()) + " => " + Landscape.getTypeDescription(landscape.getType1()));
+        direction1Section.setText(Landscape.getTypeDescription(landscape.getType1()) + " => " + Landscape.getTypeDescription(landscape.getType2()));
         Composite direction1SectionClient = toolkit.createComposite(direction1Section); 
         GridLayout direction1Layout = new GridLayout();
         direction1Layout.numColumns = 2;
@@ -181,7 +180,7 @@ public class JmxConsoleStatusEditorPage extends JmxConsoleEditorPage {
         td = new TableWrapData(TableWrapData.FILL_GRAB);
         td.colspan = 1;
         direction2Section.setLayoutData(td);
-        direction2Section.setText(Landscape.getTypeDescription(landscape.getType1()) + " => " + Landscape.getTypeDescription(landscape.getType2()));
+        direction2Section.setText(Landscape.getTypeDescription(landscape.getType2()) + " => " + Landscape.getTypeDescription(landscape.getType1()));
         Composite direction2SectionClient = toolkit.createComposite(direction2Section); 
         GridLayout direction2Layout = new GridLayout();
         direction2Layout.numColumns = 2;
@@ -319,9 +318,9 @@ public class JmxConsoleStatusEditorPage extends JmxConsoleEditorPage {
 		String extractionTime = null;
 		String updateTime = null;
 		try {
-			ICcfParticipant ccfParticipant = Activator.getCcfParticipantForType(landscape.getType2());
+			ICcfParticipant ccfParticipant = Activator.getCcfParticipantForType(landscape.getType1());
 			readerMetricsName = ccfParticipant.getReaderMetricsName();
-			ccfParticipant = Activator.getCcfParticipantForType(landscape.getType1());
+			ccfParticipant = Activator.getCcfParticipantForType(landscape.getType2());
 			writerMetricsName = ccfParticipant.getWriterMetricsName();
 		} catch (Exception e) {
 			Activator.handleError(e);
@@ -361,9 +360,9 @@ public class JmxConsoleStatusEditorPage extends JmxConsoleEditorPage {
 		String extractionTime = null;
 		String updateTime = null;
 		try {
-			ICcfParticipant ccfParticipant = Activator.getCcfParticipantForType(landscape.getType1());
+			ICcfParticipant ccfParticipant = Activator.getCcfParticipantForType(landscape.getType2());
 			readerMetricsName = ccfParticipant.getReaderMetricsName();
-			ccfParticipant = Activator.getCcfParticipantForType(landscape.getType2());
+			ccfParticipant = Activator.getCcfParticipantForType(landscape.getType1());
 			writerMetricsName = ccfParticipant.getWriterMetricsName();
 		} catch (Exception e) {
 			Activator.handleError(e);
@@ -425,14 +424,7 @@ public class JmxConsoleStatusEditorPage extends JmxConsoleEditorPage {
 	private int getHospitalCount(String target) {
 		String targetType = null;
 		String sourceType = null;
-//		if (target.equals(Landscape.TYPE_QC)) {
-//			targetType = landscape.getType1();
-//			sourceType = landscape.getType2();
-//		} else {
-//			targetType = landscape.getType2();
-//			sourceType = landscape.getType1();
-//		}
-		
+
 		if (target.equals(landscape.getType1())) {
 			targetType = landscape.getType1();
 			sourceType = landscape.getType2();

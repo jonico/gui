@@ -20,8 +20,7 @@ import com.collabnet.ccf.model.SynchronizationStatus;
 import com.collabnet.ccf.schemageneration.CCFSchemaAndXSLTFileGenerator;
 
 public class ScrumWorksCcfParticipant extends CcfParticipant {
-	public static final String DEFAULT_JMX_PORT_1 = "8085";
-	public static final String DEFAULT_JMX_PORT_2 = "8084";
+	public static final String DEFAULT_JMX_PORT = "8086";
 	public static final String TYPE = "SWP";
 	
 	@Override
@@ -63,21 +62,9 @@ public class ScrumWorksCcfParticipant extends CcfParticipant {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
-	public String getDefaultJmxPort1() {
-		return DEFAULT_JMX_PORT_1;
-	}
 
-	public String getDefaultJmxPort2() {
-		return DEFAULT_JMX_PORT_2;
-	}
-
-	public int getJmxMonitor1Port() {
-		return 10010;
-	}
-
-	public int getJmxMonitor2Port() {
-		return 10011;
+	public String getDefaultJmxPort() {
+		return DEFAULT_JMX_PORT;
 	}
 
 	public IMappingSection getMappingSection(int systemNumber) {

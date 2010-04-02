@@ -253,9 +253,9 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 			manager.add(new JmxConsoleAction((Landscape)selection.getFirstElement()));
 			
 			MenuManager jmxMenu = new MenuManager("Open JMX console in browser", IWorkbenchActionConstants.GROUP_ADD); //$NON-NLS-1$
-			JmxBrowserAction jmxToQcAction = new JmxBrowserAction((Landscape)selection.getFirstElement(), JmxBrowserAction.TO_QC);
+			JmxBrowserAction jmxToQcAction = new JmxBrowserAction((Landscape)selection.getFirstElement(), JmxBrowserAction.SYSTEM1_SYSTEM2);
 			jmxMenu.add(jmxToQcAction);
-			JmxBrowserAction jmxFromQcAction = new JmxBrowserAction((Landscape)selection.getFirstElement(), JmxBrowserAction.FROM_QC);
+			JmxBrowserAction jmxFromQcAction = new JmxBrowserAction((Landscape)selection.getFirstElement(), JmxBrowserAction.SYSTEM2_SYSTEM1);
 			jmxMenu.add(jmxFromQcAction);			
 			manager.add(jmxMenu);
 		}
