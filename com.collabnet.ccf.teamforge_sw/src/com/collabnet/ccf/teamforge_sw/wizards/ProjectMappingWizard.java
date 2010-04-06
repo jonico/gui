@@ -415,7 +415,9 @@ public class ProjectMappingWizard extends Wizard {
 			notCreated.add(status.toString());
 			return;
 		}
-		status.setSourceSystemKind(status.getSourceSystemKind() + "_paused");
+		if (!status.getSourceSystemKind().endsWith("_paused")) {
+			status.setSourceSystemKind(status.getSourceSystemKind() + "_paused");
+		}
 		try {
 			dataProvider.addSynchronizationStatus(projectMappings, status);
 		} catch (Exception e) {
