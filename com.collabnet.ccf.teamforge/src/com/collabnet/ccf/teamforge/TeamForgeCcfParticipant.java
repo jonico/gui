@@ -22,6 +22,9 @@ import com.collabnet.ccf.schemageneration.CCFSchemaAndXSLTFileGenerator;
 import com.collabnet.ccf.teamforge.schemageneration.TFLayoutExtractor;
 
 public class TeamForgeCcfParticipant extends CcfParticipant {
+	public static final String ENTITY_TRACKER = "TrackerItem";
+	public static final String ENTITY_PLANNING_FOLDER = "PlanningFolder";
+	
 	public static final String CREATE_INITIAL_MFD_FILE_TF_PF = "TFPlanningFolder"; //$NON-NLS-1$
 	public static final String CREATE_INITIAL_MFD_FILE_TF_TRACKER_ITEM = "TFTrackerItem"; //$NON-NLS-1$
 
@@ -146,6 +149,14 @@ public class TeamForgeCcfParticipant extends CcfParticipant {
 		outputSchemaAndXSLTFiles(tfLayoutExtractor, repositoryId,
 				xmlFileGenerator, artifactToSchemaFile, schemaToArtifactFile,
 				repositorySchemaFile, isSourceSystem, monitor);
+	}
+
+	public String getEntityType(String repositoryId) {
+		if (TFLayoutExtractor.isTrackerRepository(repositoryId)) {
+			return ENTITY_TRACKER;
+		} else {
+			return ENTITY_PLANNING_FOLDER;
+		}
 	}
 	
 }

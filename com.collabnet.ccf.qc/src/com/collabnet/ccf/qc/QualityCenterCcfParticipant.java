@@ -150,5 +150,17 @@ public class QualityCenterCcfParticipant extends CcfParticipant {
 				xmlFileGenerator, artifactToSchemaFile, schemaToArtifactFile,
 				repositorySchemaFile, isSourceSystem, monitor);
 	}
+
+	public String getEntityType(String repositoryId) {
+		int index = repositoryId.indexOf("-");
+		if (index != -1) {
+			String project = repositoryId.substring(index + 1);
+			index = project.indexOf("-");
+			if (index != -1) {
+				return project.substring(index + 1);
+			}
+		}
+		return null;
+	}
 	
 }

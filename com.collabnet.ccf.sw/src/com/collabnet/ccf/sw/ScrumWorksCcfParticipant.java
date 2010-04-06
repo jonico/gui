@@ -91,4 +91,8 @@ public class ScrumWorksCcfParticipant extends CcfParticipant {
 		return null;
 	}
 
+	public String getEntityType(String repositoryId) {
+		return SWPMetaData.retrieveSWPTypeFromRepositoryId(repositoryId).toString();
+	}
+
 }

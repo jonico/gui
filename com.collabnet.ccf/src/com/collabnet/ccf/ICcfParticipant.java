@@ -64,6 +64,8 @@ public interface ICcfParticipant extends Comparable {
 	
 	public String getResetProjectMappingVersion(Timestamp timestamp);
 	
+	public String getEntityType(String repositoryId);
+	
 	public String getInitialMDFFileNameSegment(String repositoryId, boolean isSource);
 	
 	public String getDefaultJmxPort();

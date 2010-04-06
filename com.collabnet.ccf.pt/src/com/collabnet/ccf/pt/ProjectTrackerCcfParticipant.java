@@ -22,6 +22,8 @@ import com.collabnet.ccf.pt.schemageneration.PTLayoutExtractor;
 import com.collabnet.ccf.schemageneration.CCFSchemaAndXSLTFileGenerator;
 
 public class ProjectTrackerCcfParticipant extends CcfParticipant {
+	public static final String ENTITY_TRACKER = "Tracker";
+	
 	public static final String CREATE_INITIAL_MFD_FILE_PT_ISSUE = "PTIssue"; //$NON-NLS-1$
 	
 	public static final String PROPERTIES_CEE_URL = "cee.server.1.url"; //$NON-NLS-1$
@@ -142,6 +144,10 @@ public class ProjectTrackerCcfParticipant extends CcfParticipant {
 			properties = landscape.getProperties2();
 		}
 		return properties.getProperty(PROPERTIES_CEE_URL);
+	}
+
+	public String getEntityType(String repositoryId) {
+		return ENTITY_TRACKER;
 	}
 
 }
