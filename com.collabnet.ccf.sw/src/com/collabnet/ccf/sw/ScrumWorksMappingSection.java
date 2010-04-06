@@ -156,7 +156,21 @@ public class ScrumWorksMappingSection extends MappingSection {
 	
 	public void updateTargetFields(SynchronizationStatus projectMapping) {
 		projectMapping.setTargetRepositoryId(getRepositoryId());
-		projectMapping.setTargetRepositoryKind("TRACKER");
+//		projectMapping.setTargetRepositoryKind("TRACKER");
+//
+// It is not a mistake that we are setting source repository kind here.
+//
+		if (projectMapping.getTargetRepositoryId().endsWith("ProductRelease")) {
+			projectMapping.setSourceRepositoryKind("TemplateProductReleases.xsl");
+		} else if (projectMapping.getTargetRepositoryId().endsWith("PBI")) {
+			projectMapping.setSourceRepositoryKind("TemplatePBIs.xsl");
+		} else if (projectMapping.getTargetRepositoryId().endsWith("Task")) {
+			projectMapping.setSourceRepositoryKind("TemplateTasks.xsl");
+		} else if (projectMapping.getTargetRepositoryId().endsWith("Product")) {
+			projectMapping.setSourceRepositoryKind("TemplateProducts.xsl");
+		} else {
+			projectMapping.setSourceRepositoryKind("TRACKER");
+		}
 	}
 
 	public boolean validate(Landscape landscape) {

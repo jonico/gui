@@ -222,7 +222,8 @@ public class ProjectMappingWizard extends Wizard {
 				projectMapping.setSourceRepositoryId(taskTrackerId);
 				projectMapping.setTargetRepositoryId(getSelectedProduct().getName() + "-Task");
 				projectMapping.setConflictResolutionPriority(previewPage.getTrackerTaskConflictResolutionPriority());
-				projectMapping.setSourceRepositoryKind("TRACKER");
+//				projectMapping.setSourceRepositoryKind("TRACKER");
+				projectMapping.setSourceRepositoryKind("TemplateTasks.xsl");
 				createMapping(projectMapping, dataProvider);
 				monitor.worked(1);
 				
@@ -230,6 +231,7 @@ public class ProjectMappingWizard extends Wizard {
 				projectMapping.setSourceRepositoryId(pbiTrackerId);
 				projectMapping.setTargetRepositoryId(getSelectedProduct().getName() + "-PBI");
 				projectMapping.setConflictResolutionPriority(previewPage.getTrackerPbiConflictResolutionPriority());
+				projectMapping.setSourceRepositoryKind("TemplatePBIs.xsl");
 				createMapping(projectMapping, dataProvider);
 				monitor.worked(1);
 				
@@ -237,12 +239,14 @@ public class ProjectMappingWizard extends Wizard {
 				projectMapping.setSourceRepositoryId(projectId + "-planningFolders");
 				projectMapping.setTargetRepositoryId(getSelectedProduct().getName() + "-Product");
 				projectMapping.setConflictResolutionPriority(previewPage.getPlanningFolderProductConflictResolutionPriority());
+				projectMapping.setSourceRepositoryKind("TemplateProducts.xsl");
 				createMapping(projectMapping, dataProvider);
 				monitor.worked(1);
 				
 				monitor.subTask(previewPage.getPlanningFolderProductReleaseMapping());
 				projectMapping.setTargetRepositoryId(getSelectedProduct().getName() + "-ProductRelease");
 				projectMapping.setConflictResolutionPriority(previewPage.getPlanningFolderProductReleaseConflictResolutionPriority());
+				projectMapping.setSourceRepositoryKind("TemplateProductReleases.xsl");
 				createMapping(projectMapping, dataProvider);
 				monitor.worked(1);
 				
