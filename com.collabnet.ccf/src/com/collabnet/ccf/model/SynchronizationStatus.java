@@ -416,8 +416,29 @@ public class SynchronizationStatus implements IPropertySource, Comparable {
 		if (sampleXslFile == null) {
 			File xsltFolder = getXSLTFolder();
 			if (xsltFolder != null) {
-				sampleXslFile = new File(xsltFolder,
-						Activator.SAMPLE_XSL_FILE_NAME);
+				ICcfParticipant sourceParticipant = null;
+				ICcfParticipant targetParticipant = null;
+				try {
+					sourceParticipant = Activator.getCcfParticipantForType(getSourceSystemKind());
+					targetParticipant = Activator.getCcfParticipantForType(getTargetSystemKind());
+				} catch (Exception e) {
+					Activator.handleError(e);
+				}
+				if (sourceParticipant != null && targetParticipant != null) {
+					String sourceEntityType = sourceParticipant.getEntityType(getSourceRepositoryId());
+					String targetEntityType = targetParticipant.getEntityType(getTargetRepositoryId());
+					if (sourceEntityType != null && targetEntityType != null) {
+						String sampleFileName = "sample-" + sourceParticipant.getType() + sourceEntityType + "-" + targetParticipant.getType() + targetEntityType + ".xsl";
+						sampleXslFile = new File(xsltFolder, sampleFileName);
+						if (!sampleXslFile.exists()) {
+							sampleXslFile = null;
+						}
+					}
+				}
+				if (sampleXslFile == null) {
+					sampleXslFile = new File(xsltFolder,
+							Activator.SAMPLE_XSL_FILE_NAME);
+				}
 			}
 		}
 
