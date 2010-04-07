@@ -26,6 +26,7 @@ import com.collabnet.teamforge.api.main.ProjectDO;
 import com.collabnet.teamforge.api.main.ProjectRow;
 import com.collabnet.teamforge.api.tracker.TrackerDO;
 import com.collabnet.teamforge.api.tracker.TrackerFieldDO;
+import com.collabnet.teamforge.api.tracker.TrackerFieldValueDO;
 import com.collabnet.teamforge.api.tracker.TrackerRow;
 import com.danube.scrumworks.api.client.ScrumWorksEndpoint;
 import com.danube.scrumworks.api.client.ScrumWorksEndpointBindingStub;
@@ -163,6 +164,27 @@ public class ProjectMappingWizard extends Wizard {
 						
 						String[] themeValues = getThemeValues();
 						getSoapClient().addMultiSelectField(pbiTrackerId, "Themes", 4, false, false, false, themeValues, null);
+	
+						for (TrackerFieldDO field : fields) {
+							if (field.getName().equals("status")) {
+								TrackerFieldValueDO[] oldValues = field.getFieldValues();
+								TrackerFieldValueDO open = new TrackerFieldValueDO(getSoapClient().supports50());
+								open.setIsDefault(true);
+								open.setValue("Open");
+								open.setValueClass("Open");
+								open.setId(getFieldId("Open", oldValues));
+								TrackerFieldValueDO done = new TrackerFieldValueDO(getSoapClient().supports50());
+								done.setIsDefault(false);
+								done.setValue("Done");
+								done.setValueClass("Close");
+								done.setId(getFieldId("Done", oldValues));
+								TrackerFieldValueDO[] fieldValues = { open, done };
+								field.setFieldValues(fieldValues);
+								getSoapClient().setField(pbiTrackerId, field);
+								break;
+							}
+						}
+						
 						monitor.worked(1);
 					} else {
 						pbiTrackerId = getSelectedPbiTracker().getId();
@@ -187,6 +209,37 @@ public class ProjectMappingWizard extends Wizard {
 							}
 						}
 						getSoapClient().addTextField(taskTrackerId, "Point Person", 30, 1, false, false, false, null);
+						
+						for (TrackerFieldDO field : fields) {
+							if (field.getName().equals("status")) {
+								TrackerFieldValueDO[] oldValues = field.getFieldValues();
+								TrackerFieldValueDO notStarted = new TrackerFieldValueDO(getSoapClient().supports50());
+								notStarted.setIsDefault(true);
+								notStarted.setValue("Not Started");
+								notStarted.setValueClass("Open");
+								notStarted.setId(getFieldId("Not Started", oldValues));
+								TrackerFieldValueDO impeded = new TrackerFieldValueDO(getSoapClient().supports50());
+								impeded.setIsDefault(false);
+								impeded.setValue("Impeded");
+								impeded.setValueClass("Open");
+								impeded.setId(getFieldId("Impeded", oldValues));
+								TrackerFieldValueDO inProgress = new TrackerFieldValueDO(getSoapClient().supports50());
+								inProgress.setIsDefault(false);
+								inProgress.setValue("In Progress");
+								inProgress.setValueClass("Open");
+								inProgress.setId(getFieldId("In Progress", oldValues));
+								TrackerFieldValueDO done = new TrackerFieldValueDO(getSoapClient().supports50());
+								done.setIsDefault(false);
+								done.setValue("Done");
+								done.setValueClass("Close");
+								done.setId(getFieldId("Done", oldValues));
+								TrackerFieldValueDO[] fieldValues = { notStarted, impeded, inProgress, done };
+								field.setFieldValues(fieldValues);
+								getSoapClient().setField(taskTrackerId, field);
+								break;
+							}
+						}
+						
 						monitor.worked(1);
 					} else {
 						taskTrackerId = getSelectedTaskTracker().getId();
@@ -327,6 +380,17 @@ public class ProjectMappingWizard extends Wizard {
 		return true;
 	}
 	
+	private String getFieldId(String value, TrackerFieldValueDO[] oldValues) {
+		String id = null;
+		for (TrackerFieldValueDO oldValue : oldValues) {
+			if (oldValue.getValue().equals(value)) {
+				id = oldValue.getId();
+				break;
+			}
+		}
+		return id;
+	}
+	
 	public ProductWSO getSelectedProduct() {
 		return productPage.getSelectedProduct();
 	}
@@ -435,9 +499,9 @@ public class ProjectMappingWizard extends Wizard {
 	}
 	
 	private void createFieldMappingFile(SynchronizationStatus status) {
-		if (status.getSourceRepositoryKind().startsWith("Template")) {
-			return;
-		}
+//		if (status.getSourceRepositoryKind().startsWith("Template")) {
+//			return;
+//		}
 		status.setLandscape(projectMappings.getLandscape());
 		status.clearXslInfo();
 		File xslFile = status.getXslFile();
