@@ -26,6 +26,11 @@ public class CustomWizardDialog extends WizardDialog {
         super.okPressed();
     }
 
+	@Override
+	public boolean isHelpAvailable() {
+		return false;
+	}
+
 	protected Point getInitialLocation(Point initialSize) {
 	    try {
 	        int x = settings.getInt(getWizard().getClass().getName() + ".location.x"); //$NON-NLS-1$
