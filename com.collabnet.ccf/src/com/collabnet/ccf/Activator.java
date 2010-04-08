@@ -55,9 +55,13 @@ public class Activator extends AbstractUIPlugin {
 	public static final String PLUGIN_ID = "com.collabnet.ccf"; //$NON-NLS-1$
 
 	// CCF participants extension point ID
-	public static final String CCF_PARTICIPANTS = "com.collabnet.ccf.ccfParticipants"; //$NON-NLS-1$	
+	public static final String CCF_PARTICIPANTS = "com.collabnet.ccf.ccfParticipants"; //$NON-NLS-1$
+	
+	// Project mappings visibility checkers extension point ID
+	public static final String CCF_VISIBILITY_CHECKERS = "com.collabnet.ccf.mappingVisibilityCheckers"; //$NON-NLS-1$
 
 	private static ICcfParticipant[] ccfParticipants;
+	private static IProjectMappingVisibilityChecker[] visibilityCheckers;
 	private static List<IProjectMappingsChangeListener> changeListeners = new ArrayList<IProjectMappingsChangeListener>();
 	private static List<IRoleChangedListener> roleChangedListeners = new ArrayList<IRoleChangedListener>();
 	
@@ -223,6 +227,8 @@ public class Activator extends AbstractUIPlugin {
 		super.start(context);
 
 		ccfParticipants = getCcfParticipants();
+		
+		visibilityCheckers = getVisibilityCheckers();
 	
 		plugin = this;
 		
@@ -339,6 +345,24 @@ public class Activator extends AbstractUIPlugin {
 			}
 		}
 		return ccfParticipant;
+	}
+	
+	// Initialize the visibility checkers by searching the registry for users of the
+	// visibility checkers extension point.	
+	public static IProjectMappingVisibilityChecker[] getVisibilityCheckers() throws Exception {
+		if (visibilityCheckers == null) {
+			ArrayList<IProjectMappingVisibilityChecker> visibilityCheckerList = new ArrayList<IProjectMappingVisibilityChecker>();
+			IExtensionRegistry extensionRegistry = Platform.getExtensionRegistry();
+			IConfigurationElement[] configurationElements = extensionRegistry.getConfigurationElementsFor(CCF_VISIBILITY_CHECKERS);
+			for (int i = 0; i < configurationElements.length; i++) {
+				IConfigurationElement configurationElement = configurationElements[i];
+				IProjectMappingVisibilityChecker visiblilityChecker = (IProjectMappingVisibilityChecker)configurationElement.createExecutableExtension("class"); //$NON-NLS-1$
+				visibilityCheckerList.add(visiblilityChecker);
+			}
+			visibilityCheckers = new IProjectMappingVisibilityChecker[visibilityCheckerList.size()];
+			visibilityCheckerList.toArray(visibilityCheckers);	
+		}
+		return visibilityCheckers;
 	}
 
 	public boolean storeLandscape(String description, int role, String group, Database database, ICcfParticipant ccfParticipant1, ICcfParticipant ccfParticipant2, String configurationFolder1, String configurationFolder2) {

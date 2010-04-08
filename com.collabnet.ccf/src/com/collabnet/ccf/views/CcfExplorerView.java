@@ -42,6 +42,7 @@ import org.eclipse.ui.model.WorkbenchContentProvider;
 import org.eclipse.ui.part.ViewPart;
 
 import com.collabnet.ccf.Activator;
+import com.collabnet.ccf.IProjectMappingVisibilityChecker;
 import com.collabnet.ccf.IProjectMappingsChangeListener;
 import com.collabnet.ccf.IRoleChangedListener;
 import com.collabnet.ccf.actions.ChangeSynchronizationStatusAction;
@@ -407,6 +408,29 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 					public void run() {
 						try {
 							synchronizationStatuses = getFilteredSynchronizationStatuses(getDataProvider().getSynchronizationStatuses(projectMappings.getLandscape(), projectMappings));
+							IProjectMappingVisibilityChecker[] visibilityCheckers = Activator.getVisibilityCheckers();
+							if (visibilityCheckers != null && visibilityCheckers.length > 0) {
+								List<Object> visibleMappingList = new ArrayList<Object>();
+								for (Object object : synchronizationStatuses) {
+									if (object instanceof SynchronizationStatus) {
+										SynchronizationStatus projectMapping = (SynchronizationStatus)object;
+										boolean visible = true;
+										for (IProjectMappingVisibilityChecker checker : visibilityCheckers) {
+											visible = checker.isProjectMappingVisible(projectMapping);
+											if (!visible) {
+												break;
+											}
+										}
+										if (visible) {
+											visibleMappingList.add(projectMapping);
+										}
+									} else {
+										visibleMappingList.add(object);
+									}
+								}
+								synchronizationStatuses = new Object[visibleMappingList.size()];
+								visibleMappingList.toArray(synchronizationStatuses);
+							}
 						} catch (Exception e) {
 							synchronizationStatuses = new Object[1];
 							synchronizationStatuses[0] = e;

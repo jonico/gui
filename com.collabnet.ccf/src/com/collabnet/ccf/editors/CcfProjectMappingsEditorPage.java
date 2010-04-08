@@ -65,6 +65,7 @@ import org.eclipse.ui.forms.widgets.TableWrapData;
 import org.eclipse.ui.forms.widgets.TableWrapLayout;
 
 import com.collabnet.ccf.Activator;
+import com.collabnet.ccf.IProjectMappingVisibilityChecker;
 import com.collabnet.ccf.IProjectMappingsChangeListener;
 import com.collabnet.ccf.actions.ChangeSynchronizationStatusAction;
 import com.collabnet.ccf.db.CcfDataProvider;
@@ -376,6 +377,24 @@ public class CcfProjectMappingsEditorPage extends CcfEditorPage implements IProj
 			public void run() {
 				try {
 					SynchronizationStatus[] projectMappings = dataProvider.getSynchronizationStatuses(getLandscape(), null);
+					IProjectMappingVisibilityChecker[] visibilityCheckers = Activator.getVisibilityCheckers();
+					if (visibilityCheckers != null && visibilityCheckers.length > 0) {
+						List<SynchronizationStatus> visibleMappingList = new ArrayList<SynchronizationStatus>();
+						for (SynchronizationStatus projectMapping : projectMappings) {
+							boolean visible = true;
+							for (IProjectMappingVisibilityChecker checker : visibilityCheckers) {
+								visible = checker.isProjectMappingVisible(projectMapping);
+								if (!visible) {
+									break;
+								}
+							}
+							if (visible) {
+								visibleMappingList.add(projectMapping);
+							}
+						}
+						projectMappings = new SynchronizationStatus[visibleMappingList.size()];
+						visibleMappingList.toArray(projectMappings);
+					}
 					List<SynchronizationStatus> direction1List = new ArrayList<SynchronizationStatus>();
 					List<SynchronizationStatus> direction2List = new ArrayList<SynchronizationStatus>();
 					for (SynchronizationStatus status : projectMappings) {

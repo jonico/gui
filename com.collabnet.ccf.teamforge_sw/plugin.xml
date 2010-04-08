@@ -2,6 +2,14 @@
 <?eclipse version="3.4"?>
 <plugin>
 
+   <extension
+         point="com.collabnet.ccf.mappingVisibilityCheckers">
+      <visibilityChecker
+            class="com.collabnet.ccf.teamforge_sw.ProjectMappingVisibilityChecker"
+            id="com.collabnet.ccf.teamforge_sw.ProjectMappingVisibilityChecker">
+      </visibilityChecker>                   
+   </extension>
+
 	<extension point="org.eclipse.ui.commands">
 		<category
         	name="CollabNet CCF GUI TeamForge/ScrumWorks Commands"

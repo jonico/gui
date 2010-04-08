@@ -3,6 +3,8 @@
 <plugin>
 
    <extension-point id="ccfParticipants" name="CCF Participants" schema="schema/ccfParticipants.exsd"/>
+   
+   <extension-point id="mappingVisibilityCheckers" name="CCF Project Mapping Visibility Checkers" schema="schema/mappingVisibilityCheckers.exsd"/>
 
    <extension
          point="org.eclipse.core.runtime.preferences">
