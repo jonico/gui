@@ -22,6 +22,8 @@ import com.collabnet.ccf.schemageneration.CCFSchemaAndXSLTFileGenerator;
 public class ScrumWorksCcfParticipant extends CcfParticipant {
 	public static final String DEFAULT_JMX_PORT = "8086";
 	public static final String TYPE = "SWP";
+	public static final String SWPREADER_METRICS = "openadaptor:id=SWPReader-metrics";
+	public static final String SWPWRITER_METRICS = "openadaptor:id=SWPWriter-metrics";
 	
 	@Override
 	public Image getImage() {
@@ -82,13 +84,11 @@ public class ScrumWorksCcfParticipant extends CcfParticipant {
 	}
 	
 	public String getReaderMetricsName() {
-		// TODO Auto-generated method stub
-		return null;
+		return SWPREADER_METRICS;
 	}
 
 	public String getWriterMetricsName() {
-		// TODO Auto-generated method stub
-		return null;
+		return SWPWRITER_METRICS;
 	}
 
 	public String getEntityType(String repositoryId) {
