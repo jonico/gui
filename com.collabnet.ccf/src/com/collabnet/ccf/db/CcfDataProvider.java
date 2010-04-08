@@ -506,10 +506,13 @@ public class CcfDataProvider {
 	}
 	
 	public void addSynchronizationStatus(ProjectMappings projectMappings, SynchronizationStatus synchronizationStatus) throws Exception {
+		addSynchronizationStatus(projectMappings.getLandscape(), synchronizationStatus);
+	}
+	
+	public void addSynchronizationStatus(Landscape landscape, SynchronizationStatus synchronizationStatus) throws Exception {
 		Connection connection = null;
 		Statement stmt = null;	
 		try {
-			Landscape landscape = projectMappings.getLandscape();
 			connection = getConnection(landscape);
 			stmt = connection.createStatement();
 			String version = Activator.getCcfParticipantForType(synchronizationStatus.getSourceSystemKind()).getNewProjectMappingVersion();

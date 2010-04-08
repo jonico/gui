@@ -13,6 +13,10 @@ public class ProjectMappingsPropertyTester extends PropertyTester {
 			ProjectMappings projectMappings = (ProjectMappings)receiver;
 			return isTeamForgeSwpLandscape(projectMappings);
 		}
+		if (receiver instanceof Landscape && property.equals("isTeamForgeSwpLandscape")) {
+			Landscape landscape = (Landscape)receiver;
+			return isTeamForgeSwpLandscape(landscape);
+		}
 		if (receiver instanceof SynchronizationStatus && property.equals("isTrackerPbisMapping")) {
 			SynchronizationStatus projectMapping = (SynchronizationStatus)receiver;
 			if (isTeamForgeSwpLandscape(projectMapping.getProjectMappings())) {
@@ -24,16 +28,20 @@ public class ProjectMappingsPropertyTester extends PropertyTester {
 	
 	private boolean isTeamForgeSwpLandscape(ProjectMappings projectMappings) {
 		if (projectMappings != null) {
-			Landscape landscape = projectMappings.getLandscape();
-			if (landscape != null) {
-				if (!landscape.getType1().equals(landscape.getType2())) {
-					if (landscape.getType1().equals("TF") || landscape.getType1().equals("SWP")) {
-						if (landscape.getType2().equals("TF") || landscape.getType2().equals("SWP")) {
-							return true;
-						}
+			return isTeamForgeSwpLandscape(projectMappings.getLandscape());
+		}
+		return false;
+	}
+	
+	private boolean isTeamForgeSwpLandscape(Landscape landscape) {
+		if (landscape != null) {
+			if (!landscape.getType1().equals(landscape.getType2())) {
+				if (landscape.getType1().equals("TF") || landscape.getType1().equals("SWP")) {
+					if (landscape.getType2().equals("TF") || landscape.getType2().equals("SWP")) {
+						return true;
 					}
 				}
-			}
+			}			
 		}
 		return false;
 	}

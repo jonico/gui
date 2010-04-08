@@ -36,6 +36,7 @@ import com.danube.scrumworks.api.client.types.ServerException;
 import com.danube.scrumworks.api.client.types.ThemeWSO;
 
 public class ProjectMappingWizard extends Wizard {
+	private Landscape landscape;
 	private ProjectMappings projectMappings;
 	
 	private ProjectMappingWizardSwpProductPage productPage;
@@ -55,8 +56,9 @@ public class ProjectMappingWizard extends Wizard {
 	private final static String TRACKER_ICON_PBIS = "icon_41.png";
 	private final static String TRACKER_ICON_TASKS = "icon_35.png";
 
-	public ProjectMappingWizard(ProjectMappings projectMappings) {
+	public ProjectMappingWizard(Landscape landscape, ProjectMappings projectMappings) {
 		super();
+		this.landscape = landscape;
 		this.projectMappings = projectMappings;
 	}
 	
@@ -253,25 +255,25 @@ public class ProjectMappingWizard extends Wizard {
 				
 				monitor.subTask(previewPage.getTrackerTaskMapping());
 				SynchronizationStatus projectMapping = new SynchronizationStatus();
-				projectMapping.setGroup(projectMappings.getLandscape().getGroup());
+				projectMapping.setGroup(landscape.getGroup());
 				projectMapping.setTargetRepositoryKind("TRACKER");
-				if (projectMappings.getLandscape().getEncoding2() != null && projectMappings.getLandscape().getEncoding2().trim().length() > 0) {
-					projectMapping.setTargetSystemEncoding(projectMappings.getLandscape().getEncoding2());
+				if (landscape.getEncoding2() != null && landscape.getEncoding2().trim().length() > 0) {
+					projectMapping.setTargetSystemEncoding(landscape.getEncoding2());
 				}				
-				if (projectMappings.getLandscape().getType1().equals("TF")) {
-					projectMapping.setSourceSystemId(projectMappings.getLandscape().getId1());	
-					projectMapping.setTargetSystemId(projectMappings.getLandscape().getId2());			
-					projectMapping.setSourceSystemKind(projectMappings.getLandscape().getType1());			
-					projectMapping.setTargetSystemKind(projectMappings.getLandscape().getType2());
-					projectMapping.setSourceSystemTimezone(projectMappings.getLandscape().getTimezone1());
-					projectMapping.setTargetSystemTimezone(projectMappings.getLandscape().getTimezone2());
+				if (landscape.getType1().equals("TF")) {
+					projectMapping.setSourceSystemId(landscape.getId1());	
+					projectMapping.setTargetSystemId(landscape.getId2());			
+					projectMapping.setSourceSystemKind(landscape.getType1());			
+					projectMapping.setTargetSystemKind(landscape.getType2());
+					projectMapping.setSourceSystemTimezone(landscape.getTimezone1());
+					projectMapping.setTargetSystemTimezone(landscape.getTimezone2());
 				} else {
-					projectMapping.setSourceSystemId(projectMappings.getLandscape().getId2());	
-					projectMapping.setTargetSystemId(projectMappings.getLandscape().getId1());			
-					projectMapping.setSourceSystemKind(projectMappings.getLandscape().getType2());			
-					projectMapping.setTargetSystemKind(projectMappings.getLandscape().getType1());
-					projectMapping.setSourceSystemTimezone(projectMappings.getLandscape().getTimezone2());
-					projectMapping.setTargetSystemTimezone(projectMappings.getLandscape().getTimezone1());					
+					projectMapping.setSourceSystemId(landscape.getId2());	
+					projectMapping.setTargetSystemId(landscape.getId1());			
+					projectMapping.setSourceSystemKind(landscape.getType2());			
+					projectMapping.setTargetSystemKind(landscape.getType1());
+					projectMapping.setSourceSystemTimezone(landscape.getTimezone2());
+					projectMapping.setTargetSystemTimezone(landscape.getTimezone1());					
 				}
 				projectMapping.setSourceRepositoryId(taskTrackerId);
 				projectMapping.setTargetRepositoryId(getSelectedProduct().getName() + "-Task");
@@ -305,20 +307,20 @@ public class ProjectMappingWizard extends Wizard {
 				monitor.worked(1);
 				
 				monitor.subTask(previewPage.getTaskTrackerMapping());
-				if (projectMappings.getLandscape().getType1().equals(ScrumWorksCcfParticipant.TYPE)) {
-					projectMapping.setSourceSystemId(projectMappings.getLandscape().getId1());	
-					projectMapping.setTargetSystemId(projectMappings.getLandscape().getId2());			
-					projectMapping.setSourceSystemKind(projectMappings.getLandscape().getType1());			
-					projectMapping.setTargetSystemKind(projectMappings.getLandscape().getType2());
-					projectMapping.setSourceSystemTimezone(projectMappings.getLandscape().getTimezone1());
-					projectMapping.setTargetSystemTimezone(projectMappings.getLandscape().getTimezone2());
+				if (landscape.getType1().equals(ScrumWorksCcfParticipant.TYPE)) {
+					projectMapping.setSourceSystemId(landscape.getId1());	
+					projectMapping.setTargetSystemId(landscape.getId2());			
+					projectMapping.setSourceSystemKind(landscape.getType1());			
+					projectMapping.setTargetSystemKind(landscape.getType2());
+					projectMapping.setSourceSystemTimezone(landscape.getTimezone1());
+					projectMapping.setTargetSystemTimezone(landscape.getTimezone2());
 				} else {
-					projectMapping.setSourceSystemId(projectMappings.getLandscape().getId2());	
-					projectMapping.setTargetSystemId(projectMappings.getLandscape().getId1());			
-					projectMapping.setSourceSystemKind(projectMappings.getLandscape().getType2());			
-					projectMapping.setTargetSystemKind(projectMappings.getLandscape().getType1());
-					projectMapping.setSourceSystemTimezone(projectMappings.getLandscape().getTimezone2());
-					projectMapping.setTargetSystemTimezone(projectMappings.getLandscape().getTimezone1());					
+					projectMapping.setSourceSystemId(landscape.getId2());	
+					projectMapping.setTargetSystemId(landscape.getId1());			
+					projectMapping.setSourceSystemKind(landscape.getType2());			
+					projectMapping.setTargetSystemKind(landscape.getType1());
+					projectMapping.setSourceSystemTimezone(landscape.getTimezone2());
+					projectMapping.setTargetSystemTimezone(landscape.getTimezone1());					
 				}
 				projectMapping.setSourceRepositoryId(getSelectedProduct().getName() + "-Task");
 				projectMapping.setSourceRepositoryKind("TemplateTasks.xsl");
@@ -414,7 +416,6 @@ public class ProjectMappingWizard extends Wizard {
 	
 	public TFSoapClient getSoapClient() {
 		if (soapClient == null) {
-			Landscape landscape = projectMappings.getLandscape();
 			Properties properties = null;
 			if (landscape.getType1().equals("TF")) {
 				properties = landscape.getProperties1();
@@ -454,7 +455,6 @@ public class ProjectMappingWizard extends Wizard {
 	
 	private ScrumWorksEndpoint getScrumWorksEndpoint() throws ServiceException {
 		if (scrumWorksEndpoint == null) {
-			Landscape landscape = projectMappings.getLandscape();
 			Properties properties = null;
 			if (landscape.getType1().equals(ScrumWorksCcfParticipant.TYPE)) {
 				properties = landscape.getProperties1();
@@ -488,13 +488,13 @@ public class ProjectMappingWizard extends Wizard {
 			status.setSourceSystemKind(status.getSourceSystemKind() + "_paused");
 		}
 		try {
-			dataProvider.addSynchronizationStatus(projectMappings, status);
+			dataProvider.addSynchronizationStatus(landscape, status);
 		} catch (Exception e) {
 			Activator.handleError(e);
 			errors.add(e);
 			return;
 		}
-		if (projectMappings.getLandscape().getRole() == Landscape.ROLE_ADMINISTRATOR) {
+		if (landscape.getRole() == Landscape.ROLE_ADMINISTRATOR) {
 			createFieldMappingFile(status);
 		}
 	}
@@ -503,7 +503,7 @@ public class ProjectMappingWizard extends Wizard {
 //		if (status.getSourceRepositoryKind().startsWith("Template")) {
 //			return;
 //		}
-		status.setLandscape(projectMappings.getLandscape());
+		status.setLandscape(landscape);
 		status.clearXslInfo();
 		File xslFile = status.getXslFile();
 		if (!xslFile.exists()) {
@@ -522,7 +522,7 @@ public class ProjectMappingWizard extends Wizard {
 	
 	private void getExistingMappings(CcfDataProvider dataProvider) {
 		try {
-			SynchronizationStatus[] existingMappingsArray = dataProvider.getSynchronizationStatuses(projectMappings.getLandscape(), projectMappings);
+			SynchronizationStatus[] existingMappingsArray = dataProvider.getSynchronizationStatuses(landscape, projectMappings);
 			for (SynchronizationStatus mapping : existingMappingsArray) {
 				existingMappings.add(mapping);
 			}

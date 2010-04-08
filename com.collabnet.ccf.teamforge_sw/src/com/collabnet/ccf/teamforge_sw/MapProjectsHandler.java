@@ -10,6 +10,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 import com.collabnet.ccf.Activator;
+import com.collabnet.ccf.model.Landscape;
 import com.collabnet.ccf.model.ProjectMappings;
 import com.collabnet.ccf.teamforge_sw.wizards.ProjectMappingWizard;
 import com.collabnet.ccf.views.CcfExplorerView;
@@ -22,9 +23,16 @@ public class MapProjectsHandler extends AbstractHandler {
 		if (selection instanceof IStructuredSelection) {
 			Object[] items = ((IStructuredSelection) selection).toArray();
 			for (Object item : items) {
-				if (item instanceof ProjectMappings) {
-					ProjectMappings projectMappings = (ProjectMappings)item;
-					ProjectMappingWizard wizard = new ProjectMappingWizard(projectMappings);
+				if (item instanceof Landscape || item instanceof ProjectMappings) {
+					Landscape landscape = null;
+					ProjectMappings projectMappings = null;
+					if (item instanceof ProjectMappings) {
+						projectMappings = (ProjectMappings)item;
+						landscape = projectMappings.getLandscape();
+					} else {
+						landscape = (Landscape)item;
+					}
+					ProjectMappingWizard wizard = new ProjectMappingWizard(landscape, projectMappings);
 					WizardDialog dialog = new CustomWizardDialog(Display.getDefault().getActiveShell(), wizard);
 					if (dialog.open() == WizardDialog.OK && CcfExplorerView.getView() != null) {
 						Activator.notifyChanged(projectMappings);

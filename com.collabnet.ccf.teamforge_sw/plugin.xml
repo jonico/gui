@@ -64,9 +64,6 @@
        <enabledWhen>
           <iterate>
               <and>
-                <adapt
-                      type="com.collabnet.ccf.model.AdministratorProjectMappings">
-                </adapt>
                 <test
                 	  forcePluginActivation="true"
                       property="com.collabnet.ccf.teamforge_sw.isTeamForgeSwpLandscape"
@@ -105,6 +102,13 @@
             properties="isTeamForgeSwpLandscape"
             type="com.collabnet.ccf.model.AdministratorProjectMappings">
       </propertyTester>
+      <propertyTester
+            class="com.collabnet.ccf.teamforge_sw.ProjectMappingsPropertyTester"
+            id="com.collabnet.ccf.teamforge_sw.ProjectMappingsPropertyTester"
+            namespace="com.collabnet.ccf.teamforge_sw"
+            properties="isTeamForgeSwpLandscape"
+            type="com.collabnet.ccf.model.AdministratorLandscape">
+      </propertyTester>      
       <propertyTester
             class="com.collabnet.ccf.teamforge_sw.ProjectMappingsPropertyTester"
             id="com.collabnet.ccf.teamforge_sw.ProjectMappingsPropertyTester"
