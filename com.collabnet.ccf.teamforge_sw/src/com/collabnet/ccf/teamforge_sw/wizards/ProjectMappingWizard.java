@@ -138,7 +138,7 @@ public class ProjectMappingWizard extends Wizard {
 					
 					if (getSelectedPbiTracker() == null) {
 						monitor.subTask("Creating tracker " + trackerPage.getNewPbiTrackerTitle());
-						TrackerDO trackerDO = getSoapClient().createTracker(projectId, trackerPage.getNewPbiTrackerTitle(), trackerPage.getNewPbiTrackerTitle(), TRACKER_DESCRIPTION_PBIS, TRACKER_ICON_PBIS);
+						TrackerDO trackerDO = getSoapClient().createTracker(projectId, null, trackerPage.getNewPbiTrackerTitle(), TRACKER_DESCRIPTION_PBIS, TRACKER_ICON_PBIS);
 						pbiTrackerId = trackerDO.getId();
 						TrackerFieldDO[] fields = getSoapClient().getFields(pbiTrackerId);
 						for (TrackerFieldDO field : fields) {
@@ -192,7 +192,7 @@ public class ProjectMappingWizard extends Wizard {
 					
 					if (getSelectedTaskTracker() == null) {
 						monitor.subTask("Creating tracker " + trackerPage.getNewTaskTrackerTitle());
-						TrackerDO trackerDO = getSoapClient().createTracker(projectId, trackerPage.getNewTaskTrackerTitle(), trackerPage.getNewTaskTrackerTitle(), TRACKER_DESCRIPTION_TASKS, TRACKER_ICON_TASKS);
+						TrackerDO trackerDO = getSoapClient().createTracker(projectId, null, trackerPage.getNewTaskTrackerTitle(), TRACKER_DESCRIPTION_TASKS, TRACKER_ICON_TASKS);
 						taskTrackerId = trackerDO.getId();
 						TrackerFieldDO[] fields = getSoapClient().getFields(taskTrackerId);
 						for (TrackerFieldDO field : fields) {
@@ -245,6 +245,7 @@ public class ProjectMappingWizard extends Wizard {
 						taskTrackerId = getSelectedTaskTracker().getId();
 					}
 				} catch (Exception e) {
+					Activator.handleError(e);
 					errors.add(e);
 					monitor.done();
 					return;
