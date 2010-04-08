@@ -345,7 +345,7 @@ public class JmxConsoleStatusEditorPage extends JmxConsoleEditorPage {
 		if (artifactsQuarantined == null) artifactsQuarantinedText1.setText("");
 		else artifactsQuarantinedText1.setText(artifactsQuarantined);
 		
-		int hospitalEntries = getHospitalCount(landscape.getType1());
+		int hospitalEntries = getHospitalCount(landscape.getType2());
 		if (hospitalEntries == 0) hospitalCountText1.setText("");
 		else hospitalCountText1.setText(Integer.toString(hospitalEntries));
 	}
@@ -387,7 +387,7 @@ public class JmxConsoleStatusEditorPage extends JmxConsoleEditorPage {
 		if (artifactsQuarantined == null) artifactsQuarantinedText2.setText("");
 		else artifactsQuarantinedText2.setText(artifactsQuarantined);
 		
-		int hospitalEntries = getHospitalCount(landscape.getType2());
+		int hospitalEntries = getHospitalCount(landscape.getType1());
 		if (hospitalEntries == 0) hospitalCountText2.setText("");
 		else hospitalCountText2.setText(Integer.toString(hospitalEntries));
 	}
