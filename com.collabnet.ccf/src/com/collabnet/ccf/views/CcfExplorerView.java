@@ -71,7 +71,7 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 	private Font italicFont;
 	private Role activeRole = Activator.getDefault().getActiveRole();
 	private NewLandscapeAction toolbarNewLandscapeAction = new NewLandscapeAction("New CCF Landscape...");
-	
+	private boolean showHidden;
 	public static final String PROJECT_MAPPING_SORT_ORDER = "CcfExplorerView.projectMappingSort";
 	public static final int SORT_BY_SOURCE_REPOSITORY = 0;
 	public static final int SORT_BY_TARGET_REPOSITORY = 1;	
@@ -85,6 +85,7 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 		view = this;
 		Activator.addChangeListener(this);
 		Activator.addRoleChangedListener(this);
+		showHidden = settings.getBoolean("CcfExplorerView.showHidden");
 	}
 
 	@Override
@@ -196,11 +197,9 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
         		MenuManager sortMenu = new MenuManager("Sort project mappings by");
         		SortAction bySourceAction = new SortAction("Source repository", SORT_BY_SOURCE_REPOSITORY);
         		SortAction byTargetAction = new SortAction("Target repository", SORT_BY_TARGET_REPOSITORY);
-//        		SortAction byQcAction = new SortAction("Quality Center repository", SORT_BY_QC_REPOSITORY);
         		SortAction byGroupAction = new SortAction("Group", SORT_BY_GROUP);
         		sortMenu.add(bySourceAction);
         		sortMenu.add(byTargetAction);
-//        		sortMenu.add(byQcAction);
         		sortMenu.add(byGroupAction);
         		
         		switch (ccfComparator.getSortOrder()) {
@@ -210,9 +209,6 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 				case SORT_BY_TARGET_REPOSITORY:
 					byTargetAction.setChecked(true);
 					break;
-//				case SORT_BY_QC_REPOSITORY:
-//					byQcAction.setChecked(true);
-//					break;
 				case SORT_BY_GROUP:
 					byGroupAction.setChecked(true);
 					break;
@@ -221,6 +217,15 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 					break;
 				}
         		barMenuManager.add(sortMenu);
+        		Action showHiddenAction = new Action("Show hidden project mappings", Action.AS_CHECK_BOX) {
+        			public void run() {
+        				showHidden = !settings.getBoolean("CcfExplorerView.showHidden");
+        				settings.put("CcfExplorerView.showHidden", showHidden);
+        				refreshProjectMappings();
+        			}
+        		};
+        		showHiddenAction.setChecked(showHidden);
+        		barMenuManager.add(showHiddenAction);
         		barMenuManager.add(new Separator());
         		MenuManager roleMenu = new MenuManager("Active role");
         		Role[] roles = Activator.getDefault().getRoles();
@@ -415,10 +420,12 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 									if (object instanceof SynchronizationStatus) {
 										SynchronizationStatus projectMapping = (SynchronizationStatus)object;
 										boolean visible = true;
-										for (IProjectMappingVisibilityChecker checker : visibilityCheckers) {
-											visible = checker.isProjectMappingVisible(projectMapping);
-											if (!visible) {
-												break;
+										if (!showHidden) {
+											for (IProjectMappingVisibilityChecker checker : visibilityCheckers) {
+												visible = checker.isProjectMappingVisible(projectMapping);
+												if (!visible) {
+													break;
+												}
 											}
 										}
 										if (visible) {
