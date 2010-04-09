@@ -282,11 +282,11 @@ public class ProjectMappingWizardPreviewPage extends WizardPage {
 		trackerTaskMapping = taskTracker + " => " + wizard.getSelectedProduct().getName() + "-Task";
 		trackerPbiMapping = pbiTracker + " => " + wizard.getSelectedProduct().getName() + "-PBI";
 		planningFolderProductMapping = project + "-planningFolders => " + wizard.getSelectedProduct().getName() + "-Product";
-		planningFolderProductReleaseMapping = project + "-planningFolders => " + wizard.getSelectedProduct().getName() + "-ProductRelease";
+		planningFolderProductReleaseMapping = project + "-planningFolders => " + wizard.getSelectedProduct().getName() + "-Release";
 		taskTrackerMapping = wizard.getSelectedProduct().getName() + "-Task => " + taskTracker;
 		pbiTrackerMapping = wizard.getSelectedProduct().getName() + "-PBI => " + pbiTracker;
 		productPlanningFolderMapping = wizard.getSelectedProduct().getName() + "-Product => " + project + "-planningFolders";
-		productReleasePlanningFolderMapping = wizard.getSelectedProduct().getName() + "-ProductRelease => " + project + "-planningFolders";
+		productReleasePlanningFolderMapping = wizard.getSelectedProduct().getName() + "-Release => " + project + "-planningFolders";
 		trackerTaskText.setText(trackerTaskMapping);
 		trackerPbiText.setText(trackerPbiMapping);
 		planningFolderProductText.setText(planningFolderProductMapping);

@@ -141,8 +141,8 @@ public class ScrumWorksMappingSection extends MappingSection {
 
 	public void updateSourceFields(SynchronizationStatus projectMapping) {
 		projectMapping.setSourceRepositoryId(getRepositoryId());
-		if (projectMapping.getSourceRepositoryId().endsWith("ProductRelease")) {
-			projectMapping.setSourceRepositoryKind("TemplateProductReleases.xsl");
+		if (projectMapping.getSourceRepositoryId().endsWith("Release")) {
+			projectMapping.setSourceRepositoryKind("TemplateReleases.xsl");
 		} else if (projectMapping.getSourceRepositoryId().endsWith("PBI")) {
 			projectMapping.setSourceRepositoryKind("TemplatePBIs.xsl");
 		} else if (projectMapping.getSourceRepositoryId().endsWith("Task")) {
@@ -160,8 +160,8 @@ public class ScrumWorksMappingSection extends MappingSection {
 //
 // It is not a mistake that we are setting source repository kind here.
 //
-		if (projectMapping.getTargetRepositoryId().endsWith("ProductRelease")) {
-			projectMapping.setSourceRepositoryKind("TemplateProductReleases.xsl");
+		if (projectMapping.getTargetRepositoryId().endsWith("Release")) {
+			projectMapping.setSourceRepositoryKind("TemplateReleases.xsl");
 		} else if (projectMapping.getTargetRepositoryId().endsWith("PBI")) {
 			projectMapping.setSourceRepositoryKind("TemplatePBIs.xsl");
 		} else if (projectMapping.getTargetRepositoryId().endsWith("Task")) {

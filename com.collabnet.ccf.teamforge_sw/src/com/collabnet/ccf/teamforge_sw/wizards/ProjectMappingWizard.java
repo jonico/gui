@@ -300,9 +300,9 @@ public class ProjectMappingWizard extends Wizard {
 				monitor.worked(1);
 				
 				monitor.subTask(previewPage.getPlanningFolderProductReleaseMapping());
-				projectMapping.setTargetRepositoryId(getSelectedProduct().getName() + "-ProductRelease");
+				projectMapping.setTargetRepositoryId(getSelectedProduct().getName() + "-Release");
 				projectMapping.setConflictResolutionPriority(previewPage.getPlanningFolderProductReleaseConflictResolutionPriority());
-				projectMapping.setSourceRepositoryKind("TemplateProductReleases.xsl");
+				projectMapping.setSourceRepositoryKind("TemplateReleases.xsl");
 				createMapping(projectMapping, dataProvider);
 				monitor.worked(1);
 				
@@ -346,8 +346,8 @@ public class ProjectMappingWizard extends Wizard {
 				monitor.worked(1);
 				
 				monitor.subTask(previewPage.getProductReleasePlanningFolderMapping());
-				projectMapping.setSourceRepositoryId(getSelectedProduct().getName() + "-ProductRelease");
-				projectMapping.setSourceRepositoryKind("TemplateProductReleases.xsl");
+				projectMapping.setSourceRepositoryId(getSelectedProduct().getName() + "-Release");
+				projectMapping.setSourceRepositoryKind("TemplateReleases.xsl");
 				projectMapping.setConflictResolutionPriority(previewPage.getProductReleasePlanningFolderConflictResolutionPriority());
 				createMapping(projectMapping, dataProvider);
 				monitor.worked(1);
