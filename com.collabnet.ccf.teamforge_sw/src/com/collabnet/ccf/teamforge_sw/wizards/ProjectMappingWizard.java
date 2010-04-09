@@ -157,7 +157,7 @@ public class ProjectMappingWizard extends Wizard {
 						}
 						getSoapClient().addTextField(pbiTrackerId, "Benefit", 5, 1, false, false, false, null);
 						getSoapClient().addTextField(pbiTrackerId, "Penalty", 30, 1, false, false, false, null);
-						getSoapClient().addTextField(pbiTrackerId, "Estimate", 5, 1, false, false, false, null);
+						getSoapClient().addTextField(pbiTrackerId, "Backlog Effort", 5, 1, false, false, false, null);
 						getSoapClient().addTextField(pbiTrackerId, "SWP-Key", 30, 1, false, false, false, null);
 						getSoapClient().addTextField(pbiTrackerId, "Team", 30, 1, false, false, false, null);
 						getSoapClient().addTextField(pbiTrackerId, "Sprint", 30, 1, false, false, false, null);
@@ -210,7 +210,7 @@ public class ProjectMappingWizard extends Wizard {
 								getSoapClient().setField(taskTrackerId, field);
 							}
 						}
-						getSoapClient().addTextField(taskTrackerId, "Point Person", 30, 1, false, false, false, null);
+//						getSoapClient().addTextField(taskTrackerId, "Point Person", 30, 1, false, false, false, null);
 						
 						for (TrackerFieldDO field : fields) {
 							if (field.getName().equals("status")) {
