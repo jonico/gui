@@ -77,7 +77,7 @@ public class ScrumWorksMappingSection extends MappingSection {
 		typeCombo.add(SWPMetaData.PRODUCT.toString());
 		typeCombo.add(SWPMetaData.TASK.toString());
 		typeCombo.add(SWPMetaData.PBI.toString());	
-		typeCombo.add(SWPMetaData.PRODUCT_RELEASE.toString());
+		typeCombo.add(SWPMetaData.RELEASE.toString());
 		String previousType = null;
 		try {
 			previousType = settings.get(PREVIOUS_TYPE);
@@ -119,8 +119,8 @@ public class ScrumWorksMappingSection extends MappingSection {
 			swpType = SWPMetaData.retrieveSWPTypeFromRepositoryId(projectMapping.getTargetRepositoryId());
 		}
 		productText.setText(product);
-		if (swpType == SWPType.PRODUCT_RELEASE) {
-			typeCombo.setText(SWPMetaData.PRODUCT_RELEASE.toString());
+		if (swpType == SWPType.RELEASE) {
+			typeCombo.setText(SWPMetaData.RELEASE.toString());
 		}
 		else if (swpType == SWPType.PRODUCT) {
 			typeCombo.setText(SWPMetaData.PRODUCT.toString());
