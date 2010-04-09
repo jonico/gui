@@ -500,7 +500,7 @@ public class CcfProjectMappingsEditorPage extends CcfEditorPage implements IProj
 	}
 	
 	public void changed(ProjectMappings projectMappings) {
-		if (projectMappings.getLandscape().equals(getLandscape())) {
+		if (projectMappings == null || projectMappings.getLandscape().equals(getLandscape())) {
 			refresh();
 		}
 	}
