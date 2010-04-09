@@ -42,6 +42,7 @@ import org.eclipse.ui.model.WorkbenchContentProvider;
 import org.eclipse.ui.part.ViewPart;
 
 import com.collabnet.ccf.Activator;
+import com.collabnet.ccf.ICcfParticipant;
 import com.collabnet.ccf.IProjectMappingVisibilityChecker;
 import com.collabnet.ccf.IProjectMappingsChangeListener;
 import com.collabnet.ccf.IRoleChangedListener;
@@ -73,10 +74,12 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 	private NewLandscapeAction toolbarNewLandscapeAction = new NewLandscapeAction("New CCF Landscape...");
 	private boolean showHidden;
 	public static final String PROJECT_MAPPING_SORT_ORDER = "CcfExplorerView.projectMappingSort";
+	public static final String PROJECT_MAPPING_SORT_ORDER_REPOSITORY_TYPE = "CcfExplorerView.projectMappingSortRepositoryType";
 	public static final int SORT_BY_SOURCE_REPOSITORY = 0;
 	public static final int SORT_BY_TARGET_REPOSITORY = 1;	
 //	public static final int SORT_BY_QC_REPOSITORY = 2;
 	public static final int SORT_BY_GROUP = 3;
+	public static final int SORT_BY_REPOSITORY_TYPE = 4;
 	
 	public static final String ID = "com.collabnet.ccf.views.CcfExplorerView";
 
@@ -103,10 +106,13 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 		treeViewer.setContentProvider(new LandscapeContentProvider());
 		
 		int sortOrder = 0;
+		String sortRepositoryType = null;
 		try {
 			sortOrder = settings.getInt(PROJECT_MAPPING_SORT_ORDER);
+			sortRepositoryType = settings.get(PROJECT_MAPPING_SORT_ORDER_REPOSITORY_TYPE);
 		} catch (Exception e) {}
 		ccfComparator.setSortOrder(sortOrder);	
+		ccfComparator.setRepositoryType(sortRepositoryType);
 		treeViewer.setComparator(ccfComparator);
 		
 		treeViewer.setUseHashlookup(true);
@@ -195,12 +201,23 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
         		barMenuManager.add(newLandscapeAction);  
         		barMenuManager.add(new Separator());
         		MenuManager sortMenu = new MenuManager("Sort project mappings by");
-        		SortAction bySourceAction = new SortAction("Source repository", SORT_BY_SOURCE_REPOSITORY);
-        		SortAction byTargetAction = new SortAction("Target repository", SORT_BY_TARGET_REPOSITORY);
-        		SortAction byGroupAction = new SortAction("Group", SORT_BY_GROUP);
+        		SortAction bySourceAction = new SortAction("Source repository", SORT_BY_SOURCE_REPOSITORY, null);
+        		SortAction byTargetAction = new SortAction("Target repository", SORT_BY_TARGET_REPOSITORY, null);
+        		SortAction byGroupAction = new SortAction("Group", SORT_BY_GROUP, null);
         		sortMenu.add(bySourceAction);
         		sortMenu.add(byTargetAction);
         		sortMenu.add(byGroupAction);
+        		List<SortAction> sortByRepositoryTypeActions = new ArrayList<SortAction>();
+        		try {
+					ICcfParticipant[] ccfParticipants = Activator.getCcfParticipants();
+					for (ICcfParticipant ccfParticipant : ccfParticipants) {
+						SortAction byRepositoryTypeAction = new SortAction(ccfParticipant.getType() + " repository", SORT_BY_REPOSITORY_TYPE, ccfParticipant.getType());
+						sortMenu.add(byRepositoryTypeAction);
+						sortByRepositoryTypeActions.add(byRepositoryTypeAction);
+					}
+				} catch (Exception e) {
+					Activator.handleError(e);
+				}
         		
         		switch (ccfComparator.getSortOrder()) {
 				case SORT_BY_SOURCE_REPOSITORY:
@@ -212,6 +229,18 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 				case SORT_BY_GROUP:
 					byGroupAction.setChecked(true);
 					break;
+				case SORT_BY_REPOSITORY_TYPE:
+					boolean actionChecked = false;
+					for (SortAction sortAction : sortByRepositoryTypeActions) {
+						if (sortAction.getRepositoryType().equals(ccfComparator.getRepositoryType())) {
+							sortAction.setChecked(true);
+							actionChecked = true;
+							break;
+						}
+					}
+					if (actionChecked) {
+						break;
+					}
 				default:
 					bySourceAction.setChecked(true);
 					break;
@@ -526,6 +555,7 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 	
 	class CcfComparator extends ViewerComparator {
 		private int sortOrder = SORT_BY_SOURCE_REPOSITORY;
+		private String repositoryType;
 
 		public void setSortOrder(int sortOrder) {
 			this.sortOrder = sortOrder;
@@ -533,6 +563,14 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 		
 		public int getSortOrder() {
 			return sortOrder;
+		}
+
+		public void setRepositoryType(String repositoryType) {
+			this.repositoryType = repositoryType;
+		}
+
+		public String getRepositoryType() {
+			return repositoryType;
 		}
 
 		@Override
@@ -564,18 +602,20 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 						cmp2 = s2.getGroup();
 					}					
 					break;					
-//				case SORT_BY_QC_REPOSITORY:
-//					if (s1.getSourceSystemKind().startsWith("QC")) {
-//						cmp1 = s1.getSourceRepositoryId() + s1.getTargetRepositoryId();
-//					} else {
-//						cmp1 = s1.getTargetRepositoryId() + s1.getSourceRepositoryId();
-//					}
-//					if (s2.getSourceSystemKind().startsWith("QC")) {
-//						cmp2 = s2.getSourceRepositoryId() + s2.getTargetRepositoryId();
-//					} else {
-//						cmp2 = s2.getTargetRepositoryId() + s2.getSourceRepositoryId();
-//					}
-//					break;					
+				case SORT_BY_REPOSITORY_TYPE:
+					if (repositoryType != null) {
+						if (s1.getSourceSystemKind().startsWith(repositoryType)) {
+							cmp1 = s1.getSourceRepositoryId() + s1.getTargetRepositoryId();
+						} else {
+							cmp1 = s1.getTargetRepositoryId() + s1.getSourceRepositoryId();
+						}
+						if (s2.getSourceSystemKind().startsWith(repositoryType)) {
+							cmp2 = s2.getSourceRepositoryId() + s2.getTargetRepositoryId();
+						} else {
+							cmp2 = s2.getTargetRepositoryId() + s2.getSourceRepositoryId();
+						}
+						break;		
+					}								
 				default:
 					cmp1 = s1.toString();
 					cmp2 = s2.toString();		
@@ -590,15 +630,23 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 	
 	class SortAction extends Action {
 		private int order;
+		private String repositoryType;
 
-		public SortAction(String text, int order) {
+		public SortAction(String text, int order, String repositoryType) {
 			super(text, Action.AS_CHECK_BOX);
 			this.order = order;
+			this.repositoryType = repositoryType;
 		}
 		
+		public String getRepositoryType() {
+			return repositoryType;
+		}
+
 		public void run() {
 			settings.put(PROJECT_MAPPING_SORT_ORDER, order);
+			settings.put(PROJECT_MAPPING_SORT_ORDER_REPOSITORY_TYPE, repositoryType);
 			ccfComparator.setSortOrder(order);
+			ccfComparator.setRepositoryType(repositoryType);
 			refreshProjectMappings();
 		}
 		
