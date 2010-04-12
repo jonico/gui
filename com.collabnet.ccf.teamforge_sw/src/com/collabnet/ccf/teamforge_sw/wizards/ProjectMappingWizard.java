@@ -23,7 +23,10 @@ import com.collabnet.ccf.model.SynchronizationStatus;
 import com.collabnet.ccf.sw.ScrumWorksCcfParticipant;
 import com.collabnet.ccf.teamforge.schemageneration.TFSoapClient;
 import com.collabnet.teamforge.api.main.ProjectDO;
+import com.collabnet.teamforge.api.main.ProjectMemberList;
+import com.collabnet.teamforge.api.main.ProjectMemberRow;
 import com.collabnet.teamforge.api.main.ProjectRow;
+import com.collabnet.teamforge.api.main.UserDO;
 import com.collabnet.teamforge.api.tracker.TrackerDO;
 import com.collabnet.teamforge.api.tracker.TrackerFieldDO;
 import com.collabnet.teamforge.api.tracker.TrackerFieldValueDO;
@@ -33,7 +36,9 @@ import com.danube.scrumworks.api.client.ScrumWorksEndpointBindingStub;
 import com.danube.scrumworks.api.client.ScrumWorksServiceLocator;
 import com.danube.scrumworks.api.client.types.ProductWSO;
 import com.danube.scrumworks.api.client.types.ServerException;
+import com.danube.scrumworks.api.client.types.SprintWSO;
 import com.danube.scrumworks.api.client.types.ThemeWSO;
+import com.danube.scrumworks.api.client.types.UserWSO;
 
 public class ProjectMappingWizard extends Wizard {
 	private Landscape landscape;
@@ -48,6 +53,7 @@ public class ProjectMappingWizard extends Wizard {
 	private List<SynchronizationStatus> existingMappings;
 	private List<Exception> errors;
 	private List<String> notCreated;
+	private boolean userMappingErrors;
 	
 	private ScrumWorksEndpoint scrumWorksEndpoint;
 	
@@ -82,17 +88,21 @@ public class ProjectMappingWizard extends Wizard {
 	}
 
 	@Override
-	public boolean performFinish() {
+	public boolean performFinish() {		
 		errors = new ArrayList<Exception>();
+		userMappingErrors = false;
 		notCreated = new ArrayList<String>();
 		IRunnableWithProgress runnable = new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+				boolean newProject = false;
+				
 				// Create 8 mappings.
 				int totalWork = 8;
 				
 				// Need to create project.
 				if (getSelectedProject() == null) {
 					totalWork++;
+					newProject = true;
 				}
 				
 				if (getSelectedPbiTracker() != null || getSelectedTaskTracker() != null) {
@@ -111,6 +121,14 @@ public class ProjectMappingWizard extends Wizard {
 					totalWork++;
 				}
 				
+				// Need to map users.
+				if (productPage.isMapUsers()) {
+					totalWork = totalWork + 3;
+					if (!newProject) {
+						totalWork++;
+					}
+				}
+				
 				CcfDataProvider dataProvider = new CcfDataProvider();
 				String taskName = "Creating project mappings";
 				monitor.setTaskName(taskName);
@@ -127,8 +145,7 @@ public class ProjectMappingWizard extends Wizard {
 				String pbiTrackerId = null;
 				String taskTrackerId = null;
 				
-				try {
-					
+				try {			
 					if (getSelectedProject() == null) {
 						monitor.subTask("Creating project " + projectPage.getNewProjectTitle());
 						ProjectDO projectDO = getSoapClient().createProject(null, projectPage.getNewProjectTitle(), previewPage.getNewProjectDescription());
@@ -210,8 +227,6 @@ public class ProjectMappingWizard extends Wizard {
 								getSoapClient().setField(taskTrackerId, field);
 							}
 						}
-//						getSoapClient().addTextField(taskTrackerId, "Point Person", 30, 1, false, false, false, null);
-						
 						for (TrackerFieldDO field : fields) {
 							if (field.getName().equals("status")) {
 								TrackerFieldValueDO[] oldValues = field.getFieldValues();
@@ -245,6 +260,9 @@ public class ProjectMappingWizard extends Wizard {
 						monitor.worked(1);
 					} else {
 						taskTrackerId = getSelectedTaskTracker().getId();
+					}
+					if (productPage.isMapUsers()) {
+						userMappingErrors = !mapUsers(getSelectedProduct(), projectId, newProject, monitor);
 					}
 				} catch (Exception e) {
 					Activator.handleError(e);
@@ -373,6 +391,9 @@ public class ProjectMappingWizard extends Wizard {
 			MessageDialog.openError(getShell(), "Create Project Mappings", errorMessage.toString());
 			return false;
 		}
+		if (userMappingErrors) {
+			MessageDialog.openError(getShell(), "Map Users", "Errors occurred mapping ScrumWorks users to TeamForge.  See error log for details.");
+		}
 		if (notCreated.size() > 0) {
 			StringBuffer notCreatedMessage = new StringBuffer("The following mappings already existed and were not created:\n");
 			for (String mapping : notCreated) {
@@ -434,6 +455,98 @@ public class ProjectMappingWizard extends Wizard {
 	
 	public ProductWSO[] getProducts() throws ServerException, RemoteException, ServiceException {
 		return getScrumWorksEndpoint().getProducts();
+	}
+	
+	private boolean mapUsers(ProductWSO product, String projectId, boolean newProject, IProgressMonitor monitor) {
+		boolean errors = false;
+		monitor.subTask("Getting product " + product.getName() + " users");
+		List<String> productUserList = new ArrayList<String>();
+		try {
+			SprintWSO[] sprints = getScrumWorksEndpoint().getSprints(product);
+			for (SprintWSO sprint : sprints) {
+				String[] sprintUsers = getScrumWorksEndpoint().getUsersForSprint(sprint);
+				if (sprintUsers != null) {
+					for (String sprintUser : sprintUsers) {
+						if (!productUserList.contains(sprintUser)) {
+							productUserList.add(sprintUser);
+						}
+					}
+				}
+			}
+		} catch (Exception e) {
+			Activator.handleError(e);
+			errors = true;
+		}
+		monitor.worked(1);
+		if (errors) {
+			monitor.worked(2);
+		} else {			
+			List<String> projectMemberList = new ArrayList<String>();
+			if (!newProject) {
+				monitor.subTask("Getting project members");	
+				try {
+					ProjectMemberList memberList = getSoapClient().getProjectMemberList(projectId);
+					ProjectMemberRow[] memberRows = memberList.getDataRows();
+					for (ProjectMemberRow memberRow : memberRows) {
+						projectMemberList.add(memberRow.getUserName());
+					}
+				} catch (Exception e) {
+					Activator.handleError(e);
+					errors = true;
+				}
+				monitor.worked(1);
+			}
+			if (!errors) {
+				monitor.subTask("Creating TeamForge users");
+				try {
+					UserWSO[] swpUsers = getScrumWorksEndpoint().getUsers();
+					for (UserWSO swpUser : swpUsers) {
+						if (productUserList.contains(swpUser.getDisplayName())) {
+							UserDO userDO = null;
+							try {
+								userDO = getSoapClient().getUserData(swpUser.getUserName());
+							} catch (Exception e) {}
+							if (userDO == null) {
+								String email = swpUser.getUserName() + "@default.com";
+								String locale = "en";
+								String timeZone = getScrumWorksEndpoint().getTimezone();
+								String password = swpUser.getUserName() + "_defaultPassword";
+								try {
+									getSoapClient().createUser(swpUser.getUserName(), email, swpUser.getDisplayName(), locale, timeZone, false, false, password);
+								} catch (Exception e) {
+									Activator.handleError(e);
+									errors = true;
+								}
+							} else {
+								// If user already exists but is not active (i.e., deleted status), activate user.
+								if (!userDO.getStatus().equals("Active")) {
+									userDO.setStatus("Active");
+									try {
+										getSoapClient().setUserData(userDO);
+									} catch (Exception e) {
+										Activator.handleError(e);
+										errors = true;
+									}
+								}
+							}
+							if (!projectMemberList.contains(swpUser.getUserName())) {
+								try {
+									getSoapClient().addProjectMember(projectId, swpUser.getUserName());
+								} catch (Exception e) {
+									Activator.handleError(e);
+									errors = true;
+								}
+							}
+						}
+					}
+				} catch (Exception e) {
+					Activator.handleError(e);
+					errors = true;
+				}
+			}
+			monitor.worked(1);
+		}
+		return !errors;
 	}
 	
 	private ThemeWSO[] getThemes(ProductWSO product) throws ServerException, RemoteException, ServiceException {

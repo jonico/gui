@@ -15,6 +15,8 @@ import com.collabnet.teamforge.api.main.ProjectList;
 import com.collabnet.teamforge.api.main.ProjectMemberList;
 import com.collabnet.teamforge.api.main.ProjectMemberRow;
 import com.collabnet.teamforge.api.main.ProjectRow;
+import com.collabnet.teamforge.api.main.UserDO;
+import com.collabnet.teamforge.api.main.UserList;
 import com.collabnet.teamforge.api.tracker.ArtifactDependencyRow;
 import com.collabnet.teamforge.api.tracker.ArtifactDetailList;
 import com.collabnet.teamforge.api.tracker.TrackerDO;
@@ -40,6 +42,34 @@ public class TFSoapClient {
 		TFSoapClient client = clients.get(serverUrl + userId + password);
 		if (client == null) client = new TFSoapClient(serverUrl, userId, password);
 		return client;
+	}
+	
+	public UserDO createUser(String userName, String email, String fullName, String locale, String timeZone, boolean isSuperUser, boolean isRestrictedUser, String password) throws RemoteException {
+		UserDO userDO = connection.getTeamForgeClient().createUser(userName, email, fullName, locale, timeZone, isSuperUser, isRestrictedUser, password);
+		return userDO;
+	}
+	
+	public UserDO getUserData(String username) throws RemoteException {
+		UserDO userDO = connection.getTeamForgeClient().getUserData(username);
+		return userDO;
+	}
+	
+	public void setUserData(UserDO userData) throws RemoteException {
+		connection.getTeamForgeClient().setUserData(userData);
+	}
+	
+	public UserList getUsers() throws RemoteException {
+		UserList userList = connection.getTeamForgeClient().getUserList(null);
+		return userList;
+	}
+	
+	public void addProjectMember(String projectId, String userName) throws RemoteException	{
+		connection.getTeamForgeClient().addProjectMember(projectId, userName);
+	}
+	
+	public ProjectMemberList getProjectMemberList(String projectId) throws RemoteException {
+		ProjectMemberList memberList = connection.getTeamForgeClient().getProjectMemberList(projectId);
+		return memberList;
 	}
 	
 	public ProjectDO createProject(String name, String title, String description) throws RemoteException {

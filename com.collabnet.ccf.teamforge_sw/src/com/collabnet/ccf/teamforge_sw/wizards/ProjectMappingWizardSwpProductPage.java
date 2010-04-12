@@ -17,9 +17,12 @@ import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
@@ -28,12 +31,14 @@ import com.collabnet.ccf.Activator;
 import com.danube.scrumworks.api.client.types.ProductWSO;
 
 public class ProjectMappingWizardSwpProductPage extends WizardPage {
+	private Button mapUsersButton;
 	private ProductWSO[] products;
 	private Table table;
 	private TableViewer viewer;
 	private ProductWSO selectedProduct;
 	private boolean productsRetrieved;
 	private Exception getProductsError;
+	private boolean mapUsers = true;
 	
 	private String[] columnHeaders = {"Product"};
 	private ColumnLayoutData columnLayouts[] = {
@@ -50,6 +55,15 @@ public class ProjectMappingWizardSwpProductPage extends WizardPage {
 		outerContainer.setLayout(new GridLayout());
 		outerContainer.setLayoutData(
 		new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));
+		
+		mapUsersButton = new Button(outerContainer, SWT.CHECK);
+		mapUsersButton.setText("Create ScrumWorks product users in TeamForge");
+		mapUsersButton.setSelection(true);
+		mapUsersButton.addSelectionListener(new SelectionAdapter() {			
+			public void widgetSelected(SelectionEvent e) {
+				mapUsers = mapUsersButton.getSelection();
+			}
+		});
 
 		table = new Table(outerContainer, SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION);
 		table.setLinesVisible(true);
@@ -91,6 +105,10 @@ public class ProjectMappingWizardSwpProductPage extends WizardPage {
 		}
 	}
 	
+	public boolean isMapUsers() {
+		return mapUsers;
+	}
+
 	public ProductWSO getSelectedProduct() {
 		return selectedProduct;
 	}
