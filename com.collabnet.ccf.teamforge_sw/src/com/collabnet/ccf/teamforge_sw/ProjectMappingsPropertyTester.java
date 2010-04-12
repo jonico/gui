@@ -23,6 +23,10 @@ public class ProjectMappingsPropertyTester extends PropertyTester {
 				return projectMapping.toString().indexOf("-PBI") != -1;
 			}
 		}
+		if (receiver instanceof SynchronizationStatus && property.equals("isTeamForgeScrumWorksMapping")) {
+			SynchronizationStatus projectMapping = (SynchronizationStatus)receiver;
+			return isTeamForgeSwpLandscape(projectMapping.getProjectMappings());
+		}
 		return false;
 	}
 	

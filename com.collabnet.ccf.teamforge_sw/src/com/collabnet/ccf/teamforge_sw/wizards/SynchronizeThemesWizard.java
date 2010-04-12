@@ -4,37 +4,23 @@ import java.lang.reflect.InvocationTargetException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
-
-import javax.xml.rpc.ServiceException;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
-import org.eclipse.jface.wizard.Wizard;
 
 import com.collabnet.ccf.Activator;
-import com.collabnet.ccf.model.Landscape;
 import com.collabnet.ccf.model.SynchronizationStatus;
-import com.collabnet.ccf.sw.ScrumWorksCcfParticipant;
-import com.collabnet.ccf.teamforge.schemageneration.TFSoapClient;
 import com.collabnet.teamforge.api.tracker.TrackerFieldDO;
 import com.collabnet.teamforge.api.tracker.TrackerFieldValueDO;
-import com.danube.scrumworks.api.client.ScrumWorksEndpoint;
-import com.danube.scrumworks.api.client.ScrumWorksEndpointBindingStub;
-import com.danube.scrumworks.api.client.ScrumWorksServiceLocator;
 import com.danube.scrumworks.api.client.types.ThemeWSO;
 
-public class SynchronizeThemesWizard extends Wizard {
-	private TFSoapClient soapClient;
-	private SynchronizationStatus projectMapping;
-	private ScrumWorksEndpoint scrumWorksEndpoint;
+public class SynchronizeThemesWizard extends AbstractMappingWizard {
 	private SynchronizeThemesWizardPage wizardPage;
 	private Exception error;
 	
 	public SynchronizeThemesWizard(SynchronizationStatus projectMapping) {
-		super();
-		this.projectMapping = projectMapping;
+		super(projectMapping);
 	}
 	
 	@Override
@@ -43,11 +29,6 @@ public class SynchronizeThemesWizard extends Wizard {
 		setWindowTitle("Synchronize Themes");
 		wizardPage = new SynchronizeThemesWizardPage();
 		addPage(wizardPage);
-	}
-	
-	@Override
-	public boolean needsProgressMonitor() {
-		return true;
 	}
 
 	@Override
@@ -125,78 +106,6 @@ public class SynchronizeThemesWizard extends Wizard {
 			index++;
 		}
 		return index;
-	}
-
-	public TFSoapClient getSoapClient() {
-		if (soapClient == null) {
-			Landscape landscape = projectMapping.getProjectMappings().getLandscape();
-			Properties properties = null;
-			if (landscape.getType1().equals("TF")) {
-				properties = landscape.getProperties1();
-			} else {
-				properties = landscape.getProperties2();
-			}
-			if (properties != null) {
-				String serverUrl = properties.getProperty(Activator.PROPERTIES_SFEE_URL);
-				String userId = properties.getProperty(Activator.PROPERTIES_SFEE_USER);
-				String password = properties.getProperty(Activator.PROPERTIES_SFEE_PASSWORD);
-				soapClient = TFSoapClient.getSoapClient(serverUrl, userId, password);
-			}
-		}
-		return soapClient;
-	}
-	
-	public ScrumWorksEndpoint getScrumWorksEndpoint() throws ServiceException {
-		if (scrumWorksEndpoint == null) {
-			Landscape landscape = projectMapping.getProjectMappings().getLandscape();
-			Properties properties = null;
-			if (landscape.getType1().equals(ScrumWorksCcfParticipant.TYPE)) {
-				properties = landscape.getProperties1();
-			} else {
-				properties = landscape.getProperties2();
-			}	
-			String url = properties.get(Activator.PROPERTIES_SW_URL).toString();
-			String user = properties.get(Activator.PROPERTIES_SW_USER).toString();
-			String password = properties.get(Activator.PROPERTIES_SW_PASSWORD).toString();
-			if (!url.endsWith("scrumworks-api/scrumworks")) {
-				if (!url.endsWith("/")) {
-					url = url + "/";
-				}
-				url = url + "scrumworks-api/scrumworks";
-			}
-			ScrumWorksServiceLocator locator = new ScrumWorksServiceLocator();
-			locator.setScrumWorksEndpointPortEndpointAddress(url);
-			scrumWorksEndpoint = locator.getScrumWorksEndpointPort();
-			((ScrumWorksEndpointBindingStub) scrumWorksEndpoint).setUsername(user);
-			((ScrumWorksEndpointBindingStub) scrumWorksEndpoint).setPassword(password);
-		}
-		return scrumWorksEndpoint;
-	}
-	
-	public String getProduct() {
-		String repositoryId = null;
-		if (projectMapping.getSourceRepositoryId().endsWith("-PBI")) {
-			repositoryId = projectMapping.getSourceRepositoryId();
-		}
-		else if (projectMapping.getTargetRepositoryId().endsWith("-PBI")) {
-			repositoryId = projectMapping.getTargetRepositoryId();
-		}
-		if (repositoryId != null) {
-			String product = repositoryId.substring(0, repositoryId.indexOf("-PBI"));
-			return product;
-		}
-		return null;
-	}
-	
-	public String getTracker() {
-		String tracker = null;
-		if (projectMapping.getSourceRepositoryId().startsWith("tracker")) {
-			tracker = projectMapping.getSourceRepositoryId();
-		}
-		else if (projectMapping.getTargetRepositoryId().startsWith("tracker")) {
-			tracker = projectMapping.getTargetRepositoryId();
-		}
-		return tracker;		
 	}
 
 }

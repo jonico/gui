@@ -179,11 +179,11 @@ public class SynchronizeThemesWizardPage extends WizardPage {
 	}
 	
 	private String getProduct() {
-		return ((SynchronizeThemesWizard)getWizard()).getProduct();
+		return ((AbstractMappingWizard)getWizard()).getProduct();
 	}
 	
 	private String getTracker() {
-		return ((SynchronizeThemesWizard)getWizard()).getTracker();
+		return ((AbstractMappingWizard)getWizard()).getTracker();
 	}
 	
 	public ThemeWSO[] getProductThemes() {

@@ -25,7 +25,12 @@
 	        categoryId="com.collabnet.ccf.teamforge_sw.commands"
 	        id="com.collabnet.ccf.teamforge_sw.commands.syncThemes"
 	        name="Synchronize Themes">
-		</command>		
+		</command>
+		<command
+	        categoryId="com.collabnet.ccf.teamforge_sw.commands"
+	        id="com.collabnet.ccf.teamforge_sw.commands.mapUsers"
+	        name="Map Users">
+		</command>				
 	</extension>
 
 	<extension
@@ -61,7 +66,23 @@
 	             </and>
 	          	</visibleWhen>
 	        </command>
-	    </menuContribution>            	                
+	    </menuContribution> 
+	 	<menuContribution
+	          locationURI="popup:org.eclipse.ui.popup.any?after=additions">
+	        <command
+	             commandId="com.collabnet.ccf.teamforge_sw.commands.mapUsers"
+	             label="Map users..."
+	             style="push">
+	        	<visibleWhen
+	                checkEnabled="true">
+	             <and>
+	                <count
+	                      value="1">
+	                </count>  
+	             </and>
+	          	</visibleWhen>
+	        </command>
+	    </menuContribution>            	      	               	                
 	</extension>
    
     <extension
@@ -98,7 +119,25 @@
 			 </and>
           </iterate>
        </enabledWhen>
-    </handler>    
+    </handler> 
+    <handler
+          class="com.collabnet.ccf.teamforge_sw.MapUsersHandler"
+          commandId="com.collabnet.ccf.teamforge_sw.commands.mapUsers">
+       <enabledWhen>
+          <iterate>
+              <and>
+                <adapt
+                      type="com.collabnet.ccf.model.AdministratorSynchronizationStatus">
+                </adapt>
+                <test
+                	  forcePluginActivation="true"
+                      property="com.collabnet.ccf.teamforge_sw.isTeamForgeScrumWorksMapping"
+                      value="true">
+                </test>                                    
+			 </and>
+          </iterate>
+       </enabledWhen>
+    </handler>           
  </extension>
       
  <extension
@@ -121,7 +160,7 @@
             class="com.collabnet.ccf.teamforge_sw.ProjectMappingsPropertyTester"
             id="com.collabnet.ccf.teamforge_sw.ProjectMappingsPropertyTester"
             namespace="com.collabnet.ccf.teamforge_sw"
-            properties="isTrackerPbisMapping"
+            properties="isTrackerPbisMapping,isTeamForgeScrumWorksMapping"
             type="com.collabnet.ccf.model.AdministratorSynchronizationStatus">
       </propertyTester>      
    </extension>   
