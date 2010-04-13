@@ -64,8 +64,8 @@ public class ProjectMappingWizard extends Wizard {
 	private final static String TRACKER_ICON_PBIS = "icon_41.png";
 	private final static String TRACKER_ICON_TASKS = "icon_35.png";
 	
-	private final static String PRODUCT_DEVELOPER_ROLE_TITLE = "Product Developer";
-	private final static String PRODUCT_DEVELOPER_ROLE_DESCRIPTION = "People who develop the software application, taking story input from the product managers, breaking them down into story tasks, estimating them, and implementing them when backlogged to a release or an iteration.";
+	public final static String PRODUCT_DEVELOPER_ROLE_TITLE = "Product Developer";
+	public final static String PRODUCT_DEVELOPER_ROLE_DESCRIPTION = "People who develop the software application, taking story input from the product managers, breaking them down into story tasks, estimating them, and implementing them when backlogged to a release or an iteration.";
 
 	public ProjectMappingWizard(Landscape landscape, ProjectMappings projectMappings) {
 		super();

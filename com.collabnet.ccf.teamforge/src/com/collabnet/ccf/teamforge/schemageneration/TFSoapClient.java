@@ -18,6 +18,7 @@ import com.collabnet.teamforge.api.main.ProjectRow;
 import com.collabnet.teamforge.api.main.UserDO;
 import com.collabnet.teamforge.api.main.UserList;
 import com.collabnet.teamforge.api.rbac.RoleDO;
+import com.collabnet.teamforge.api.rbac.RoleList;
 import com.collabnet.teamforge.api.tracker.ArtifactDependencyRow;
 import com.collabnet.teamforge.api.tracker.ArtifactDetailList;
 import com.collabnet.teamforge.api.tracker.TrackerDO;
@@ -76,6 +77,11 @@ public class TFSoapClient {
 	public ProjectDO createProject(String name, String title, String description) throws RemoteException {
 		ProjectDO projectDO = connection.getTeamForgeClient().createProject(name, title, description);
 		return projectDO;
+	}
+	
+	public RoleList getRoleList(String projectId) throws RemoteException {
+		RoleList roleList = connection.getRbacClient().getRoleList(projectId);
+		return roleList;
 	}
 	
 	public RoleDO createRole(String projectId, String title, String description) throws RemoteException {
