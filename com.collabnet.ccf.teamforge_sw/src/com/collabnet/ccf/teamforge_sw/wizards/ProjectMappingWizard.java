@@ -27,6 +27,8 @@ import com.collabnet.teamforge.api.main.ProjectMemberList;
 import com.collabnet.teamforge.api.main.ProjectMemberRow;
 import com.collabnet.teamforge.api.main.ProjectRow;
 import com.collabnet.teamforge.api.main.UserDO;
+import com.collabnet.teamforge.api.rbac.RbacClient;
+import com.collabnet.teamforge.api.rbac.RoleDO;
 import com.collabnet.teamforge.api.tracker.TrackerDO;
 import com.collabnet.teamforge.api.tracker.TrackerFieldDO;
 import com.collabnet.teamforge.api.tracker.TrackerFieldValueDO;
@@ -61,6 +63,9 @@ public class ProjectMappingWizard extends Wizard {
 	private final static String TRACKER_DESCRIPTION_TASKS = "SWP Tasks";
 	private final static String TRACKER_ICON_PBIS = "icon_41.png";
 	private final static String TRACKER_ICON_TASKS = "icon_35.png";
+	
+	private final static String PRODUCT_DEVELOPER_ROLE_TITLE = "Product Developer";
+	private final static String PRODUCT_DEVELOPER_ROLE_DESCRIPTION = "People who develop the software application, taking story input from the product managers, breaking them down into story tasks, estimating them, and implementing them when backlogged to a release or an iteration.";
 
 	public ProjectMappingWizard(Landscape landscape, ProjectMappings projectMappings) {
 		super();
@@ -499,6 +504,7 @@ public class ProjectMappingWizard extends Wizard {
 			if (!errors) {
 				monitor.subTask("Creating TeamForge users");
 				try {
+					List<String> newUsers = new ArrayList<String>();
 					UserWSO[] swpUsers = getScrumWorksEndpoint().getUsers();
 					for (UserWSO swpUser : swpUsers) {
 						if (productUserList.contains(swpUser.getDisplayName())) {
@@ -532,12 +538,16 @@ public class ProjectMappingWizard extends Wizard {
 							if (!projectMemberList.contains(swpUser.getUserName())) {
 								try {
 									getSoapClient().addProjectMember(projectId, swpUser.getUserName());
+									newUsers.add(swpUser.getUserName());
 								} catch (Exception e) {
 									Activator.handleError(e);
 									errors = true;
 								}
 							}
 						}
+					}
+					if (newUsers != null && newUsers.size() > 0) {
+						createRole(projectId, newUsers);
 					}
 				} catch (Exception e) {
 					Activator.handleError(e);
@@ -547,6 +557,20 @@ public class ProjectMappingWizard extends Wizard {
 			monitor.worked(1);
 		}
 		return !errors;
+	}
+	
+	private void createRole(String projectId, List<String> users) throws RemoteException {
+		RoleDO roleDO = getSoapClient().createRole(projectId, PRODUCT_DEVELOPER_ROLE_TITLE, PRODUCT_DEVELOPER_ROLE_DESCRIPTION);
+		getSoapClient().addCluster(roleDO.getId(), RbacClient.TRACKER_CREATE, "");
+		getSoapClient().addCluster(roleDO.getId(), RbacClient.TRACKER_EDIT, "");
+		getSoapClient().addCluster(roleDO.getId(), RbacClient.PAGE_VIEW, "");
+		getSoapClient().addCluster(roleDO.getId(), RbacClient.DOCMAN_CREATE, "");
+		getSoapClient().addCluster(roleDO.getId(), RbacClient.DOCMAN_EDIT, "");
+		getSoapClient().addCluster(roleDO.getId(), RbacClient.SCM_COMMIT, "");
+		getSoapClient().addCluster(roleDO.getId(), RbacClient.DISCUSSION_PARTICIPATE, "");
+		for (String username : users) {
+			getSoapClient().addUser(roleDO.getId(), username);
+		}
 	}
 	
 	private ThemeWSO[] getThemes(ProductWSO product) throws ServerException, RemoteException, ServiceException {
