@@ -51,7 +51,9 @@ public class MapUsersWizardPage extends WizardPage {
 			createGroup.setLayout(new GridLayout());
 			createGroup.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL | GridData.GRAB_VERTICAL | GridData.FILL_BOTH));
 			createList = new org.eclipse.swt.widgets.List(createGroup, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-			createList.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL | GridData.GRAB_VERTICAL | GridData.FILL_BOTH));
+			GridData data = new GridData(GridData.GRAB_HORIZONTAL | GridData.GRAB_VERTICAL | GridData.FILL_BOTH);
+			data.heightHint = 200;			
+			createList.setLayoutData(data);
 		}
 		
 		if (activateUserList.size() > 0) {
@@ -60,7 +62,9 @@ public class MapUsersWizardPage extends WizardPage {
 			activateGroup.setLayout(new GridLayout());
 			activateGroup.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL | GridData.GRAB_VERTICAL | GridData.FILL_BOTH));
 			activateList = new org.eclipse.swt.widgets.List(activateGroup, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-			activateList.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL | GridData.GRAB_VERTICAL | GridData.FILL_BOTH));
+			GridData data = new GridData(GridData.GRAB_HORIZONTAL | GridData.GRAB_VERTICAL | GridData.FILL_BOTH);
+			data.heightHint = 200;				
+			activateList.setLayoutData(data);
 		}
 		
 		if (addProjectMemberList.size() > 0) {
@@ -69,7 +73,9 @@ public class MapUsersWizardPage extends WizardPage {
 			addGroup.setLayout(new GridLayout());
 			addGroup.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL | GridData.GRAB_VERTICAL | GridData.FILL_BOTH));
 			addList = new org.eclipse.swt.widgets.List(addGroup, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-			addList.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL | GridData.GRAB_VERTICAL | GridData.FILL_BOTH));
+			GridData data = new GridData(GridData.GRAB_HORIZONTAL | GridData.GRAB_VERTICAL | GridData.FILL_BOTH);
+			data.heightHint = 200;	
+			addList.setLayoutData(data);
 		}
 		
 		if (createUserList.size() > 0 || activateUserList.size() > 0 || addProjectMemberList.size() > 0) {
