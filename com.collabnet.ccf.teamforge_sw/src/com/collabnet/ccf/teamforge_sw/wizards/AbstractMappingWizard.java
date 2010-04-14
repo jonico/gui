@@ -95,7 +95,7 @@ public abstract class AbstractMappingWizard extends Wizard {
 				repositoryId = projectMapping.getTargetRepositoryId();
 		}
 		if (repositoryId != null) {
-			String product = repositoryId.substring(0, repositoryId.indexOf("-"));
+			String product = repositoryId.substring(0, repositoryId.lastIndexOf("-"));
 			return product;
 		}
 		return null;
