@@ -29,6 +29,8 @@ import com.collabnet.teamforge.api.main.ProjectRow;
 import com.collabnet.teamforge.api.main.UserDO;
 import com.collabnet.teamforge.api.rbac.RbacClient;
 import com.collabnet.teamforge.api.rbac.RoleDO;
+import com.collabnet.teamforge.api.rbac.RoleList;
+import com.collabnet.teamforge.api.rbac.RoleRow;
 import com.collabnet.teamforge.api.tracker.TrackerDO;
 import com.collabnet.teamforge.api.tracker.TrackerFieldDO;
 import com.collabnet.teamforge.api.tracker.TrackerFieldValueDO;
@@ -572,16 +574,28 @@ public class ProjectMappingWizard extends Wizard {
 	}
 	
 	private void createRole(String projectId, List<String> users) throws RemoteException {
-		RoleDO roleDO = getSoapClient().createRole(projectId, PRODUCT_DEVELOPER_ROLE_TITLE, PRODUCT_DEVELOPER_ROLE_DESCRIPTION);
-		getSoapClient().addCluster(roleDO.getId(), RbacClient.TRACKER_CREATE, "");
-		getSoapClient().addCluster(roleDO.getId(), RbacClient.TRACKER_EDIT, "");
-		getSoapClient().addCluster(roleDO.getId(), RbacClient.PAGE_VIEW, "");
-		getSoapClient().addCluster(roleDO.getId(), RbacClient.DOCMAN_CREATE, "");
-		getSoapClient().addCluster(roleDO.getId(), RbacClient.DOCMAN_EDIT, "");
-		getSoapClient().addCluster(roleDO.getId(), RbacClient.SCM_COMMIT, "");
-		getSoapClient().addCluster(roleDO.getId(), RbacClient.DISCUSSION_PARTICIPATE, "");
+		String roleId = null;
+		RoleList roleList = getSoapClient().getRoleList(projectId);
+		RoleRow[] roleRows = roleList.getDataRows();
+		for (RoleRow roleRow : roleRows) {
+			if (roleRow.getTitle().equals(ProjectMappingWizard.PRODUCT_DEVELOPER_ROLE_TITLE)) {
+				roleId = roleRow.getId();
+				break;
+			}
+		}		
+		if (roleId == null) {
+			RoleDO roleDO = getSoapClient().createRole(projectId, PRODUCT_DEVELOPER_ROLE_TITLE, PRODUCT_DEVELOPER_ROLE_DESCRIPTION);
+			roleId = roleDO.getId();
+			getSoapClient().addCluster(roleId, RbacClient.TRACKER_CREATE, "");
+			getSoapClient().addCluster(roleId, RbacClient.TRACKER_EDIT, "");
+			getSoapClient().addCluster(roleId, RbacClient.PAGE_VIEW, "");
+			getSoapClient().addCluster(roleId, RbacClient.DOCMAN_CREATE, "");
+			getSoapClient().addCluster(roleId, RbacClient.DOCMAN_EDIT, "");
+			getSoapClient().addCluster(roleId, RbacClient.SCM_COMMIT, "");
+			getSoapClient().addCluster(roleId, RbacClient.DISCUSSION_PARTICIPATE, "");
+		}
 		for (String username : users) {
-			getSoapClient().addUser(roleDO.getId(), username);
+			getSoapClient().addUser(roleId, username);
 		}
 	}
 	
