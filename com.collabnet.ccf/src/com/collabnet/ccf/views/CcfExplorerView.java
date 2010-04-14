@@ -319,6 +319,9 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 			if (obj.equals(object)) {
 				treeViewer.refresh(obj);
 			}
+			if (obj instanceof ProjectMappings && object == null) {
+				treeViewer.refresh(obj);
+			}
 		}
 	}
 	
