@@ -82,14 +82,20 @@ public abstract class AbstractMappingWizard extends Wizard {
 	
 	public String getProduct() {
 		String repositoryId = null;
-		if (projectMapping.getSourceRepositoryId().endsWith("-PBI")) {
+		if (projectMapping.getSourceRepositoryId().endsWith("-PBI") ||
+		    projectMapping.getSourceRepositoryId().endsWith("-Task") ||
+	        projectMapping.getSourceRepositoryId().endsWith("-Product") ||
+	        projectMapping.getSourceRepositoryId().endsWith("-Release")) {
 			repositoryId = projectMapping.getSourceRepositoryId();
 		}
-		else if (projectMapping.getTargetRepositoryId().endsWith("-PBI")) {
-			repositoryId = projectMapping.getTargetRepositoryId();
+		else if (projectMapping.getTargetRepositoryId().endsWith("-PBI") ||
+			    projectMapping.getTargetRepositoryId().endsWith("-Task") ||
+		        projectMapping.getTargetRepositoryId().endsWith("-Product") ||
+		        projectMapping.getTargetRepositoryId().endsWith("-Release")) {
+				repositoryId = projectMapping.getTargetRepositoryId();
 		}
 		if (repositoryId != null) {
-			String product = repositoryId.substring(0, repositoryId.indexOf("-PBI"));
+			String product = repositoryId.substring(0, repositoryId.indexOf("-"));
 			return product;
 		}
 		return null;
@@ -104,6 +110,17 @@ public abstract class AbstractMappingWizard extends Wizard {
 			tracker = projectMapping.getTargetRepositoryId();
 		}
 		return tracker;		
+	}
+	
+	public String getProject() {
+		String project = null;
+		if (projectMapping.getSourceRepositoryId().endsWith("-planningFolders")) {
+			project = projectMapping.getSourceRepositoryId().substring(0, projectMapping.getSourceRepositoryId().indexOf("-"));
+		}
+		else if (projectMapping.getTargetRepositoryId().endsWith("-planningFolders")) {
+			project = projectMapping.getTargetRepositoryId().substring(0, projectMapping.getTargetRepositoryId().indexOf("-"));
+		}
+		return project;
 	}
 
 }

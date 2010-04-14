@@ -132,9 +132,12 @@ public class MapUsersWizardPage extends WizardPage {
 				monitor.beginTask(taskName, 6);				
 				try {
 					monitor.subTask("TeamForge project member list");
-					String trackerId = ((AbstractMappingWizard)getWizard()).getTracker();
-					TrackerDO trackerDO = ((AbstractMappingWizard)getWizard()).getSoapClient().getTrackerInformation(trackerId);
-					projectId = trackerDO.getProjectId();
+					projectId = ((AbstractMappingWizard)getWizard()).getProject();
+					if (projectId == null) {
+						String trackerId = ((AbstractMappingWizard)getWizard()).getTracker();
+						TrackerDO trackerDO = ((AbstractMappingWizard)getWizard()).getSoapClient().getTrackerInformation(trackerId);
+						projectId = trackerDO.getProjectId();
+					}
 					monitor.worked(1);
 					ProjectMemberList memberList = ((AbstractMappingWizard)getWizard()).getSoapClient().getProjectMemberList(projectId);
 					ProjectMemberRow[] memberRows = memberList.getDataRows();

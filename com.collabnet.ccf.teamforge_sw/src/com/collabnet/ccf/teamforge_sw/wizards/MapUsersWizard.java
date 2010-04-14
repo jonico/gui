@@ -126,14 +126,14 @@ public class MapUsersWizard extends AbstractMappingWizard {
 		if (roleId == null) {
 			RoleDO roleDO = getSoapClient().createRole(projectId, ProjectMappingWizard.PRODUCT_DEVELOPER_ROLE_TITLE, ProjectMappingWizard.PRODUCT_DEVELOPER_ROLE_DESCRIPTION);
 			roleId = roleDO.getId();
+			getSoapClient().addCluster(roleId, RbacClient.TRACKER_CREATE, "");
+			getSoapClient().addCluster(roleId, RbacClient.TRACKER_EDIT, "");
+			getSoapClient().addCluster(roleId, RbacClient.PAGE_VIEW, "");
+			getSoapClient().addCluster(roleId, RbacClient.DOCMAN_CREATE, "");
+			getSoapClient().addCluster(roleId, RbacClient.DOCMAN_EDIT, "");
+			getSoapClient().addCluster(roleId, RbacClient.SCM_COMMIT, "");
+			getSoapClient().addCluster(roleId, RbacClient.DISCUSSION_PARTICIPATE, "");
 		}
-		getSoapClient().addCluster(roleId, RbacClient.TRACKER_CREATE, "");
-		getSoapClient().addCluster(roleId, RbacClient.TRACKER_EDIT, "");
-		getSoapClient().addCluster(roleId, RbacClient.PAGE_VIEW, "");
-		getSoapClient().addCluster(roleId, RbacClient.DOCMAN_CREATE, "");
-		getSoapClient().addCluster(roleId, RbacClient.DOCMAN_EDIT, "");
-		getSoapClient().addCluster(roleId, RbacClient.SCM_COMMIT, "");
-		getSoapClient().addCluster(roleId, RbacClient.DISCUSSION_PARTICIPATE, "");
 		for (String username : users) {
 			monitor.subTask("Setting permissions for " + username);
 			getSoapClient().addUser(roleId, username);
