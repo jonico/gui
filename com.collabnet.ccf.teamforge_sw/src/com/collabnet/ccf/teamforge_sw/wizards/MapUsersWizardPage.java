@@ -96,13 +96,24 @@ public class MapUsersWizardPage extends WizardPage {
 	}
 	
 	public void refresh(boolean getUsers) {
+		setErrorMessage(null);
+		List<String> duplicateUsers = ((MapUsersWizard)getWizard()).getDuplicateUsers();
+		if (duplicateUsers != null && duplicateUsers.size() > 0) {
+			setErrorMessage("One or more user could not be created because a similar user name (different case) already exists.");
+		}
 		if (getUsers) {
 			getUsers();
 		}
 		if (createList != null) {
 			createList.removeAll();
 			for (UserWSO user : createUserList) {
-				createList.add(user.getDisplayName());
+				String userText;
+				if (duplicateUsers != null && duplicateUsers.contains(user.getUserName())) {
+					userText = user.getDisplayName() + " - User name already exists with different case";
+				} else {
+					userText = user.getDisplayName();
+				}
+				createList.add(userText);
 			}
 		}
 		if (activateList != null) {

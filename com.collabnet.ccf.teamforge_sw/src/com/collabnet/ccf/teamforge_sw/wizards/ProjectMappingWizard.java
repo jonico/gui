@@ -55,6 +55,7 @@ public class ProjectMappingWizard extends Wizard {
 	private List<SynchronizationStatus> existingMappings;
 	private List<Exception> errors;
 	private List<String> notCreated;
+	private List<String> duplicateUsers;
 	private boolean userMappingErrors;
 	
 	private ScrumWorksEndpoint scrumWorksEndpoint;
@@ -399,6 +400,10 @@ public class ProjectMappingWizard extends Wizard {
 		if (userMappingErrors) {
 			MessageDialog.openError(getShell(), "Map Users", "Errors occurred mapping ScrumWorks users to TeamForge.  See error log for details.");
 		}
+		if (duplicateUsers != null && duplicateUsers.size() > 0) {
+			DuplicateUserDialog dialog = new DuplicateUserDialog(getShell(), duplicateUsers);
+			dialog.open();
+		}
 		if (notCreated.size() > 0) {
 			StringBuffer notCreatedMessage = new StringBuffer("The following mappings already existed and were not created:\n");
 			for (String mapping : notCreated) {
@@ -463,6 +468,7 @@ public class ProjectMappingWizard extends Wizard {
 	}
 	
 	private boolean mapUsers(ProductWSO product, String projectId, boolean newProject, IProgressMonitor monitor) {
+		duplicateUsers = new ArrayList<String>();
 		boolean errors = false;
 		monitor.subTask("Getting product " + product.getName() + " users");
 		List<String> productUserList = new ArrayList<String>();
@@ -508,6 +514,7 @@ public class ProjectMappingWizard extends Wizard {
 					UserWSO[] swpUsers = getScrumWorksEndpoint().getUsers();
 					for (UserWSO swpUser : swpUsers) {
 						if (productUserList.contains(swpUser.getDisplayName())) {
+							boolean createUserError = false;
 							UserDO userDO = null;
 							try {
 								userDO = getSoapClient().getUserData(swpUser.getUserName());
@@ -520,8 +527,13 @@ public class ProjectMappingWizard extends Wizard {
 								try {
 									getSoapClient().createUser(swpUser.getUserName(), email, swpUser.getDisplayName(), locale, timeZone, false, false, password);
 								} catch (Exception e) {
-									Activator.handleError(e);
-									errors = true;
+									createUserError = true;
+									if (e.getMessage().startsWith("Username already exists")) {
+										duplicateUsers.add(swpUser.getUserName());
+									} else {
+										Activator.handleError(e);
+										errors = true;
+									}
 								}
 							} else {
 								// If user already exists but is not active (i.e., deleted status), activate user.
@@ -535,7 +547,7 @@ public class ProjectMappingWizard extends Wizard {
 									}
 								}
 							}
-							if (!projectMemberList.contains(swpUser.getUserName())) {
+							if (!createUserError && !projectMemberList.contains(swpUser.getUserName())) {
 								try {
 									getSoapClient().addProjectMember(projectId, swpUser.getUserName());
 									newUsers.add(swpUser.getUserName());

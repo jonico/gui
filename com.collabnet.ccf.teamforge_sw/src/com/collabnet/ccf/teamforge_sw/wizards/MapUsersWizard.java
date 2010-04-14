@@ -21,6 +21,7 @@ import com.danube.scrumworks.api.client.types.UserWSO;
 public class MapUsersWizard extends AbstractMappingWizard {
 	private MapUsersWizardPage wizardPage;
 	private boolean errors;
+	private List<String> duplicateUsers;
 
 	public MapUsersWizard(SynchronizationStatus projectMapping) {
 		super(projectMapping);
@@ -50,6 +51,8 @@ public class MapUsersWizard extends AbstractMappingWizard {
 					String taskName = "Mapping ScrumWorks users to TeamForge";
 					monitor.setTaskName(taskName);
 					monitor.beginTask(taskName, totalWork);
+					List<String> notCreatedUsers = new ArrayList<String>();
+					duplicateUsers = new ArrayList<String>();
 					for (UserWSO swpUser : createUserList) {
 						monitor.subTask("Creating " + swpUser.getUserName());
 						String email = swpUser.getUserName() + "@default.com";
@@ -59,8 +62,13 @@ public class MapUsersWizard extends AbstractMappingWizard {
 						try {
 							getSoapClient().createUser(swpUser.getUserName(), email, swpUser.getDisplayName(), locale, timeZone, false, false, password);
 						} catch (Exception e) {
-							Activator.handleError(e);
-							errors = true;
+							notCreatedUsers.add(swpUser.getUserName());
+							if (e.getMessage().startsWith("Username already exists")) {
+								duplicateUsers.add(swpUser.getUserName());
+							} else {
+								Activator.handleError(e);
+								errors = true;
+							}
 						}
 						monitor.worked(1);
 					}
@@ -78,9 +86,11 @@ public class MapUsersWizard extends AbstractMappingWizard {
 					List<String> newUsers = new ArrayList<String>();
 					for (UserWSO swpUser : addProjectMemberList) {
 						try {
-							monitor.subTask("Adding " + swpUser.getUserName() + " to member list");
-							getSoapClient().addProjectMember(wizardPage.getProjectId(), swpUser.getUserName());
-							newUsers.add(swpUser.getUserName());
+							if (!notCreatedUsers.contains(swpUser.getUserName())) {
+								monitor.subTask("Adding " + swpUser.getUserName() + " to member list");
+								getSoapClient().addProjectMember(wizardPage.getProjectId(), swpUser.getUserName());
+								newUsers.add(swpUser.getUserName());
+							}
 						} catch (Exception e) {
 							Activator.handleError(e);
 							errors = true;
@@ -105,14 +115,20 @@ public class MapUsersWizard extends AbstractMappingWizard {
 			MessageDialog.openError(getShell(), "Map Users", e.getMessage());
 			return false;
 		}
-		if (errors == true) {
+		if (errors || duplicateUsers.size() > 0) {
 			wizardPage.refresh(true);
-			MessageDialog.openWarning(getShell(), "Map Users", "One or more error occurred mapping ScrumWorks users to TeamForge.  See error log for details.");
+			if (errors) {
+				MessageDialog.openWarning(getShell(), "Map Users", "One or more error occurred mapping ScrumWorks users to TeamForge.  See error log for details.");
+			}
 			return false;
 		}
 		return true;
 	}
 	
+	public List<String> getDuplicateUsers() {
+		return duplicateUsers;
+	}
+
 	private void createRole(String projectId, List<String> users, IProgressMonitor monitor) throws RemoteException {
 		String roleId = null;
 		RoleList roleList = getSoapClient().getRoleList(projectId);
