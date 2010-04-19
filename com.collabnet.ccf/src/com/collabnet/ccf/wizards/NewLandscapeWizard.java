@@ -18,6 +18,7 @@ public class NewLandscapeWizard extends Wizard {
 	private NewLandscapeWizardPropertiesFolderPage propertiesPage;
 	private ICcfParticipant[] ccfParticipants;
 	private Landscape newLandscape;
+	private Landscape[] existingLandscapes;
 
 	public NewLandscapeWizard() {
 		super();
@@ -84,6 +85,18 @@ public class NewLandscapeWizard extends Wizard {
 			}
 		}
 		return landscapeAdded;
+	}
+	
+	public boolean isUnique(String description) {
+		if (existingLandscapes == null) {
+			existingLandscapes = Activator.getDefault().getLandscapes();
+		}
+		for (Landscape checkLandscape : existingLandscapes) {
+			if (checkLandscape.getDescription().equals(description)) {
+				return false;
+			}
+		}
+		return true;
 	}
 	
 	private void addGroupIfNecessary(final String groupName, final Database database) {

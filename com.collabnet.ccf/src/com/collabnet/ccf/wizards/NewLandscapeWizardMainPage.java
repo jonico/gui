@@ -4,6 +4,8 @@ import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -56,7 +58,6 @@ public class NewLandscapeWizardMainPage extends WizardPage {
 	public NewLandscapeWizardMainPage(String pageName, String title, ImageDescriptor titleImage, ICcfParticipant[] ccfParticipants) {
 		super(pageName, title, titleImage);
 		this.ccfParticipants = ccfParticipants;
-		setPageComplete(true);
 		settings = Activator.getDefault().getDialogSettings();
 	}
 
@@ -77,6 +78,12 @@ public class NewLandscapeWizardMainPage extends WizardPage {
 		descriptionText = new Text(descriptionGroup, SWT.BORDER);
 		GridData gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
 		descriptionText.setLayoutData(gd);
+		
+		descriptionText.addModifyListener(new ModifyListener() {			
+			public void modifyText(ModifyEvent e) {
+				setPageComplete(canFinish());
+			}
+		});
 		
 		Group roleGroup = new Group(outerContainer, SWT.NONE);
 		roleGroup.setText("Role:");
@@ -150,7 +157,6 @@ public class NewLandscapeWizardMainPage extends WizardPage {
 					groupText.setFocus();
 					groupText.selectAll();
 				}
-				setPageComplete(true);
 			}		
 		};
 		administratorButton.addSelectionListener(roleListener);
@@ -174,6 +180,8 @@ public class NewLandscapeWizardMainPage extends WizardPage {
 		getCcfParticipants();
 		
 		createDescriptionArea();
+		
+		setPageComplete(canFinish());
 		
 		setMessage("Specify the type and description of landscape");
 
@@ -232,6 +240,7 @@ public class NewLandscapeWizardMainPage extends WizardPage {
 					propertiesPage.setCcfParticipant2(selectedParticipant2);
 				}
 				createDescriptionArea();
+				setPageComplete(canFinish());
 			}
 		};
 		participant1Combo.addSelectionListener(selectionListener);
@@ -323,6 +332,16 @@ public class NewLandscapeWizardMainPage extends WizardPage {
 
 	public ICcfParticipant getSelectedParticipant2() {
 		return selectedParticipant2;
+	}
+	
+	private boolean canFinish() {
+		boolean uniqueDescription =  ((NewLandscapeWizard)getWizard()).isUnique(getDescription());
+		if (uniqueDescription) {
+			setErrorMessage(null);
+		} else {
+			setErrorMessage("Please enter a unique Landscape description.");
+		}
+		return uniqueDescription;
 	}
 
 }

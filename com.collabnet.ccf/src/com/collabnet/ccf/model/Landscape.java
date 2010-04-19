@@ -623,10 +623,11 @@ public class Landscape implements IPropertySource {
 	public boolean equals(Object obj) {
 		if (obj instanceof Landscape) {
 			Landscape compareTo = (Landscape)obj;
-			return getId1().equals(compareTo.getId1()) && getId2().equals(compareTo.getId2()) && getRole() == compareTo.getRole();
+			return getDescription().equals(compareTo.getDescription()) && getRole() == compareTo.getRole();
 		}
 		return super.equals(obj);
 	}
+	
 	private File[] getLogFiles(File logsFolder) {
 		List<File> logFiles = new ArrayList<File>();
 		File[] logs = null;
