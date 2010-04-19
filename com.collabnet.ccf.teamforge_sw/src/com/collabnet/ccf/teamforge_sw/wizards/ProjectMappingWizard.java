@@ -229,7 +229,6 @@ public class ProjectMappingWizard extends Wizard {
 							    fieldName.equals("reportedInRelease") ||
 							    fieldName.equals("resolvedInRelease") ||
 							    fieldName.startsWith("autosumming") ||
-							    fieldName.startsWith("estimated") ||
 							    fieldName.startsWith("actual")) {
 								field.setDisabled(true);
 								getSoapClient().setField(taskTrackerId, field);
