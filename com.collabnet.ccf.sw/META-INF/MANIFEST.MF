@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: CCF ScrumWorks UI
+Bundle-Name: ScrumWorksPro Connector for CCF
 Bundle-SymbolicName: com.collabnet.ccf.sw;singleton:=true
 Bundle-Version: 1.0.0
 Bundle-Activator: com.collabnet.ccf.sw.Activator
