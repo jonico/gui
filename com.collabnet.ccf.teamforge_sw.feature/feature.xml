@@ -2,7 +2,7 @@
 <feature
       id="com.collabnet.ccf.teamforge_sw.feature"
       label="TeamForge-ScrumWorksPro CCF Connector Contributor"
-      version="1.0.1"
+      version="1.0.2"
       provider-name="CollabNet">
 
    <description url="http://ccf.open.collab.net">
