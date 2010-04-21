@@ -31,6 +31,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.Text;
@@ -136,13 +137,15 @@ public class ProjectMappingWizardTeamForgeProjectPage extends WizardPage {
 			if (selectedProduct == null || !selectedProduct.equals(((ProjectMappingWizard)getWizard()).getSelectedProduct().getName())) {
 				selectedProduct = ((ProjectMappingWizard)getWizard()).getSelectedProduct().getName();
 				newProjectText.setText(selectedProduct);
-				for (int i = 0; i < projects.length; i++) {
-					if (projects[i].getTitle().equals(selectedProduct)) {
-						table.select(i);
-						newProjectButton.setSelection(false);
-						newProjectText.setText("");
-						newProjectText.setEnabled(false);
-						viewer.reveal(projects[i]);
+				if (projects != null) {
+					for (int i = 0; i < projects.length; i++) {
+						if (projects[i].getTitle().equals(selectedProduct)) {
+							table.select(i);
+							newProjectButton.setSelection(false);
+							newProjectText.setText("");
+							newProjectText.setEnabled(false);
+							viewer.reveal(projects[i]);
+						}
 					}
 				}
 				setPageComplete(canFinish());
@@ -160,6 +163,9 @@ public class ProjectMappingWizardTeamForgeProjectPage extends WizardPage {
 	}
 	
 	private boolean canFinish() {
+		if (projectTitles == null) {
+			return false;
+		}
 		setErrorMessage(null);
 		boolean pageComplete;
 		IStructuredSelection selection = (IStructuredSelection)viewer.getSelection();
@@ -201,9 +207,13 @@ public class ProjectMappingWizardTeamForgeProjectPage extends WizardPage {
 					for (ProjectRow project : projects) {
 						projectTitles.add(project.getTitle());
 					}
-				} catch (RemoteException e) {
+				} catch (final RemoteException e) {
 					Activator.handleError(e);
-					setErrorMessage(e.getMessage());
+					Display.getDefault().syncExec(new Runnable() {					
+						public void run() {
+							setErrorMessage(e.getMessage());
+						}
+					});
 				}
 				monitor.done();
 			}
