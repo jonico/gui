@@ -2,7 +2,7 @@
 <feature
       id="com.collabnet.ccf.teamforge_sw.feature"
       label="TeamForge-ScrumWorksPro CCF Connector Contributor"
-      version="1.0.0"
+      version="1.0.1"
       provider-name="CollabNet">
 
    <description url="http://ccf.open.collab.net">
@@ -26,7 +26,7 @@
       <import plugin="com.collabnet.ccf" version="1.4.0" match="greaterOrEqual"/>
       <import plugin="com.collabnet.ccf.sw" version="1.0.0" match="greaterOrEqual"/>
       <import plugin="com.collabnet.ccf.teamforge" version="1.4.0" match="greaterOrEqual"/>
-      <import plugin="com.collabnet.teamforge.api" version="5.3.0" match="greaterOrEqual"/>
+      <import plugin="com.collabnet.teamforge.api" version="5.3.0.13" match="greaterOrEqual"/>
       <import plugin="org.eclipse.core.expressions"/>
       <import plugin="org.eclipse.core.runtime"/>
    </requires>
