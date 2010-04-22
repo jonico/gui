@@ -1,5 +1,6 @@
 package com.collabnet.ccf.views;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -472,8 +473,12 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 							}
 						} catch (Exception e) {
 							synchronizationStatuses = new Object[1];
-							synchronizationStatuses[0] = e;
-							Activator.handleError(e);
+							if (e instanceof SQLException) {
+								synchronizationStatuses[0] = new Exception("Could not connect to database.  Please make sure database is started.  See error log for more details.", e);
+							} else {
+								synchronizationStatuses[0] = e;
+								Activator.handleError(e);
+							}												
 						}
 					}					
 				});
