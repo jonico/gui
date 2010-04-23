@@ -2,6 +2,9 @@ package com.collabnet.ccf.sw;
 
 import java.io.IOException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
 import javax.xml.transform.TransformerException;
@@ -15,7 +18,11 @@ import com.collabnet.ccf.IMappingSection;
 import com.collabnet.ccf.core.GenericArtifactParsingException;
 import com.collabnet.ccf.editors.CcfEditorPage;
 import com.collabnet.ccf.editors.CcfSystemEditorPage;
+import com.collabnet.ccf.model.AdministratorMappingGroup;
+import com.collabnet.ccf.model.AdministratorProjectMappings;
 import com.collabnet.ccf.model.Landscape;
+import com.collabnet.ccf.model.MappingGroup;
+import com.collabnet.ccf.model.ProjectMappings;
 import com.collabnet.ccf.model.SynchronizationStatus;
 import com.collabnet.ccf.schemageneration.CCFSchemaAndXSLTFileGenerator;
 
@@ -93,6 +100,104 @@ public class ScrumWorksCcfParticipant extends CcfParticipant {
 
 	public String getEntityType(String repositoryId) {
 		return SWPMetaData.retrieveSWPTypeFromRepositoryId(repositoryId).toString();
+	}
+
+	@Override
+	public MappingGroup[] getMappingGroups(ProjectMappings projectMappingsParent, SynchronizationStatus[] projectMappings) {
+		List<String> products = new ArrayList<String>();
+		for (SynchronizationStatus projectMapping : projectMappings) {
+			String product = getProduct(projectMapping);
+			if (product != null && !products.contains(product)) {
+				products.add(product);
+			}
+		}
+		String[] productArray = new String[products.size()];
+		products.toArray(productArray);
+		Arrays.sort(productArray);
+		List<MappingGroup> mappingGroups = new ArrayList<MappingGroup>();
+		for (String product : productArray) {
+			MappingGroup productsGroup;
+			MappingGroup pbiGroup;
+			MappingGroup taskGroup;
+			MappingGroup productGroup;
+			MappingGroup releaseGroup;
+			if (projectMappingsParent instanceof AdministratorProjectMappings) {
+				productsGroup = new AdministratorMappingGroup(this, projectMappingsParent, product, product, Activator.getImage(Activator.IMAGE_SWP_PRODUCT));
+				pbiGroup = new AdministratorMappingGroup(this, projectMappingsParent, product + "-" + SWPMetaData.PBI.toString(), SWPMetaData.PBI.toString(), Activator.getImage(Activator.IMAGE_PBI));
+				taskGroup = new AdministratorMappingGroup(this, projectMappingsParent, product + "-" + SWPMetaData.TASK.toString(), SWPMetaData.TASK.toString(), Activator.getImage(Activator.IMAGE_TASK));
+				productGroup = new AdministratorMappingGroup(this, projectMappingsParent, product + "-" + SWPMetaData.PRODUCT.toString(), SWPMetaData.PRODUCT.toString(), Activator.getImage(Activator.IMAGE_PRODUCT));
+				releaseGroup = new AdministratorMappingGroup(this, projectMappingsParent, product + "-" + SWPMetaData.RELEASE.toString(), SWPMetaData.RELEASE.toString(), Activator.getImage(Activator.IMAGE_RELEASE));				
+			} else {
+				productsGroup = new MappingGroup(this, projectMappingsParent, product, product, Activator.getImage(Activator.IMAGE_SWP_PRODUCT));
+				pbiGroup = new MappingGroup(this, projectMappingsParent, product + "-" + SWPMetaData.PBI.toString(), SWPMetaData.PBI.toString(), Activator.getImage(Activator.IMAGE_PBI));
+				taskGroup = new MappingGroup(this, projectMappingsParent, product + "-" + SWPMetaData.TASK.toString(), SWPMetaData.TASK.toString(), Activator.getImage(Activator.IMAGE_TASK));
+				productGroup = new MappingGroup(this, projectMappingsParent, product + "-" + SWPMetaData.PRODUCT.toString(), SWPMetaData.PRODUCT.toString(), Activator.getImage(Activator.IMAGE_PRODUCT));
+				releaseGroup = new MappingGroup(this, projectMappingsParent, product + "-" + SWPMetaData.RELEASE.toString(), SWPMetaData.RELEASE.toString(), Activator.getImage(Activator.IMAGE_RELEASE));
+			}
+			setChildMappings(product, pbiGroup, taskGroup, productGroup, releaseGroup, projectMappings);
+			MappingGroup[] subGroups = { pbiGroup, taskGroup, productGroup, releaseGroup };
+			productsGroup.setChildGroups(subGroups);
+			mappingGroups.add(productsGroup);
+		}
+		MappingGroup[] mappingGroupArray = new MappingGroup[mappingGroups.size()];
+		mappingGroups.toArray(mappingGroupArray);
+		return mappingGroupArray;
+	}
+	
+	private void setChildMappings(String product, MappingGroup pbiGroup, MappingGroup taskGroup, MappingGroup productGroup, MappingGroup releaseGroup, SynchronizationStatus[] projectMappings) {
+		List<SynchronizationStatus> pbiMappings = new ArrayList<SynchronizationStatus>();
+		List<SynchronizationStatus> taskMappings = new ArrayList<SynchronizationStatus>();
+		List<SynchronizationStatus> productMappings = new ArrayList<SynchronizationStatus>();
+		List<SynchronizationStatus> releaseMappings = new ArrayList<SynchronizationStatus>();
+		for (SynchronizationStatus projectMapping : projectMappings) {
+			if (getProduct(projectMapping).equals(product)) {
+				if (projectMapping.getSourceRepositoryId().endsWith("-PBI") || projectMapping.getTargetRepositoryId().endsWith("-PBI")) {
+					pbiMappings.add(projectMapping);
+				}
+				else if (projectMapping.getSourceRepositoryId().endsWith("-Task") || projectMapping.getTargetRepositoryId().endsWith("-Task")) {
+					taskMappings.add(projectMapping);
+				}	
+				else if (projectMapping.getSourceRepositoryId().endsWith("-Product") || projectMapping.getTargetRepositoryId().endsWith("-Product")) {
+					productMappings.add(projectMapping);
+				}
+				else if (projectMapping.getSourceRepositoryId().endsWith("-Release") || projectMapping.getTargetRepositoryId().endsWith("-Release")) {
+					releaseMappings.add(projectMapping);
+				}	
+			}
+		}
+		SynchronizationStatus[] pbiMappingArray = new SynchronizationStatus[pbiMappings.size()];
+		pbiMappings.toArray(pbiMappingArray);
+		pbiGroup.setChildMappings(pbiMappingArray);
+		SynchronizationStatus[]taskMappingArray = new SynchronizationStatus[taskMappings.size()];
+		taskMappings.toArray(taskMappingArray);
+		taskGroup.setChildMappings(taskMappingArray);
+		SynchronizationStatus[] productMappingArray = new SynchronizationStatus[productMappings.size()];
+		productMappings.toArray(productMappingArray);
+		productGroup.setChildMappings(productMappingArray);
+		SynchronizationStatus[]releaseMappingArray = new SynchronizationStatus[releaseMappings.size()];
+		releaseMappings.toArray(releaseMappingArray);
+		releaseGroup.setChildMappings(releaseMappingArray);
+	}
+	
+	private String getProduct(SynchronizationStatus projectMapping) {
+		String repositoryId = null;
+		if (projectMapping.getSourceRepositoryId().endsWith("-PBI") ||
+		    projectMapping.getSourceRepositoryId().endsWith("-Task") ||
+	        projectMapping.getSourceRepositoryId().endsWith("-Product") ||
+	        projectMapping.getSourceRepositoryId().endsWith("-Release")) {
+			repositoryId = projectMapping.getSourceRepositoryId();
+		}
+		else if (projectMapping.getTargetRepositoryId().endsWith("-PBI") ||
+			    projectMapping.getTargetRepositoryId().endsWith("-Task") ||
+		        projectMapping.getTargetRepositoryId().endsWith("-Product") ||
+		        projectMapping.getTargetRepositoryId().endsWith("-Release")) {
+				repositoryId = projectMapping.getTargetRepositoryId();
+		}
+		if (repositoryId != null) {
+			String product = repositoryId.substring(0, repositoryId.lastIndexOf("-"));
+			return product;
+		}
+		return null;
 	}
 
 }

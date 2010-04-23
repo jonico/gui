@@ -264,7 +264,19 @@
                menubarPath="group.b"
                id="com.collabnet.ccf.actions.RefreshAction">
          </action>                                                              
-      </objectContribution> 
+      </objectContribution>
+      
+      <objectContribution
+            objectClass="com.collabnet.ccf.model.MappingGroup"
+            id="com.collabnet.ccf.model.MappingGroup">
+         <action
+               label="Refresh"
+               class="com.collabnet.ccf.actions.RefreshAction"
+               icon="icons/refresh.gif"
+               menubarPath="group.b"
+               id="com.collabnet.ccf.actions.RefreshAction">
+         </action>                                                              
+      </objectContribution>        
       
       <objectContribution
             objectClass="com.collabnet.ccf.model.AdministratorProjectMappings"
@@ -275,7 +287,18 @@
                menubarPath="group.add/New"
                id="com.collabnet.ccf.actions.AddSynchronizationStatusAction">
          </action>                                                   
-      </objectContribution> 
+      </objectContribution>
+      
+      <objectContribution
+            objectClass="com.collabnet.ccf.model.AdministratorMappingGroup"
+            id="com.collabnet.ccf.model.AdministratorMappingGroup">
+         <action
+               label="Project Mapping"
+               class="com.collabnet.ccf.actions.AddSynchronizationStatusAction"
+               menubarPath="group.add/New"
+               id="com.collabnet.ccf.actions.AddSynchronizationStatusAction">
+         </action>                                                   
+      </objectContribution>        
       
       <objectContribution
             objectClass="com.collabnet.ccf.model.Logs"

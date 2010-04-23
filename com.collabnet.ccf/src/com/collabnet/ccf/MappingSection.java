@@ -3,6 +3,8 @@ package com.collabnet.ccf;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
 
+import com.collabnet.ccf.model.MappingGroup;
+
 
 public abstract class MappingSection implements IMappingSection {
 	private IPageCompleteListener projectPage;
@@ -30,6 +32,10 @@ public abstract class MappingSection implements IMappingSection {
 	
 	public boolean showValidationQuestionDialog(String question) {
 		return MessageDialog.openQuestion(Display.getDefault().getActiveShell(), "New Project Mapping", question);
+	}
+	
+	public void initializeComposite(MappingGroup mappingGroup) {
+		
 	}
 
 }

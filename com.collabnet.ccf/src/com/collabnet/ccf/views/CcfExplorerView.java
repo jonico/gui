@@ -60,6 +60,7 @@ import com.collabnet.ccf.model.AdministratorProjectMappings;
 import com.collabnet.ccf.model.Landscape;
 import com.collabnet.ccf.model.Log;
 import com.collabnet.ccf.model.Logs;
+import com.collabnet.ccf.model.MappingGroup;
 import com.collabnet.ccf.model.ProjectMappings;
 import com.collabnet.ccf.model.Role;
 import com.collabnet.ccf.model.SynchronizationStatus;
@@ -324,6 +325,8 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 				treeViewer.refresh(obj);
 			}
 		}
+		
+		treeViewer.setExpandedElements(expandedElements);
 	}
 	
 	public void refreshProjectMappings() {
@@ -332,7 +335,9 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 			if (obj instanceof ProjectMappings) {
 				treeViewer.refresh(obj);
 			}
-		}		
+		}
+		
+		treeViewer.setExpandedElements(expandedElements);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -371,6 +376,9 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 			else if (element instanceof ProjectMappings) return Activator.getImage(Activator.IMAGE_PROJECT_MAPPINGS);
 			else if (element instanceof Logs) return Activator.getImage(Activator.IMAGE_LOGS);
 			else if (element instanceof Log) return Activator.getImage(Activator.IMAGE_LOG);
+			else if (element instanceof MappingGroup) {
+				return ((MappingGroup)element).getImage();
+			}
 			else if (element instanceof SynchronizationStatus) {
 				if (((SynchronizationStatus)element).isPaused())
 					return Activator.getImage(Activator.IMAGE_SYNC_STATUS_ENTRY_PAUSED);
@@ -440,6 +448,9 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 				Object[] children = { projectMappings, logs };
 				return children;
 			}
+			else if (parentElement instanceof MappingGroup) {
+				return ((MappingGroup)parentElement).getChildren();
+			}
 			else if (parentElement instanceof ProjectMappings) {
 				final ProjectMappings projectMappings = (ProjectMappings)parentElement;
 				BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
@@ -482,6 +493,31 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 						}
 					}					
 				});
+				
+				if (synchronizationStatuses.length == 0 || synchronizationStatuses[1] instanceof SynchronizationStatus) {
+					if (ccfComparator != null && ccfComparator.getSortOrder() == SORT_BY_REPOSITORY_TYPE) {
+						String repositoryType = ccfComparator.getRepositoryType();
+						if (repositoryType != null) {
+							if (projectMappings.getLandscape().getType1().equals(repositoryType) || projectMappings.getLandscape().getType2().equals(repositoryType)) {
+								ICcfParticipant participant = null;
+								try {
+									participant = Activator.getCcfParticipantForType(repositoryType);
+								} catch (Exception e) {}
+								if (participant != null) {
+									SynchronizationStatus[] projectMappingArray = new SynchronizationStatus[synchronizationStatuses.length];
+									for (int i = 0; i < synchronizationStatuses.length; i++) {
+										projectMappingArray[i] = (SynchronizationStatus)synchronizationStatuses[i];
+									}
+									MappingGroup[] mappingGroups = participant.getMappingGroups(projectMappings, projectMappingArray);
+									if (mappingGroups != null) {
+										synchronizationStatuses = mappingGroups;
+									}
+								}
+							}
+						}
+					}
+				}
+				
 				return synchronizationStatuses;
 			}
 			else if (parentElement instanceof Logs) {

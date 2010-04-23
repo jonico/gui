@@ -15,6 +15,9 @@ import org.eclipse.swt.graphics.Image;
 import com.collabnet.ccf.core.GenericArtifact;
 import com.collabnet.ccf.core.GenericArtifactHelper;
 import com.collabnet.ccf.core.GenericArtifactParsingException;
+import com.collabnet.ccf.model.MappingGroup;
+import com.collabnet.ccf.model.ProjectMappings;
+import com.collabnet.ccf.model.SynchronizationStatus;
 import com.collabnet.ccf.schemageneration.CCFSchemaAndXSLTFileGenerator;
 import com.collabnet.ccf.schemageneration.RepositoryLayoutExtractor;
 
@@ -74,6 +77,9 @@ public abstract class CcfParticipant implements ICcfParticipant {
 	}
 	public void setRepositoryKind(String repositoryKind) {
 		this.repositoryKind = repositoryKind;
+	}	
+	public MappingGroup[] getMappingGroups(ProjectMappings projectMappingsParent, SynchronizationStatus[] projectMappings) {
+		return null;
 	}
 	public int compareTo(Object compareToObject) {
 		if (!(compareToObject instanceof ICcfParticipant)) return 0;

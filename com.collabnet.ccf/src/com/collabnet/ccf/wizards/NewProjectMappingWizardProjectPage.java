@@ -11,6 +11,7 @@ import com.collabnet.ccf.ICcfParticipant;
 import com.collabnet.ccf.IMappingSection;
 import com.collabnet.ccf.IPageCompleteListener;
 import com.collabnet.ccf.model.Landscape;
+import com.collabnet.ccf.model.MappingGroup;
 import com.collabnet.ccf.model.ProjectMappings;
 
 public class NewProjectMappingWizardProjectPage extends WizardPage implements IPageCompleteListener {
@@ -37,11 +38,16 @@ public class NewProjectMappingWizardProjectPage extends WizardPage implements IP
 		outerContainer.setLayoutData(
 		new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));
 		
+		MappingGroup mappingGroup = ((NewProjectMappingWizard)getWizard()).getMappingGroup();
+		
 		if (ccfParticipant1 != null) {
 			mappingSection1 = ccfParticipant1.getMappingSection(1);
 			if (mappingSection1 != null) {
 				mappingSection1.getComposite(outerContainer, projectMappings.getLandscape());
 				mappingSection1.setProjectPage(this);
+				if (mappingGroup != null) {
+					mappingSection1.initializeComposite(mappingGroup);
+				}
 			}
 		}
 		
@@ -50,6 +56,9 @@ public class NewProjectMappingWizardProjectPage extends WizardPage implements IP
 			if (mappingSection2 != null) {
 				mappingSection2.getComposite(outerContainer, projectMappings.getLandscape());
 				mappingSection2.setProjectPage(this);
+				if (mappingGroup != null) {
+					mappingSection2.initializeComposite(mappingGroup);
+				}
 			}
 		}
 					

@@ -26,6 +26,7 @@ import com.collabnet.ccf.IMappingSection;
 import com.collabnet.ccf.MappingSection;
 import com.collabnet.ccf.dialogs.ExceptionDetailsErrorDialog;
 import com.collabnet.ccf.model.Landscape;
+import com.collabnet.ccf.model.MappingGroup;
 import com.collabnet.ccf.model.SynchronizationStatus;
 import com.collabnet.ccf.sw.SWPMetaData.SWPType;
 import com.collabnet.ccf.sw.dialogs.ScrumWorksSelectionDialog;
@@ -106,6 +107,46 @@ public class ScrumWorksMappingSection extends MappingSection {
 		productText.addModifyListener(modifyListener);
 		
 		return swGroup;
+	}
+
+	@Override
+	public void initializeComposite(MappingGroup mappingGroup) {
+		if (mappingGroup.getCcfParticipant() instanceof ScrumWorksCcfParticipant) {
+			String product = getProduct(mappingGroup);
+			if (product != null) {
+				productText.setText(product);
+			}
+			String type = getType(mappingGroup);
+			if (type != null) {
+				typeCombo.setText(type);
+			}
+		}
+	}
+	
+	private String getProduct(MappingGroup mappingGroup) {
+		String product = null;
+		String mappingGroupId = mappingGroup.getId();
+		if (mappingGroupId.endsWith("-PBI") ||
+			mappingGroupId.endsWith("-Task") ||
+			mappingGroupId.endsWith("-Product") ||
+			mappingGroupId.endsWith("-Release")) {
+				product = mappingGroupId.substring(0, mappingGroupId.lastIndexOf("-"));;
+		} else {
+			product = mappingGroupId;
+		}
+		return product;
+	}
+	
+	private String getType(MappingGroup mappingGroup) {
+		String type = null;
+		String mappingGroupId = mappingGroup.getId();
+		if (mappingGroupId.endsWith("-PBI") ||
+			mappingGroupId.endsWith("-Task") ||
+			mappingGroupId.endsWith("-Product") ||
+			mappingGroupId.endsWith("-Release")) {
+			type = mappingGroupId.substring(mappingGroupId.lastIndexOf("-") + 1);
+		}
+		return type;
 	}
 
 	public void initializeComposite(SynchronizationStatus projectMapping, int type) {

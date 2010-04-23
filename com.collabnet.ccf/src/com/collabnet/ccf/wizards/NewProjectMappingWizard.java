@@ -12,11 +12,13 @@ import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.IMappingSection;
 import com.collabnet.ccf.db.CcfDataProvider;
 import com.collabnet.ccf.model.Landscape;
+import com.collabnet.ccf.model.MappingGroup;
 import com.collabnet.ccf.model.ProjectMappings;
 import com.collabnet.ccf.model.SynchronizationStatus;
 
 public class NewProjectMappingWizard extends Wizard {
 	private ProjectMappings projectMappings;
+	private MappingGroup mappingGroup;
 	private int direction = -1;
 	
 	private NewProjectMappingWizardMainPage mainPage;
@@ -30,6 +32,12 @@ public class NewProjectMappingWizard extends Wizard {
 	public NewProjectMappingWizard(ProjectMappings projectMappings) {
 		super();
 		this.projectMappings = projectMappings;
+	}
+	
+	public NewProjectMappingWizard(MappingGroup mappingGroup) {
+		super();
+		this.mappingGroup = mappingGroup;
+		this.projectMappings = mappingGroup.getProjectMappingsParent();
 	}
 	
 	public void setDirection(int direction) {
@@ -159,6 +167,10 @@ public class NewProjectMappingWizard extends Wizard {
 			return false;
 		}		
 		return true;
+	}
+
+	public MappingGroup getMappingGroup() {
+		return mappingGroup;
 	}
 
 }

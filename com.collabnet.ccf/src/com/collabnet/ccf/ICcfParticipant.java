@@ -12,6 +12,8 @@ import org.eclipse.ui.forms.editor.FormEditor;
 import com.collabnet.ccf.core.GenericArtifactParsingException;
 import com.collabnet.ccf.editors.CcfEditorPage;
 import com.collabnet.ccf.model.Landscape;
+import com.collabnet.ccf.model.MappingGroup;
+import com.collabnet.ccf.model.ProjectMappings;
 import com.collabnet.ccf.model.SynchronizationStatus;
 import com.collabnet.ccf.schemageneration.CCFSchemaAndXSLTFileGenerator;
 
@@ -78,5 +80,7 @@ public interface ICcfParticipant extends Comparable {
 			CCFSchemaAndXSLTFileGenerator xmlFileGenerator,
 			IProgressMonitor monitor) throws GenericArtifactParsingException,
 			IOException, TransformerException;
+	
+	public MappingGroup[] getMappingGroups(ProjectMappings projectMappingsParent, SynchronizationStatus[] projectMappings);
 
 }
