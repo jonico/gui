@@ -317,6 +317,21 @@ public class Activator extends AbstractUIPlugin {
 		}
 		return ccfParticipants;
 	}
+	
+	public String getDefaultSortType() {
+		String sortType = null;
+		try {
+			int sortPriority = 0;
+			ccfParticipants = getCcfParticipants();
+			for (ICcfParticipant participant : ccfParticipants) {
+				if (participant.getSortPriority() > sortPriority) {
+					sortPriority = participant.getSortPriority();
+					sortType = participant.getType();
+				}
+			}
+		} catch (Exception e) {}
+		return sortType;
+	}
 
 	public static ICcfParticipant getCcfParticipantForId(String id) throws Exception {
 		ICcfParticipant ccfParticipant = null;

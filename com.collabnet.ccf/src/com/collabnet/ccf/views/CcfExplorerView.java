@@ -79,7 +79,6 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 	public static final String PROJECT_MAPPING_SORT_ORDER_REPOSITORY_TYPE = "CcfExplorerView.projectMappingSortRepositoryType";
 	public static final int SORT_BY_SOURCE_REPOSITORY = 0;
 	public static final int SORT_BY_TARGET_REPOSITORY = 1;	
-//	public static final int SORT_BY_QC_REPOSITORY = 2;
 	public static final int SORT_BY_GROUP = 3;
 	public static final int SORT_BY_REPOSITORY_TYPE = 4;
 	
@@ -107,12 +106,22 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 		treeViewer.setLabelProvider(new LandscapeLabelProvider());
 		treeViewer.setContentProvider(new LandscapeContentProvider());
 		
-		int sortOrder = 0;
+		int sortOrder = -1;
 		String sortRepositoryType = null;
 		try {
 			sortOrder = settings.getInt(PROJECT_MAPPING_SORT_ORDER);
 			sortRepositoryType = settings.get(PROJECT_MAPPING_SORT_ORDER_REPOSITORY_TYPE);
 		} catch (Exception e) {}
+		if (sortOrder == -1) {
+			sortRepositoryType = Activator.getDefault().getDefaultSortType();
+			if (sortRepositoryType == null) {
+				sortOrder = 0;
+			} else {
+				sortOrder = 4;
+			}
+			settings.put(PROJECT_MAPPING_SORT_ORDER, sortOrder);
+			settings.put(PROJECT_MAPPING_SORT_ORDER_REPOSITORY_TYPE, sortRepositoryType);
+		}
 		ccfComparator.setSortOrder(sortOrder);	
 		ccfComparator.setRepositoryType(sortRepositoryType);
 		treeViewer.setComparator(ccfComparator);

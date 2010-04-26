@@ -103,6 +103,11 @@ public class ScrumWorksCcfParticipant extends CcfParticipant {
 	}
 
 	@Override
+	public int getSortPriority() {
+		return 4;
+	}
+
+	@Override
 	public MappingGroup[] getMappingGroups(ProjectMappings projectMappingsParent, SynchronizationStatus[] projectMappings) {
 		List<String> products = new ArrayList<String>();
 		for (SynchronizationStatus projectMapping : projectMappings) {

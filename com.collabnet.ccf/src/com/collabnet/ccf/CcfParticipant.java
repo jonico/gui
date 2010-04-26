@@ -81,6 +81,9 @@ public abstract class CcfParticipant implements ICcfParticipant {
 	public MappingGroup[] getMappingGroups(ProjectMappings projectMappingsParent, SynchronizationStatus[] projectMappings) {
 		return null;
 	}
+	public int getSortPriority() {
+		return 0;
+	}
 	public int compareTo(Object compareToObject) {
 		if (!(compareToObject instanceof ICcfParticipant)) return 0;
 		ICcfParticipant compareToCcfParticipant = (ICcfParticipant)compareToObject;

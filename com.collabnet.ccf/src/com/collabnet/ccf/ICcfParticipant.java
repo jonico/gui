@@ -83,4 +83,5 @@ public interface ICcfParticipant extends Comparable {
 	
 	public MappingGroup[] getMappingGroups(ProjectMappings projectMappingsParent, SynchronizationStatus[] projectMappings);
 
+	public int getSortPriority();
 }
