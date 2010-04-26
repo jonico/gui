@@ -181,21 +181,23 @@ public class MapUsersWizardPage extends WizardPage {
 					monitor.worked(1);
 					UserWSO[] swpUsers = ((AbstractMappingWizard)getWizard()).getScrumWorksEndpoint().getUsers();
 					monitor.worked(1);
-					for (UserWSO swpUser : swpUsers) {
-						if (productUserList.contains(swpUser.getDisplayName())) {
-							UserDO userDO = null;
-							try {
-								userDO = ((AbstractMappingWizard)getWizard()).getSoapClient().getUserData(swpUser.getUserName());
-							} catch (Exception e) {}
-							if (userDO == null) {
-								createUserList.add(swpUser);
-							} else {
-								if (!userDO.getStatus().equals("Active")) {
-									activateUserList.add(userDO);
+					if (swpUsers != null) {
+						for (UserWSO swpUser : swpUsers) {
+							if (productUserList.contains(swpUser.getDisplayName())) {
+								UserDO userDO = null;
+								try {
+									userDO = ((AbstractMappingWizard)getWizard()).getSoapClient().getUserData(swpUser.getUserName());
+								} catch (Exception e) {}
+								if (userDO == null) {
+									createUserList.add(swpUser);
+								} else {
+									if (!userDO.getStatus().equals("Active")) {
+										activateUserList.add(userDO);
+									}
 								}
-							}
-							if (!projectMemberList.contains(swpUser.getUserName())) {
-								addProjectMemberList.add(swpUser);
+								if (!projectMemberList.contains(swpUser.getUserName())) {
+									addProjectMemberList.add(swpUser);
+								}
 							}
 						}
 					}

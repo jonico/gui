@@ -513,48 +513,50 @@ public class ProjectMappingWizard extends Wizard {
 				try {
 					List<String> newUsers = new ArrayList<String>();
 					UserWSO[] swpUsers = getScrumWorksEndpoint().getUsers();
-					for (UserWSO swpUser : swpUsers) {
-						if (productUserList.contains(swpUser.getDisplayName())) {
-							boolean createUserError = false;
-							UserDO userDO = null;
-							try {
-								userDO = getSoapClient().getUserData(swpUser.getUserName());
-							} catch (Exception e) {}
-							if (userDO == null) {
-								String email = swpUser.getUserName() + "@default.com";
-								String locale = "en";
-								String timeZone = getScrumWorksEndpoint().getTimezone();
-								String password = swpUser.getUserName() + "_defaultPassword";
+					if (swpUsers != null) {
+						for (UserWSO swpUser : swpUsers) {
+							if (productUserList.contains(swpUser.getDisplayName())) {
+								boolean createUserError = false;
+								UserDO userDO = null;
 								try {
-									getSoapClient().createUser(swpUser.getUserName(), email, swpUser.getDisplayName(), locale, timeZone, false, false, password);
-								} catch (Exception e) {
-									createUserError = true;
-									if (e.getMessage().startsWith("Username already exists")) {
-										duplicateUsers.add(swpUser.getUserName());
-									} else {
-										Activator.handleError(e);
-										errors = true;
+									userDO = getSoapClient().getUserData(swpUser.getUserName());
+								} catch (Exception e) {}
+								if (userDO == null) {
+									String email = swpUser.getUserName() + "@default.com";
+									String locale = "en";
+									String timeZone = getScrumWorksEndpoint().getTimezone();
+									String password = swpUser.getUserName() + "_defaultPassword";
+									try {
+										getSoapClient().createUser(swpUser.getUserName(), email, swpUser.getDisplayName(), locale, timeZone, false, false, password);
+									} catch (Exception e) {
+										createUserError = true;
+										if (e.getMessage().startsWith("Username already exists")) {
+											duplicateUsers.add(swpUser.getUserName());
+										} else {
+											Activator.handleError(e);
+											errors = true;
+										}
+									}
+								} else {
+									// If user already exists but is not active (i.e., deleted status), activate user.
+									if (!userDO.getStatus().equals("Active")) {
+										userDO.setStatus("Active");
+										try {
+											getSoapClient().setUserData(userDO);
+										} catch (Exception e) {
+											Activator.handleError(e);
+											errors = true;
+										}
 									}
 								}
-							} else {
-								// If user already exists but is not active (i.e., deleted status), activate user.
-								if (!userDO.getStatus().equals("Active")) {
-									userDO.setStatus("Active");
+								if (!createUserError && !projectMemberList.contains(swpUser.getUserName())) {
 									try {
-										getSoapClient().setUserData(userDO);
+										getSoapClient().addProjectMember(projectId, swpUser.getUserName());
+										newUsers.add(swpUser.getUserName());
 									} catch (Exception e) {
 										Activator.handleError(e);
 										errors = true;
 									}
-								}
-							}
-							if (!createUserError && !projectMemberList.contains(swpUser.getUserName())) {
-								try {
-									getSoapClient().addProjectMember(projectId, swpUser.getUserName());
-									newUsers.add(swpUser.getUserName());
-								} catch (Exception e) {
-									Activator.handleError(e);
-									errors = true;
 								}
 							}
 						}
