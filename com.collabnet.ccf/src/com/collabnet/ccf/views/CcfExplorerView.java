@@ -503,7 +503,7 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 					}					
 				});
 				
-				if (synchronizationStatuses.length == 0 || synchronizationStatuses[1] instanceof SynchronizationStatus) {
+				if (synchronizationStatuses.length == 0 || synchronizationStatuses[0] instanceof SynchronizationStatus) {
 					if (ccfComparator != null && ccfComparator.getSortOrder() == SORT_BY_REPOSITORY_TYPE) {
 						String repositoryType = ccfComparator.getRepositoryType();
 						if (repositoryType != null) {
