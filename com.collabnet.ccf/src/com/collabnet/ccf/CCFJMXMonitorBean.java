@@ -56,6 +56,8 @@ public class CCFJMXMonitorBean {
 	public static final int PT2QC_PORT = 10000;
 	public static final int TF2QC_PORT = 10001;
 	public static final int QC2TF_PORT = 10002; 
+	public static final int TF2SWP_PORT = 10010;
+	public static final int SWP2TF_PORT = 10011;
 	
 	private String hostName=DEFAULT_HOSTNAME;
 	private int rmiPort=QC2TF_PORT;
@@ -68,6 +70,27 @@ public class CCFJMXMonitorBean {
 	
 	public String getHostName() {
 		return hostName;
+	}
+	
+	public void setRmiPort(String fromType, String toType) {
+		if (fromType.equals("TF") && toType.equals("QC")) {
+			rmiPort = TF2QC_PORT;
+		}
+		else if (fromType.equals("QC") && toType.equals("TF")) {
+			rmiPort = QC2TF_PORT;
+		}
+		else if (fromType.equals("TF") && toType.equals("SWP")) {
+			rmiPort = TF2SWP_PORT;
+		}
+		else if (fromType.equals("SWP") && toType.equals("TF")) {
+			rmiPort = SWP2TF_PORT;
+		}
+		else if (fromType.equals("QC") && toType.equals("PT")) {
+			rmiPort = QC2PT_PORT;
+		}
+		else if (fromType.equals("PT") && toType.equals("QC")) {
+			rmiPort = PT2QC_PORT;
+		}
 	}
 	
 	public void setRmiPort(int rmiPort) {

@@ -83,21 +83,15 @@ public class JmxConsoleStatusEditorPage extends JmxConsoleEditorPage {
 		monitor1 = editor.getMonitor1();
 		monitor2 = editor.getMonitor2();
 		dataProvider = editor.getDataProvider();
-		
-		int port1 = 0;
-		int port2 = 0;
-		try {
-			port1 = Integer.parseInt(landscape.getJmxPort1());
-			port2 = Integer.parseInt(landscape.getJmxPort2());			
-		} catch (Exception e) {
-			Activator.handleError(e);
-		}
+
+		int port1 = monitor1.getRmiPort();
+		int port2 = monitor2.getRmiPort();
 		
 		Section direction1Section = toolkit.createSection(composite, Section.TITLE_BAR | Section.TWISTIE | Section.EXPANDED);
         TableWrapData td = new TableWrapData(TableWrapData.FILL_GRAB);
         td.colspan = 1;
         direction1Section.setLayoutData(td);
-        direction1Section.setText(Landscape.getTypeDescription(landscape.getType1()) + " => " + Landscape.getTypeDescription(landscape.getType2()));
+        direction1Section.setText(Landscape.getTypeDescription(landscape.getType2()) + " => " + Landscape.getTypeDescription(landscape.getType1()));
         Composite direction1SectionClient = toolkit.createComposite(direction1Section); 
         GridLayout direction1Layout = new GridLayout();
         direction1Layout.numColumns = 2;
@@ -180,7 +174,7 @@ public class JmxConsoleStatusEditorPage extends JmxConsoleEditorPage {
         td = new TableWrapData(TableWrapData.FILL_GRAB);
         td.colspan = 1;
         direction2Section.setLayoutData(td);
-        direction2Section.setText(Landscape.getTypeDescription(landscape.getType2()) + " => " + Landscape.getTypeDescription(landscape.getType1()));
+        direction2Section.setText(Landscape.getTypeDescription(landscape.getType1()) + " => " + Landscape.getTypeDescription(landscape.getType2()));
         Composite direction2SectionClient = toolkit.createComposite(direction2Section); 
         GridLayout direction2Layout = new GridLayout();
         direction2Layout.numColumns = 2;

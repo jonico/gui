@@ -50,25 +50,13 @@ public class CcfEditor extends FormEditor implements ISaveablePart2 {
     }
 
 	private void getMonitors() {
-		int port1 = 0;
-		int port2 = 0;
-		try {
-			port1 = Integer.parseInt(landscape.getJmxPort1());
-			port2 = Integer.parseInt(landscape.getJmxPort2());
-			
-		} catch (Exception e) {
-			Activator.handleError(e);
-		}
-		if (port1 != 0) {
-			monitor1 = new CCFJMXMonitorBean();
-			monitor1.setHostName(landscape.getHostName1());
-			monitor1.setRmiPort(port1);
-		}
-		if (port2 != 0) {
-			monitor2 = new CCFJMXMonitorBean();
-			monitor2.setHostName(landscape.getHostName2());
-			monitor2.setRmiPort(port2);
-		}
+		monitor1 = new CCFJMXMonitorBean();
+		monitor1.setHostName(landscape.getHostName1());
+		monitor1.setRmiPort(landscape.getType1(), landscape.getType2());
+		
+		monitor2 = new CCFJMXMonitorBean();
+		monitor2.setHostName(landscape.getHostName2());
+		monitor2.setRmiPort(landscape.getType2(), landscape.getType1());
 	}
 
 	@SuppressWarnings("unchecked")
