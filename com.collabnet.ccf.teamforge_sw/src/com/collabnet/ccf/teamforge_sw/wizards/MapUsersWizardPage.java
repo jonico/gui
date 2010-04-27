@@ -18,15 +18,15 @@ import com.collabnet.teamforge.api.main.ProjectMemberList;
 import com.collabnet.teamforge.api.main.ProjectMemberRow;
 import com.collabnet.teamforge.api.main.UserDO;
 import com.collabnet.teamforge.api.tracker.TrackerDO;
-import com.danube.scrumworks.api.client.types.ProductWSO;
-import com.danube.scrumworks.api.client.types.SprintWSO;
-import com.danube.scrumworks.api.client.types.UserWSO;
+import com.danube.scrumworks.api2.client.Product;
+import com.danube.scrumworks.api2.client.Sprint;
+import com.danube.scrumworks.api2.client.User;
 
 public class MapUsersWizardPage extends WizardPage {
 	private List<String> productUserList;
-	private List<UserWSO> createUserList;
+	private List<User> createUserList;
 	private List<UserDO> activateUserList;
-	private List<UserWSO> addProjectMemberList;
+	private List<User> addProjectMemberList;
 	private Exception getUsersError;
 	private String projectId;
 	private org.eclipse.swt.widgets.List createList;
@@ -89,7 +89,7 @@ public class MapUsersWizardPage extends WizardPage {
 		return projectId;
 	}
 
-	public List<UserWSO> getCreateUserList() {
+	public List<User> getCreateUserList() {
 		return createUserList;
 	}
 
@@ -97,7 +97,7 @@ public class MapUsersWizardPage extends WizardPage {
 		return activateUserList;
 	}
 
-	public List<UserWSO> getAddProjectMemberList() {
+	public List<User> getAddProjectMemberList() {
 		return addProjectMemberList;
 	}
 	
@@ -112,7 +112,7 @@ public class MapUsersWizardPage extends WizardPage {
 		}
 		if (createList != null) {
 			createList.removeAll();
-			for (UserWSO user : createUserList) {
+			for (User user : createUserList) {
 				String userText;
 				if (duplicateUsers != null && duplicateUsers.contains(user.getUserName())) {
 					userText = user.getDisplayName() + " - User name already exists with different case";
@@ -130,7 +130,7 @@ public class MapUsersWizardPage extends WizardPage {
 		}
 		if (addList != null) {
 			addList.removeAll();
-			for (UserWSO user : addProjectMemberList) {
+			for (User user : addProjectMemberList) {
 				addList.add(user.getDisplayName());
 			}
 		}
@@ -138,9 +138,9 @@ public class MapUsersWizardPage extends WizardPage {
 
 	private void getUsers() {
 		productUserList = new ArrayList<String>();
-		createUserList = new ArrayList<UserWSO>();
+		createUserList = new ArrayList<User>();
 		activateUserList = new ArrayList<UserDO>();
-		addProjectMemberList = new ArrayList<UserWSO>();
+		addProjectMemberList = new ArrayList<User>();
 		getUsersError = null;
 		IRunnableWithProgress runnable = new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
@@ -164,12 +164,12 @@ public class MapUsersWizardPage extends WizardPage {
 					}					
 					monitor.worked(1);
 					monitor.subTask("SWP product users");
-					ProductWSO product =  ((AbstractMappingWizard)getWizard()).getScrumWorksEndpoint().getProductByName(getProduct());
+					Product product = ((AbstractMappingWizard)getWizard()).getScrumWorksEndpoint().getProductByName(getProduct());
 					monitor.worked(1);
-					SprintWSO[] sprints = ((AbstractMappingWizard)getWizard()).getScrumWorksEndpoint().getSprints(product);
+					List<Sprint> sprints = ((AbstractMappingWizard)getWizard()).getScrumWorksEndpoint().getSprints(product.getId());
 					monitor.worked(1);
-					for (SprintWSO sprint : sprints) {
-						String[] sprintUsers = ((AbstractMappingWizard)getWizard()).getScrumWorksEndpoint().getUsersForSprint(sprint);
+					for (Sprint sprint : sprints) {
+						List<String> sprintUsers = ((AbstractMappingWizard)getWizard()).getScrumWorksEndpoint().getUsersForSprint(sprint.getId());
 						if (sprintUsers != null) {
 							for (String sprintUser : sprintUsers) {
 								if (!productUserList.contains(sprintUser)) {
@@ -179,10 +179,10 @@ public class MapUsersWizardPage extends WizardPage {
 						}
 					}
 					monitor.worked(1);
-					UserWSO[] swpUsers = ((AbstractMappingWizard)getWizard()).getScrumWorksEndpoint().getUsers();
+					List<User> swpUsers = ((AbstractMappingWizard)getWizard()).getScrumWorksEndpoint().getUsers();
 					monitor.worked(1);
 					if (swpUsers != null) {
-						for (UserWSO swpUser : swpUsers) {
+						for (User swpUser : swpUsers) {
 							if (productUserList.contains(swpUser.getDisplayName())) {
 								UserDO userDO = null;
 								try {

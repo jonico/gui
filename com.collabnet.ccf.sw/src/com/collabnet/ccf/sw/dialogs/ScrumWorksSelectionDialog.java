@@ -26,15 +26,15 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 
 import com.collabnet.ccf.dialogs.CcfDialog;
-import com.danube.scrumworks.api.client.types.ProductWSO;
+import com.danube.scrumworks.api2.client.Product;
 
 public class ScrumWorksSelectionDialog extends CcfDialog {
 	private int type;
 	
 	private Table table;
 	private TableViewer viewer;
-	
-	private ProductWSO[] products;
+
+	private Product[] products;
 	
 	private Button okButton;
 	
@@ -106,13 +106,13 @@ public class ScrumWorksSelectionDialog extends CcfDialog {
 		return composite;
 	}
 
-	public void setProducts(ProductWSO[] products) {
+	public void setProducts(Product[] products) {
 		this.products = products;
 	}
 
 	protected void okPressed() {
 		IStructuredSelection productSelection = (IStructuredSelection)viewer.getSelection();
-		ProductWSO product = (ProductWSO)productSelection.getFirstElement();
+		Product product = (Product)productSelection.getFirstElement();
 		selection = product.getName();
 		super.okPressed();
 	}
@@ -133,7 +133,7 @@ public class ScrumWorksSelectionDialog extends CcfDialog {
 	static class ProductsLabelProvider extends LabelProvider implements ITableLabelProvider {
 
 		public String getColumnText(Object element, int columnIndex) {
-			ProductWSO product = (ProductWSO)element;
+			Product product = (Product)element;
 			switch (columnIndex) { 
 				case 0: return product.getName();
 			}

@@ -13,7 +13,7 @@ import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.model.SynchronizationStatus;
 import com.collabnet.teamforge.api.tracker.TrackerFieldDO;
 import com.collabnet.teamforge.api.tracker.TrackerFieldValueDO;
-import com.danube.scrumworks.api.client.types.ThemeWSO;
+import com.danube.scrumworks.api2.client.Theme;
 
 public class SynchronizeThemesWizard extends AbstractMappingWizard {
 	private SynchronizeThemesWizardPage wizardPage;
@@ -41,10 +41,10 @@ public class SynchronizeThemesWizard extends AbstractMappingWizard {
 		IRunnableWithProgress runnable = new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 				try {
-					ThemeWSO[] productThemes = wizardPage.getProductThemes();
+					List<Theme> productThemes = wizardPage.getProductThemes();
 					TrackerFieldDO themesField = wizardPage.getThemesField();		
 					List<TrackerFieldValueDO> updatedValuesList = new ArrayList<TrackerFieldValueDO>();
-					for (ThemeWSO productTheme : productThemes) {
+					for (Theme productTheme : productThemes) {
 						TrackerFieldValueDO fieldValue = new TrackerFieldValueDO(getSoapClient().supports50());
 						fieldValue.setIsDefault(false);
 						fieldValue.setValue(productTheme.getName());	

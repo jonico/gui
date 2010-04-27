@@ -3,12 +3,11 @@ package com.collabnet.ccf.teamforge_sw.wizards;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.net.MalformedURLException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-
-import javax.xml.rpc.ServiceException;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -35,12 +34,12 @@ import com.collabnet.teamforge.api.tracker.TrackerDO;
 import com.collabnet.teamforge.api.tracker.TrackerFieldDO;
 import com.collabnet.teamforge.api.tracker.TrackerFieldValueDO;
 import com.collabnet.teamforge.api.tracker.TrackerRow;
-import com.danube.scrumworks.api.client.ScrumWorksEndpoint;
-import com.danube.scrumworks.api.client.types.ProductWSO;
-import com.danube.scrumworks.api.client.types.ServerException;
-import com.danube.scrumworks.api.client.types.SprintWSO;
-import com.danube.scrumworks.api.client.types.ThemeWSO;
-import com.danube.scrumworks.api.client.types.UserWSO;
+import com.danube.scrumworks.api2.client.Product;
+import com.danube.scrumworks.api2.client.ScrumWorksAPIService;
+import com.danube.scrumworks.api2.client.ScrumWorksException;
+import com.danube.scrumworks.api2.client.Sprint;
+import com.danube.scrumworks.api2.client.Theme;
+import com.danube.scrumworks.api2.client.User;
 
 public class ProjectMappingWizard extends Wizard {
 	private Landscape landscape;
@@ -58,7 +57,8 @@ public class ProjectMappingWizard extends Wizard {
 	private List<String> duplicateUsers;
 	private boolean userMappingErrors;
 	
-	private ScrumWorksEndpoint scrumWorksEndpoint;
+//	private ScrumWorksEndpoint scrumWorksEndpoint;
+	private ScrumWorksAPIService scrumWorksEndpoint;
 	
 	private final static String TRACKER_DESCRIPTION_PBIS = "SWP Product Backlog Items";
 	private final static String TRACKER_DESCRIPTION_TASKS = "SWP Tasks";
@@ -424,7 +424,7 @@ public class ProjectMappingWizard extends Wizard {
 		return id;
 	}
 	
-	public ProductWSO getSelectedProduct() {
+	public Product getSelectedProduct() {
 		return productPage.getSelectedProduct();
 	}
 
@@ -462,19 +462,19 @@ public class ProjectMappingWizard extends Wizard {
 		return soapClient;
 	}
 	
-	public ProductWSO[] getProducts() throws ServerException, RemoteException, ServiceException {
+	public List<Product> getProducts() throws MalformedURLException, ScrumWorksException {
 		return getScrumWorksEndpoint().getProducts();
 	}
 	
-	private boolean mapUsers(ProductWSO product, String projectId, boolean newProject, IProgressMonitor monitor) {
+	private boolean mapUsers(Product product, String projectId, boolean newProject, IProgressMonitor monitor) {
 		duplicateUsers = new ArrayList<String>();
 		boolean errors = false;
 		monitor.subTask("Getting product " + product.getName() + " users");
 		List<String> productUserList = new ArrayList<String>();
 		try {
-			SprintWSO[] sprints = getScrumWorksEndpoint().getSprints(product);
-			for (SprintWSO sprint : sprints) {
-				String[] sprintUsers = getScrumWorksEndpoint().getUsersForSprint(sprint);
+			List<Sprint> sprints = getScrumWorksEndpoint().getSprints(product.getId());
+			for (Sprint sprint : sprints) {
+				List<String> sprintUsers = getScrumWorksEndpoint().getUsersForSprint(sprint.getId());
 				if (sprintUsers != null) {
 					for (String sprintUser : sprintUsers) {
 						if (!productUserList.contains(sprintUser)) {
@@ -510,9 +510,9 @@ public class ProjectMappingWizard extends Wizard {
 				monitor.subTask("Creating TeamForge users");
 				try {
 					List<String> newUsers = new ArrayList<String>();
-					UserWSO[] swpUsers = getScrumWorksEndpoint().getUsers();
+					List<User> swpUsers = getScrumWorksEndpoint().getUsers();
 					if (swpUsers != null) {
-						for (UserWSO swpUser : swpUsers) {
+						for (User swpUser : swpUsers) {
 							if (productUserList.contains(swpUser.getDisplayName())) {
 								boolean createUserError = false;
 								UserDO userDO = null;
@@ -598,15 +598,15 @@ public class ProjectMappingWizard extends Wizard {
 		}
 	}
 	
-	private ThemeWSO[] getThemes(ProductWSO product) throws ServerException, RemoteException, ServiceException {
-		return getScrumWorksEndpoint().getThemes(product);
+	private List<Theme> getThemes(Product product) throws MalformedURLException, ScrumWorksException {
+		return getScrumWorksEndpoint().getThemesForProduct(product.getId());
 	}
 	
-	private String[] getThemeValues() throws ServerException, RemoteException, ServiceException {
+	private String[] getThemeValues() throws MalformedURLException, ScrumWorksException {
 		List<String> themeList = new ArrayList<String>();
-		ThemeWSO[] themes = getThemes(getSelectedProduct());
+		List<Theme> themes = getThemes(getSelectedProduct());
 		if (themes != null) {
-			for (ThemeWSO theme : themes) {
+			for (Theme theme : themes) {
 				themeList.add(theme.getName());
 			}
 		}
@@ -615,7 +615,7 @@ public class ProjectMappingWizard extends Wizard {
 		return themeValues;
 	}
 	
-	private ScrumWorksEndpoint getScrumWorksEndpoint() throws ServiceException {
+	private ScrumWorksAPIService getScrumWorksEndpoint() throws MalformedURLException {
 		if (scrumWorksEndpoint == null) {
 			scrumWorksEndpoint = com.collabnet.ccf.sw.Activator.getScrumWorksEndpoint(landscape);
 		}

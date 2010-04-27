@@ -16,7 +16,7 @@ import com.collabnet.teamforge.api.rbac.RbacClient;
 import com.collabnet.teamforge.api.rbac.RoleDO;
 import com.collabnet.teamforge.api.rbac.RoleList;
 import com.collabnet.teamforge.api.rbac.RoleRow;
-import com.danube.scrumworks.api.client.types.UserWSO;
+import com.danube.scrumworks.api2.client.User;
 
 public class MapUsersWizard extends AbstractMappingWizard {
 	private MapUsersWizardPage wizardPage;
@@ -38,8 +38,8 @@ public class MapUsersWizard extends AbstractMappingWizard {
 	@Override
 	public boolean performFinish() {
 		final List<UserDO> activateUserList = wizardPage.getActivateUserList();
-		final List<UserWSO> createUserList = wizardPage.getCreateUserList();
-		final List<UserWSO> addProjectMemberList = wizardPage.getAddProjectMemberList();
+		final List<User> createUserList = wizardPage.getCreateUserList();
+		final List<User> addProjectMemberList = wizardPage.getAddProjectMemberList();
 		if (activateUserList.size() == 0 && createUserList.size() == 0 && addProjectMemberList.size() == 0) {
 			return true;
 		}
@@ -53,7 +53,7 @@ public class MapUsersWizard extends AbstractMappingWizard {
 					monitor.beginTask(taskName, totalWork);
 					List<String> notCreatedUsers = new ArrayList<String>();
 					duplicateUsers = new ArrayList<String>();
-					for (UserWSO swpUser : createUserList) {
+					for (User swpUser : createUserList) {
 						monitor.subTask("Creating " + swpUser.getUserName());
 						String email = swpUser.getUserName() + "@default.com";
 						String locale = "en";
@@ -84,7 +84,7 @@ public class MapUsersWizard extends AbstractMappingWizard {
 						monitor.worked(1);
 					}
 					List<String> newUsers = new ArrayList<String>();
-					for (UserWSO swpUser : addProjectMemberList) {
+					for (User swpUser : addProjectMemberList) {
 						try {
 							if (!notCreatedUsers.contains(swpUser.getUserName())) {
 								monitor.subTask("Adding " + swpUser.getUserName() + " to member list");

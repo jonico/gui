@@ -18,17 +18,17 @@ import org.eclipse.swt.widgets.Group;
 import com.collabnet.ccf.Activator;
 import com.collabnet.teamforge.api.tracker.TrackerFieldDO;
 import com.collabnet.teamforge.api.tracker.TrackerFieldValueDO;
-import com.danube.scrumworks.api.client.types.ProductWSO;
-import com.danube.scrumworks.api.client.types.ThemeWSO;
+import com.danube.scrumworks.api2.client.Product;
+import com.danube.scrumworks.api2.client.Theme;
 
 public class SynchronizeThemesWizardPage extends WizardPage {
-	private ThemeWSO[] productThemes;
+	private List<Theme> productThemes;
 	private TrackerFieldDO themesField;
 	private TrackerFieldValueDO[] trackerThemes;
 	private Exception getProductThemesError;
 	private Exception getTrackerThemesError;	
 	private List<TrackerFieldValueDO> deletedValues;
-	private List<ThemeWSO> addedValues;
+	private List<Theme> addedValues;
 	private Map<String, String> oldValuesMap;
 	private Group addGroup;
 	private Group deleteGroup;
@@ -78,7 +78,7 @@ public class SynchronizeThemesWizardPage extends WizardPage {
 		}
 		if (addGroup != null) {
 			addedValuesList.removeAll();
-			for (ThemeWSO theme : addedValues) {
+			for (Theme theme : addedValues) {
 				addedValuesList.add(theme.getName());
 			}
 		}
@@ -94,7 +94,7 @@ public class SynchronizeThemesWizardPage extends WizardPage {
 		getProductThemesError = null;
 		getTrackerThemesError = null;
 		deletedValues = new ArrayList<TrackerFieldValueDO>();	
-		addedValues = new ArrayList<ThemeWSO>();
+		addedValues = new ArrayList<Theme>();
 		oldValuesMap = new HashMap<String, String>();
 		IRunnableWithProgress runnable = new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
@@ -103,9 +103,9 @@ public class SynchronizeThemesWizardPage extends WizardPage {
 				monitor.beginTask(taskName, 3);
 				monitor.subTask("SWP product themes");
 				try {
-					ProductWSO productWSO =  ((SynchronizeThemesWizard)getWizard()).getScrumWorksEndpoint().getProductByName(getProduct());
+					Product product =  ((SynchronizeThemesWizard)getWizard()).getScrumWorksEndpoint().getProductByName(getProduct());
 					monitor.worked(1);
-					productThemes = ((SynchronizeThemesWizard)getWizard()).getScrumWorksEndpoint().getThemesForProduct(productWSO);
+					productThemes = ((SynchronizeThemesWizard)getWizard()).getScrumWorksEndpoint().getThemesForProduct(product.getId());
 					monitor.worked(1);
 				} catch (Exception e) {
 					Activator.handleError(e);
@@ -130,7 +130,7 @@ public class SynchronizeThemesWizardPage extends WizardPage {
 					
 					List<String> newValuesList = new ArrayList<String>();	
 					if (productThemes != null) {
-						for (ThemeWSO productTheme : productThemes) {
+						for (Theme productTheme : productThemes) {
 							newValuesList.add(productTheme.getName());
 						}
 					}
@@ -141,7 +141,7 @@ public class SynchronizeThemesWizardPage extends WizardPage {
 						}
 					}
 					if (productThemes != null) {
-						for (ThemeWSO productTheme : productThemes) {
+						for (Theme productTheme : productThemes) {
 							if (oldValuesMap.get(productTheme.getName()) == null) {
 								addedValues.add(productTheme);
 							}
@@ -186,7 +186,7 @@ public class SynchronizeThemesWizardPage extends WizardPage {
 		return ((AbstractMappingWizard)getWizard()).getTracker();
 	}
 	
-	public ThemeWSO[] getProductThemes() {
+	public List<Theme> getProductThemes() {
 		return productThemes;
 	}
 	
@@ -198,7 +198,7 @@ public class SynchronizeThemesWizardPage extends WizardPage {
 		return deletedValues;
 	}
 
-	public List<ThemeWSO> getAddedValues() {
+	public List<Theme> getAddedValues() {
 		return addedValues;
 	}
 

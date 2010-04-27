@@ -1,9 +1,13 @@
 package com.collabnet.ccf.sw;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Hashtable;
 import java.util.Properties;
 
-import javax.xml.rpc.ServiceException;
+import javax.xml.namespace.QName;
+import javax.xml.ws.BindingProvider;
+import javax.xml.ws.Service;
 
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
@@ -12,9 +16,7 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
 import com.collabnet.ccf.model.Landscape;
-import com.danube.scrumworks.api.client.ScrumWorksEndpoint;
-import com.danube.scrumworks.api.client.ScrumWorksEndpointBindingStub;
-import com.danube.scrumworks.api.client.ScrumWorksServiceLocator;
+import com.danube.scrumworks.api2.client.ScrumWorksAPIService;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -34,7 +36,7 @@ public class Activator extends AbstractUIPlugin {
 	public static final String PROPERTIES_SW_RESYNC_USER = "swp.server.resync.username"; //$NON-NLS-1$
 	public static final String PROPERTIES_SW_RESYNC_PASSWORD = "swp.server.resync.password"; //$NON-NLS-1$
 	public static final String PROPERTIES_SW_ATTACHMENT_SIZE = "swp.max.attachmentsize.per.artifact"; //$NON-NLS-1$
-
+	
 	// The plug-in ID
 	public static final String PLUGIN_ID = "com.collabnet.ccf.sw";
 
@@ -118,9 +120,30 @@ public class Activator extends AbstractUIPlugin {
 		reg.put(IMAGE_RELEASE, getImageDescriptor(IMAGE_RELEASE));
 	}
 	
-	public static ScrumWorksEndpoint getScrumWorksEndpoint(Landscape landscape) throws ServiceException {
-		ScrumWorksEndpoint endpoint = null;
-		
+//	public static ScrumWorksEndpoint getScrumWorksEndpoint(Landscape landscape) throws ServiceException {
+//		ScrumWorksEndpoint endpoint = null;
+//		
+//		Properties properties = null;
+//		if (landscape.getType1().equals(ScrumWorksCcfParticipant.TYPE)) {
+//			properties = landscape.getProperties1();
+//		} else {
+//			properties = landscape.getProperties2();
+//		}
+//		
+//		String url = properties.get(PROPERTIES_SW_URL).toString();
+//		String user = properties.get(PROPERTIES_SW_USER).toString();
+//		String password = properties.get(PROPERTIES_SW_PASSWORD).toString();
+//		ScrumWorksServiceLocator locator = new ScrumWorksServiceLocator();
+//		locator.setScrumWorksEndpointPortEndpointAddress(url);	
+//		endpoint = locator.getScrumWorksEndpointPort();
+//		((ScrumWorksEndpointBindingStub) endpoint).setUsername(user);
+//		((ScrumWorksEndpointBindingStub) endpoint).setPassword(password);
+//		
+//		return endpoint;
+//	}
+	
+	public static ScrumWorksAPIService getScrumWorksEndpoint(Landscape landscape) throws MalformedURLException {
+		ScrumWorksAPIService endpoint = null;
 		Properties properties = null;
 		if (landscape.getType1().equals(ScrumWorksCcfParticipant.TYPE)) {
 			properties = landscape.getProperties1();
@@ -130,12 +153,15 @@ public class Activator extends AbstractUIPlugin {
 		
 		String url = properties.get(PROPERTIES_SW_URL).toString();
 		String user = properties.get(PROPERTIES_SW_USER).toString();
-		String password = properties.get(PROPERTIES_SW_PASSWORD).toString();
-		ScrumWorksServiceLocator locator = new ScrumWorksServiceLocator();
-		locator.setScrumWorksEndpointPortEndpointAddress(url);	
-		endpoint = locator.getScrumWorksEndpointPort();
-		((ScrumWorksEndpointBindingStub) endpoint).setUsername(user);
-		((ScrumWorksEndpointBindingStub) endpoint).setPassword(password);
+		String password = properties.get(PROPERTIES_SW_PASSWORD).toString();		
+		
+		Service service = Service.create(new URL(url), new QName(
+				"http://api2.scrumworks.danube.com/",
+				"ScrumWorksAPIBeanService"));
+		
+		endpoint = service.getPort(ScrumWorksAPIService.class);
+		((BindingProvider) endpoint).getRequestContext().put(BindingProvider.USERNAME_PROPERTY, user);
+		((BindingProvider) endpoint).getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, password);
 		
 		return endpoint;
 	}

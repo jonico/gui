@@ -1,5 +1,7 @@
 package com.collabnet.ccf.sw;
 
+import java.util.List;
+
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.IDialogSettings;
@@ -27,14 +29,14 @@ import com.collabnet.ccf.model.MappingGroup;
 import com.collabnet.ccf.model.SynchronizationStatus;
 import com.collabnet.ccf.sw.SWPMetaData.SWPType;
 import com.collabnet.ccf.sw.dialogs.ScrumWorksSelectionDialog;
-import com.danube.scrumworks.api.client.ScrumWorksEndpoint;
-import com.danube.scrumworks.api.client.types.ProductWSO;
+import com.danube.scrumworks.api2.client.Product;
+import com.danube.scrumworks.api2.client.ScrumWorksAPIService;
 
 public class ScrumWorksMappingSection extends MappingSection {
 	private Text productText;
 	private Combo typeCombo;
-	
-	private ProductWSO[] products;
+
+	private Product[] products;
 	private Exception soapException;
 	
 	private IDialogSettings settings = com.collabnet.ccf.sw.Activator.getDefault().getDialogSettings();
@@ -228,14 +230,16 @@ public class ScrumWorksMappingSection extends MappingSection {
 		}
 	}
 	
-	private ProductWSO[] getProducts(final Landscape landscape) {
+	private Product[] getProducts(final Landscape landscape) {
 		products = null;
 		soapException = null;
 		BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
 			public void run() {
 				try {
-					ScrumWorksEndpoint endpoint = com.collabnet.ccf.sw.Activator.getScrumWorksEndpoint(landscape);
-					products = endpoint.getProducts();
+					ScrumWorksAPIService endpoint = com.collabnet.ccf.sw.Activator.getScrumWorksEndpoint(landscape);
+					List<Product> productList = endpoint.getProducts();
+					products = new Product[productList.size()];
+					productList.toArray(products);
 				} catch (Exception e) {
 					soapException = e;
 				}

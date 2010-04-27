@@ -1,6 +1,7 @@
 package com.collabnet.ccf.teamforge_sw.wizards;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -28,14 +29,14 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 
 import com.collabnet.ccf.Activator;
-import com.danube.scrumworks.api.client.types.ProductWSO;
+import com.danube.scrumworks.api2.client.Product;
 
 public class ProjectMappingWizardSwpProductPage extends WizardPage {
 	private Button mapUsersButton;
-	private ProductWSO[] products;
+	private List<Product> products;
 	private Table table;
 	private TableViewer viewer;
-	private ProductWSO selectedProduct;
+	private Product selectedProduct;
 	private boolean productsRetrieved;
 	private Exception getProductsError;
 	private boolean mapUsers = true;
@@ -88,7 +89,7 @@ public class ProjectMappingWizardSwpProductPage extends WizardPage {
 			public void selectionChanged(SelectionChangedEvent event) {
 				IStructuredSelection productSelection = (IStructuredSelection)viewer.getSelection();
 				setPageComplete(!productSelection.isEmpty());
-				selectedProduct = (ProductWSO)productSelection.getFirstElement();
+				selectedProduct = (Product)productSelection.getFirstElement();
 			}		
 		});
 
@@ -109,11 +110,11 @@ public class ProjectMappingWizardSwpProductPage extends WizardPage {
 		return mapUsers;
 	}
 
-	public ProductWSO getSelectedProduct() {
+	public Product getSelectedProduct() {
 		return selectedProduct;
 	}
 
-	private ProductWSO[] getProducts() {
+	private List<Product> getProducts() {
 		getProductsError = null;
 		IRunnableWithProgress runnable = new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
@@ -148,7 +149,7 @@ public class ProjectMappingWizardSwpProductPage extends WizardPage {
 	static class ProductsLabelProvider extends LabelProvider implements ITableLabelProvider {
 
 		public String getColumnText(Object element, int columnIndex) {
-			ProductWSO product = (ProductWSO)element;
+			Product product = (Product)element;
 			switch (columnIndex) { 
 				case 0: return product.getName();
 			}
@@ -168,9 +169,11 @@ public class ProjectMappingWizardSwpProductPage extends WizardPage {
 		}
 		public Object[] getElements(Object obj) {
 			if (products == null) {
-				return new ProductWSO[0];
+				return new Product[0];
 			}
-			return products;
+			Product[] productArray = new Product[products.size()];
+			products.toArray(productArray);
+			return productArray;
 		}
 	}	
 

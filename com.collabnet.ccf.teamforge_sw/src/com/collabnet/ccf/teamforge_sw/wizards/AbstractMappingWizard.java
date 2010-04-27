@@ -1,8 +1,7 @@
 package com.collabnet.ccf.teamforge_sw.wizards;
 
+import java.net.MalformedURLException;
 import java.util.Properties;
-
-import javax.xml.rpc.ServiceException;
 
 import org.eclipse.jface.wizard.Wizard;
 
@@ -10,12 +9,12 @@ import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.model.Landscape;
 import com.collabnet.ccf.model.SynchronizationStatus;
 import com.collabnet.ccf.teamforge.schemageneration.TFSoapClient;
-import com.danube.scrumworks.api.client.ScrumWorksEndpoint;
+import com.danube.scrumworks.api2.client.ScrumWorksAPIService;
 
 public abstract class AbstractMappingWizard extends Wizard {
 	private TFSoapClient soapClient;
 	private SynchronizationStatus projectMapping;
-	private ScrumWorksEndpoint scrumWorksEndpoint;
+	private ScrumWorksAPIService scrumWorksEndpoint;
 
 	public AbstractMappingWizard(SynchronizationStatus projectMapping) {
 		super();
@@ -50,7 +49,15 @@ public abstract class AbstractMappingWizard extends Wizard {
 		return soapClient;
 	}
 	
-	public ScrumWorksEndpoint getScrumWorksEndpoint() throws ServiceException {
+//	public ScrumWorksEndpoint getScrumWorksEndpoint() throws ServiceException {
+//		if (scrumWorksEndpoint == null) {
+//			Landscape landscape = projectMapping.getProjectMappings().getLandscape();
+//			scrumWorksEndpoint = com.collabnet.ccf.sw.Activator.getScrumWorksEndpoint(landscape);
+//		}
+//		return scrumWorksEndpoint;
+//	}
+	
+	public ScrumWorksAPIService getScrumWorksEndpoint() throws MalformedURLException {
 		if (scrumWorksEndpoint == null) {
 			Landscape landscape = projectMapping.getProjectMappings().getLandscape();
 			scrumWorksEndpoint = com.collabnet.ccf.sw.Activator.getScrumWorksEndpoint(landscape);
