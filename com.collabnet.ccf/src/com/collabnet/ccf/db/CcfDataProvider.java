@@ -265,7 +265,7 @@ public class CcfDataProvider {
 	        }			
 		}
 		
-		if (patients != null) {
+		if (patients != null && Activator.getDefault().getPreferenceStore().getBoolean(Activator.PREFERENCES_HOSPITAL_FLAG_OUTDATED)) {
 			for (Patient patient : patients) {
 				IdentityMapping identityMapping = new IdentityMapping();
 				identityMapping.setSourceRepositoryId(patient.getSourceRepositoryId());

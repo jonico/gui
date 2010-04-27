@@ -23,6 +23,7 @@ public class CcfPreferenceInitializer extends AbstractPreferenceInitializer {
 		node.putBoolean(Activator.PREFERENCES_SHOW_HOSPITAL_COUNT, Activator.DEFAULT_SHOW_HOSPITAL_COUNT);
 		node.putBoolean(Activator.PREFERENCES_GRAPHICAL_MAPPING_AVAILABLE, Activator.DEFAULT_GRAPHICAL_MAPPING_AVAILABLE);
 		node.put(Activator.PREFERENCES_MAPFORCE_PATH, Activator.DEFAULT_MAPFORCE_PATH);
+		node.putBoolean(Activator.PREFERENCES_HOSPITAL_FLAG_OUTDATED, Activator.DEFAULT_HOSPITAL_FLAG_OUTDATED);
 	}
 
 }
