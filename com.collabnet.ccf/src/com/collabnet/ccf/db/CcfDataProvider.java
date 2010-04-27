@@ -229,7 +229,7 @@ public class CcfDataProvider {
 			connection = getConnection(landscape);
 			stmt = connection.createStatement();
 			rs = stmt.executeQuery(Filter.getQuery(SQL_HOSPITAL_SELECT, filters));
-			patients = getPatients(rs, landscape);
+			patients = getPatients(rs, landscape, applyGroupFiltering(filters));
 		}
 		catch (Exception e) {
 			Activator.handleError(e);
@@ -288,6 +288,26 @@ public class CcfDataProvider {
 		}
 		
 		return patients;
+	}
+	
+	private boolean applyGroupFiltering(Filter[][] filters) {
+		if (filters != null && filters.length > 0) {
+			Filter[] filterGroup = filters[0];
+			boolean sourceFilterFound = false;
+			boolean targetFilterFound = false;
+			for (Filter filter : filterGroup) {
+				if (filter.getColumnName().equals(HOSPITAL_SOURCE_REPOSITORY_ID)) {
+					sourceFilterFound = true;
+				}
+				if (filter.getColumnName().equals(HOSPITAL_TARGET_REPOSITORY_ID)) {
+					targetFilterFound = true;
+				}
+				if (sourceFilterFound && targetFilterFound) {
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 	
 	public Patient[] getPatients(Landscape landscape, Filter[] filters) throws Exception {
@@ -1177,14 +1197,16 @@ public class CcfDataProvider {
 		return DriverManager.getConnection(url, user, password);	
 	}	
 	
-	private Patient[] getPatients(ResultSet rs, Landscape landscape) throws Exception {
+	private Patient[] getPatients(ResultSet rs, Landscape landscape, boolean applyGroupFiltering) throws Exception {
 		List<SynchronizationStatus> projectMappingList = null;
-		projectMappingList = new ArrayList<SynchronizationStatus>();
-		SynchronizationStatus[] projectMappings = getSynchronizationStatuses(landscape, null);
-		for (SynchronizationStatus projectMapping : projectMappings) {
-			projectMappingList.add(projectMapping);
+		
+		if (applyGroupFiltering) {
+			projectMappingList = new ArrayList<SynchronizationStatus>();
+			SynchronizationStatus[] projectMappings = getSynchronizationStatuses(landscape, null);
+			for (SynchronizationStatus projectMapping : projectMappings) {
+				projectMappingList.add(projectMapping);
+			}
 		}
-
 		
 		List<Patient> patients = new ArrayList<Patient>();
 		while (rs.next()) {
