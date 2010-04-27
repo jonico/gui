@@ -1,7 +1,5 @@
 package com.collabnet.ccf.sw;
 
-import java.util.Properties;
-
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.IDialogSettings;
@@ -21,7 +19,6 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
-import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.IMappingSection;
 import com.collabnet.ccf.MappingSection;
 import com.collabnet.ccf.dialogs.ExceptionDetailsErrorDialog;
@@ -31,8 +28,6 @@ import com.collabnet.ccf.model.SynchronizationStatus;
 import com.collabnet.ccf.sw.SWPMetaData.SWPType;
 import com.collabnet.ccf.sw.dialogs.ScrumWorksSelectionDialog;
 import com.danube.scrumworks.api.client.ScrumWorksEndpoint;
-import com.danube.scrumworks.api.client.ScrumWorksEndpointBindingStub;
-import com.danube.scrumworks.api.client.ScrumWorksServiceLocator;
 import com.danube.scrumworks.api.client.types.ProductWSO;
 
 public class ScrumWorksMappingSection extends MappingSection {
@@ -238,28 +233,8 @@ public class ScrumWorksMappingSection extends MappingSection {
 		soapException = null;
 		BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
 			public void run() {
-				Properties properties = null;
-				if (landscape.getType1().equals(ScrumWorksCcfParticipant.TYPE)) {
-					properties = landscape.getProperties1();
-				} else {
-					properties = landscape.getProperties2();
-				}
-				
-				String url = properties.get(Activator.PROPERTIES_SW_URL).toString();
-				String user = properties.get(Activator.PROPERTIES_SW_USER).toString();
-				String password = properties.get(Activator.PROPERTIES_SW_PASSWORD).toString();
-				if (!url.endsWith("scrumworks-api/scrumworks")) {
-					if (!url.endsWith("/")) {
-						url = url + "/";
-					}
-					url = url + "scrumworks-api/scrumworks";
-				}
-				ScrumWorksServiceLocator locator = new ScrumWorksServiceLocator();
-				locator.setScrumWorksEndpointPortEndpointAddress(url);
 				try {
-					ScrumWorksEndpoint endpoint = locator.getScrumWorksEndpointPort();
-					((ScrumWorksEndpointBindingStub) endpoint).setUsername(user);
-					((ScrumWorksEndpointBindingStub) endpoint).setPassword(password);
+					ScrumWorksEndpoint endpoint = com.collabnet.ccf.sw.Activator.getScrumWorksEndpoint(landscape);
 					products = endpoint.getProducts();
 				} catch (Exception e) {
 					soapException = e;

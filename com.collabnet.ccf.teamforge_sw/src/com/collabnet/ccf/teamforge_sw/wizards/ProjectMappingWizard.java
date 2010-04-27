@@ -36,8 +36,6 @@ import com.collabnet.teamforge.api.tracker.TrackerFieldDO;
 import com.collabnet.teamforge.api.tracker.TrackerFieldValueDO;
 import com.collabnet.teamforge.api.tracker.TrackerRow;
 import com.danube.scrumworks.api.client.ScrumWorksEndpoint;
-import com.danube.scrumworks.api.client.ScrumWorksEndpointBindingStub;
-import com.danube.scrumworks.api.client.ScrumWorksServiceLocator;
 import com.danube.scrumworks.api.client.types.ProductWSO;
 import com.danube.scrumworks.api.client.types.ServerException;
 import com.danube.scrumworks.api.client.types.SprintWSO;
@@ -619,26 +617,7 @@ public class ProjectMappingWizard extends Wizard {
 	
 	private ScrumWorksEndpoint getScrumWorksEndpoint() throws ServiceException {
 		if (scrumWorksEndpoint == null) {
-			Properties properties = null;
-			if (landscape.getType1().equals(ScrumWorksCcfParticipant.TYPE)) {
-				properties = landscape.getProperties1();
-			} else {
-				properties = landscape.getProperties2();
-			}	
-			String url = properties.get(Activator.PROPERTIES_SW_URL).toString();
-			String user = properties.get(Activator.PROPERTIES_SW_USER).toString();
-			String password = properties.get(Activator.PROPERTIES_SW_PASSWORD).toString();
-			if (!url.endsWith("scrumworks-api/scrumworks")) {
-				if (!url.endsWith("/")) {
-					url = url + "/";
-				}
-				url = url + "scrumworks-api/scrumworks";
-			}
-			ScrumWorksServiceLocator locator = new ScrumWorksServiceLocator();
-			locator.setScrumWorksEndpointPortEndpointAddress(url);
-			scrumWorksEndpoint = locator.getScrumWorksEndpointPort();
-			((ScrumWorksEndpointBindingStub) scrumWorksEndpoint).setUsername(user);
-			((ScrumWorksEndpointBindingStub) scrumWorksEndpoint).setPassword(password);
+			scrumWorksEndpoint = com.collabnet.ccf.sw.Activator.getScrumWorksEndpoint(landscape);
 		}
 		return scrumWorksEndpoint;
 	}

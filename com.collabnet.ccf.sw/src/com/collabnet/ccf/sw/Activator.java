@@ -1,12 +1,20 @@
 package com.collabnet.ccf.sw;
 
 import java.util.Hashtable;
+import java.util.Properties;
+
+import javax.xml.rpc.ServiceException;
 
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
+
+import com.collabnet.ccf.model.Landscape;
+import com.danube.scrumworks.api.client.ScrumWorksEndpoint;
+import com.danube.scrumworks.api.client.ScrumWorksEndpointBindingStub;
+import com.danube.scrumworks.api.client.ScrumWorksServiceLocator;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -18,6 +26,14 @@ public class Activator extends AbstractUIPlugin {
 	public static final String IMAGE_TASK = "task.png"; //$NON-NLS-1$
 	public static final String IMAGE_PRODUCT = "product.gif"; //$NON-NLS-1$
 	public static final String IMAGE_RELEASE = "release.gif"; //$NON-NLS-1$
+	
+	// ScrumWorks Properties
+	public static final String PROPERTIES_SW_URL = "swp.server.url"; //$NON-NLS-1$
+	public static final String PROPERTIES_SW_USER = "swp.server.username"; //$NON-NLS-1$
+	public static final String PROPERTIES_SW_PASSWORD = "swp.server.password"; //$NON-NLS-1$
+	public static final String PROPERTIES_SW_RESYNC_USER = "swp.server.resync.username"; //$NON-NLS-1$
+	public static final String PROPERTIES_SW_RESYNC_PASSWORD = "swp.server.resync.password"; //$NON-NLS-1$
+	public static final String PROPERTIES_SW_ATTACHMENT_SIZE = "swp.max.attachmentsize.per.artifact"; //$NON-NLS-1$
 
 	// The plug-in ID
 	public static final String PLUGIN_ID = "com.collabnet.ccf.sw";
@@ -100,6 +116,28 @@ public class Activator extends AbstractUIPlugin {
 		reg.put(IMAGE_TASK, getImageDescriptor(IMAGE_TASK));
 		reg.put(IMAGE_PRODUCT, getImageDescriptor(IMAGE_PRODUCT));
 		reg.put(IMAGE_RELEASE, getImageDescriptor(IMAGE_RELEASE));
+	}
+	
+	public static ScrumWorksEndpoint getScrumWorksEndpoint(Landscape landscape) throws ServiceException {
+		ScrumWorksEndpoint endpoint = null;
+		
+		Properties properties = null;
+		if (landscape.getType1().equals(ScrumWorksCcfParticipant.TYPE)) {
+			properties = landscape.getProperties1();
+		} else {
+			properties = landscape.getProperties2();
+		}
+		
+		String url = properties.get(PROPERTIES_SW_URL).toString();
+		String user = properties.get(PROPERTIES_SW_USER).toString();
+		String password = properties.get(PROPERTIES_SW_PASSWORD).toString();
+		ScrumWorksServiceLocator locator = new ScrumWorksServiceLocator();
+		locator.setScrumWorksEndpointPortEndpointAddress(url);	
+		endpoint = locator.getScrumWorksEndpointPort();
+		((ScrumWorksEndpointBindingStub) endpoint).setUsername(user);
+		((ScrumWorksEndpointBindingStub) endpoint).setPassword(password);
+		
+		return endpoint;
 	}
 
 }
