@@ -295,15 +295,17 @@ public class CcfDataProvider {
 			Filter[] filterGroup = filters[0];
 			boolean sourceFilterFound = false;
 			boolean targetFilterFound = false;
-			for (Filter filter : filterGroup) {
-				if (filter.getColumnName().equals(HOSPITAL_SOURCE_REPOSITORY_ID)) {
-					sourceFilterFound = true;
-				}
-				if (filter.getColumnName().equals(HOSPITAL_TARGET_REPOSITORY_ID)) {
-					targetFilterFound = true;
-				}
-				if (sourceFilterFound && targetFilterFound) {
-					return false;
+			if (filterGroup != null && filterGroup.length > 0) {
+				for (Filter filter : filterGroup) {
+					if (filter.getColumnName().equals(HOSPITAL_SOURCE_REPOSITORY_ID)) {
+						sourceFilterFound = true;
+					}
+					if (filter.getColumnName().equals(HOSPITAL_TARGET_REPOSITORY_ID)) {
+						targetFilterFound = true;
+					}
+					if (sourceFilterFound && targetFilterFound) {
+						return false;
+					}
 				}
 			}
 		}

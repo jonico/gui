@@ -98,7 +98,7 @@ public class Filter {
 	
 	public static String getQuery(String sql, Filter[] filters) {
 		StringBuffer query = new StringBuffer(sql);
-		if (filters != null) {
+		if (filters != null && filters.length > 0 && filters[0] != null) {
 			query.append(" WHERE "); //$NON-NLS-1$
 			for (int i = 0; i < filters.length; i++) {
 				if (i > 0) query.append(" AND "); //$NON-NLS-1$
