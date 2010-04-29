@@ -1075,10 +1075,10 @@ public class CcfDataProvider {
 	}
 	
 	public void resetSynchronizationStatus(SynchronizationStatus status) throws Exception {
-		resetSynchronizationStatus(status, Timestamp.valueOf("1999-01-01 00:00:00.0"));
+		resetSynchronizationStatus(status, Timestamp.valueOf("1999-01-01 00:00:00.0"), null);
 	}
 	
-	public void resetSynchronizationStatus(final SynchronizationStatus status, final Timestamp timestamp) throws Exception {
+	public void resetSynchronizationStatus(final SynchronizationStatus status, final Timestamp timestamp, final String updateVersion) throws Exception {
 		// Pause first so that changes are not overlaid.
 		final boolean pausedAlready = status.isPaused();
 		if (!pausedAlready) pauseSynchronization(status);
@@ -1091,12 +1091,14 @@ public class CcfDataProvider {
 				Filter targetRepositoryFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_TARGET_REPOSITORY_ID, status.getTargetRepositoryId(), true);
 				Filter[] filters = { sourceSystemFilter, sourceRepositoryFilter, targetSystemFilter, targetRepositoryFilter };
 				Update dateUpdate = new Update(CcfDataProvider.SYNCHRONIZATION_STATUS_LAST_SOURCE_ARTIFACT_MODIFICATION_DATE, timestamp.toString());
-				String version;
-				try {
-					version = Activator.getCcfParticipantForType(status.getSourceSystemKind()).getResetProjectMappingVersion(timestamp);
-				} catch (Exception e1) {
-					Activator.handleError(e1);
-					version = "0";
+				String version = updateVersion;
+					if (version == null) {
+					try {
+						version = Activator.getCcfParticipantForType(status.getSourceSystemKind()).getResetProjectMappingVersion(timestamp);
+					} catch (Exception e1) {
+						Activator.handleError(e1);
+						version = "0";
+					}
 				}
 				Update versionUpdate = new Update(CcfDataProvider.SYNCHRONIZATION_STATUS_LAST_SOURCE_ARTIFACT_VERSION, version);
 				

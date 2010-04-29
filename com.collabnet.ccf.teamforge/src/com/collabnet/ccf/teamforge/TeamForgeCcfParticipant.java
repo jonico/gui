@@ -66,6 +66,14 @@ public class TeamForgeCcfParticipant extends CcfParticipant {
 		return "0";
 	}
 	
+	public boolean showResetDate() {
+		return true;
+	}
+
+	public boolean showResetVersion() {
+		return false;
+	}
+
 	@Override
 	public Image getImage() {
 		return Activator.getImage(Activator.IMAGE_TEAM_FORGE);

@@ -90,6 +90,14 @@ public class ScrumWorksCcfParticipant extends CcfParticipant {
 		return "0";
 	}
 	
+	public boolean showResetDate() {
+		return false;
+	}
+
+	public boolean showResetVersion() {
+		return true;
+	}
+
 	public String getReaderMetricsName() {
 		return SWPREADER_METRICS;
 	}

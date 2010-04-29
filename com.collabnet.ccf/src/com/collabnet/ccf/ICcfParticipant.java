@@ -64,6 +64,10 @@ public interface ICcfParticipant extends Comparable {
 	
 	public String getNewProjectMappingVersion();
 	
+	public boolean showResetDate();
+	
+	public boolean showResetVersion();
+	
 	public String getResetProjectMappingVersion(Timestamp timestamp);
 	
 	public String getEntityType(String repositoryId);

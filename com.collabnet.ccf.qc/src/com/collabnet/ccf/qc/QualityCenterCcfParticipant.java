@@ -63,6 +63,14 @@ public class QualityCenterCcfParticipant extends CcfParticipant {
 		return "0";
 	}
 
+	public boolean showResetDate() {
+		return false;
+	}
+
+	public boolean showResetVersion() {
+		return true;
+	}
+
 	@Override
 	public Image getImage() {
 		return Activator.getImage(Activator.IMAGE_QC);

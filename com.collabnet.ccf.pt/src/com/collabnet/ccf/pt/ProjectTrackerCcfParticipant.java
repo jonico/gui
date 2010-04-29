@@ -66,6 +66,14 @@ public class ProjectTrackerCcfParticipant extends CcfParticipant {
 		return Long.toString(timestamp.getTime());
 	}
 	
+	public boolean showResetDate() {
+		return true;
+	}
+
+	public boolean showResetVersion() {
+		return false;
+	}
+
 	@Override
 	public Image getImage() {
 		return Activator.getImage(Activator.IMAGE_PROJECT_TRACKER);
