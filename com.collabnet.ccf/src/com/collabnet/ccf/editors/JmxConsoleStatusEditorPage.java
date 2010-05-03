@@ -91,7 +91,7 @@ public class JmxConsoleStatusEditorPage extends JmxConsoleEditorPage {
         TableWrapData td = new TableWrapData(TableWrapData.FILL_GRAB);
         td.colspan = 1;
         direction1Section.setLayoutData(td);
-        direction1Section.setText(Landscape.getTypeDescription(landscape.getType2()) + " => " + Landscape.getTypeDescription(landscape.getType1()));
+        direction1Section.setText(Landscape.getTypeDescription(landscape.getType1()) + " => " + Landscape.getTypeDescription(landscape.getType2()));
         Composite direction1SectionClient = toolkit.createComposite(direction1Section); 
         GridLayout direction1Layout = new GridLayout();
         direction1Layout.numColumns = 2;
@@ -174,7 +174,7 @@ public class JmxConsoleStatusEditorPage extends JmxConsoleEditorPage {
         td = new TableWrapData(TableWrapData.FILL_GRAB);
         td.colspan = 1;
         direction2Section.setLayoutData(td);
-        direction2Section.setText(Landscape.getTypeDescription(landscape.getType1()) + " => " + Landscape.getTypeDescription(landscape.getType2()));
+        direction2Section.setText(Landscape.getTypeDescription(landscape.getType2()) + " => " + Landscape.getTypeDescription(landscape.getType1()));
         Composite direction2SectionClient = toolkit.createComposite(direction2Section); 
         GridLayout direction2Layout = new GridLayout();
         direction2Layout.numColumns = 2;
