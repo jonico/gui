@@ -1,8 +1,19 @@
 package com.collabnet.ccf.pt.dialogs;
 
+import java.net.URL;
+import java.rmi.RemoteException;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.axis.EngineConfiguration;
+import org.apache.axis.MessageContext;
+import org.apache.axis.SimpleTargetedChain;
+import org.apache.axis.configuration.SimpleProvider;
+import org.apache.axis.transport.http.CommonsHTTPSender;
+import org.apache.commons.httpclient.HostConfiguration;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpVersion;
+import org.apache.commons.httpclient.params.HttpClientParams;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -30,6 +41,11 @@ import com.collabnet.ccf.dialogs.CcfDialog;
 import com.collabnet.ccf.dialogs.ExceptionDetailsErrorDialog;
 import com.collabnet.ccf.model.Landscape;
 import com.collabnet.ccf.pt.schemageneration.PTClient;
+import com.collabnet.ccf.schemageneration.Proxy;
+import com.collabnet.teamforge.api.Connection;
+import com.collabnet.teamforge.api.main.ProjectList;
+import com.collabnet.teamforge.api.main.ProjectRow;
+import com.collabnet.teamforge.api.main.TeamForgeClient;
 
 public class ProjectTrackerSelectionDialog extends CcfDialog {
 	private Properties properties;
@@ -39,6 +55,7 @@ public class ProjectTrackerSelectionDialog extends CcfDialog {
 	private String title;
 
 	private PTClient ptClient;
+	private TeamForgeClient tfClient;
 	private Project[] projects;
 	private ArtifactType[] artifactTypes;
 	private String projectName;
@@ -151,6 +168,28 @@ public class ProjectTrackerSelectionDialog extends CcfDialog {
 		if (type == BROWSER_TYPE_PROJECT) return (firstSelection instanceof Project);
 		else return (!(firstSelection instanceof Project));
 	}
+
+	// TODO  Filter list to only include Project Tracker projects.  This fix can be done once the
+	//       5.4 SOAP API changes have been merged into the 6.x SOAP API.
+	//       At that time we will use IRbacAppSoap..getProjectsByIntegratedAppPermission to get a
+	//       list of all PT project IDs.  The list returned by ICollabNetSoap.getProjectList will
+	//       then be filtered to include only projects whose ID is included in the list from the
+	//       first call.
+	private Project[] getTeamForgeProjects() {
+		try {
+			ProjectList projectList = getTeamForgeClient().getProjectList();
+			ProjectRow[] projectRows = projectList.getDataRows();
+			projects = new Project[projectRows.length];
+			for (int i = 0; i < projectRows.length; i++) {
+				projects[i] = new Project(projectRows[i].getTitle(), getProjectUrl(projectRows[i].getTitle()));
+			}
+		} catch (Exception e) {
+			Activator.handleError(e);
+			ExceptionDetailsErrorDialog.openError(getShell(), title, e.getMessage(), new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getLocalizedMessage(), e));
+		}
+		if (projects == null) return new Project[0];
+		else return projects;
+	}
 	
 	private Project[] getProjects() {
 		BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
@@ -164,8 +203,12 @@ public class ProjectTrackerSelectionDialog extends CcfDialog {
 						projects[i++] = new Project(projectName, getProjectUrl(projectName));
 					}
 				} catch (Exception e) {
-					Activator.handleError(e);
-					ExceptionDetailsErrorDialog.openError(getShell(), title, e.getMessage(), new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getLocalizedMessage(), e));
+					if (e.getMessage().indexOf("could not find a target service") != -1) {
+						projects = getTeamForgeProjects();
+					} else {
+						Activator.handleError(e);
+						ExceptionDetailsErrorDialog.openError(getShell(), title, e.getMessage(), new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getLocalizedMessage(), e));						
+					}
 				}
 			}
 		});
@@ -185,6 +228,11 @@ public class ProjectTrackerSelectionDialog extends CcfDialog {
 						artifactTypes[i++] = new ArtifactType(artifactTypeName, project.getName());
 					}
 				} catch (Exception e) {
+					// For now we are just catching the error when a non-PT project is expanded.
+					// Eventually, these projects will not be included in the pick list.
+					if (e.getMessage() != null && e.getMessage().contains("while initializing the call context")) {
+						return;
+					}
 					Activator.handleError(e);
 					ExceptionDetailsErrorDialog.openError(getShell(), title, e.getMessage(), new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getLocalizedMessage(), e));
 				}
@@ -221,6 +269,18 @@ public class ProjectTrackerSelectionDialog extends CcfDialog {
 		return ptClient;
 	}
 	
+	private TeamForgeClient getTeamForgeClient() throws RemoteException {
+		if (tfClient == null) {
+			String serverUrl = getPickerUrl(properties.getProperty(Activator.PROPERTIES_CEE_URL));
+			String userId = properties.getProperty(Activator.PROPERTIES_CEE_USER);
+			String password = properties.getProperty(Activator.PROPERTIES_CEE_PASSWORD);
+			Connection connection = Connection.getConnection(serverUrl, userId, password, null, null, null, false);
+			Connection.setEngineConfiguration(getEngineConfiguration());	
+			tfClient = connection.getTeamForgeClient();
+		}
+		return tfClient;
+	}
+	
 	private static String getPickerUrl(String serverUrl) {
 		if (serverUrl != null) {
 			if (serverUrl.toLowerCase().startsWith(HTTP)) {
@@ -236,6 +296,13 @@ public class ProjectTrackerSelectionDialog extends CcfDialog {
 		}
 		return serverUrl;
 	}
+	
+	public static EngineConfiguration getEngineConfiguration() {
+		SimpleProvider config = new SimpleProvider();
+		config.deployTransport("http", new SimpleTargetedChain(new TeamForgeHTTPSender())); //$NON-NLS-1$
+		config.deployTransport("https", new SimpleTargetedChain(new TeamForgeHTTPSender())); //$NON-NLS-1$
+		return config;
+	}		
 	
 	class ProjectTrackerSelectionLabelProvider extends LabelProvider {
 		public Image getImage(Object element) {
@@ -308,6 +375,24 @@ public class ProjectTrackerSelectionDialog extends CcfDialog {
 
 		public String getProjectName() {
 			return projectName;
+		}
+		
+	}
+	
+	static class TeamForgeHTTPSender extends CommonsHTTPSender {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		protected HostConfiguration getHostConfiguration(HttpClient client, MessageContext context, URL url) {
+			Proxy proxy = Activator.getPlatformProxy(url.toString());
+			if (proxy != null) {
+				proxy.setProxy(client);
+			}
+
+			// This needs to be set to 1.0 otherwise errors
+			client.getHostConfiguration().getParams().setParameter(HttpClientParams.PROTOCOL_VERSION, HttpVersion.HTTP_1_0);		
+			return client.getHostConfiguration();
 		}
 		
 	}
