@@ -102,8 +102,8 @@ public class ProjectMappingWizard extends Wizard {
 			public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 				boolean newProject = false;
 				
-				// Create 8 mappings.
-				int totalWork = 8;
+				// Create 9 mappings.
+				int totalWork = 9;
 				
 				// Need to create project.
 				if (getSelectedProject() == null) {
@@ -371,6 +371,14 @@ public class ProjectMappingWizard extends Wizard {
 				monitor.subTask(previewPage.getProductReleasePlanningFolderMapping());
 				projectMapping.setSourceRepositoryId(getSelectedProduct().getName() + "-Release");
 				projectMapping.setSourceRepositoryKind("TemplateReleases.xsl");
+				projectMapping.setConflictResolutionPriority(previewPage.getProductReleasePlanningFolderConflictResolutionPriority());
+				createMapping(projectMapping, dataProvider);
+				monitor.worked(1);
+				
+				monitor.subTask(previewPage.getProductThemesMetaDataMapping());
+				projectMapping.setSourceRepositoryId(getSelectedProduct().getName() + "-Theme");
+				projectMapping.setTargetRepositoryId(pbiTrackerId + "-MetaData");
+				projectMapping.setSourceRepositoryKind("TemplateThemes.xsl");
 				projectMapping.setConflictResolutionPriority(previewPage.getProductReleasePlanningFolderConflictResolutionPriority());
 				createMapping(projectMapping, dataProvider);
 				monitor.worked(1);

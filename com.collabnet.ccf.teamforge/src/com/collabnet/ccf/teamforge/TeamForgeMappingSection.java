@@ -33,11 +33,13 @@ public class TeamForgeMappingSection extends MappingSection {
 	private Button teamForgeBrowseButton;
 	private Button trackerButton;
 	private Button planningFoldersButton;
+	private Button metaDataButton;
 	
 	private IDialogSettings settings = Activator.getDefault().getDialogSettings();
 	
 	private static final int TYPE_TRACKER = 0;
 	private static final int TYPE_PLANNING_FOLDERS = 1;
+	private static final int TYPE_METADATA = 2;
 	private static final String PREVIOUS_TYPE = "TeamForgeMappingSection.type";
 
 	public void updateSourceFields(SynchronizationStatus projectMapping) {
@@ -52,7 +54,9 @@ public class TeamForgeMappingSection extends MappingSection {
 	
 	private String getRepositoryId() {
 		String repositoryId;
-		if (planningFoldersButton.getSelection()) {
+		if (metaDataButton.getSelection()) {
+			repositoryId = teamForgeText.getText().trim() + "-" + ProjectMappings.MAPPING_TYPE_METADATA;
+		} else if (planningFoldersButton.getSelection()) {
 			repositoryId = teamForgeText.getText().trim() + "-" + ProjectMappings.MAPPING_TYPE_PLANNING_FOLDERS;
 		} else {
 			repositoryId = teamForgeText.getText().trim();
@@ -93,6 +97,11 @@ public class TeamForgeMappingSection extends MappingSection {
 		gd = new GridData();
 		gd.horizontalSpan = 3;
 		planningFoldersButton.setLayoutData(gd);
+		metaDataButton = new Button(tfGroup, SWT.RADIO);
+		metaDataButton.setText("MetaData");
+		gd = new GridData();
+		gd.horizontalSpan = 3;
+		metaDataButton.setLayoutData(gd);
 		int tfType;
 		try {
 			tfType = settings.getInt(PREVIOUS_TYPE);
@@ -101,6 +110,9 @@ public class TeamForgeMappingSection extends MappingSection {
 		case TYPE_PLANNING_FOLDERS:
 			planningFoldersButton.setSelection(true);
 			break;
+		case TYPE_METADATA:
+			metaDataButton.setSelection(true);
+			break;			
 		default:
 			trackerButton.setSelection(true);
 			break;
@@ -154,6 +166,7 @@ public class TeamForgeMappingSection extends MappingSection {
 
 		trackerButton.addSelectionListener(typeListener);
 		planningFoldersButton.addSelectionListener(typeListener);	
+		metaDataButton.addSelectionListener(typeListener);
 		
 		return tfGroup;
 	}
@@ -163,11 +176,18 @@ public class TeamForgeMappingSection extends MappingSection {
 		if (teamForgeText.getText().startsWith("proj")) {
 			planningFoldersButton.setSelection(true);
 			trackerButton.setSelection(false);
+			metaDataButton.setSelection(false);
 			teamForgeLabel.setText("Project ID: ");
 		} else {
 			planningFoldersButton.setSelection(false);
-			trackerButton.setSelection(true);
 			teamForgeLabel.setText("Tracker ID: ");
+			if (projectMapping.getSourceRepositoryId().endsWith("-MetaData") || projectMapping.getTargetRepositoryId().endsWith("-MetaData")) {
+				trackerButton.setSelection(false);
+				metaDataButton.setSelection(true);				
+			} else {
+				trackerButton.setSelection(true);
+				metaDataButton.setSelection(false);
+			}
 		}
 	}
 

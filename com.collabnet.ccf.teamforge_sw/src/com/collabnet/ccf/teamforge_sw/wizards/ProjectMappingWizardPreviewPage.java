@@ -29,6 +29,7 @@ public class ProjectMappingWizardPreviewPage extends WizardPage {
 	private String pbiTrackerMapping;
 	private String productPlanningFolderMapping;
 	private String productReleasePlanningFolderMapping;
+	private String productThemesMetaDataMapping;
 	private String newProjectDescription = DEFAULT_PROJECT_DESCRIPTION;
 	
 	private Text trackerTaskText;
@@ -39,6 +40,7 @@ public class ProjectMappingWizardPreviewPage extends WizardPage {
 	private Text pbiTrackerText;
 	private Text productPlanningFolderText;
 	private Text productReleasePlanningFolderText;
+	private Text productThemesMetaDataText;
 	private Group projectDescriptionGroup;
 	private Text projectDescriptionText;
 	
@@ -113,6 +115,10 @@ public class ProjectMappingWizardPreviewPage extends WizardPage {
 		productReleasePlanningFolderText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL));
 		productReleasePlanningFolderCombo = new Combo(outerContainer, SWT.READ_ONLY);
 		populateConflictResolutionCombo(productReleasePlanningFolderCombo);
+		
+		productThemesMetaDataText = new Text(outerContainer, SWT.READ_ONLY | SWT.BORDER);
+		productThemesMetaDataText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL));		
+		new Label(outerContainer, SWT.NONE);
 		
 		projectDescriptionGroup = new Group(outerContainer,SWT.NONE);
 		projectDescriptionGroup.setText("Description for new TeamForge Project:");
@@ -207,6 +213,10 @@ public class ProjectMappingWizardPreviewPage extends WizardPage {
 		return productReleasePlanningFolderMapping;
 	}
 
+	public String getProductThemesMetaDataMapping() {
+		return productThemesMetaDataMapping;
+	}
+
 	public String getTrackerTaskConflictResolutionPriority() {
 		return SynchronizationStatus.CONFLICT_RESOLUTIONS[getSelectionIndex(trackerTaskCombo)];
 	}
@@ -287,6 +297,7 @@ public class ProjectMappingWizardPreviewPage extends WizardPage {
 		pbiTrackerMapping = wizard.getSelectedProduct().getName() + "-PBI => " + pbiTracker;
 		productPlanningFolderMapping = wizard.getSelectedProduct().getName() + "-Product => " + project + "-planningFolders";
 		productReleasePlanningFolderMapping = wizard.getSelectedProduct().getName() + "-Release => " + project + "-planningFolders";
+		productThemesMetaDataMapping = wizard.getSelectedProduct().getName() + "-Theme => " + pbiTracker + "-MetaData";
 		trackerTaskText.setText(trackerTaskMapping);
 		trackerPbiText.setText(trackerPbiMapping);
 		planningFolderProductText.setText(planningFolderProductMapping);
@@ -295,6 +306,7 @@ public class ProjectMappingWizardPreviewPage extends WizardPage {
 		pbiTrackerText.setText(pbiTrackerMapping);
 		productPlanningFolderText.setText(productPlanningFolderMapping);
 		productReleasePlanningFolderText.setText(productReleasePlanningFolderMapping);
+		productThemesMetaDataText.setText(productThemesMetaDataMapping);
 	}
 
 }

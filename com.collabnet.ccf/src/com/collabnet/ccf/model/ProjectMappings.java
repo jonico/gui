@@ -4,6 +4,7 @@ public class ProjectMappings {
 	private Landscape landscape;
 	
 	public final static String MAPPING_TYPE_PLANNING_FOLDERS = "planningFolders";
+	public final static String MAPPING_TYPE_METADATA = "MetaData";
 
 	public ProjectMappings(Landscape landscape) {
 		this.landscape = landscape;

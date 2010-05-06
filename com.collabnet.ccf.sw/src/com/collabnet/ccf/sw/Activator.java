@@ -28,6 +28,7 @@ public class Activator extends AbstractUIPlugin {
 	public static final String IMAGE_TASK = "task.png"; //$NON-NLS-1$
 	public static final String IMAGE_PRODUCT = "product.gif"; //$NON-NLS-1$
 	public static final String IMAGE_RELEASE = "release.gif"; //$NON-NLS-1$
+	public static final String IMAGE_THEME = "theme.gif"; //$NON-NLS-1$
 	
 	// ScrumWorks Properties
 	public static final String PROPERTIES_SW_URL = "swp.server.url"; //$NON-NLS-1$
@@ -108,6 +109,7 @@ public class Activator extends AbstractUIPlugin {
 		createImageDescriptor(IMAGE_TASK);
 		createImageDescriptor(IMAGE_PRODUCT);
 		createImageDescriptor(IMAGE_RELEASE);
+		createImageDescriptor(IMAGE_THEME);
 	}
 	
 	protected void initializeImageRegistry(ImageRegistry reg) {
@@ -118,29 +120,8 @@ public class Activator extends AbstractUIPlugin {
 		reg.put(IMAGE_TASK, getImageDescriptor(IMAGE_TASK));
 		reg.put(IMAGE_PRODUCT, getImageDescriptor(IMAGE_PRODUCT));
 		reg.put(IMAGE_RELEASE, getImageDescriptor(IMAGE_RELEASE));
+		reg.put(IMAGE_THEME, getImageDescriptor(IMAGE_THEME));
 	}
-	
-//	public static ScrumWorksEndpoint getScrumWorksEndpoint(Landscape landscape) throws ServiceException {
-//		ScrumWorksEndpoint endpoint = null;
-//		
-//		Properties properties = null;
-//		if (landscape.getType1().equals(ScrumWorksCcfParticipant.TYPE)) {
-//			properties = landscape.getProperties1();
-//		} else {
-//			properties = landscape.getProperties2();
-//		}
-//		
-//		String url = properties.get(PROPERTIES_SW_URL).toString();
-//		String user = properties.get(PROPERTIES_SW_USER).toString();
-//		String password = properties.get(PROPERTIES_SW_PASSWORD).toString();
-//		ScrumWorksServiceLocator locator = new ScrumWorksServiceLocator();
-//		locator.setScrumWorksEndpointPortEndpointAddress(url);	
-//		endpoint = locator.getScrumWorksEndpointPort();
-//		((ScrumWorksEndpointBindingStub) endpoint).setUsername(user);
-//		((ScrumWorksEndpointBindingStub) endpoint).setPassword(password);
-//		
-//		return endpoint;
-//	}
 	
 	public static ScrumWorksAPIService getScrumWorksEndpoint(Landscape landscape) throws MalformedURLException {
 		ScrumWorksAPIService endpoint = null;
