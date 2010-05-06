@@ -37,6 +37,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.actions.ActionDelegate;
 import org.eclipse.ui.model.WorkbenchContentProvider;
@@ -326,12 +327,27 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 	
 	public void refresh(Object object) {
 		Object[] expandedElements = treeViewer.getExpandedElements();
-		for (Object obj : expandedElements) {
-			if (obj.equals(object)) {
-				treeViewer.refresh(obj);
-			}
-			if (obj instanceof ProjectMappings && object == null) {
-				treeViewer.refresh(obj);
+		
+		if (object == null) {
+			TreeItem[] items = treeViewer.getTree().getItems();
+			for (TreeItem item : items) {
+				if (item.getData() instanceof Landscape) {
+					TreeItem[] landscapeItems = item.getItems();
+					for (TreeItem landscapeItem : landscapeItems) {
+						if (landscapeItem.getData() instanceof ProjectMappings) {
+							treeViewer.refresh(landscapeItem.getData());
+						}
+					}
+				}
+			}		
+		} else {
+			for (Object obj : expandedElements) {
+				if (obj.equals(object)) {
+					treeViewer.refresh(obj);
+				}
+				if (obj instanceof ProjectMappings && object == null) {
+					treeViewer.refresh(obj);
+				}
 			}
 		}
 		
