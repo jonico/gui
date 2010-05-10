@@ -189,6 +189,7 @@ public class TeamForgeMappingSection extends MappingSection {
 				metaDataButton.setSelection(false);
 			}
 		}
+		metaDataButton.setVisible(type == TYPE_TARGET);
 	}
 
 	public boolean isPageComplete() {
