@@ -117,6 +117,7 @@ public class ScrumWorksMappingSection extends MappingSection {
 			String type = getType(mappingGroup);
 			if (type != null) {
 				typeCombo.setText(type);
+				typeCombo.setEnabled(false);
 			}
 		}
 	}
@@ -160,6 +161,14 @@ public class ScrumWorksMappingSection extends MappingSection {
 			swpType = SWPMetaData.retrieveSWPTypeFromRepositoryId(projectMapping.getTargetRepositoryId());
 		}
 		productText.setText(product);
+		typeCombo.removeAll();
+		typeCombo.add(SWPMetaData.PRODUCT.toString());
+		typeCombo.add(SWPMetaData.TASK.toString());
+		typeCombo.add(SWPMetaData.PBI.toString());	
+		typeCombo.add(SWPMetaData.RELEASE.toString());
+		if (type == TYPE_SOURCE) {
+			typeCombo.add(SWPMetaData.THEME.toString());
+		}
 		if (swpType == SWPType.RELEASE) {
 			typeCombo.setText(SWPMetaData.RELEASE.toString());
 		}
