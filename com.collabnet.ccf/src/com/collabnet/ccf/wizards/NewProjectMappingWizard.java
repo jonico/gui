@@ -9,6 +9,7 @@ import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.widgets.Display;
 
 import com.collabnet.ccf.Activator;
+import com.collabnet.ccf.ICcfParticipant;
 import com.collabnet.ccf.IMappingSection;
 import com.collabnet.ccf.db.CcfDataProvider;
 import com.collabnet.ccf.model.Landscape;
@@ -122,6 +123,22 @@ public class NewProjectMappingWizard extends Wizard {
 	}
 
 	private void createMapping(final SynchronizationStatus status) {
+		
+		try {
+			ICcfParticipant p1 = Activator.getCcfParticipantForType(status.getSourceSystemKind());
+			if (!p1.allowAsSourceRepository(status.getSourceRepositoryId())) {
+				showReverseNotAllowedDialog(status);
+				addError = true;;
+				return;
+			}
+			ICcfParticipant p2 = Activator.getCcfParticipantForType(status.getTargetSystemKind());
+			if (!p2.allowAsTargetRepository(status.getTargetRepositoryId())) {
+				showReverseNotAllowedDialog(status);
+				addError = true;
+				return;
+			}
+		} catch (Exception e) {}
+		
 		status.setSourceSystemKind(status.getSourceSystemKind() + "_paused");
 		BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
 			public void run() {
@@ -135,6 +152,10 @@ public class NewProjectMappingWizard extends Wizard {
 				}
 			}			
 		});
+	}
+	
+	private void showReverseNotAllowedDialog(SynchronizationStatus status) {
+		MessageDialog.openError(Display.getDefault().getActiveShell(), "New Project Mapping", status.getSourceRepositoryId() + "=>" + status.getTargetRepositoryId()	+ " is not a supported project mapping.");
 	}
 	
 	private void createFieldMappingFile(final SynchronizationStatus status) {
