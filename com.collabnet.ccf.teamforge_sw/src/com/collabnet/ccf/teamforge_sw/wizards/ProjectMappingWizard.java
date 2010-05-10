@@ -102,19 +102,13 @@ public class ProjectMappingWizard extends Wizard {
 			public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 				boolean newProject = false;
 				
-				// Create 9 mappings.
-				int totalWork = 9;
+				// Retrieve existing mappings and create up to 9 mappings.
+				int totalWork = 10;
 				
 				// Need to create project.
 				if (getSelectedProject() == null) {
 					totalWork++;
 					newProject = true;
-				}
-				
-				if (getSelectedPbiTracker() != null || getSelectedTaskTracker() != null) {
-					// If we are using an existing tracker, we will first need to retrieve the
-					// existing mappings to make sure we don't try to add one that already exists.
-					totalWork++;
 				}
 				
 				// Need to create PBIs tracker.
@@ -141,11 +135,9 @@ public class ProjectMappingWizard extends Wizard {
 				monitor.beginTask(taskName, totalWork);
 				
 				existingMappings = new ArrayList<SynchronizationStatus>();
-				if (getSelectedPbiTracker() != null || getSelectedTaskTracker() != null) {
-					monitor.subTask("");
-					getExistingMappings(dataProvider);
-					monitor.worked(1);
-				}
+				monitor.subTask("");
+				getExistingMappings(dataProvider);
+				monitor.worked(1);
 				
 				String projectId = null;
 				String pbiTrackerId = null;
