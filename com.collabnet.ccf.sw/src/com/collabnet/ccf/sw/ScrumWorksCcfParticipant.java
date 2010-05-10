@@ -116,6 +116,14 @@ public class ScrumWorksCcfParticipant extends CcfParticipant {
 	}
 
 	@Override
+	public boolean allowAsTargetRepository(String repositoryId) {
+		if (repositoryId.endsWith("-Theme")) {
+			return false;
+		}
+		return super.allowAsTargetRepository(repositoryId);
+	}
+
+	@Override
 	public MappingGroup[] getMappingGroups(ProjectMappings projectMappingsParent, SynchronizationStatus[] projectMappings) {
 		List<String> products = new ArrayList<String>();
 		for (SynchronizationStatus projectMapping : projectMappings) {

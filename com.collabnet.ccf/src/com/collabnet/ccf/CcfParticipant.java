@@ -84,6 +84,13 @@ public abstract class CcfParticipant implements ICcfParticipant {
 	public int getSortPriority() {
 		return 0;
 	}
+	
+	public boolean allowAsSourceRepository(String repositoryId) {
+		return true;
+	}
+	public boolean allowAsTargetRepository(String repositoryId) {
+		return true;
+	}
 	public int compareTo(Object compareToObject) {
 		if (!(compareToObject instanceof ICcfParticipant)) return 0;
 		ICcfParticipant compareToCcfParticipant = (ICcfParticipant)compareToObject;

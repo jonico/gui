@@ -166,5 +166,13 @@ public class TeamForgeCcfParticipant extends CcfParticipant {
 			return ENTITY_PLANNING_FOLDER;
 		}
 	}
+
+	@Override
+	public boolean allowAsSourceRepository(String repositoryId) {
+		if (repositoryId.endsWith("-MetaData")) {
+			return false;
+		}
+		return super.allowAsSourceRepository(repositoryId);
+	}
 	
 }

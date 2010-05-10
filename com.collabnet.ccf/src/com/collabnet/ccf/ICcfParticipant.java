@@ -88,4 +88,8 @@ public interface ICcfParticipant extends Comparable {
 	public MappingGroup[] getMappingGroups(ProjectMappings projectMappingsParent, SynchronizationStatus[] projectMappings);
 
 	public int getSortPriority();
+	
+	public boolean allowAsSourceRepository(String repositoryId);
+	
+	public boolean allowAsTargetRepository(String repositoryId);
 }
