@@ -16,6 +16,7 @@ import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TableLayout;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerSorter;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -90,6 +91,17 @@ public class ProjectMappingWizardSwpProductPage extends WizardPage {
 				IStructuredSelection productSelection = (IStructuredSelection)viewer.getSelection();
 				setPageComplete(!productSelection.isEmpty());
 				selectedProduct = (Product)productSelection.getFirstElement();
+			}		
+		});
+		viewer.setSorter(new ViewerSorter() {
+			@Override
+			public int compare(Viewer viewer, Object e1, Object e2) {
+				if (e1 instanceof Product && e2 instanceof Product) {
+					Product p1 = (Product)e1;
+					Product p2 = (Product)e2;
+					return p1.getName().toLowerCase().compareTo(p2.getName().toLowerCase());
+				}
+				return super.compare(viewer, e1, e2);
 			}		
 		});
 
