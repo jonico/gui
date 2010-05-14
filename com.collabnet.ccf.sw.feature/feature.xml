@@ -2,7 +2,7 @@
 <feature
       id="com.collabnet.ccf.sw.feature"
       label="ScrumWorksPro Connector for CCF"
-      version="1.0.0"
+      version="1.0.1"
       provider-name="CollabNet"
       plugin="com.collabnet.ccf.sw">
 
