@@ -166,7 +166,7 @@ public class MapUsersWizardPage extends WizardPage {
 					monitor.subTask("SWP product users");
 					Product product = ((AbstractMappingWizard)getWizard()).getScrumWorksEndpoint().getProductByName(getProduct());
 					monitor.worked(1);
-					List<Sprint> sprints = ((AbstractMappingWizard)getWizard()).getScrumWorksEndpoint().getSprints(product.getId());
+					List<Sprint> sprints = ((AbstractMappingWizard)getWizard()).getScrumWorksEndpoint().getSprintsForProduct(product.getId());
 					monitor.worked(1);
 					for (Sprint sprint : sprints) {
 						List<String> sprintUsers = ((AbstractMappingWizard)getWizard()).getScrumWorksEndpoint().getUsersForSprint(sprint.getId());

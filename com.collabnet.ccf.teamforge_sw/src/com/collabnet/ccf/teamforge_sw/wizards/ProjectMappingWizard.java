@@ -472,7 +472,7 @@ public class ProjectMappingWizard extends Wizard {
 		monitor.subTask("Getting product " + product.getName() + " users");
 		List<String> productUserList = new ArrayList<String>();
 		try {
-			List<Sprint> sprints = getScrumWorksEndpoint().getSprints(product.getId());
+			List<Sprint> sprints = getScrumWorksEndpoint().getSprintsForProduct(product.getId());
 			for (Sprint sprint : sprints) {
 				List<String> sprintUsers = getScrumWorksEndpoint().getUsersForSprint(sprint.getId());
 				if (sprintUsers != null) {
