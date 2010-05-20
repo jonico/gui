@@ -88,6 +88,20 @@ public class NewLandscapeWizardPropertiesFolderPage extends WizardPage {
 				if(file!=null) {
 					IPath path = new Path(file);
 					configFileText1.setText(path.toOSString());
+					if (configFileText2 != null && configFileText2.getText().trim().length() == 0) {
+						File parent = path.toFile().getParentFile();
+						if (parent != null && parent.getName().equals("config")) {
+							parent = parent.getParentFile();
+							if (parent != null) {
+								String folderName = parent.getName();
+								int twoIndex = folderName.indexOf("2");
+								if (twoIndex != -1) {
+									String reverseFolderName = folderName.substring(twoIndex + 1) + "2" + folderName.substring(0, twoIndex);
+									configFileText2.setText(path.toOSString().replaceAll(folderName, reverseFolderName));
+								}
+							}
+						}
+					}
 					setPageComplete(canFinish());
 				}							
 			}
@@ -137,6 +151,20 @@ public class NewLandscapeWizardPropertiesFolderPage extends WizardPage {
 				if(file!=null) {
 					IPath path = new Path(file);
 					configFileText2.setText(path.toOSString());
+					if (configFileText1 != null && configFileText1.getText().trim().length() == 0) {
+						File parent = path.toFile().getParentFile();
+						if (parent != null && parent.getName().equals("config")) {
+							parent = parent.getParentFile();
+							if (parent != null) {
+								String folderName = parent.getName();
+								int twoIndex = folderName.indexOf("2");
+								if (twoIndex != -1) {
+									String reverseFolderName = folderName.substring(twoIndex + 1) + "2" + folderName.substring(0, twoIndex);
+									configFileText1.setText(path.toOSString().replaceAll(folderName, reverseFolderName));
+								}
+							}
+						}
+					}
 					setPageComplete(canFinish());
 				}							
 			}
