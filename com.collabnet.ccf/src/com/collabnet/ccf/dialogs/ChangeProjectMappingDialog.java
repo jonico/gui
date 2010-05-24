@@ -203,8 +203,9 @@ public class ChangeProjectMappingDialog extends CcfDialog implements IPageComple
 					
 					if (status.usesGraphicalMapping() && !newXslFileName.equals(oldXslFileName)) {
 						status.switchToGraphicalMapping();
-						dataProvider.setFieldMappingMode(status);
 					}
+					
+					dataProvider.setFieldMappingMode(status);
 					
 					if (groupText.getText().trim().length() > 0 && !groupText.getText().trim().equals(oldGroup)) {
 						if (!dataProvider.groupExists(groupText.getText().trim(), database)) {

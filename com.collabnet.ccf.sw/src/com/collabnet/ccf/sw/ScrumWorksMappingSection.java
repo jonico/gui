@@ -35,6 +35,7 @@ import com.danube.scrumworks.api2.client.ScrumWorksAPIService;
 public class ScrumWorksMappingSection extends MappingSection {
 	private Text productText;
 	private Combo typeCombo;
+	private Button mapToAssignedToUserButton;
 
 	private Product[] products;
 	private Exception soapException;
@@ -42,6 +43,10 @@ public class ScrumWorksMappingSection extends MappingSection {
 	private IDialogSettings settings = com.collabnet.ccf.sw.Activator.getDefault().getDialogSettings();
 
 	private static final String PREVIOUS_TYPE = "ScrumWorksMappingSection.type";
+	
+	public final static String MAP_POINT_PERSON_TO_ASSIGNED_TO = "Map ScrumWorksPro Point Person to TeamForge Assigned To User";
+	public final static String TEMPLATE_TASKS = "TemplateTasks.xsl";
+	public final static String TEMPLATE_TASKS_FLEX_FIELD = "TemplateTasksFlexField.xsl";
 	
 	public Composite getComposite(Composite parent, final Landscape landscape) {
 		Group swGroup = new Group(parent, SWT.NULL);
@@ -90,6 +95,22 @@ public class ScrumWorksMappingSection extends MappingSection {
 				if (getProjectPage() != null) {
 					getProjectPage().setPageComplete();
 					settings.put(PREVIOUS_TYPE, typeCombo.getText());
+					mapToAssignedToUserButton.setVisible(typeCombo.getText().equals(SWPMetaData.TASK.toString()));
+				}
+			}
+		});
+		
+		new Label(swGroup, SWT.CHECK);
+		
+		mapToAssignedToUserButton = new Button(swGroup, SWT.CHECK);
+		mapToAssignedToUserButton.setText(MAP_POINT_PERSON_TO_ASSIGNED_TO);
+		GridData data = new GridData();
+		data.horizontalSpan = 3;
+		mapToAssignedToUserButton.setLayoutData(data);
+		mapToAssignedToUserButton.addSelectionListener(new SelectionAdapter() {		
+			public void widgetSelected(SelectionEvent e) {
+				if (getProjectPage() != null) {
+					getProjectPage().setPageComplete();
 				}
 			}
 		});
@@ -103,6 +124,8 @@ public class ScrumWorksMappingSection extends MappingSection {
 		};
 		
 		productText.addModifyListener(modifyListener);
+		
+		mapToAssignedToUserButton.setVisible(typeCombo.getText().equals(SWPMetaData.TASK.toString()));
 		
 		return swGroup;
 	}
@@ -182,7 +205,9 @@ public class ScrumWorksMappingSection extends MappingSection {
 			typeCombo.setText(SWPMetaData.PBI.toString());
 		} else {
 			typeCombo.setText(SWPMetaData.TASK.toString());
+			mapToAssignedToUserButton.setSelection(projectMapping.getSourceRepositoryKind().equals(TEMPLATE_TASKS));
 		}
+		mapToAssignedToUserButton.setVisible(typeCombo.getText().equals(SWPMetaData.TASK.toString()));
 	}
 
 	public boolean isPageComplete() {
@@ -201,7 +226,11 @@ public class ScrumWorksMappingSection extends MappingSection {
 		} else if (projectMapping.getSourceRepositoryId().endsWith("PBI")) {
 			projectMapping.setSourceRepositoryKind("TemplatePBIs.xsl");
 		} else if (projectMapping.getSourceRepositoryId().endsWith("Task")) {
-			projectMapping.setSourceRepositoryKind("TemplateTasks.xsl");
+			if (mapToAssignedToUserButton.getSelection()) {
+				projectMapping.setSourceRepositoryKind(TEMPLATE_TASKS);
+			} else {
+				projectMapping.setSourceRepositoryKind(TEMPLATE_TASKS_FLEX_FIELD);
+			}
 		} else if (projectMapping.getSourceRepositoryId().endsWith("Product")) {
 			projectMapping.setSourceRepositoryKind("TemplateProducts.xsl");
 		} else {
@@ -222,7 +251,11 @@ public class ScrumWorksMappingSection extends MappingSection {
 		} else if (projectMapping.getTargetRepositoryId().endsWith("PBI")) {
 			projectMapping.setSourceRepositoryKind("TemplatePBIs.xsl");
 		} else if (projectMapping.getTargetRepositoryId().endsWith("Task")) {
-			projectMapping.setSourceRepositoryKind("TemplateTasks.xsl");
+			if (mapToAssignedToUserButton.getSelection()) {
+				projectMapping.setSourceRepositoryKind(TEMPLATE_TASKS);
+			} else {
+				projectMapping.setSourceRepositoryKind(TEMPLATE_TASKS_FLEX_FIELD);
+			}
 		} else if (projectMapping.getTargetRepositoryId().endsWith("Product")) {
 			projectMapping.setSourceRepositoryKind("TemplateProducts.xsl");
 		} else {

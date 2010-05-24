@@ -20,6 +20,7 @@ import com.collabnet.ccf.model.Landscape;
 import com.collabnet.ccf.model.ProjectMappings;
 import com.collabnet.ccf.model.SynchronizationStatus;
 import com.collabnet.ccf.sw.ScrumWorksCcfParticipant;
+import com.collabnet.ccf.sw.ScrumWorksMappingSection;
 import com.collabnet.ccf.teamforge.schemageneration.TFSoapClient;
 import com.collabnet.teamforge.api.main.ProjectDO;
 import com.collabnet.teamforge.api.main.ProjectMemberList;
@@ -68,9 +69,6 @@ public class ProjectMappingWizard extends Wizard {
 	public final static String PRODUCT_DEVELOPER_ROLE_TITLE = "Product Developer";
 	public final static String PRODUCT_DEVELOPER_ROLE_DESCRIPTION = "People who develop the software application, taking story input from the product managers, breaking them down into story tasks, estimating them, and implementing them when backlogged to a release or an iteration.";
 
-	public final static String TEMPLATE_TASKS = "TemplateTasks.xsl";
-	public final static String TEMPLATE_TASKS_FLEX_FIELD = "TemplateTasksFlexField.xsl";
-	
 	public ProjectMappingWizard(Landscape landscape, ProjectMappings projectMappings) {
 		super();
 		this.landscape = landscape;
@@ -298,9 +296,9 @@ public class ProjectMappingWizard extends Wizard {
 				projectMapping.setTargetRepositoryId(getSelectedProduct().getName() + "-Task");
 				projectMapping.setConflictResolutionPriority(previewPage.getTrackerTaskConflictResolutionPriority());
 				if (trackerPage.isMapToAssignedToUser()) {
-					projectMapping.setSourceRepositoryKind(TEMPLATE_TASKS);
+					projectMapping.setSourceRepositoryKind(ScrumWorksMappingSection.TEMPLATE_TASKS);
 				} else {
-					projectMapping.setSourceRepositoryKind(TEMPLATE_TASKS_FLEX_FIELD);
+					projectMapping.setSourceRepositoryKind(ScrumWorksMappingSection.TEMPLATE_TASKS_FLEX_FIELD);
 				}
 				createMapping(projectMapping, dataProvider);
 				monitor.worked(1);
@@ -346,9 +344,9 @@ public class ProjectMappingWizard extends Wizard {
 				}
 				projectMapping.setSourceRepositoryId(getSelectedProduct().getName() + "-Task");
 				if (trackerPage.isMapToAssignedToUser()) {
-					projectMapping.setSourceRepositoryKind(TEMPLATE_TASKS);
+					projectMapping.setSourceRepositoryKind(ScrumWorksMappingSection.TEMPLATE_TASKS);
 				} else {
-					projectMapping.setSourceRepositoryKind(TEMPLATE_TASKS_FLEX_FIELD);
+					projectMapping.setSourceRepositoryKind(ScrumWorksMappingSection.TEMPLATE_TASKS_FLEX_FIELD);
 				}
 				projectMapping.setTargetRepositoryId(taskTrackerId);
 				projectMapping.setConflictResolutionPriority(previewPage.getTaskTrackerConflictResolutionPriority());

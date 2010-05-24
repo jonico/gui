@@ -38,6 +38,7 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.Text;
 
 import com.collabnet.ccf.Activator;
+import com.collabnet.ccf.sw.ScrumWorksMappingSection;
 import com.collabnet.teamforge.api.main.ProjectRow;
 import com.collabnet.teamforge.api.tracker.TrackerRow;
 
@@ -111,7 +112,7 @@ public class ProjectMappingWizardTeamForgeTrackerPage extends WizardPage {
 		newTaskTrackerText.setText(newTaskTrackerTitle);
 		
 		mapToAssignedToUserButton = new Button(taskGroup, SWT.CHECK);
-		mapToAssignedToUserButton.setText("Map ScrumWorksPro Point Person to TeamForge Assigned To User");
+		mapToAssignedToUserButton.setText(ScrumWorksMappingSection.MAP_POINT_PERSON_TO_ASSIGNED_TO);
 		GridData data = new GridData();
 		data.horizontalSpan = 2;
 		mapToAssignedToUserButton.setLayoutData(data);
