@@ -53,11 +53,13 @@ public class ProjectMappingWizardTeamForgeTrackerPage extends WizardPage {
 	private Text newTaskTrackerText;
 	private Table taskTable;
 	private TableViewer taskViewer;
+	private Button mapToAssignedToUserButton;
 	private TrackerRow selectedPbiTracker;
 	private TrackerRow selectedTaskTracker;
 	private String projectId;
 	private String newPbiTrackerTitle;
 	private String newTaskTrackerTitle;
+	private boolean mapToAssignedToUser = true;
 	private Exception getTrackersError;
 	
 	private String[] columnHeaders = {"Tracker"};
@@ -108,33 +110,45 @@ public class ProjectMappingWizardTeamForgeTrackerPage extends WizardPage {
 		newTaskTrackerTitle = "Tasks";
 		newTaskTrackerText.setText(newTaskTrackerTitle);
 		
+		mapToAssignedToUserButton = new Button(taskGroup, SWT.CHECK);
+		mapToAssignedToUserButton.setText("Map ScrumWorksPro Point Person to TeamForge Assigned To User");
+		GridData data = new GridData();
+		data.horizontalSpan = 2;
+		mapToAssignedToUserButton.setLayoutData(data);
+		mapToAssignedToUserButton.setSelection(mapToAssignedToUser);
+		
 		taskTable = createTable(taskGroup);	
 		taskViewer = createViewer(taskTable);
 		
 		SelectionListener selectionListener = new SelectionAdapter() {			
 			public void widgetSelected(SelectionEvent event) {
-				if (event.getSource() == newPbiTrackerButton) {
-					if (newPbiTrackerButton.getSelection()) {
-						pbiViewer.getTable().deselectAll();
-						if (newPbiTrackerText.getText().trim().length() == 0) {
-							newPbiTrackerText.setFocus();
+				if (event.getSource() == mapToAssignedToUserButton) {
+					mapToAssignedToUser = mapToAssignedToUserButton.getSelection();
+				} else {
+					if (event.getSource() == newPbiTrackerButton) {
+						if (newPbiTrackerButton.getSelection()) {
+							pbiViewer.getTable().deselectAll();
+							if (newPbiTrackerText.getText().trim().length() == 0) {
+								newPbiTrackerText.setFocus();
+							}
 						}
 					}
-				}
-				if (event.getSource() == newTaskTrackerButton) {
-					if (newTaskTrackerButton.getSelection()) {
-						taskViewer.getTable().deselectAll();
-						if (newTaskTrackerText.getText().trim().length() == 0) {
-							newTaskTrackerText.setFocus();
+					if (event.getSource() == newTaskTrackerButton) {
+						if (newTaskTrackerButton.getSelection()) {
+							taskViewer.getTable().deselectAll();
+							if (newTaskTrackerText.getText().trim().length() == 0) {
+								newTaskTrackerText.setFocus();
+							}
 						}
 					}
+					setPageComplete(canFinish());
 				}
-				setPageComplete(canFinish());
 			}
 		};
 		
 		newPbiTrackerButton.addSelectionListener(selectionListener);
 		newTaskTrackerButton.addSelectionListener(selectionListener);
+		mapToAssignedToUserButton.addSelectionListener(selectionListener);
 		
 		ISelectionChangedListener selectionChangedListener = new ISelectionChangedListener() {
 			public void selectionChanged(SelectionChangedEvent event) {
@@ -308,6 +322,10 @@ public class ProjectMappingWizardTeamForgeTrackerPage extends WizardPage {
 
 	public String getNewTaskTrackerTitle() {
 		return newTaskTrackerTitle;
+	}
+
+	public boolean isMapToAssignedToUser() {
+		return mapToAssignedToUser;
 	}
 
 	private TrackerRow[] getTrackers(final String projectId) {

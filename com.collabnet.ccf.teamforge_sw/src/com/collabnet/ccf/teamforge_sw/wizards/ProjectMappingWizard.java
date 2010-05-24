@@ -68,6 +68,9 @@ public class ProjectMappingWizard extends Wizard {
 	public final static String PRODUCT_DEVELOPER_ROLE_TITLE = "Product Developer";
 	public final static String PRODUCT_DEVELOPER_ROLE_DESCRIPTION = "People who develop the software application, taking story input from the product managers, breaking them down into story tasks, estimating them, and implementing them when backlogged to a release or an iteration.";
 
+	public final static String TEMPLATE_TASKS = "TemplateTasks.xsl";
+	public final static String TEMPLATE_TASKS_FLEX_FIELD = "TemplateTasksFlexField.xsl";
+	
 	public ProjectMappingWizard(Landscape landscape, ProjectMappings projectMappings) {
 		super();
 		this.landscape = landscape;
@@ -193,7 +196,7 @@ public class ProjectMappingWizard extends Wizard {
 								TrackerFieldValueDO done = new TrackerFieldValueDO(getSoapClient().supports50());
 								done.setIsDefault(false);
 								done.setValue("Done");
-								done.setValueClass("Close");
+								done.setValueClass("Open");
 								done.setId(getFieldId("Done", oldValues));
 								TrackerFieldValueDO[] fieldValues = { open, done };
 								field.setFieldValues(fieldValues);
@@ -224,6 +227,7 @@ public class ProjectMappingWizard extends Wizard {
 								getSoapClient().setField(taskTrackerId, field);
 							}
 						}
+						getSoapClient().addTextField(taskTrackerId, "Point Person", 30, 1, false, false, false, null);
 						for (TrackerFieldDO field : fields) {
 							if (field.getName().equals("status")) {
 								TrackerFieldValueDO[] oldValues = field.getFieldValues();
@@ -293,8 +297,11 @@ public class ProjectMappingWizard extends Wizard {
 				projectMapping.setSourceRepositoryId(taskTrackerId);
 				projectMapping.setTargetRepositoryId(getSelectedProduct().getName() + "-Task");
 				projectMapping.setConflictResolutionPriority(previewPage.getTrackerTaskConflictResolutionPriority());
-//				projectMapping.setSourceRepositoryKind("TRACKER");
-				projectMapping.setSourceRepositoryKind("TemplateTasks.xsl");
+				if (trackerPage.isMapToAssignedToUser()) {
+					projectMapping.setSourceRepositoryKind(TEMPLATE_TASKS);
+				} else {
+					projectMapping.setSourceRepositoryKind(TEMPLATE_TASKS_FLEX_FIELD);
+				}
 				createMapping(projectMapping, dataProvider);
 				monitor.worked(1);
 				
@@ -338,7 +345,11 @@ public class ProjectMappingWizard extends Wizard {
 					projectMapping.setTargetSystemTimezone(landscape.getTimezone1());					
 				}
 				projectMapping.setSourceRepositoryId(getSelectedProduct().getName() + "-Task");
-				projectMapping.setSourceRepositoryKind("TemplateTasks.xsl");
+				if (trackerPage.isMapToAssignedToUser()) {
+					projectMapping.setSourceRepositoryKind(TEMPLATE_TASKS);
+				} else {
+					projectMapping.setSourceRepositoryKind(TEMPLATE_TASKS_FLEX_FIELD);
+				}
 				projectMapping.setTargetRepositoryId(taskTrackerId);
 				projectMapping.setConflictResolutionPriority(previewPage.getTaskTrackerConflictResolutionPriority());
 				createMapping(projectMapping, dataProvider);
