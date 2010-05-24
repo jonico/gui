@@ -126,6 +126,7 @@ public class ScrumWorksMappingSection extends MappingSection {
 		productText.addModifyListener(modifyListener);
 		
 		mapToAssignedToUserButton.setVisible(typeCombo.getText().equals(SWPMetaData.TASK.toString()));
+		mapToAssignedToUserButton.setSelection(true);
 		
 		return swGroup;
 	}
