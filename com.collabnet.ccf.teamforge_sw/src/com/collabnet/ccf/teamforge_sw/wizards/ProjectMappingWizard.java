@@ -223,7 +223,7 @@ public class ProjectMappingWizard extends Wizard {
 								getSoapClient().setField(taskTrackerId, field);
 							}
 						}
-						getSoapClient().addTextField(taskTrackerId, "Point Person", 30, 1, false, false, false, null);
+						getSoapClient().addTextField(taskTrackerId, "Point Person", 30, 1, false, trackerPage.isMapToAssignedToUser(), false, null);
 						for (TrackerFieldDO field : fields) {
 							if (field.getName().equals("status")) {
 								TrackerFieldValueDO[] oldValues = field.getFieldValues();
