@@ -163,6 +163,21 @@
             properties="isTrackerPbisMapping,isTeamForgeScrumWorksMapping"
             type="com.collabnet.ccf.model.AdministratorSynchronizationStatus">
       </propertyTester>      
+   </extension> 
+   
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer class="com.collabnet.ccf.teamforge_sw.preferences.TeamForgeSwpPreferenceInitializer"/>
    </extension>   
+   
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            name="TF-SWP Integration"
+            category="com.collabnet.ccf.preferences"
+            class="com.collabnet.ccf.teamforge_sw.preferences.TeamForgeSwpPreferencesPage"
+            id="com.collabnet.ccf.teamforge_sw.preferences.TeamForgeSwpPreferencesPage">
+      </page>
+   </extension>     
 
 </plugin>

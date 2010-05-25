@@ -45,6 +45,7 @@ import com.danube.scrumworks.api2.client.User;
 public class ProjectMappingWizard extends Wizard {
 	private Landscape landscape;
 	private ProjectMappings projectMappings;
+	private CcfDataProvider dataProvider = new CcfDataProvider();
 	
 	private ProjectMappingWizardSwpProductPage productPage;
 	private ProjectMappingWizardTeamForgeProjectPage projectPage;
@@ -58,7 +59,6 @@ public class ProjectMappingWizard extends Wizard {
 	private List<String> duplicateUsers;
 	private boolean userMappingErrors;
 	
-//	private ScrumWorksEndpoint scrumWorksEndpoint;
 	private ScrumWorksAPIService scrumWorksEndpoint;
 	
 	private final static String TRACKER_DESCRIPTION_PBIS = "SWP Product Backlog Items";
@@ -130,14 +130,12 @@ public class ProjectMappingWizard extends Wizard {
 					}
 				}
 				
-				CcfDataProvider dataProvider = new CcfDataProvider();
 				String taskName = "Creating project mappings";
 				monitor.setTaskName(taskName);
 				monitor.beginTask(taskName, totalWork);
 				
-				existingMappings = new ArrayList<SynchronizationStatus>();
 				monitor.subTask("");
-				getExistingMappings(dataProvider);
+				getExistingMappings();
 				monitor.worked(1);
 				
 				String projectId = null;
@@ -672,15 +670,19 @@ public class ProjectMappingWizard extends Wizard {
 		}
 	}
 	
-	private void getExistingMappings(CcfDataProvider dataProvider) {
-		try {
-			SynchronizationStatus[] existingMappingsArray = dataProvider.getSynchronizationStatuses(landscape, projectMappings);
-			for (SynchronizationStatus mapping : existingMappingsArray) {
-				existingMappings.add(mapping);
-			}
-		} catch (Exception e) {
-			Activator.handleError(e);
+	public List<SynchronizationStatus> getExistingMappings() {
+		if (existingMappings == null) {
+			existingMappings = new ArrayList<SynchronizationStatus>();
+			try {
+				SynchronizationStatus[] existingMappingsArray = dataProvider.getSynchronizationStatuses(landscape, projectMappings);
+				for (SynchronizationStatus mapping : existingMappingsArray) {
+					existingMappings.add(mapping);
+				}
+			} catch (Exception e) {
+				Activator.handleError(e);
+			}			
 		}
+		return existingMappings;
 	}
 
 }

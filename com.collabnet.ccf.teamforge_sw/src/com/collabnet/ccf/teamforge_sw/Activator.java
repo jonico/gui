@@ -7,7 +7,10 @@ import org.osgi.framework.BundleContext;
  * The activator class controls the plug-in life cycle
  */
 public class Activator extends AbstractUIPlugin {
-
+	// Preferences
+	public static final String PREFERENCES_MAP_MULTIPLE = "pref_map_multiple"; //$NON-NLS-1$
+	public static final boolean DEFAULT_MAP_MULTIPLE = false;
+	
 	// The plug-in ID
 	public static final String PLUGIN_ID = "com.collabnet.ccf.teamforge_sw";
 
