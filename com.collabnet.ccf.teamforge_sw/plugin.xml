@@ -9,6 +9,14 @@
             id="com.collabnet.ccf.teamforge_sw.ProjectMappingVisibilityChecker">
       </visibilityChecker>                   
    </extension>
+   
+   <extension
+         point="com.collabnet.ccf.mappingChangeListeners">
+      <changeListener
+            class="com.collabnet.ccf.teamforge_sw.TeamForgeSwpProjectMappingChangeListener"
+            id="com.collabnet.ccf.teamforge_sw.TeamForgeSwpProjectMappingChangeListener">
+      </changeListener>                   
+   </extension>   
 
 	<extension point="org.eclipse.ui.commands">
 		<category

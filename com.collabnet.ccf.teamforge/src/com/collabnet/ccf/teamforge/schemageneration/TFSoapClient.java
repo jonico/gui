@@ -110,6 +110,21 @@ public class TFSoapClient {
 		connection.getTrackerClient().setField(objectId, fieldData);
 	}
 	
+	public void setFieldEnablement(String trackerId, String fieldName, boolean disabled) throws RemoteException {
+		TrackerFieldDO[] fields = getFields(trackerId);
+		if (fields != null) {
+			for (TrackerFieldDO field : fields) {
+				if (field.getName().equals(fieldName)) {
+					if (field.getDisabled() != disabled) {
+						field.setDisabled(disabled);
+						setField(trackerId, field);
+					}
+					return;
+				}
+			}
+		}
+	}
+	
 	public void addTextField(String trackerId, String fieldName, int displayColumns, int displayLines, boolean isRequired, boolean isDisabled, boolean isHiddenOnCreate, String defaultValue) throws RemoteException {
 		connection.getTrackerClient().addTextField(trackerId, fieldName, displayColumns, displayLines, isRequired, isDisabled, isHiddenOnCreate, defaultValue);
 	}

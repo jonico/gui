@@ -212,7 +212,7 @@ public class ChangeProjectMappingDialog extends CcfDialog implements IPageComple
 							dataProvider.addGroup(groupText.getText().trim(), database);
 						}
 					}
-				
+					Activator.notifyProjectMappingChangeListeners(status);
 				} catch (Exception e) {
 					Activator.handleError(e);
 					changeError = true;

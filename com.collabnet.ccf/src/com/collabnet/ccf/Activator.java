@@ -41,6 +41,7 @@ import com.collabnet.ccf.model.OperatorLandscape;
 import com.collabnet.ccf.model.Patient;
 import com.collabnet.ccf.model.ProjectMappings;
 import com.collabnet.ccf.model.Role;
+import com.collabnet.ccf.model.SynchronizationStatus;
 import com.collabnet.ccf.schemageneration.Proxy;
 
 /**
@@ -59,9 +60,13 @@ public class Activator extends AbstractUIPlugin {
 	
 	// Project mappings visibility checkers extension point ID
 	public static final String CCF_VISIBILITY_CHECKERS = "com.collabnet.ccf.mappingVisibilityCheckers"; //$NON-NLS-1$
+	
+	// Project mapping change listeners extension point ID
+	public static final String CCF_MAPPING_CHANGE_LISTENERS = "com.collabnet.ccf.mappingChangeListeners"; //$NON-NLS-1$
 
 	private static ICcfParticipant[] ccfParticipants;
 	private static IProjectMappingVisibilityChecker[] visibilityCheckers;
+	private static IProjectMappingChangeListener[] mappingChangeListeners;
 	private static List<IProjectMappingsChangeListener> changeListeners = new ArrayList<IProjectMappingsChangeListener>();
 	private static List<IRoleChangedListener> roleChangedListeners = new ArrayList<IRoleChangedListener>();
 	
@@ -231,7 +236,7 @@ public class Activator extends AbstractUIPlugin {
 		ccfParticipants = getCcfParticipants();
 		
 		visibilityCheckers = getVisibilityCheckers();
-	
+		mappingChangeListeners = getMappingChangeListeners();
 		plugin = this;
 		
 		proxyServiceTracker = new ServiceTracker(getBundle().getBundleContext(), IProxyService.class.getName(), null);
@@ -380,6 +385,31 @@ public class Activator extends AbstractUIPlugin {
 			visibilityCheckerList.toArray(visibilityCheckers);	
 		}
 		return visibilityCheckers;
+	}
+	
+	// Initialize the mapping change listeners by searching the registry for users of the
+	// mapping change listeners extension point.	
+	public static IProjectMappingChangeListener[] getMappingChangeListeners() throws Exception {
+		if (mappingChangeListeners == null) {
+			ArrayList<IProjectMappingChangeListener> changeListenerList = new ArrayList<IProjectMappingChangeListener>();
+			IExtensionRegistry extensionRegistry = Platform.getExtensionRegistry();
+			IConfigurationElement[] configurationElements = extensionRegistry.getConfigurationElementsFor(CCF_MAPPING_CHANGE_LISTENERS);
+			for (int i = 0; i < configurationElements.length; i++) {
+				IConfigurationElement configurationElement = configurationElements[i];
+				IProjectMappingChangeListener changeListener = (IProjectMappingChangeListener)configurationElement.createExecutableExtension("class"); //$NON-NLS-1$
+				changeListenerList.add(changeListener);
+			}
+			mappingChangeListeners = new IProjectMappingChangeListener[changeListenerList.size()];
+			changeListenerList.toArray(mappingChangeListeners);	
+		}
+		return mappingChangeListeners;
+	}
+	
+	public static void notifyProjectMappingChangeListeners(SynchronizationStatus projectMapping) throws Exception {
+		mappingChangeListeners = getMappingChangeListeners();
+		for (IProjectMappingChangeListener listener : mappingChangeListeners) {
+			listener.projectMappingChanged(projectMapping);
+		}
 	}
 
 	public boolean storeLandscape(String description, int role, String group, Database database, ICcfParticipant ccfParticipant1, ICcfParticipant ccfParticipant2, String configurationFolder1, String configurationFolder2) {
