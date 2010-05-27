@@ -179,7 +179,7 @@ public class ProjectMappingWizard extends Wizard {
 						getSoapClient().addDateField(pbiTrackerId, "Sprint End", false, false, false);
 						
 						String[] themeValues = getThemeValues();
-						getSoapClient().addMultiSelectField(pbiTrackerId, "Themes", 4, false, false, false, themeValues, null);
+						getSoapClient().addMultiSelectField(pbiTrackerId, "Themes", 10, false, false, false, themeValues, null);
 	
 						for (TrackerFieldDO field : fields) {
 							if (field.getName().equals("status")) {
