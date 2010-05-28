@@ -61,7 +61,7 @@ public class ChangeProjectMappingDialog extends CcfDialog implements IPageComple
 	private boolean changeError;
 
 	public ChangeProjectMappingDialog(Shell shell, SynchronizationStatus status) {
-		super(shell, "ChangeProjectMappingDialog." + status.getSourceSystemId() + "." + status.getTargetSystemId());
+		super(shell, "ChangeProjectMappingDialog.1." + status.getSourceSystemId() + "." + status.getTargetSystemId());
 		this.status = status;
 		oldXslFileName = status.getXslFileName();
 		oldGroup = status.getGroup();

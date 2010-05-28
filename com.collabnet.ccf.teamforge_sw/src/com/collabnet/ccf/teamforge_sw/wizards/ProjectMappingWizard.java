@@ -290,8 +290,9 @@ public class ProjectMappingWizard extends Wizard {
 					projectMapping.setSourceSystemTimezone(landscape.getTimezone2());
 					projectMapping.setTargetSystemTimezone(landscape.getTimezone1());					
 				}
+				String productNameAndId = getSelectedProduct().getName() + "(" + getSelectedProduct().getId() + ")";
 				projectMapping.setSourceRepositoryId(taskTrackerId);
-				projectMapping.setTargetRepositoryId(getSelectedProduct().getName() + "-Task");
+				projectMapping.setTargetRepositoryId(productNameAndId + "-Task");
 				projectMapping.setConflictResolutionPriority(previewPage.getTrackerTaskConflictResolutionPriority());
 				if (trackerPage.isMapToAssignedToUser()) {
 					projectMapping.setSourceRepositoryKind(ScrumWorksMappingSection.TEMPLATE_TASKS);
@@ -303,7 +304,7 @@ public class ProjectMappingWizard extends Wizard {
 				
 				monitor.subTask(previewPage.getTrackerPbiMapping());
 				projectMapping.setSourceRepositoryId(pbiTrackerId);
-				projectMapping.setTargetRepositoryId(getSelectedProduct().getName() + "-PBI");
+				projectMapping.setTargetRepositoryId(productNameAndId + "-PBI");
 				projectMapping.setConflictResolutionPriority(previewPage.getTrackerPbiConflictResolutionPriority());
 				projectMapping.setSourceRepositoryKind("TemplatePBIs.xsl");
 				createMapping(projectMapping, dataProvider);
@@ -311,14 +312,14 @@ public class ProjectMappingWizard extends Wizard {
 				
 				monitor.subTask(previewPage.getPlanningFolderProductMapping());
 				projectMapping.setSourceRepositoryId(projectId + "-planningFolders");
-				projectMapping.setTargetRepositoryId(getSelectedProduct().getName() + "-Product");
+				projectMapping.setTargetRepositoryId(productNameAndId + "-Product");
 				projectMapping.setConflictResolutionPriority(previewPage.getPlanningFolderProductConflictResolutionPriority());
 				projectMapping.setSourceRepositoryKind("TemplateProducts.xsl");
 				createMapping(projectMapping, dataProvider);
 				monitor.worked(1);
 				
 				monitor.subTask(previewPage.getPlanningFolderProductReleaseMapping());
-				projectMapping.setTargetRepositoryId(getSelectedProduct().getName() + "-Release");
+				projectMapping.setTargetRepositoryId(productNameAndId + "-Release");
 				projectMapping.setConflictResolutionPriority(previewPage.getPlanningFolderProductReleaseConflictResolutionPriority());
 				projectMapping.setSourceRepositoryKind("TemplateReleases.xsl");
 				createMapping(projectMapping, dataProvider);
@@ -340,7 +341,7 @@ public class ProjectMappingWizard extends Wizard {
 					projectMapping.setSourceSystemTimezone(landscape.getTimezone2());
 					projectMapping.setTargetSystemTimezone(landscape.getTimezone1());					
 				}
-				projectMapping.setSourceRepositoryId(getSelectedProduct().getName() + "-Task");
+				projectMapping.setSourceRepositoryId(productNameAndId + "-Task");
 				if (trackerPage.isMapToAssignedToUser()) {
 					projectMapping.setSourceRepositoryKind(ScrumWorksMappingSection.TEMPLATE_TASKS);
 				} else {
@@ -352,7 +353,7 @@ public class ProjectMappingWizard extends Wizard {
 				monitor.worked(1);
 				
 				monitor.subTask(previewPage.getPbiTrackerMapping());
-				projectMapping.setSourceRepositoryId(getSelectedProduct().getName() + "-PBI");
+				projectMapping.setSourceRepositoryId(productNameAndId + "-PBI");
 				projectMapping.setSourceRepositoryKind("TemplatePBIs.xsl");
 				projectMapping.setTargetRepositoryId(pbiTrackerId);
 				projectMapping.setConflictResolutionPriority(previewPage.getPbiTrackerConflictResolutionPriority());
@@ -360,7 +361,7 @@ public class ProjectMappingWizard extends Wizard {
 				monitor.worked(1);
 				
 				monitor.subTask(previewPage.getProductPlanningFolderMapping());
-				projectMapping.setSourceRepositoryId(getSelectedProduct().getName() + "-Product");
+				projectMapping.setSourceRepositoryId(productNameAndId + "-Product");
 				projectMapping.setSourceRepositoryKind("TemplateProducts.xsl");
 				projectMapping.setTargetRepositoryId(projectId + "-planningFolders");
 				projectMapping.setConflictResolutionPriority(previewPage.getProductPlanningFolderConflictResolutionPriority());
@@ -368,14 +369,14 @@ public class ProjectMappingWizard extends Wizard {
 				monitor.worked(1);
 				
 				monitor.subTask(previewPage.getProductReleasePlanningFolderMapping());
-				projectMapping.setSourceRepositoryId(getSelectedProduct().getName() + "-Release");
+				projectMapping.setSourceRepositoryId(productNameAndId + "-Release");
 				projectMapping.setSourceRepositoryKind("TemplateReleases.xsl");
 				projectMapping.setConflictResolutionPriority(previewPage.getProductReleasePlanningFolderConflictResolutionPriority());
 				createMapping(projectMapping, dataProvider);
 				monitor.worked(1);
 				
 				monitor.subTask(previewPage.getProductThemesMetaDataMapping());
-				projectMapping.setSourceRepositoryId(getSelectedProduct().getName() + "-Theme");
+				projectMapping.setSourceRepositoryId(productNameAndId + "-Theme");
 				projectMapping.setTargetRepositoryId(pbiTrackerId + "-MetaData");
 				projectMapping.setSourceRepositoryKind("TemplateThemes.xsl");
 				projectMapping.setConflictResolutionPriority(previewPage.getProductReleasePlanningFolderConflictResolutionPriority());

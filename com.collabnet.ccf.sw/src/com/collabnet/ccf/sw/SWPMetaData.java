@@ -81,6 +81,22 @@ public class SWPMetaData {
 		} else {
 			return repositoryId.substring(0, index);
 		}
-	}	
+	}
+	
+	public final static Long retrieveProductIdFromRepositoryId(String repositoryId) {
+		Long productId = null;
+		if (repositoryId != null) {
+			int index1 = repositoryId.lastIndexOf("(");
+			if (index1 != -1) {
+				int index2 = repositoryId.lastIndexOf(")");
+				if (index2 > index1 + 1) {
+					try {
+						productId = Long.parseLong(repositoryId.substring(index1 + 1, index2));
+					} catch (Exception e) {}
+				}
+			}
+		}
+		return productId;
+	}
 	
 }

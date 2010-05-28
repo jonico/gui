@@ -214,7 +214,7 @@ public class ScrumWorksMappingSection extends MappingSection {
 		if (productText == null || productText.getText().trim().length() == 0) {
 			return false;
 		}
-		return true;
+		return SWPMetaData.retrieveProductIdFromRepositoryId(productText.getText().trim()) != null;
 	}
 
 	public void updateSourceFields(SynchronizationStatus projectMapping) {

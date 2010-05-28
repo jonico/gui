@@ -289,15 +289,16 @@ public class ProjectMappingWizardPreviewPage extends WizardPage {
 		} else {
 			project = wizard.getSelectedProject().getId();
 		}
-		trackerTaskMapping = taskTracker + " => " + wizard.getSelectedProduct().getName() + "-Task";
-		trackerPbiMapping = pbiTracker + " => " + wizard.getSelectedProduct().getName() + "-PBI";
-		planningFolderProductMapping = project + "-planningFolders => " + wizard.getSelectedProduct().getName() + "-Product";
-		planningFolderProductReleaseMapping = project + "-planningFolders => " + wizard.getSelectedProduct().getName() + "-Release";
-		taskTrackerMapping = wizard.getSelectedProduct().getName() + "-Task => " + taskTracker;
-		pbiTrackerMapping = wizard.getSelectedProduct().getName() + "-PBI => " + pbiTracker;
-		productPlanningFolderMapping = wizard.getSelectedProduct().getName() + "-Product => " + project + "-planningFolders";
-		productReleasePlanningFolderMapping = wizard.getSelectedProduct().getName() + "-Release => " + project + "-planningFolders";
-		productThemesMetaDataMapping = wizard.getSelectedProduct().getName() + "-Theme => " + pbiTracker + "-MetaData";
+		String productNameAndId = wizard.getSelectedProduct().getName() + "(" + wizard.getSelectedProduct().getId() + ")";
+		trackerTaskMapping = taskTracker + " => " + productNameAndId + "-Task";
+		trackerPbiMapping = pbiTracker + " => " + productNameAndId + "-PBI";
+		planningFolderProductMapping = project + "-planningFolders => " + productNameAndId + "-Product";
+		planningFolderProductReleaseMapping = project + "-planningFolders => " + productNameAndId + "-Release";
+		taskTrackerMapping = productNameAndId + "-Task => " + taskTracker;
+		pbiTrackerMapping = productNameAndId + "-PBI => " + pbiTracker;
+		productPlanningFolderMapping = productNameAndId + "-Product => " + project + "-planningFolders";
+		productReleasePlanningFolderMapping = productNameAndId + "-Release => " + project + "-planningFolders";
+		productThemesMetaDataMapping = productNameAndId + "-Theme => " + pbiTracker + "-MetaData";
 		trackerTaskText.setText(trackerTaskMapping);
 		trackerPbiText.setText(trackerPbiMapping);
 		planningFolderProductText.setText(planningFolderProductMapping);

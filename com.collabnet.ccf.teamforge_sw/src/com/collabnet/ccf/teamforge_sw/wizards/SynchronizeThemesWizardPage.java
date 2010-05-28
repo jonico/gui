@@ -103,7 +103,11 @@ public class SynchronizeThemesWizardPage extends WizardPage {
 				monitor.beginTask(taskName, 3);
 				monitor.subTask("SWP product themes");
 				try {
-					Product product =  ((SynchronizeThemesWizard)getWizard()).getScrumWorksEndpoint().getProductByName(getProduct());
+					Product product = null;
+					product =  ((SynchronizeThemesWizard)getWizard()).getScrumWorksEndpoint().getProductById(getProductId());
+					if (product == null) {
+						product =  ((SynchronizeThemesWizard)getWizard()).getScrumWorksEndpoint().getProductByName(getProduct());
+					}
 					monitor.worked(1);
 					productThemes = ((SynchronizeThemesWizard)getWizard()).getScrumWorksEndpoint().getThemesForProduct(product.getId());
 					monitor.worked(1);
@@ -180,6 +184,10 @@ public class SynchronizeThemesWizardPage extends WizardPage {
 	
 	private String getProduct() {
 		return ((AbstractMappingWizard)getWizard()).getProduct();
+	}
+	
+	private Long getProductId() {
+		return ((AbstractMappingWizard)getWizard()).getProductId();
 	}
 	
 	private String getTracker() {

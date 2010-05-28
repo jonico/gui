@@ -113,7 +113,7 @@ public class ScrumWorksSelectionDialog extends CcfDialog {
 	protected void okPressed() {
 		IStructuredSelection productSelection = (IStructuredSelection)viewer.getSelection();
 		Product product = (Product)productSelection.getFirstElement();
-		selection = product.getName();
+		selection = product.getName() + "(" + product.getId() + ")";
 		super.okPressed();
 	}
 

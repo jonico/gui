@@ -164,7 +164,11 @@ public class MapUsersWizardPage extends WizardPage {
 					}					
 					monitor.worked(1);
 					monitor.subTask("SWP product users");
-					Product product = ((AbstractMappingWizard)getWizard()).getScrumWorksEndpoint().getProductByName(getProduct());
+					Product product = null;
+					product =  ((MapUsersWizard)getWizard()).getScrumWorksEndpoint().getProductById(getProductId());
+					if (product == null) {
+						product =  ((MapUsersWizard)getWizard()).getScrumWorksEndpoint().getProductByName(getProduct());
+					}
 					monitor.worked(1);
 					List<Sprint> sprints = ((AbstractMappingWizard)getWizard()).getScrumWorksEndpoint().getSprintsForProduct(product.getId());
 					monitor.worked(1);
@@ -227,6 +231,10 @@ public class MapUsersWizardPage extends WizardPage {
 	
 	private String getProduct() {
 		return ((AbstractMappingWizard)getWizard()).getProduct();
+	}
+	
+	private Long getProductId() {
+		return ((AbstractMappingWizard)getWizard()).getProductId();
 	}
 
 }

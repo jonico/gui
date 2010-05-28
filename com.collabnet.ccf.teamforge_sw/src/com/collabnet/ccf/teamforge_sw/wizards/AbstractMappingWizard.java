@@ -8,6 +8,7 @@ import org.eclipse.jface.wizard.Wizard;
 import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.model.Landscape;
 import com.collabnet.ccf.model.SynchronizationStatus;
+import com.collabnet.ccf.sw.SWPMetaData;
 import com.collabnet.ccf.teamforge.schemageneration.TFSoapClient;
 import com.danube.scrumworks.api2.client.ScrumWorksAPIService;
 
@@ -80,10 +81,31 @@ public abstract class AbstractMappingWizard extends Wizard {
 				repositoryId = projectMapping.getTargetRepositoryId();
 		}
 		if (repositoryId != null) {
-			String product = repositoryId.substring(0, repositoryId.lastIndexOf("-"));
+			int index = repositoryId.lastIndexOf("(");
+			if (index == -1) {
+				index = repositoryId.lastIndexOf("-");
+			}
+			String product = repositoryId.substring(0, index);
 			return product;
 		}
 		return null;
+	}
+	
+	public Long getProductId() {
+		String repositoryId = null;
+		if (projectMapping.getSourceRepositoryId().endsWith("-PBI") ||
+		    projectMapping.getSourceRepositoryId().endsWith("-Task") ||
+	        projectMapping.getSourceRepositoryId().endsWith("-Product") ||
+	        projectMapping.getSourceRepositoryId().endsWith("-Release")) {
+			repositoryId = projectMapping.getSourceRepositoryId();
+		}
+		else if (projectMapping.getTargetRepositoryId().endsWith("-PBI") ||
+			    projectMapping.getTargetRepositoryId().endsWith("-Task") ||
+		        projectMapping.getTargetRepositoryId().endsWith("-Product") ||
+		        projectMapping.getTargetRepositoryId().endsWith("-Release")) {
+				repositoryId = projectMapping.getTargetRepositoryId();
+		}
+		return SWPMetaData.retrieveProductIdFromRepositoryId(repositoryId);
 	}
 	
 	public String getTracker() {

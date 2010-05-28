@@ -144,14 +144,14 @@ public class ScrumWorksCcfParticipant extends CcfParticipant {
 			MappingGroup releaseGroup;
 			MappingGroup themeGroup;
 			if (projectMappingsParent instanceof AdministratorProjectMappings) {
-				productsGroup = new AdministratorMappingGroup(this, projectMappingsParent, product, product, Activator.getImage(Activator.IMAGE_SWP_PRODUCT));
+				productsGroup = new AdministratorMappingGroup(this, projectMappingsParent, product, getProductName(product), Activator.getImage(Activator.IMAGE_SWP_PRODUCT));
 				pbiGroup = new AdministratorMappingGroup(this, projectMappingsParent, product + "-" + SWPMetaData.PBI.toString(), SWPMetaData.PBI.toString(), Activator.getImage(Activator.IMAGE_PBI));
 				taskGroup = new AdministratorMappingGroup(this, projectMappingsParent, product + "-" + SWPMetaData.TASK.toString(), SWPMetaData.TASK.toString(), Activator.getImage(Activator.IMAGE_TASK));
 				productGroup = new AdministratorMappingGroup(this, projectMappingsParent, product + "-" + SWPMetaData.PRODUCT.toString(), SWPMetaData.PRODUCT.toString(), Activator.getImage(Activator.IMAGE_PRODUCT));
 				releaseGroup = new AdministratorMappingGroup(this, projectMappingsParent, product + "-" + SWPMetaData.RELEASE.toString(), SWPMetaData.RELEASE.toString(), Activator.getImage(Activator.IMAGE_RELEASE));		
 				themeGroup = new AdministratorMappingGroup(this, projectMappingsParent, product + "-" + SWPMetaData.THEME.toString(), SWPMetaData.THEME.toString(), Activator.getImage(Activator.IMAGE_THEME));				
 			} else {
-				productsGroup = new MappingGroup(this, projectMappingsParent, product, product, Activator.getImage(Activator.IMAGE_SWP_PRODUCT));
+				productsGroup = new MappingGroup(this, projectMappingsParent, product, getProductName(product), Activator.getImage(Activator.IMAGE_SWP_PRODUCT));
 				pbiGroup = new MappingGroup(this, projectMappingsParent, product + "-" + SWPMetaData.PBI.toString(), SWPMetaData.PBI.toString(), Activator.getImage(Activator.IMAGE_PBI));
 				taskGroup = new MappingGroup(this, projectMappingsParent, product + "-" + SWPMetaData.TASK.toString(), SWPMetaData.TASK.toString(), Activator.getImage(Activator.IMAGE_TASK));
 				productGroup = new MappingGroup(this, projectMappingsParent, product + "-" + SWPMetaData.PRODUCT.toString(), SWPMetaData.PRODUCT.toString(), Activator.getImage(Activator.IMAGE_PRODUCT));
@@ -231,6 +231,23 @@ public class ScrumWorksCcfParticipant extends CcfParticipant {
 			return product;
 		}
 		return null;
+	}
+	
+	private String getProductName(String product) {
+		String productName = null;
+		if (product != null) {
+			int index = product.lastIndexOf("(");
+			if (index == -1) {
+				index = product.lastIndexOf("-");
+			}
+			if (index != -1) {
+				productName = product.substring(0, index);
+			}
+		}
+		if (productName == null) {
+			productName = product;
+		}
+		return productName;
 	}
 
 }
