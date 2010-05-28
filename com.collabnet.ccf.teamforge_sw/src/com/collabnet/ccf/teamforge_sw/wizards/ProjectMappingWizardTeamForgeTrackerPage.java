@@ -60,7 +60,7 @@ public class ProjectMappingWizardTeamForgeTrackerPage extends WizardPage {
 	private String projectId;
 	private String newPbiTrackerTitle;
 	private String newTaskTrackerTitle;
-	private boolean mapToAssignedToUser = true;
+	private boolean mapToAssignedToUser = false;
 	private Exception getTrackersError;
 	
 	private String[] columnHeaders = {"Tracker"};

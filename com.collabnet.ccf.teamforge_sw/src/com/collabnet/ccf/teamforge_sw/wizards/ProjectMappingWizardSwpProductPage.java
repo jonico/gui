@@ -45,7 +45,7 @@ public class ProjectMappingWizardSwpProductPage extends WizardPage {
 	private Product selectedProduct;
 	private boolean productsRetrieved;
 	private Exception getProductsError;
-	private boolean mapUsers = true;
+	private boolean mapUsers = false;
 	private boolean mapMultiple;
 	
 	private List<SynchronizationStatus> existingMappings;
@@ -68,7 +68,6 @@ public class ProjectMappingWizardSwpProductPage extends WizardPage {
 		
 		mapUsersButton = new Button(outerContainer, SWT.CHECK);
 		mapUsersButton.setText("Create ScrumWorks product users in TeamForge");
-		mapUsersButton.setSelection(true);
 		mapUsersButton.addSelectionListener(new SelectionAdapter() {			
 			public void widgetSelected(SelectionEvent e) {
 				mapUsers = mapUsersButton.getSelection();
