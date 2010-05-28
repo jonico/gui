@@ -277,7 +277,13 @@
                icon="icons/refresh.gif"
                menubarPath="group.b"
                id="com.collabnet.ccf.actions.RefreshAction">
-         </action>                                                              
+         </action>
+         <action
+               label="Delete project mappings"
+               class="com.collabnet.ccf.actions.DeleteSynchronizationStatusAction"
+               menubarPath="group.d"
+               id="com.collabnet.ccf.actions.DeleteSynchronizationStatusAction">
+         </action>                                                                       
       </objectContribution>        
       
       <objectContribution

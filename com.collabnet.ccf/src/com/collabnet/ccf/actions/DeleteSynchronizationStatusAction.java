@@ -15,18 +15,20 @@ import org.eclipse.ui.actions.ActionDelegate;
 import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.db.CcfDataProvider;
 import com.collabnet.ccf.db.Filter;
+import com.collabnet.ccf.model.MappingGroup;
 import com.collabnet.ccf.model.ProjectMappings;
 import com.collabnet.ccf.model.SynchronizationStatus;
 
 public class DeleteSynchronizationStatusAction extends ActionDelegate {
 	private IStructuredSelection fSelection;
 	private boolean mappingsDeleted;
+	private CcfDataProvider dataProvider = new CcfDataProvider();
+	private List<ProjectMappings> projectMappingsList;
 	
 	public void run(IAction action) {
 		if (!MessageDialog.openConfirm(Display.getDefault().getActiveShell(), "Delete Project Mapping", "Delete the selected project mappings?")) return;
-		final List<ProjectMappings> projectMappingsList = new ArrayList<ProjectMappings>();
+		projectMappingsList = new ArrayList<ProjectMappings>();
 		mappingsDeleted = false;
-		final CcfDataProvider dataProvider = new CcfDataProvider();
 		BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
 			@SuppressWarnings("unchecked")
 			public void run() {
@@ -35,13 +37,8 @@ public class DeleteSynchronizationStatusAction extends ActionDelegate {
 					Object object = iter.next();
 					if (object instanceof SynchronizationStatus) {
 						SynchronizationStatus status = (SynchronizationStatus)object;
-						Filter sourceSystemFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_SOURCE_SYSTEM_ID, status.getSourceSystemId(), true);
-						Filter sourceRepositoryFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_SOURCE_REPOSITORY_ID, status.getSourceRepositoryId(), true);
-						Filter targetSystemFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_TARGET_SYSTEM_ID, status.getTargetSystemId(), true);
-						Filter targetRepositoryFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_TARGET_REPOSITORY_ID, status.getTargetRepositoryId(), true);
-						Filter[] filters = { sourceSystemFilter, sourceRepositoryFilter, targetSystemFilter, targetRepositoryFilter };
 						try {
-							dataProvider.deleteSynchronizationStatuses(status.getLandscape(), filters);
+							deleteProjectMapping(status);
 							mappingsDeleted = true;
 							if (!projectMappingsList.contains(status.getProjectMappings())) {
 								projectMappingsList.add(status.getProjectMappings());
@@ -49,6 +46,15 @@ public class DeleteSynchronizationStatusAction extends ActionDelegate {
 						} catch (Exception e) {
 							Activator.handleError(e);
 							break;
+						}
+					}
+					if (object instanceof MappingGroup) {
+						MappingGroup mappingGroup = (MappingGroup)object;
+						try {
+							deleteProjectMapping(mappingGroup);
+						} catch (Exception e) {
+							Activator.handleError(e);
+							break;							
 						}
 					}
 				}
@@ -59,6 +65,34 @@ public class DeleteSynchronizationStatusAction extends ActionDelegate {
 				Activator.notifyChanged(projectMappings);
 			}
 		}
+	}
+	
+	private void deleteProjectMapping(MappingGroup mappingGroup) throws Exception {
+		SynchronizationStatus[] childMappings = mappingGroup.getChildMappings();
+		if (childMappings != null) {
+			for (SynchronizationStatus status : childMappings) {
+				deleteProjectMapping(status);
+				mappingsDeleted = true;
+				if (!projectMappingsList.contains(status.getProjectMappings())) {
+					projectMappingsList.add(status.getProjectMappings());
+				}
+			}
+		}
+		MappingGroup[] childGroups = mappingGroup.getChildGroups();
+		if (childGroups != null) {
+			for (MappingGroup childGroup : childGroups) {
+				deleteProjectMapping(childGroup);
+			}
+		}		
+	}
+	
+	private void deleteProjectMapping(SynchronizationStatus status) throws Exception {
+		Filter sourceSystemFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_SOURCE_SYSTEM_ID, status.getSourceSystemId(), true);
+		Filter sourceRepositoryFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_SOURCE_REPOSITORY_ID, status.getSourceRepositoryId(), true);
+		Filter targetSystemFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_TARGET_SYSTEM_ID, status.getTargetSystemId(), true);
+		Filter targetRepositoryFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_TARGET_REPOSITORY_ID, status.getTargetRepositoryId(), true);
+		Filter[] filters = { sourceSystemFilter, sourceRepositoryFilter, targetSystemFilter, targetRepositoryFilter };		
+		dataProvider.deleteSynchronizationStatuses(status.getLandscape(), filters);
 	}
 
 	public void selectionChanged(IAction action, ISelection sel) {
