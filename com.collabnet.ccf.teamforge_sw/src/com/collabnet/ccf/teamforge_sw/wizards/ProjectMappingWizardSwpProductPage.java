@@ -149,8 +149,9 @@ public class ProjectMappingWizardSwpProductPage extends WizardPage {
 	
 	public boolean isProductAlreadyMapped(Product product) {
 		if (existingMappings != null) {
+			String productNameAndId = product.getName() + "(" + product.getId() + ")";
 			for (SynchronizationStatus status : existingMappings) {
-				if (status.getSourceRepositoryId().startsWith(product.getName() + "-") || status.getTargetRepositoryId().startsWith(product.getName() + "-")) {
+				if (status.getSourceRepositoryId().startsWith(productNameAndId + "-") || status.getTargetRepositoryId().startsWith(productNameAndId + "-")) {
 					return true;
 				}
 			}
