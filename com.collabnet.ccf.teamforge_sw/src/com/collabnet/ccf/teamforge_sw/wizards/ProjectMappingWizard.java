@@ -103,23 +103,12 @@ public class ProjectMappingWizard extends Wizard {
 			public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 				boolean newProject = false;
 				
-				// Retrieve existing mappings and create up to 9 mappings.
-				int totalWork = 10;
+				int totalWork = 12;
 				
 				// Need to create project.
 				if (getSelectedProject() == null) {
 					totalWork++;
 					newProject = true;
-				}
-				
-				// Need to create PBIs tracker.
-				if (getSelectedPbiTracker() == null) {
-					totalWork++;
-				}
-				
-				// Need to create Tasks tracker.
-				if (getSelectedTaskTracker() == null) {
-					totalWork++;
 				}
 				
 				// Need to map users.
@@ -156,108 +145,23 @@ public class ProjectMappingWizard extends Wizard {
 						monitor.subTask("Creating tracker " + trackerPage.getNewPbiTrackerTitle());
 						TrackerDO trackerDO = getSoapClient().createTracker(projectId, null, trackerPage.getNewPbiTrackerTitle(), TRACKER_DESCRIPTION_PBIS, TRACKER_ICON_PBIS);
 						pbiTrackerId = trackerDO.getId();
-						TrackerFieldDO[] fields = getSoapClient().getFields(pbiTrackerId);
-						for (TrackerFieldDO field : fields) {
-							String fieldName = field.getName();
-							if (fieldName.equals("group") ||
-							    fieldName.equals("customer") ||
-							    fieldName.equals("reportedInRelease") ||
-							    fieldName.equals("resolvedInRelease") ||
-							    fieldName.startsWith("estimated") ||
-							    fieldName.startsWith("actual")) {
-								field.setDisabled(true);
-								getSoapClient().setField(pbiTrackerId, field);
-							}
-						}
-						getSoapClient().addTextField(pbiTrackerId, "Benefit", 5, 1, false, false, false, null);
-						getSoapClient().addTextField(pbiTrackerId, "Penalty", 5, 1, false, false, false, null);
-						getSoapClient().addTextField(pbiTrackerId, "Backlog Effort", 5, 1, false, false, false, null);
-						getSoapClient().addTextField(pbiTrackerId, "SWP-Key", 30, 1, false, false, false, null);
-						getSoapClient().addTextField(pbiTrackerId, "Team", 30, 1, false, false, false, null);
-						getSoapClient().addTextField(pbiTrackerId, "Sprint", 30, 1, false, false, false, null);
-						getSoapClient().addDateField(pbiTrackerId, "Sprint Start", false, false, false);
-						getSoapClient().addDateField(pbiTrackerId, "Sprint End", false, false, false);
-						
-						String[] themeValues = getThemeValues();
-						getSoapClient().addMultiSelectField(pbiTrackerId, "Themes", 10, false, false, false, themeValues, null);
-	
-						for (TrackerFieldDO field : fields) {
-							if (field.getName().equals("status")) {
-								TrackerFieldValueDO[] oldValues = field.getFieldValues();
-								TrackerFieldValueDO open = new TrackerFieldValueDO(getSoapClient().supports50());
-								open.setIsDefault(true);
-								open.setValue("Open");
-								open.setValueClass("Open");
-								open.setId(getFieldId("Open", oldValues));
-								TrackerFieldValueDO done = new TrackerFieldValueDO(getSoapClient().supports50());
-								done.setIsDefault(false);
-								done.setValue("Done");
-								done.setValueClass("Open");
-								done.setId(getFieldId("Done", oldValues));
-								TrackerFieldValueDO[] fieldValues = { open, done };
-								field.setFieldValues(fieldValues);
-								getSoapClient().setField(pbiTrackerId, field);
-								break;
-							}
-						}
-						
-						monitor.worked(1);
 					} else {
+						monitor.subTask("Checking PBI tracker fields");
 						pbiTrackerId = getSelectedPbiTracker().getId();
 					}
+					setPbiTrackerFields(pbiTrackerId);
+					monitor.worked(1);
 					
 					if (getSelectedTaskTracker() == null) {
 						monitor.subTask("Creating tracker " + trackerPage.getNewTaskTrackerTitle());
 						TrackerDO trackerDO = getSoapClient().createTracker(projectId, null, trackerPage.getNewTaskTrackerTitle(), TRACKER_DESCRIPTION_TASKS, TRACKER_ICON_TASKS);
 						taskTrackerId = trackerDO.getId();
-						TrackerFieldDO[] fields = getSoapClient().getFields(taskTrackerId);
-						for (TrackerFieldDO field : fields) {
-							String fieldName = field.getName();
-							if (fieldName.equals("group") ||
-							    fieldName.equals("customer") ||
-							    fieldName.equals("reportedInRelease") ||
-							    fieldName.equals("resolvedInRelease") ||
-							    fieldName.startsWith("autosumming") ||
-							    fieldName.startsWith("actual")) {
-								field.setDisabled(true);
-								getSoapClient().setField(taskTrackerId, field);
-							}
-						}
-						getSoapClient().addTextField(taskTrackerId, "Point Person", 30, 1, false, trackerPage.isMapToAssignedToUser(), false, null);
-						for (TrackerFieldDO field : fields) {
-							if (field.getName().equals("status")) {
-								TrackerFieldValueDO[] oldValues = field.getFieldValues();
-								TrackerFieldValueDO notStarted = new TrackerFieldValueDO(getSoapClient().supports50());
-								notStarted.setIsDefault(true);
-								notStarted.setValue("Not Started");
-								notStarted.setValueClass("Open");
-								notStarted.setId(getFieldId("Not Started", oldValues));
-								TrackerFieldValueDO impeded = new TrackerFieldValueDO(getSoapClient().supports50());
-								impeded.setIsDefault(false);
-								impeded.setValue("Impeded");
-								impeded.setValueClass("Open");
-								impeded.setId(getFieldId("Impeded", oldValues));
-								TrackerFieldValueDO inProgress = new TrackerFieldValueDO(getSoapClient().supports50());
-								inProgress.setIsDefault(false);
-								inProgress.setValue("In Progress");
-								inProgress.setValueClass("Open");
-								inProgress.setId(getFieldId("In Progress", oldValues));
-								TrackerFieldValueDO done = new TrackerFieldValueDO(getSoapClient().supports50());
-								done.setIsDefault(false);
-								done.setValue("Done");
-								done.setValueClass("Close");
-								done.setId(getFieldId("Done", oldValues));
-								TrackerFieldValueDO[] fieldValues = { notStarted, impeded, inProgress, done };
-								field.setFieldValues(fieldValues);
-								getSoapClient().setField(taskTrackerId, field);
-								break;
-							}
-						}
-						
-						monitor.worked(1);
 					} else {
+						monitor.subTask("Checking Task tracker fields");
 						taskTrackerId = getSelectedTaskTracker().getId();
 					}
+					setTaskTrackerFields(taskTrackerId);
+					monitor.worked(1);
 					if (productPage.isMapUsers()) {
 						userMappingErrors = !mapUsers(getSelectedProduct(), projectId, newProject, monitor);
 					}
@@ -684,6 +588,121 @@ public class ProjectMappingWizard extends Wizard {
 			}			
 		}
 		return existingMappings;
+	}
+	
+	private void setPbiTrackerFields(String pbiTrackerId) throws RemoteException, MalformedURLException, ScrumWorksException {
+		TrackerFieldDO[] fields = getSoapClient().getFields(pbiTrackerId);
+		boolean addBenefit = true;
+		boolean addPenalty = true;
+		boolean addBacklogEffort = true;
+		boolean addSwpKey = true;
+		boolean addTeam = true;
+		boolean addSprint = true;
+		boolean addSprintStart = true;
+		boolean addSprintEnd = true;
+		boolean addTheme = true;
+		for (TrackerFieldDO field : fields) {
+			String fieldName = field.getName();
+			if (fieldName.equals("group") ||
+			    fieldName.equals("customer") ||
+			    fieldName.equals("reportedInRelease") ||
+			    fieldName.equals("resolvedInRelease") ||
+			    fieldName.startsWith("estimated") ||
+			    fieldName.startsWith("actual")) {
+				field.setDisabled(true);
+				getSoapClient().setField(pbiTrackerId, field);
+			}
+			if (fieldName.equals("Benefit")) addBenefit = false;
+			if (fieldName.equals("Penalty")) addPenalty = false;
+			if (fieldName.equals("Backlog Effort")) addBacklogEffort = false;
+			if (fieldName.equals("SWP-Key")) addSwpKey = false;
+			if (fieldName.equals("Team")) addTeam = false;
+			if (fieldName.equals("Sprint")) addSprint = false;
+			if (fieldName.equals("Sprint Start")) addSprintStart = false;
+			if (fieldName.equals("Sprint End")) addSprintEnd = false;
+			if (fieldName.equals("Themes")) addTheme = false;
+		}
+		if (addBenefit) getSoapClient().addTextField(pbiTrackerId, "Benefit", 5, 1, false, false, false, null);
+		if (addPenalty) getSoapClient().addTextField(pbiTrackerId, "Penalty", 5, 1, false, false, false, null);
+		if (addBacklogEffort) getSoapClient().addTextField(pbiTrackerId, "Backlog Effort", 5, 1, false, false, false, null);
+		if (addSwpKey) getSoapClient().addTextField(pbiTrackerId, "SWP-Key", 30, 1, false, false, false, null);
+		if (addTeam) getSoapClient().addTextField(pbiTrackerId, "Team", 30, 1, false, false, false, null);
+		if (addSprint) getSoapClient().addTextField(pbiTrackerId, "Sprint", 30, 1, false, false, false, null);
+		if (addSprintStart) getSoapClient().addDateField(pbiTrackerId, "Sprint Start", false, false, false);
+		if (addSprintEnd) getSoapClient().addDateField(pbiTrackerId, "Sprint End", false, false, false);
+		
+		if (addTheme) {
+			String[] themeValues = getThemeValues();
+			getSoapClient().addMultiSelectField(pbiTrackerId, "Themes", 10, false, false, false, themeValues, null);
+		}
+		
+		for (TrackerFieldDO field : fields) {
+			if (field.getName().equals("status")) {
+				TrackerFieldValueDO[] oldValues = field.getFieldValues();
+				TrackerFieldValueDO open = new TrackerFieldValueDO(getSoapClient().supports50());
+				open.setIsDefault(true);
+				open.setValue("Open");
+				open.setValueClass("Open");
+				open.setId(getFieldId("Open", oldValues));
+				TrackerFieldValueDO done = new TrackerFieldValueDO(getSoapClient().supports50());
+				done.setIsDefault(false);
+				done.setValue("Done");
+				done.setValueClass("Open");
+				done.setId(getFieldId("Done", oldValues));
+				TrackerFieldValueDO[] fieldValues = { open, done };
+				field.setFieldValues(fieldValues);
+				getSoapClient().setField(pbiTrackerId, field);
+				break;
+			}
+		}		
+	}
+	
+	private void setTaskTrackerFields(String taskTrackerId) throws RemoteException {
+		TrackerFieldDO[] fields = getSoapClient().getFields(taskTrackerId);
+		boolean addPointPerson = true;
+		for (TrackerFieldDO field : fields) {
+			String fieldName = field.getName();
+			if (fieldName.equals("group") ||
+			    fieldName.equals("customer") ||
+			    fieldName.equals("reportedInRelease") ||
+			    fieldName.equals("resolvedInRelease") ||
+			    fieldName.startsWith("autosumming") ||
+			    fieldName.startsWith("actual")) {
+				field.setDisabled(true);
+				getSoapClient().setField(taskTrackerId, field);
+			}
+			if (fieldName.equals("Point Person")) addPointPerson = false;
+		}
+		if (addPointPerson) getSoapClient().addTextField(taskTrackerId, "Point Person", 30, 1, false, trackerPage.isMapToAssignedToUser(), false, null);
+		for (TrackerFieldDO field : fields) {
+			if (field.getName().equals("status")) {
+				TrackerFieldValueDO[] oldValues = field.getFieldValues();
+				TrackerFieldValueDO notStarted = new TrackerFieldValueDO(getSoapClient().supports50());
+				notStarted.setIsDefault(true);
+				notStarted.setValue("Not Started");
+				notStarted.setValueClass("Open");
+				notStarted.setId(getFieldId("Not Started", oldValues));
+				TrackerFieldValueDO impeded = new TrackerFieldValueDO(getSoapClient().supports50());
+				impeded.setIsDefault(false);
+				impeded.setValue("Impeded");
+				impeded.setValueClass("Open");
+				impeded.setId(getFieldId("Impeded", oldValues));
+				TrackerFieldValueDO inProgress = new TrackerFieldValueDO(getSoapClient().supports50());
+				inProgress.setIsDefault(false);
+				inProgress.setValue("In Progress");
+				inProgress.setValueClass("Open");
+				inProgress.setId(getFieldId("In Progress", oldValues));
+				TrackerFieldValueDO done = new TrackerFieldValueDO(getSoapClient().supports50());
+				done.setIsDefault(false);
+				done.setValue("Done");
+				done.setValueClass("Close");
+				done.setId(getFieldId("Done", oldValues));
+				TrackerFieldValueDO[] fieldValues = { notStarted, impeded, inProgress, done };
+				field.setFieldValues(fieldValues);
+				getSoapClient().setField(taskTrackerId, field);
+				break;
+			}
+		}		
 	}
 
 }
