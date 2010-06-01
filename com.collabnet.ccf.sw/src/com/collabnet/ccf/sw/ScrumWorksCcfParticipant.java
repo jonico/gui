@@ -237,9 +237,6 @@ public class ScrumWorksCcfParticipant extends CcfParticipant {
 		String productName = null;
 		if (product != null) {
 			int index = product.lastIndexOf("(");
-			if (index == -1) {
-				index = product.lastIndexOf("-");
-			}
 			if (index != -1) {
 				productName = product.substring(0, index);
 			}
