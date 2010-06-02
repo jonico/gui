@@ -6,7 +6,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -36,6 +38,7 @@ import com.collabnet.teamforge.api.tracker.TrackerFieldDO;
 import com.collabnet.teamforge.api.tracker.TrackerFieldValueDO;
 import com.collabnet.teamforge.api.tracker.TrackerRow;
 import com.danube.scrumworks.api2.client.Product;
+import com.danube.scrumworks.api2.client.Program;
 import com.danube.scrumworks.api2.client.ScrumWorksAPIService;
 import com.danube.scrumworks.api2.client.ScrumWorksException;
 import com.danube.scrumworks.api2.client.Sprint;
@@ -58,6 +61,8 @@ public class ProjectMappingWizard extends Wizard {
 	private List<String> notCreated;
 	private List<String> duplicateUsers;
 	private boolean userMappingErrors;
+	
+	private Map<Long, Program> programMap;
 	
 	private ScrumWorksAPIService scrumWorksEndpoint;
 	
@@ -519,7 +524,7 @@ public class ProjectMappingWizard extends Wizard {
 		List<Theme> themes = getThemes(getSelectedProduct());
 		if (themes != null) {
 			for (Theme theme : themes) {
-				themeList.add(theme.getName());
+				themeList.add(getValue(theme));
 			}
 		}
 		String[] themeValues = new String[themeList.size()];
@@ -703,6 +708,25 @@ public class ProjectMappingWizard extends Wizard {
 				break;
 			}
 		}		
+	}
+	
+	private String getValue(Theme theme) throws MalformedURLException, ScrumWorksException {
+		if (programMap == null) {
+			programMap = new HashMap<Long, Program>();
+		}
+		Program program = null;
+		if (theme.getProgramId() != null) {
+			program = programMap.get(theme.getProgramId());
+			if (program == null) {
+				program = getScrumWorksEndpoint().getProgramById(theme.getProgramId());
+				programMap.put(theme.getProgramId(), program);
+			}
+		}
+		if (program == null) {
+			return theme.getName();
+		} else {
+			return theme.getName() + " (" + program.getName() + ")";
+		}
 	}
 
 }
