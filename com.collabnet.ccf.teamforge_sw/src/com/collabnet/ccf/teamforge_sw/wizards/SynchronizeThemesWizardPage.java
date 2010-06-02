@@ -73,13 +73,16 @@ public class SynchronizeThemesWizardPage extends WizardPage {
 	}
 	
 	public void refresh(boolean getThemes) {
+		SynchronizeThemesWizard wizard = (SynchronizeThemesWizard)getWizard();
 		if (getThemes) {
 			getThemes();
 		}
 		if (addGroup != null) {
 			addedValuesList.removeAll();
 			for (Theme theme : addedValues) {
-				addedValuesList.add(theme.getName());
+				try {
+					addedValuesList.add(wizard.getValue(theme));
+				} catch (Exception e) {}
 			}
 		}
 		if (deleteGroup != null) {
@@ -98,18 +101,22 @@ public class SynchronizeThemesWizardPage extends WizardPage {
 		oldValuesMap = new HashMap<String, String>();
 		IRunnableWithProgress runnable = new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+				SynchronizeThemesWizard wizard = (SynchronizeThemesWizard)getWizard();
 				String taskName = "Retrieving themes";
 				monitor.setTaskName(taskName);
 				monitor.beginTask(taskName, 3);
 				monitor.subTask("SWP product themes");
 				try {
 					Product product = null;
-					product =  ((SynchronizeThemesWizard)getWizard()).getScrumWorksEndpoint().getProductById(getProductId());
+					product =  wizard.getScrumWorksEndpoint().getProductById(getProductId());
 					if (product == null) {
-						product =  ((SynchronizeThemesWizard)getWizard()).getScrumWorksEndpoint().getProductByName(getProduct());
+						product =  wizard.getScrumWorksEndpoint().getProductByName(getProduct());
 					}
 					monitor.worked(1);
-					productThemes = ((SynchronizeThemesWizard)getWizard()).getScrumWorksEndpoint().getThemesForProduct(product.getId());
+					productThemes = wizard.getScrumWorksEndpoint().getThemesForProduct(product.getId());
+					for (Theme productTheme : productThemes) {
+						wizard.getValue(productTheme);
+					}
 					monitor.worked(1);
 				} catch (Exception e) {
 					Activator.handleError(e);
@@ -135,7 +142,7 @@ public class SynchronizeThemesWizardPage extends WizardPage {
 					List<String> newValuesList = new ArrayList<String>();	
 					if (productThemes != null) {
 						for (Theme productTheme : productThemes) {
-							newValuesList.add(productTheme.getName());
+							newValuesList.add(wizard.getValue(productTheme));
 						}
 					}
 					for (TrackerFieldValueDO oldValue : themesField.getFieldValues()) {
@@ -146,7 +153,7 @@ public class SynchronizeThemesWizardPage extends WizardPage {
 					}
 					if (productThemes != null) {
 						for (Theme productTheme : productThemes) {
-							if (oldValuesMap.get(productTheme.getName()) == null) {
+							if (oldValuesMap.get(wizard.getValue(productTheme)) == null) {
 								addedValues.add(productTheme);
 							}
 						}

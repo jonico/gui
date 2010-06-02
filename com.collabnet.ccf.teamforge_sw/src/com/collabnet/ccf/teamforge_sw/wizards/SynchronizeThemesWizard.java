@@ -1,9 +1,11 @@
 package com.collabnet.ccf.teamforge_sw.wizards;
 
 import java.lang.reflect.InvocationTargetException;
-import java.rmi.RemoteException;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -13,11 +15,14 @@ import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.model.SynchronizationStatus;
 import com.collabnet.teamforge.api.tracker.TrackerFieldDO;
 import com.collabnet.teamforge.api.tracker.TrackerFieldValueDO;
+import com.danube.scrumworks.api2.client.Program;
+import com.danube.scrumworks.api2.client.ScrumWorksException;
 import com.danube.scrumworks.api2.client.Theme;
 
 public class SynchronizeThemesWizard extends AbstractMappingWizard {
 	private SynchronizeThemesWizardPage wizardPage;
 	private Exception error;
+	private Map<Long, Program> programMap;
 	
 	public SynchronizeThemesWizard(SynchronizationStatus projectMapping) {
 		super(projectMapping);
@@ -47,8 +52,8 @@ public class SynchronizeThemesWizard extends AbstractMappingWizard {
 					for (Theme productTheme : productThemes) {
 						TrackerFieldValueDO fieldValue = new TrackerFieldValueDO(getSoapClient().supports50());
 						fieldValue.setIsDefault(false);
-						fieldValue.setValue(productTheme.getName());	
-						fieldValue.setId(wizardPage.getOldValuesMap().get(productTheme.getName()));
+						fieldValue.setValue(getValue(productTheme));
+						fieldValue.setId(wizardPage.getOldValuesMap().get(getValue(productTheme)));
 						updatedValuesList.add(fieldValue);			
 					}
 					String taskName = "Synchronizing themes";
@@ -70,7 +75,7 @@ public class SynchronizeThemesWizard extends AbstractMappingWizard {
 					monitor.subTask("Updating tracker themes");
 					getSoapClient().setField(getTracker(), themesField);
 					monitor.worked(1);
-				} catch (RemoteException e) {
+				} catch (Exception e) {
 					error = e;
 				} finally {
 					monitor.done();
@@ -106,6 +111,25 @@ public class SynchronizeThemesWizard extends AbstractMappingWizard {
 			index++;
 		}
 		return index;
+	}
+	
+	public String getValue(Theme theme) throws MalformedURLException, ScrumWorksException {
+		if (programMap == null) {
+			programMap = new HashMap<Long, Program>();
+		}
+		Program program = null;
+		if (theme.getProgramId() != null) {
+			program = programMap.get(theme.getProgramId());
+			if (program == null) {
+				program = getScrumWorksEndpoint().getProgramById(theme.getProgramId());
+				programMap.put(theme.getProgramId(), program);
+			}
+		}
+		if (program == null) {
+			return theme.getName();
+		} else {
+			return theme.getName() + " (" + program.getName() + ")";
+		}
 	}
 
 }
