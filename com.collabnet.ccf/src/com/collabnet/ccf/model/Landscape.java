@@ -93,7 +93,27 @@ public class Landscape implements IPropertySource {
 	}		
 
 	public String getDescription() {
-		if (description == null) return null;
+		if (description == null) {
+			String t1 = null;
+			String t2 = null;
+			try {
+				ICcfParticipant p1 = Activator.getCcfParticipantForType(type1);
+				if (p1 != null) {
+					t1 = p1.getName();
+				}
+				ICcfParticipant p2 = Activator.getCcfParticipantForType(type2);
+				if (p2 != null) {
+					t2 = p2.getName();
+				}
+			} catch (Exception e) {}
+			if (t1 == null) {
+				t1 = type1;
+			}
+			if (t2 == null) {
+				t2 = type2;
+			}		
+			return t1 + "/" + t2;
+		}
 		else return description.replaceAll("%slash%", "/");
 	}
 	public void setDescription(String description) {
