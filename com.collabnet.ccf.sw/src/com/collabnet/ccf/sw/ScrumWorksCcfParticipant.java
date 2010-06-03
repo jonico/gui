@@ -168,6 +168,15 @@ public class ScrumWorksCcfParticipant extends CcfParticipant {
 		return mappingGroupArray;
 	}
 	
+	@Override
+	public boolean enableFieldMappingEditing(String toType) {
+		if (toType.equals("TF")) {
+			return false;
+		} else {
+			return super.enableFieldMappingEditing(toType);
+		}
+	}
+
 	private void setChildMappings(String product, MappingGroup pbiGroup, MappingGroup taskGroup, MappingGroup productGroup, MappingGroup releaseGroup, MappingGroup themeGroup, SynchronizationStatus[] projectMappings) {
 		List<SynchronizationStatus> pbiMappings = new ArrayList<SynchronizationStatus>();
 		List<SynchronizationStatus> taskMappings = new ArrayList<SynchronizationStatus>();

@@ -20,6 +20,7 @@ import org.eclipse.swt.widgets.Display;
 
 import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.model.AdministratorSynchronizationStatus;
+import com.collabnet.ccf.model.AdministratorSynchronizationStatusWithEditableMappings;
 import com.collabnet.ccf.model.Database;
 import com.collabnet.ccf.model.IdentityMapping;
 import com.collabnet.ccf.model.IdentityMappingConsistencyCheck;
@@ -1256,7 +1257,7 @@ public class CcfDataProvider {
 	}
 	
 	private SynchronizationStatus[] getSynchronizationStatuses(ResultSet rs, Landscape landscape, ProjectMappings projectMappings) throws SQLException {
-		
+		boolean enableEditFieldMapping = landscape.enableEditFieldMapping();
 		List<SynchronizationStatus> hospitalCounts = null;
 		boolean showHospitalCounts = store.getBoolean(Activator.PREFERENCES_SHOW_HOSPITAL_COUNT);
 		if (showHospitalCounts) {
@@ -1273,7 +1274,11 @@ public class CcfDataProvider {
 			if (landscape != null && landscape.getRole() == Landscape.ROLE_OPERATOR) {
 				status = new OperatorSynchronizationStatus();
 			} else {
-				status = new AdministratorSynchronizationStatus();
+				if (enableEditFieldMapping) {
+					status = new AdministratorSynchronizationStatusWithEditableMappings();
+				} else {
+					status = new AdministratorSynchronizationStatus();
+				}
 			}
 			status.setSourceSystemId(rs.getString(SYNCHRONIZATION_STATUS_SOURCE_SYSTEM_ID));
 			status.setSourceRepositoryId(rs.getString(SYNCHRONIZATION_STATUS_SOURCE_REPOSITORY_ID));

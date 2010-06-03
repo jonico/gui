@@ -363,20 +363,7 @@
       
       <objectContribution
             objectClass="com.collabnet.ccf.model.AdministratorSynchronizationStatus"
-            id="com.collabnet.ccf.model.AdministratorSynchronizationStatus">
-         <action
-               label="Set default mapping template..."
-               class="com.collabnet.ccf.actions.DefaultMappingAction"
-               enablesFor="1"
-               menubarPath="group.b"
-               id="com.collabnet.ccf.actions.DefaultMappingAction">
-         </action>              
-         <action
-               label="Edit field mappings"
-               class="com.collabnet.ccf.actions.FieldMappingsWizardAction"
-               menubarPath="group.b"
-               id="com.collabnet.ccf.actions.FieldMappingsWizardAction">
-         </action>                                  
+            id="com.collabnet.ccf.model.AdministratorSynchronizationStatus">                      
          <action
                label="Delete identity mappings"
                class="com.collabnet.ccf.actions.DeleteIdentityMappingsAction"
@@ -413,7 +400,26 @@
                menubarPath="group.d"
                id="com.collabnet.ccf.actions.ReverseSynchronizationStatusAction">
          </action>                                                                                                                
-      </objectContribution>      
+      </objectContribution>
+      
+      <objectContribution
+            objectClass="com.collabnet.ccf.model.AdministratorSynchronizationStatusWithEditableMappings"
+            id="com.collabnet.ccf.model.AdministratorSynchronizationStatusWithEditableMappings">
+         <action
+               label="Set default mapping template..."
+               class="com.collabnet.ccf.actions.DefaultMappingAction"
+               enablesFor="1"
+               menubarPath="group.b"
+               id="com.collabnet.ccf.actions.DefaultMappingAction">
+         </action>              
+         <action
+               label="Edit field mappings"
+               class="com.collabnet.ccf.actions.FieldMappingsWizardAction"
+               enablesFor="1"
+               menubarPath="group.b"
+               id="com.collabnet.ccf.actions.FieldMappingsWizardAction">
+         </action>                                                                                                                                                  
+      </objectContribution>                  
       
       <objectContribution
             objectClass="com.collabnet.ccf.model.Log"

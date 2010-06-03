@@ -92,4 +92,6 @@ public interface ICcfParticipant extends Comparable {
 	public boolean allowAsSourceRepository(String repositoryId);
 	
 	public boolean allowAsTargetRepository(String repositoryId);
+	
+	public boolean enableFieldMappingEditing(String toType);
 }

@@ -88,9 +88,15 @@ public abstract class CcfParticipant implements ICcfParticipant {
 	public boolean allowAsSourceRepository(String repositoryId) {
 		return true;
 	}
+	
 	public boolean allowAsTargetRepository(String repositoryId) {
 		return true;
 	}
+	
+	public boolean enableFieldMappingEditing(String toType) {
+		return true;
+	}
+	
 	public int compareTo(Object compareToObject) {
 		if (!(compareToObject instanceof ICcfParticipant)) return 0;
 		ICcfParticipant compareToCcfParticipant = (ICcfParticipant)compareToObject;

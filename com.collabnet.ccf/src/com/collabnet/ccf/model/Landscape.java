@@ -533,6 +533,20 @@ public class Landscape implements IPropertySource {
 		return log4jRenameFile;
 	}
 	
+	public boolean enableEditFieldMapping() {
+		try {
+			ICcfParticipant participant1 = Activator.getCcfParticipantForType(type1);
+			if (participant1 != null && !participant1.enableFieldMappingEditing(type2)) {
+				return false;
+			}
+			ICcfParticipant participant2 = Activator.getCcfParticipantForType(type2);
+			if (participant2 != null && !participant2.enableFieldMappingEditing(type1)) {
+				return false;
+			}
+		} catch (Exception e) {}
+		return true;
+	}
+	
 	private File getLibFolder() {
 		if (libFolder == null) {
 			File configurationFolder = new File(getConfigurationFolder());
