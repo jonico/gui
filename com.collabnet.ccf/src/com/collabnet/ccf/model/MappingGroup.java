@@ -21,6 +21,21 @@ public class MappingGroup {
 		this.text = text;
 		this.image = image;
 	}
+	
+	public SynchronizationStatus getFirstMapping() {
+		if (childMappings != null && childMappings.length > 0) {
+			return childMappings[0];
+		}
+		if (childGroups != null) {
+			for (MappingGroup childGroup : childGroups) {
+				SynchronizationStatus childGroupMapping = childGroup.getFirstMapping();
+				if (childGroupMapping != null) {
+					return childGroupMapping;
+				}
+			}
+		}
+		return null;
+	}
 
 	public MappingGroup[] getChildGroups() {
 		return childGroups;

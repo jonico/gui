@@ -3,6 +3,7 @@ package com.collabnet.ccf.teamforge_sw;
 import org.eclipse.core.expressions.PropertyTester;
 
 import com.collabnet.ccf.model.Landscape;
+import com.collabnet.ccf.model.MappingGroup;
 import com.collabnet.ccf.model.ProjectMappings;
 import com.collabnet.ccf.model.SynchronizationStatus;
 
@@ -27,6 +28,10 @@ public class ProjectMappingsPropertyTester extends PropertyTester {
 			SynchronizationStatus projectMapping = (SynchronizationStatus)receiver;
 			return isTeamForgeSwpLandscape(projectMapping.getProjectMappings());
 		}
+		if (receiver instanceof MappingGroup && property.equals("isTeamForgeScrumWorksMappingGroup")) {
+			SynchronizationStatus projectMapping = ((MappingGroup)receiver).getFirstMapping();
+			return projectMapping != null && isTeamForgeSwpLandscape(projectMapping.getProjectMappings());
+		}		
 		return false;
 	}
 	

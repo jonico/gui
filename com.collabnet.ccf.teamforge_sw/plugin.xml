@@ -38,7 +38,12 @@
 	        categoryId="com.collabnet.ccf.teamforge_sw.commands"
 	        id="com.collabnet.ccf.teamforge_sw.commands.mapUsers"
 	        name="Map Users">
-		</command>				
+		</command>	
+		<command
+	        categoryId="com.collabnet.ccf.teamforge_sw.commands"
+	        id="com.collabnet.ccf.teamforge_sw.commands.mapUsers.product"
+	        name="Map Users">
+		</command>									
 	</extension>
 
 	<extension
@@ -90,7 +95,23 @@
 	             </and>
 	          	</visibleWhen>
 	        </command>
-	    </menuContribution>            	      	               	                
+	    </menuContribution>
+	 	<menuContribution
+	          locationURI="popup:org.eclipse.ui.popup.any?after=additions">
+	        <command
+	             commandId="com.collabnet.ccf.teamforge_sw.commands.mapUsers.product"
+	             label="Map users..."
+	             style="push">
+	        	<visibleWhen
+	                checkEnabled="true">
+	             <and>
+	                <count
+	                      value="1">
+	                </count>  
+	             </and>
+	          	</visibleWhen>
+	        </command>
+	    </menuContribution>            	      		                	      	               	                
 	</extension>
    
     <extension
@@ -145,7 +166,25 @@
 			 </and>
           </iterate>
        </enabledWhen>
-    </handler>           
+    </handler>
+    <handler
+          class="com.collabnet.ccf.teamforge_sw.MapUsersHandler"
+          commandId="com.collabnet.ccf.teamforge_sw.commands.mapUsers.product">
+       <enabledWhen>
+          <iterate>
+              <and>
+                <adapt
+                      type="com.collabnet.ccf.model.AdministratorMappingGroup">
+                </adapt>
+                <test
+                	  forcePluginActivation="true"
+                      property="com.collabnet.ccf.teamforge_sw.isTeamForgeScrumWorksMappingGroup"
+                      value="true">
+                </test>                                    
+			 </and>
+          </iterate>
+       </enabledWhen>
+    </handler>                          
  </extension>
       
  <extension
@@ -170,7 +209,14 @@
             namespace="com.collabnet.ccf.teamforge_sw"
             properties="isTrackerPbisMapping,isTeamForgeScrumWorksMapping"
             type="com.collabnet.ccf.model.AdministratorSynchronizationStatus">
-      </propertyTester>      
+      </propertyTester> 
+      <propertyTester
+            class="com.collabnet.ccf.teamforge_sw.ProjectMappingsPropertyTester"
+            id="com.collabnet.ccf.teamforge_sw.ProjectMappingsPropertyTester"
+            namespace="com.collabnet.ccf.teamforge_sw"
+            properties="isTeamForgeScrumWorksMappingGroup"
+            type="com.collabnet.ccf.model.MappingGroup">
+      </propertyTester>                 
    </extension> 
    
    <extension

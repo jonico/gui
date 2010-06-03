@@ -7,6 +7,7 @@ import org.eclipse.jface.wizard.Wizard;
 
 import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.model.Landscape;
+import com.collabnet.ccf.model.MappingGroup;
 import com.collabnet.ccf.model.SynchronizationStatus;
 import com.collabnet.ccf.sw.SWPMetaData;
 import com.collabnet.ccf.teamforge.schemageneration.TFSoapClient;
@@ -20,6 +21,11 @@ public abstract class AbstractMappingWizard extends Wizard {
 	public AbstractMappingWizard(SynchronizationStatus projectMapping) {
 		super();
 		this.projectMapping = projectMapping;
+	}
+	
+	public AbstractMappingWizard(MappingGroup mappingGroup) {
+		super();
+		projectMapping = mappingGroup.getFirstMapping();
 	}
 	
 	@Override

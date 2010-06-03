@@ -10,6 +10,7 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 
 import com.collabnet.ccf.Activator;
+import com.collabnet.ccf.model.MappingGroup;
 import com.collabnet.ccf.model.SynchronizationStatus;
 import com.collabnet.teamforge.api.main.UserDO;
 import com.collabnet.teamforge.api.rbac.RbacClient;
@@ -27,6 +28,10 @@ public class MapUsersWizard extends AbstractMappingWizard {
 		super(projectMapping);
 	}
 	
+	public MapUsersWizard(MappingGroup mappingGroup) {
+		super(mappingGroup);
+	}
+
 	@Override
 	public void addPages() {
 		super.addPages();

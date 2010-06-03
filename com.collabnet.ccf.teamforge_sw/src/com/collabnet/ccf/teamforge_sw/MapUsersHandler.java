@@ -9,6 +9,7 @@ import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.handlers.HandlerUtil;
 
+import com.collabnet.ccf.model.MappingGroup;
 import com.collabnet.ccf.model.SynchronizationStatus;
 import com.collabnet.ccf.teamforge_sw.wizards.MapUsersWizard;
 import com.collabnet.ccf.wizards.CustomWizardDialog;
@@ -23,6 +24,12 @@ public class MapUsersHandler extends AbstractHandler {
 				if (item instanceof SynchronizationStatus) {
 					SynchronizationStatus projectMapping = (SynchronizationStatus)item;
 					MapUsersWizard wizard = new MapUsersWizard(projectMapping);
+					WizardDialog dialog = new CustomWizardDialog(Display.getDefault().getActiveShell(), wizard);
+					dialog.open();
+				}
+				if (item instanceof MappingGroup) {
+					MappingGroup mappingGroup = (MappingGroup)item;
+					MapUsersWizard wizard = new MapUsersWizard(mappingGroup);
 					WizardDialog dialog = new CustomWizardDialog(Display.getDefault().getActiveShell(), wizard);
 					dialog.open();
 				}
