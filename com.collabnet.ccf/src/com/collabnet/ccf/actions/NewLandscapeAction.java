@@ -1,6 +1,7 @@
 package com.collabnet.ccf.actions;
 
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Display;
@@ -8,6 +9,7 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 
 import com.collabnet.ccf.Activator;
+import com.collabnet.ccf.ICcfParticipant;
 import com.collabnet.ccf.editors.CcfEditor;
 import com.collabnet.ccf.editors.CcfEditorInput;
 import com.collabnet.ccf.wizards.CustomWizardDialog;
@@ -31,6 +33,15 @@ public class NewLandscapeAction extends Action {
 
 	@Override
 	public void run() {
+		try {
+			ICcfParticipant[] ccfParticipants = Activator.getCcfParticipants();
+			if (ccfParticipants == null || ccfParticipants.length == 0) {
+				MessageDialog.openError(Display.getDefault().getActiveShell(), "New CCF Landscape", "A CCF Landscape cannot be created because there are no CCF participants installed.");
+				return;
+			}
+		} catch (Exception e) {
+			Activator.handleError(e);
+		}
 		NewLandscapeWizard wizard = new NewLandscapeWizard();
 		WizardDialog dialog = new CustomWizardDialog(Display.getDefault().getActiveShell(), wizard);
 		dialog.open();
