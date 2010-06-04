@@ -81,7 +81,7 @@ public class ScrumWorksMappingSection extends MappingSection {
 		typeCombo.add(SWPMetaData.TASK.toString());
 		typeCombo.add(SWPMetaData.PBI.toString());	
 		typeCombo.add(SWPMetaData.RELEASE.toString());
-		typeCombo.add(SWPMetaData.THEME.toString());
+		typeCombo.add("MetaData");
 		String previousType = null;
 		try {
 			previousType = settings.get(PREVIOUS_TYPE);
@@ -151,7 +151,7 @@ public class ScrumWorksMappingSection extends MappingSection {
 		if (mappingGroupId.endsWith("-PBI") ||
 			mappingGroupId.endsWith("-Task") ||
 			mappingGroupId.endsWith("-Product") ||
-			mappingGroupId.endsWith("-Theme") ||
+			mappingGroupId.endsWith("-MetaData") ||
 			mappingGroupId.endsWith("-Release")) {
 				product = mappingGroupId.substring(0, mappingGroupId.lastIndexOf("-"));;
 		} else {
@@ -166,7 +166,7 @@ public class ScrumWorksMappingSection extends MappingSection {
 		if (mappingGroupId.endsWith("-PBI") ||
 			mappingGroupId.endsWith("-Task") ||
 			mappingGroupId.endsWith("-Product") ||
-			mappingGroupId.endsWith("-Theme") ||
+			mappingGroupId.endsWith("-MetaData") ||
 			mappingGroupId.endsWith("-Release")) {
 			type = mappingGroupId.substring(mappingGroupId.lastIndexOf("-") + 1);
 		}
@@ -190,22 +190,22 @@ public class ScrumWorksMappingSection extends MappingSection {
 		typeCombo.add(SWPMetaData.PBI.toString());	
 		typeCombo.add(SWPMetaData.RELEASE.toString());
 		if (type == TYPE_SOURCE) {
-			typeCombo.add(SWPMetaData.THEME.toString());
+			typeCombo.add("MetaData");
 		}
-		if (swpType == SWPType.RELEASE) {
+		if (swpType == SWPType.TASK) {
+			typeCombo.setText(SWPMetaData.TASK.toString());
+			mapToAssignedToUserButton.setSelection(projectMapping.getSourceRepositoryKind().equals(TEMPLATE_TASKS));			
+		}
+		else if (swpType == SWPType.RELEASE) {
 			typeCombo.setText(SWPMetaData.RELEASE.toString());
 		}
 		else if (swpType == SWPType.PRODUCT) {
 			typeCombo.setText(SWPMetaData.PRODUCT.toString());
 		}
-		else if (swpType == SWPType.THEME) {
-			typeCombo.setText(SWPMetaData.THEME.toString());
-		}
 		else if (swpType == SWPType.PBI) {
 			typeCombo.setText(SWPMetaData.PBI.toString());
 		} else {
-			typeCombo.setText(SWPMetaData.TASK.toString());
-			mapToAssignedToUserButton.setSelection(projectMapping.getSourceRepositoryKind().equals(TEMPLATE_TASKS));
+			typeCombo.setText("MetaData");
 		}
 		mapToAssignedToUserButton.setVisible(typeCombo.getText().equals(SWPMetaData.TASK.toString()));
 	}
@@ -219,8 +219,8 @@ public class ScrumWorksMappingSection extends MappingSection {
 
 	public void updateSourceFields(SynchronizationStatus projectMapping) {
 		projectMapping.setSourceRepositoryId(getRepositoryId());
-		if (projectMapping.getSourceRepositoryId().endsWith("Theme")) {
-			projectMapping.setSourceRepositoryKind("TemplateThemes.xsl");
+		if (projectMapping.getSourceRepositoryId().endsWith("MetaData")) {
+			projectMapping.setSourceRepositoryKind("TemplateMetaData.xsl");
 		} else if (projectMapping.getSourceRepositoryId().endsWith("Release")) {
 			projectMapping.setSourceRepositoryKind("TemplateReleases.xsl");
 		} else if (projectMapping.getSourceRepositoryId().endsWith("PBI")) {
@@ -240,12 +240,11 @@ public class ScrumWorksMappingSection extends MappingSection {
 	
 	public void updateTargetFields(SynchronizationStatus projectMapping) {
 		projectMapping.setTargetRepositoryId(getRepositoryId());
-//		projectMapping.setTargetRepositoryKind("TRACKER");
 //
 // It is not a mistake that we are setting source repository kind here.
 //
-		if (projectMapping.getTargetRepositoryId().endsWith("Theme")) {
-			projectMapping.setSourceRepositoryKind("TemplateThemes.xsl");
+		if (projectMapping.getTargetRepositoryId().endsWith("MetaData")) {
+			projectMapping.setSourceRepositoryKind("TemplateMetaData.xsl");
 		} else if (projectMapping.getTargetRepositoryId().endsWith("Release")) {
 			projectMapping.setSourceRepositoryKind("TemplateReleases.xsl");
 		} else if (projectMapping.getTargetRepositoryId().endsWith("PBI")) {

@@ -5,7 +5,9 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.rmi.RemoteException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +44,7 @@ import com.danube.scrumworks.api2.client.Program;
 import com.danube.scrumworks.api2.client.ScrumWorksAPIService;
 import com.danube.scrumworks.api2.client.ScrumWorksException;
 import com.danube.scrumworks.api2.client.Sprint;
+import com.danube.scrumworks.api2.client.Team;
 import com.danube.scrumworks.api2.client.Theme;
 import com.danube.scrumworks.api2.client.User;
 
@@ -55,6 +58,7 @@ public class ProjectMappingWizard extends Wizard {
 	private ProjectMappingWizardTeamForgeTrackerPage trackerPage;
 	private ProjectMappingWizardPreviewPage previewPage;
 	
+	private String userId;
 	private TFSoapClient soapClient;
 	private List<SynchronizationStatus> existingMappings;
 	private List<Exception> errors;
@@ -284,10 +288,10 @@ public class ProjectMappingWizard extends Wizard {
 				createMapping(projectMapping, dataProvider);
 				monitor.worked(1);
 				
-				monitor.subTask(previewPage.getProductThemesMetaDataMapping());
-				projectMapping.setSourceRepositoryId(productNameAndId + "-Theme");
+				monitor.subTask(previewPage.getMetaDataMapping());
+				projectMapping.setSourceRepositoryId(productNameAndId + "-MetaData");
 				projectMapping.setTargetRepositoryId(pbiTrackerId + "-MetaData");
-				projectMapping.setSourceRepositoryKind("TemplateThemes.xsl");
+				projectMapping.setSourceRepositoryKind("TemplateMetaData.xsl");
 				projectMapping.setConflictResolutionPriority(previewPage.getProductReleasePlanningFolderConflictResolutionPriority());
 				createMapping(projectMapping, dataProvider);
 				monitor.worked(1);
@@ -371,7 +375,7 @@ public class ProjectMappingWizard extends Wizard {
 			}
 			if (properties != null) {
 				String serverUrl = properties.getProperty(Activator.PROPERTIES_SFEE_URL);
-				String userId = properties.getProperty(Activator.PROPERTIES_SFEE_USER);
+				userId = properties.getProperty(Activator.PROPERTIES_SFEE_USER);
 				String password = properties.getProperty(Activator.PROPERTIES_SFEE_PASSWORD);
 				soapClient = TFSoapClient.getSoapClient(serverUrl, userId, password);
 			}
@@ -519,6 +523,44 @@ public class ProjectMappingWizard extends Wizard {
 		return getScrumWorksEndpoint().getThemesForProduct(product.getId());
 	}
 	
+	private List<Sprint> getSprints(Product product) throws MalformedURLException, ScrumWorksException {
+		return getScrumWorksEndpoint().getSprintsForProduct(product.getId());
+	}
+	
+	private Team getTeam(Long teamId) throws MalformedURLException, ScrumWorksException {
+		return getScrumWorksEndpoint().getTeamById(teamId);
+	}
+	
+	private String[] getTeamSprintValues() throws MalformedURLException, ScrumWorksException {
+		Map<Long, Team> teamMap = new HashMap<Long, Team>();
+		List<String> teamSprintList = new ArrayList<String>();
+		List<Sprint> sprints = getSprints(getSelectedProduct());
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
+		if (sprints != null) {
+			for (Sprint sprint : sprints) {
+				Team team = teamMap.get(sprint.getTeamId());
+				if (team == null) {
+					team = getTeam(sprint.getTeamId());
+					if (team != null) {
+						teamMap.put(sprint.getTeamId(), team);
+					}
+				}
+				if (team != null) {
+					Date startDate = sprint.getStartDate().toGregorianCalendar().getTime();
+					Date endDate = sprint.getEndDate().toGregorianCalendar().getTime();
+					StringBuffer value = new StringBuffer(team.getName() + " " + simpleDateFormat.format(startDate) + " - " + simpleDateFormat.format(endDate));
+					if (sprint.getName() != null && sprint.getName().trim().length() > 0) {
+						value.append(" -- " + sprint.getName());
+					}
+					teamSprintList.add(value.toString());
+				}
+			}
+		}
+		String[] teamSprintValues = new String[teamSprintList.size()];
+		teamSprintList.toArray(teamSprintValues);
+		return teamSprintValues;
+	}
+	
 	private String[] getThemeValues() throws MalformedURLException, ScrumWorksException {
 		List<String> themeList = new ArrayList<String>();
 		List<Theme> themes = getThemes(getSelectedProduct());
@@ -601,8 +643,7 @@ public class ProjectMappingWizard extends Wizard {
 		boolean addPenalty = true;
 		boolean addBacklogEffort = true;
 		boolean addSwpKey = true;
-		boolean addTeam = true;
-		boolean addSprint = true;
+		boolean addTeamSprint = true;
 		boolean addSprintStart = true;
 		boolean addSprintEnd = true;
 		boolean addTheme = true;
@@ -621,8 +662,7 @@ public class ProjectMappingWizard extends Wizard {
 			if (fieldName.equals("Penalty")) addPenalty = false;
 			if (fieldName.equals("Backlog Effort")) addBacklogEffort = false;
 			if (fieldName.equals("SWP-Key")) addSwpKey = false;
-			if (fieldName.equals("Team")) addTeam = false;
-			if (fieldName.equals("Sprint")) addSprint = false;
+			if (fieldName.equals("Team/Sprint")) addTeamSprint = false;
 			if (fieldName.equals("Sprint Start")) addSprintStart = false;
 			if (fieldName.equals("Sprint End")) addSprintEnd = false;
 			if (fieldName.equals("Themes")) addTheme = false;
@@ -631,8 +671,10 @@ public class ProjectMappingWizard extends Wizard {
 		if (addPenalty) getSoapClient().addTextField(pbiTrackerId, "Penalty", 5, 1, false, false, false, null);
 		if (addBacklogEffort) getSoapClient().addTextField(pbiTrackerId, "Backlog Effort", 5, 1, false, false, false, null);
 		if (addSwpKey) getSoapClient().addTextField(pbiTrackerId, "SWP-Key", 30, 1, false, false, false, null);
-		if (addTeam) getSoapClient().addTextField(pbiTrackerId, "Team", 30, 1, false, false, false, null);
-		if (addSprint) getSoapClient().addTextField(pbiTrackerId, "Sprint", 30, 1, false, false, false, null);
+		if (addTeamSprint) {
+			String[] teamSprintValues = getTeamSprintValues();
+			getSoapClient().addSingleSelectField(pbiTrackerId, "Team/Sprint", false, false, false, teamSprintValues, null);
+		}
 		if (addSprintStart) getSoapClient().addDateField(pbiTrackerId, "Sprint Start", false, false, false);
 		if (addSprintEnd) getSoapClient().addDateField(pbiTrackerId, "Sprint End", false, false, false);
 		

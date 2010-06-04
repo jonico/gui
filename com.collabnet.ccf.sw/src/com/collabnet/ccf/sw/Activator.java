@@ -31,6 +31,7 @@ public class Activator extends AbstractUIPlugin {
 	public static final String IMAGE_PRODUCT = "product.gif"; //$NON-NLS-1$
 	public static final String IMAGE_RELEASE = "release.gif"; //$NON-NLS-1$
 	public static final String IMAGE_THEME = "theme.gif"; //$NON-NLS-1$
+	public static final String IMAGE_METADATA = "metadata.gif"; //$NON-NLS-1$
 	
 	// ScrumWorks Properties
 	public static final String PROPERTIES_SW_URL = "swp.server.url"; //$NON-NLS-1$
@@ -112,6 +113,7 @@ public class Activator extends AbstractUIPlugin {
 		createImageDescriptor(IMAGE_PRODUCT);
 		createImageDescriptor(IMAGE_RELEASE);
 		createImageDescriptor(IMAGE_THEME);
+		createImageDescriptor(IMAGE_METADATA);
 	}
 	
 	protected void initializeImageRegistry(ImageRegistry reg) {
@@ -123,6 +125,7 @@ public class Activator extends AbstractUIPlugin {
 		reg.put(IMAGE_PRODUCT, getImageDescriptor(IMAGE_PRODUCT));
 		reg.put(IMAGE_RELEASE, getImageDescriptor(IMAGE_RELEASE));
 		reg.put(IMAGE_THEME, getImageDescriptor(IMAGE_THEME));
+		reg.put(IMAGE_METADATA, getImageDescriptor(IMAGE_METADATA));
 	}
 	
 	public static ScrumWorksAPIService getScrumWorksEndpoint(Landscape landscape) throws MalformedURLException {

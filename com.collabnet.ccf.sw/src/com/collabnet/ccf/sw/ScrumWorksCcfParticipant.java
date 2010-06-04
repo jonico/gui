@@ -117,7 +117,7 @@ public class ScrumWorksCcfParticipant extends CcfParticipant {
 
 	@Override
 	public boolean allowAsTargetRepository(String repositoryId) {
-		if (repositoryId.endsWith("-Theme")) {
+		if (repositoryId.endsWith("-MetaData")) {
 			return false;
 		}
 		return super.allowAsTargetRepository(repositoryId);
@@ -142,24 +142,24 @@ public class ScrumWorksCcfParticipant extends CcfParticipant {
 			MappingGroup taskGroup;
 			MappingGroup productGroup;
 			MappingGroup releaseGroup;
-			MappingGroup themeGroup;
+			MappingGroup metaDataGroup;
 			if (projectMappingsParent instanceof AdministratorProjectMappings) {
 				productsGroup = new AdministratorMappingGroup(this, projectMappingsParent, product, getProductName(product), Activator.getImage(Activator.IMAGE_SWP_PRODUCT));
 				pbiGroup = new AdministratorMappingGroup(this, projectMappingsParent, product + "-" + SWPMetaData.PBI.toString(), SWPMetaData.PBI.toString(), Activator.getImage(Activator.IMAGE_PBI));
 				taskGroup = new AdministratorMappingGroup(this, projectMappingsParent, product + "-" + SWPMetaData.TASK.toString(), SWPMetaData.TASK.toString(), Activator.getImage(Activator.IMAGE_TASK));
 				productGroup = new AdministratorMappingGroup(this, projectMappingsParent, product + "-" + SWPMetaData.PRODUCT.toString(), SWPMetaData.PRODUCT.toString(), Activator.getImage(Activator.IMAGE_PRODUCT));
 				releaseGroup = new AdministratorMappingGroup(this, projectMappingsParent, product + "-" + SWPMetaData.RELEASE.toString(), SWPMetaData.RELEASE.toString(), Activator.getImage(Activator.IMAGE_RELEASE));		
-				themeGroup = new AdministratorMappingGroup(this, projectMappingsParent, product + "-" + SWPMetaData.THEME.toString(), SWPMetaData.THEME.toString(), Activator.getImage(Activator.IMAGE_THEME));				
+				metaDataGroup = new AdministratorMappingGroup(this, projectMappingsParent, product + "-" + "MetaData", "MetaData", Activator.getImage(Activator.IMAGE_METADATA));				
 			} else {
 				productsGroup = new MappingGroup(this, projectMappingsParent, product, getProductName(product), Activator.getImage(Activator.IMAGE_SWP_PRODUCT));
 				pbiGroup = new MappingGroup(this, projectMappingsParent, product + "-" + SWPMetaData.PBI.toString(), SWPMetaData.PBI.toString(), Activator.getImage(Activator.IMAGE_PBI));
 				taskGroup = new MappingGroup(this, projectMappingsParent, product + "-" + SWPMetaData.TASK.toString(), SWPMetaData.TASK.toString(), Activator.getImage(Activator.IMAGE_TASK));
 				productGroup = new MappingGroup(this, projectMappingsParent, product + "-" + SWPMetaData.PRODUCT.toString(), SWPMetaData.PRODUCT.toString(), Activator.getImage(Activator.IMAGE_PRODUCT));
 				releaseGroup = new MappingGroup(this, projectMappingsParent, product + "-" + SWPMetaData.RELEASE.toString(), SWPMetaData.RELEASE.toString(), Activator.getImage(Activator.IMAGE_RELEASE));
-				themeGroup = new MappingGroup(this, projectMappingsParent, product + "-" + SWPMetaData.THEME.toString(), SWPMetaData.THEME.toString(), Activator.getImage(Activator.IMAGE_THEME));
+				metaDataGroup = new MappingGroup(this, projectMappingsParent, product + "-" + "MetaData", "MetaData", Activator.getImage(Activator.IMAGE_METADATA));
 			}
-			setChildMappings(product, pbiGroup, taskGroup, productGroup, releaseGroup, themeGroup, projectMappings);
-			MappingGroup[] subGroups = { pbiGroup, taskGroup, productGroup, releaseGroup, themeGroup };
+			setChildMappings(product, pbiGroup, taskGroup, productGroup, releaseGroup, metaDataGroup, projectMappings);
+			MappingGroup[] subGroups = { pbiGroup, taskGroup, productGroup, releaseGroup, metaDataGroup };
 			productsGroup.setChildGroups(subGroups);
 			mappingGroups.add(productsGroup);
 		}
@@ -177,14 +177,15 @@ public class ScrumWorksCcfParticipant extends CcfParticipant {
 		}
 	}
 
-	private void setChildMappings(String product, MappingGroup pbiGroup, MappingGroup taskGroup, MappingGroup productGroup, MappingGroup releaseGroup, MappingGroup themeGroup, SynchronizationStatus[] projectMappings) {
+	private void setChildMappings(String product, MappingGroup pbiGroup, MappingGroup taskGroup, MappingGroup productGroup, MappingGroup releaseGroup, MappingGroup metaDataGroup, SynchronizationStatus[] projectMappings) {
 		List<SynchronizationStatus> pbiMappings = new ArrayList<SynchronizationStatus>();
 		List<SynchronizationStatus> taskMappings = new ArrayList<SynchronizationStatus>();
 		List<SynchronizationStatus> productMappings = new ArrayList<SynchronizationStatus>();
 		List<SynchronizationStatus> releaseMappings = new ArrayList<SynchronizationStatus>();
-		List<SynchronizationStatus> themeMappings = new ArrayList<SynchronizationStatus>();
+		List<SynchronizationStatus> metaDataMappings = new ArrayList<SynchronizationStatus>();
 		for (SynchronizationStatus projectMapping : projectMappings) {
-			if (getProduct(projectMapping).equals(product)) {
+			String mappingProduct = getProduct(projectMapping);
+			if (mappingProduct != null && mappingProduct.equals(product)) {
 				if (projectMapping.getSourceRepositoryId().endsWith("-PBI") || projectMapping.getTargetRepositoryId().endsWith("-PBI")) {
 					pbiMappings.add(projectMapping);
 				}
@@ -197,8 +198,8 @@ public class ScrumWorksCcfParticipant extends CcfParticipant {
 				else if (projectMapping.getSourceRepositoryId().endsWith("-Release") || projectMapping.getTargetRepositoryId().endsWith("-Release")) {
 					releaseMappings.add(projectMapping);
 				}
-				else if (projectMapping.getSourceRepositoryId().endsWith("-Theme") || projectMapping.getTargetRepositoryId().endsWith("-Theme")) {
-					themeMappings.add(projectMapping);
+				else if (projectMapping.getSourceRepositoryId().endsWith("-MetaData") || projectMapping.getTargetRepositoryId().endsWith("-MetaData")) {
+					metaDataMappings.add(projectMapping);
 				}	
 			}
 		}
@@ -214,9 +215,9 @@ public class ScrumWorksCcfParticipant extends CcfParticipant {
 		SynchronizationStatus[] releaseMappingArray = new SynchronizationStatus[releaseMappings.size()];
 		releaseMappings.toArray(releaseMappingArray);
 		releaseGroup.setChildMappings(releaseMappingArray);
-		SynchronizationStatus[] themeMappingArray = new SynchronizationStatus[themeMappings.size()];
-		themeMappings.toArray(themeMappingArray);
-		themeGroup.setChildMappings(themeMappingArray);
+		SynchronizationStatus[] metaDataMappingArray = new SynchronizationStatus[metaDataMappings.size()];
+		metaDataMappings.toArray(metaDataMappingArray);
+		metaDataGroup.setChildMappings(metaDataMappingArray);
 	}
 	
 	private String getProduct(SynchronizationStatus projectMapping) {
@@ -224,14 +225,14 @@ public class ScrumWorksCcfParticipant extends CcfParticipant {
 		if (projectMapping.getSourceRepositoryId().endsWith("-PBI") ||
 		    projectMapping.getSourceRepositoryId().endsWith("-Task") ||
 	        projectMapping.getSourceRepositoryId().endsWith("-Product") ||
-	        projectMapping.getSourceRepositoryId().endsWith("-Theme") ||
+	        projectMapping.getSourceRepositoryId().endsWith("-MetaData") ||
 	        projectMapping.getSourceRepositoryId().endsWith("-Release")) {
 			repositoryId = projectMapping.getSourceRepositoryId();
 		}
 		else if (projectMapping.getTargetRepositoryId().endsWith("-PBI") ||
 			    projectMapping.getTargetRepositoryId().endsWith("-Task") ||
 		        projectMapping.getTargetRepositoryId().endsWith("-Product") ||
-		        projectMapping.getTargetRepositoryId().endsWith("-Theme") ||
+		        projectMapping.getTargetRepositoryId().endsWith("-MetaData") ||
 		        projectMapping.getTargetRepositoryId().endsWith("-Release")) {
 				repositoryId = projectMapping.getTargetRepositoryId();
 		}
