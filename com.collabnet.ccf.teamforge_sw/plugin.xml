@@ -36,6 +36,21 @@
 		</command>
 		<command
 	        categoryId="com.collabnet.ccf.teamforge_sw.commands"
+	        id="com.collabnet.ccf.teamforge_sw.commands.syncThemes.pbis"
+	        name="Synchronize Themes">
+		</command>		
+		<command
+	        categoryId="com.collabnet.ccf.teamforge_sw.commands"
+	        id="com.collabnet.ccf.teamforge_sw.commands.syncTeamsSprints"
+	        name="Synchronize Teams/Sprints">
+		</command>
+		<command
+	        categoryId="com.collabnet.ccf.teamforge_sw.commands"
+	        id="com.collabnet.ccf.teamforge_sw.commands.syncTeamsSprints.pbis"
+	        name="Synchronize Teams/Sprints">
+		</command>						
+		<command
+	        categoryId="com.collabnet.ccf.teamforge_sw.commands"
 	        id="com.collabnet.ccf.teamforge_sw.commands.mapUsers"
 	        name="Map Users">
 		</command>	
@@ -79,7 +94,51 @@
 	             </and>
 	          	</visibleWhen>
 	        </command>
-	    </menuContribution> 
+	        <command
+	             commandId="com.collabnet.ccf.teamforge_sw.commands.syncTeamsSprints"
+	             label="Synchronize Teams/Sprints..."
+	             style="push">
+	        	<visibleWhen
+	                checkEnabled="true">
+	             <and>
+	                <count
+	                      value="1">
+	                </count>  
+	             </and>
+	          	</visibleWhen>
+	        </command>	        
+	    </menuContribution>
+	    
+	 	<menuContribution
+	          locationURI="popup:org.eclipse.ui.popup.any?after=additions">
+	        <command
+	             commandId="com.collabnet.ccf.teamforge_sw.commands.syncThemes.pbis"
+	             label="Synchronize themes..."
+	             style="push">
+	        	<visibleWhen
+	                checkEnabled="true">
+	             <and>
+	                <count
+	                      value="1">
+	                </count>  
+	             </and>
+	          	</visibleWhen>
+	        </command>
+	        <command
+	             commandId="com.collabnet.ccf.teamforge_sw.commands.syncTeamsSprints.pbis"
+	             label="Synchronize Teams/Sprints..."
+	             style="push">
+	        	<visibleWhen
+	                checkEnabled="true">
+	             <and>
+	                <count
+	                      value="1">
+	                </count>  
+	             </and>
+	          	</visibleWhen>
+	        </command>	        
+	    </menuContribution> 	    
+	     
 	 	<menuContribution
 	          locationURI="popup:org.eclipse.ui.popup.any?after=additions">
 	        <command
@@ -148,7 +207,61 @@
 			 </and>
           </iterate>
        </enabledWhen>
+    </handler>
+     <handler
+          class="com.collabnet.ccf.teamforge_sw.SynchronizeThemesHandler"
+          commandId="com.collabnet.ccf.teamforge_sw.commands.syncThemes.pbis">
+       <enabledWhen>
+          <iterate>
+              <and>
+                <adapt
+                      type="com.collabnet.ccf.model.AdministratorMappingGroup">
+                </adapt>
+                <test
+                	  forcePluginActivation="true"
+                      property="com.collabnet.ccf.teamforge_sw.isTrackerPbisMapping"
+                      value="true">
+                </test>                                    
+			 </and>
+          </iterate>
+       </enabledWhen>
+    </handler>    
+     <handler
+          class="com.collabnet.ccf.teamforge_sw.SynchronizeTeamsSprintsHandler"
+          commandId="com.collabnet.ccf.teamforge_sw.commands.syncTeamsSprints">
+       <enabledWhen>
+          <iterate>
+              <and>
+                <adapt
+                      type="com.collabnet.ccf.model.AdministratorSynchronizationStatus">
+                </adapt>
+                <test
+                	  forcePluginActivation="true"
+                      property="com.collabnet.ccf.teamforge_sw.isTrackerPbisMapping"
+                      value="true">
+                </test>                                    
+			 </and>
+          </iterate>
+       </enabledWhen>
     </handler> 
+     <handler
+          class="com.collabnet.ccf.teamforge_sw.SynchronizeTeamsSprintsHandler"
+          commandId="com.collabnet.ccf.teamforge_sw.commands.syncTeamsSprints.pbis">
+       <enabledWhen>
+          <iterate>
+              <and>
+                <adapt
+                      type="com.collabnet.ccf.model.AdministratorMappingGroup">
+                </adapt>
+                <test
+                	  forcePluginActivation="true"
+                      property="com.collabnet.ccf.teamforge_sw.isTrackerPbisMapping"
+                      value="true">
+                </test>                                    
+			 </and>
+          </iterate>
+       </enabledWhen>
+    </handler>               
     <handler
           class="com.collabnet.ccf.teamforge_sw.MapUsersHandler"
           commandId="com.collabnet.ccf.teamforge_sw.commands.mapUsers">
@@ -214,7 +327,7 @@
             class="com.collabnet.ccf.teamforge_sw.ProjectMappingsPropertyTester"
             id="com.collabnet.ccf.teamforge_sw.ProjectMappingsPropertyTester"
             namespace="com.collabnet.ccf.teamforge_sw"
-            properties="isTeamForgeScrumWorksMappingGroup"
+            properties="isTrackerPbisMapping,isTeamForgeScrumWorksMappingGroup"
             type="com.collabnet.ccf.model.MappingGroup">
       </propertyTester>                 
    </extension> 

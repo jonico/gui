@@ -1,11 +1,8 @@
 package com.collabnet.ccf.teamforge_sw.wizards;
 
 import java.lang.reflect.InvocationTargetException;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -16,28 +13,24 @@ import com.collabnet.ccf.model.MappingGroup;
 import com.collabnet.ccf.model.SynchronizationStatus;
 import com.collabnet.teamforge.api.tracker.TrackerFieldDO;
 import com.collabnet.teamforge.api.tracker.TrackerFieldValueDO;
-import com.danube.scrumworks.api2.client.Program;
-import com.danube.scrumworks.api2.client.ScrumWorksException;
-import com.danube.scrumworks.api2.client.Theme;
 
-public class SynchronizeThemesWizard extends AbstractMappingWizard {
-	private SynchronizeThemesWizardPage wizardPage;
+public class SynchronizeTeamsSprintsWizard extends AbstractMappingWizard {
+	private SynchronizeTeamsSprintsWizardPage wizardPage;
 	private Exception error;
-	private Map<Long, Program> programMap;
-	
-	public SynchronizeThemesWizard(SynchronizationStatus projectMapping) {
+
+	public SynchronizeTeamsSprintsWizard(SynchronizationStatus projectMapping) {
 		super(projectMapping);
 	}
-	
-	public SynchronizeThemesWizard(MappingGroup mappingGroup) {
+
+	public SynchronizeTeamsSprintsWizard(MappingGroup mappingGroup) {
 		super(mappingGroup);
 	}
 
 	@Override
 	public void addPages() {
 		super.addPages();
-		setWindowTitle("Synchronize Themes");
-		wizardPage = new SynchronizeThemesWizardPage();
+		setWindowTitle("Synchronize Teams/Sprints");
+		wizardPage = new SynchronizeTeamsSprintsWizardPage();
 		addPage(wizardPage);
 	}
 
@@ -51,23 +44,23 @@ public class SynchronizeThemesWizard extends AbstractMappingWizard {
 		IRunnableWithProgress runnable = new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 				try {
-					List<Theme> productThemes = wizardPage.getProductThemes();
-					TrackerFieldDO themesField = wizardPage.getThemesField();		
+					List<String> productTeamSprints = wizardPage.getProductTeamsSprints();
+					TrackerFieldDO teamsSprintsField = wizardPage.getTeamsSprintsField();		
 					List<TrackerFieldValueDO> updatedValuesList = new ArrayList<TrackerFieldValueDO>();
-					for (Theme productTheme : productThemes) {
+					for (String productTeamSprint : productTeamSprints) {
 						TrackerFieldValueDO fieldValue = new TrackerFieldValueDO(getSoapClient().supports50());
 						fieldValue.setIsDefault(false);
-						fieldValue.setValue(getValue(productTheme));
-						fieldValue.setId(wizardPage.getOldValuesMap().get(getValue(productTheme)));
+						fieldValue.setValue(productTeamSprint);
+						fieldValue.setId(wizardPage.getOldValuesMap().get(productTeamSprint));
 						updatedValuesList.add(fieldValue);			
 					}
-					String taskName = "Synchronizing themes";
+					String taskName = "Synchronizing teams/sprints";
 					int totalWork = 1 + wizardPage.getDeletedValues().size();
 					monitor.setTaskName(taskName);
 					monitor.beginTask(taskName, totalWork);
 					for (TrackerFieldValueDO deletedValue : wizardPage.getDeletedValues()) {
-						monitor.subTask("Checking deleted theme ''" + deletedValue.getValue() + "''");
-						if (getSoapClient().isFieldValueUsed(getTracker(), themesField.getName(), deletedValue)) {
+						monitor.subTask("Checking deleted team/sprint ''" + deletedValue.getValue() + "''");
+						if (getSoapClient().isFieldValueUsed(getTracker(), teamsSprintsField.getName(), deletedValue)) {
 							int insertIndex = getInsertIndex(updatedValuesList, deletedValue);
 							updatedValuesList.add(insertIndex, deletedValue);
 							couldNotBeDeletedList.add(deletedValue);
@@ -76,9 +69,9 @@ public class SynchronizeThemesWizard extends AbstractMappingWizard {
 					}			
 					TrackerFieldValueDO[] fieldValues = new TrackerFieldValueDO[updatedValuesList.size()];
 					updatedValuesList.toArray(fieldValues);
-					themesField.setFieldValues(fieldValues);
-					monitor.subTask("Updating tracker themes");
-					getSoapClient().setField(getTracker(), themesField);
+					teamsSprintsField.setFieldValues(fieldValues);
+					monitor.subTask("Updating tracker teams/sprints");
+					getSoapClient().setField(getTracker(), teamsSprintsField);
 					monitor.worked(1);
 				} catch (Exception e) {
 					error = e;
@@ -91,17 +84,17 @@ public class SynchronizeThemesWizard extends AbstractMappingWizard {
 			getContainer().run(true, false, runnable);
 		} catch (Exception e) {
 			Activator.handleError(e);
-			MessageDialog.openError(getShell(), "Synchronize Themes", e.getMessage());
+			MessageDialog.openError(getShell(), "Synchronize Teams/Sprints", e.getMessage());
 			return false;
 		}
 		if (error != null) {
 			Activator.handleError(error);
-			MessageDialog.openError(getShell(), "Synchronize Themes", error.getMessage());
+			MessageDialog.openError(getShell(), "Synchronize Teams/Sprints", error.getMessage());
 			return false;
 		}
 		wizardPage.refresh(true);
 		if (couldNotBeDeletedList.size() > 0) {
-			MessageDialog.openWarning(getShell(), "Synchronize Themes", "One or more theme could not be removed from tracker because it is used by one or more artifact.");
+			MessageDialog.openWarning(getShell(), "Synchronize Teams/Sprints", "One or more team/sprint could not be removed from tracker because it is used by one or more artifact.");
 			return false;
 		}
 		return true;
@@ -116,25 +109,6 @@ public class SynchronizeThemesWizard extends AbstractMappingWizard {
 			index++;
 		}
 		return index;
-	}
-	
-	public String getValue(Theme theme) throws MalformedURLException, ScrumWorksException {
-		if (programMap == null) {
-			programMap = new HashMap<Long, Program>();
-		}
-		Program program = null;
-		if (theme.getProgramId() != null) {
-			program = programMap.get(theme.getProgramId());
-			if (program == null) {
-				program = getScrumWorksEndpoint().getProgramById(theme.getProgramId());
-				programMap.put(theme.getProgramId(), program);
-			}
-		}
-		if (program == null) {
-			return theme.getName();
-		} else {
-			return theme.getName() + " (" + program.getName() + ")";
-		}
 	}
 
 }

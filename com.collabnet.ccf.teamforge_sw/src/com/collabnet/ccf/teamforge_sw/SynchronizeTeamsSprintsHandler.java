@@ -11,10 +11,10 @@ import org.eclipse.ui.handlers.HandlerUtil;
 
 import com.collabnet.ccf.model.MappingGroup;
 import com.collabnet.ccf.model.SynchronizationStatus;
-import com.collabnet.ccf.teamforge_sw.wizards.SynchronizeThemesWizard;
+import com.collabnet.ccf.teamforge_sw.wizards.SynchronizeTeamsSprintsWizard;
 import com.collabnet.ccf.wizards.CustomWizardDialog;
 
-public class SynchronizeThemesHandler extends AbstractHandler {
+public class SynchronizeTeamsSprintsHandler extends AbstractHandler {
 
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		ISelection selection = HandlerUtil.getCurrentSelection(event);
@@ -23,13 +23,13 @@ public class SynchronizeThemesHandler extends AbstractHandler {
 			for (Object item : items) {
 				if (item instanceof SynchronizationStatus) {
 					SynchronizationStatus projectMapping = (SynchronizationStatus)item;
-					SynchronizeThemesWizard wizard = new SynchronizeThemesWizard(projectMapping);
+					SynchronizeTeamsSprintsWizard wizard = new SynchronizeTeamsSprintsWizard(projectMapping);
 					WizardDialog dialog = new CustomWizardDialog(Display.getDefault().getActiveShell(), wizard);
 					dialog.open();
 				}
 				if (item instanceof MappingGroup) {
 					MappingGroup mappingGroup = (MappingGroup)item;
-					SynchronizeThemesWizard wizard = new SynchronizeThemesWizard(mappingGroup);
+					SynchronizeTeamsSprintsWizard wizard = new SynchronizeTeamsSprintsWizard(mappingGroup);
 					WizardDialog dialog = new CustomWizardDialog(Display.getDefault().getActiveShell(), wizard);
 					dialog.open();
 				}
