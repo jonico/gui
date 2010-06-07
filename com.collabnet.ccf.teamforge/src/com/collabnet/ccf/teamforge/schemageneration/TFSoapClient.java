@@ -34,6 +34,8 @@ public class TFSoapClient {
 	
 	private static Map<String, TFSoapClient> clients = new HashMap<String, TFSoapClient>();
 
+	public final static String FIELD_TYPE_SINGLE_SELECT = "single-select";
+	
 	public TFSoapClient(String serverUrl, String userId, String password) {
 		connection = Connection.getConnection(serverUrl, userId, password, null, null, null, false);
 		Connection.setEngineConfiguration(getEngineConfiguration());
@@ -141,8 +143,13 @@ public class TFSoapClient {
 		connection.getTrackerClient().addMultiSelectField(trackerId, fieldName, displayLines, isRequired, isDisabled, isHiddenOnCreate, fieldValues, defaultValues);
 	}
 	
-	public boolean isFieldValueUsed(String trackerId, String fieldName, TrackerFieldValueDO fieldValue) throws RemoteException {
-		Filter filter = new Filter(fieldName, fieldValue.getValue());
+	public boolean isFieldValueUsed(String trackerId, TrackerFieldDO field, TrackerFieldValueDO fieldValue) throws RemoteException {
+		Filter filter;
+		if (field.getFieldType().equals(FIELD_TYPE_SINGLE_SELECT)) {
+			filter = new Filter(field.getName(), fieldValue.getId());
+		} else {
+			filter = new Filter(field.getName(), fieldValue.getValue());
+		}
 		Filter[] filters = { filter };
 		String[] selectedColumns = { "COLUMN_ID" };
 		ArtifactDetailList artifactList = connection.getTrackerClient().getArtifactDetailList(

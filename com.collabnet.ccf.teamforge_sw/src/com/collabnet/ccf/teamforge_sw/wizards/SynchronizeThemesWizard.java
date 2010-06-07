@@ -67,7 +67,7 @@ public class SynchronizeThemesWizard extends AbstractMappingWizard {
 					monitor.beginTask(taskName, totalWork);
 					for (TrackerFieldValueDO deletedValue : wizardPage.getDeletedValues()) {
 						monitor.subTask("Checking deleted theme ''" + deletedValue.getValue() + "''");
-						if (getSoapClient().isFieldValueUsed(getTracker(), themesField.getName(), deletedValue)) {
+						if (getSoapClient().isFieldValueUsed(getTracker(), themesField, deletedValue)) {
 							int insertIndex = getInsertIndex(updatedValuesList, deletedValue);
 							updatedValuesList.add(insertIndex, deletedValue);
 							couldNotBeDeletedList.add(deletedValue);

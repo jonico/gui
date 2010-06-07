@@ -60,7 +60,7 @@ public class SynchronizeTeamsSprintsWizard extends AbstractMappingWizard {
 					monitor.beginTask(taskName, totalWork);
 					for (TrackerFieldValueDO deletedValue : wizardPage.getDeletedValues()) {
 						monitor.subTask("Checking deleted team/sprint ''" + deletedValue.getValue() + "''");
-						if (getSoapClient().isFieldValueUsed(getTracker(), teamsSprintsField.getName(), deletedValue)) {
+						if (getSoapClient().isFieldValueUsed(getTracker(), teamsSprintsField, deletedValue)) {
 							int insertIndex = getInsertIndex(updatedValuesList, deletedValue);
 							updatedValuesList.add(insertIndex, deletedValue);
 							couldNotBeDeletedList.add(deletedValue);
