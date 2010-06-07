@@ -602,22 +602,21 @@ public class ProjectMappingWizard extends Wizard {
 	}
 	
 	private void createFieldMappingFile(SynchronizationStatus status) {
-//		if (status.getSourceRepositoryKind().startsWith("Template")) {
-//			return;
-//		}
 		status.setLandscape(landscape);
 		status.clearXslInfo();
-		File xslFile = status.getXslFile();
-		if (!xslFile.exists()) {
-			try {
-				xslFile.createNewFile();
-				File sampleFile = status.getSampleXslFile();
-				if (sampleFile != null && sampleFile.exists()) {
-					CcfDataProvider.copyFile(sampleFile, xslFile);
+		if (landscape.enableEditFieldMapping()) {
+			File xslFile = status.getXslFile();
+			if (!xslFile.exists()) {
+				try {
+					xslFile.createNewFile();
+					File sampleFile = status.getSampleXslFile();
+					if (sampleFile != null && sampleFile.exists()) {
+						CcfDataProvider.copyFile(sampleFile, xslFile);
+					}
+				} catch (IOException e) {
+					Activator.handleError(e);
+					errors.add(e);
 				}
-			} catch (IOException e) {
-				Activator.handleError(e);
-				errors.add(e);
 			}
 		}
 	}

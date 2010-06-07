@@ -161,18 +161,20 @@ public class NewProjectMappingWizard extends Wizard {
 	private void createFieldMappingFile(final SynchronizationStatus status) {
 		status.setLandscape(projectMappings.getLandscape());
 		status.clearXslInfo();
-		File xslFile = status.getXslFile();
-		if (!xslFile.exists()) {
-			try {
-				File sampleFile = status.getSampleXslFile();
-				if (sampleFile != null && sampleFile.exists()) {
-					xslFile.createNewFile();
-					CcfDataProvider.copyFile(sampleFile, xslFile);
+		if (projectMappings.getLandscape().enableEditFieldMapping()) {
+			File xslFile = status.getXslFile();
+			if (!xslFile.exists()) {
+				try {
+					File sampleFile = status.getSampleXslFile();
+					if (sampleFile != null && sampleFile.exists()) {
+						xslFile.createNewFile();
+						CcfDataProvider.copyFile(sampleFile, xslFile);
+					}
+				} catch (IOException e) {
+					MessageDialog.openError(Display.getDefault().getActiveShell(), "New Project Mapping", "Unable to create field mapping file " + xslFile.getName() + ":\n\n" + e.getMessage());
+					Activator.handleError(e);
+					return;
 				}
-			} catch (IOException e) {
-				MessageDialog.openError(Display.getDefault().getActiveShell(), "New Project Mapping", "Unable to create field mapping file " + xslFile.getName() + ":\n\n" + e.getMessage());
-				Activator.handleError(e);
-				return;
 			}
 		}
 	}

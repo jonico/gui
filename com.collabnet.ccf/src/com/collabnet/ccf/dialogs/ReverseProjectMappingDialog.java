@@ -144,18 +144,20 @@ public class ReverseProjectMappingDialog extends CcfDialog implements IPageCompl
 	private void createFieldMappingFile(final SynchronizationStatus status) {
 		status.setLandscape(projectMappings.getLandscape());
 		status.clearXslInfo();
-		File xslFile = status.getXslFile();
-		if (!xslFile.exists()) {
-			try {
-				xslFile.createNewFile();
-				File sampleFile = status.getSampleXslFile();
-				if (sampleFile != null && sampleFile.exists()) {
-					CcfDataProvider.copyFile(sampleFile, xslFile);
+		if (projectMappings.getLandscape().enableEditFieldMapping()) {
+			File xslFile = status.getXslFile();
+			if (!xslFile.exists()) {
+				try {
+					xslFile.createNewFile();
+					File sampleFile = status.getSampleXslFile();
+					if (sampleFile != null && sampleFile.exists()) {
+						CcfDataProvider.copyFile(sampleFile, xslFile);
+					}
+				} catch (IOException e) {
+					MessageDialog.openError(Display.getDefault().getActiveShell(), "New Project Mapping", "Unable to create field mapping file " + xslFile.getName() + ":\n\n" + e.getMessage());
+					Activator.handleError(e);
+					return;
 				}
-			} catch (IOException e) {
-				MessageDialog.openError(Display.getDefault().getActiveShell(), "New Project Mapping", "Unable to create field mapping file " + xslFile.getName() + ":\n\n" + e.getMessage());
-				Activator.handleError(e);
-				return;
 			}
 		}
 	}
