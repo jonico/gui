@@ -58,7 +58,17 @@
 	        categoryId="com.collabnet.ccf.teamforge_sw.commands"
 	        id="com.collabnet.ccf.teamforge_sw.commands.mapUsers.product"
 	        name="Map Users">
-		</command>									
+		</command>
+		<command
+	        categoryId="com.collabnet.ccf.teamforge_sw.commands"
+	        id="com.collabnet.ccf.teamforge_sw.commands.setTaskPointPersonMappingOption"
+	        name="Set Task Point Person Mapping Option">
+		</command>	
+		<command
+	        categoryId="com.collabnet.ccf.teamforge_sw.commands"
+	        id="com.collabnet.ccf.teamforge_sw.commands.setTaskPointPersonMappingOption.product"
+	        name="Set Task Point Person Mapping Option">
+		</command>																	
 	</extension>
 
 	<extension
@@ -158,6 +168,22 @@
 	 	<menuContribution
 	          locationURI="popup:org.eclipse.ui.popup.any?after=additions">
 	        <command
+	             commandId="com.collabnet.ccf.teamforge_sw.commands.setTaskPointPersonMappingOption"
+	             label="Set task point person mapping option..."
+	             style="push">
+	        	<visibleWhen
+	                checkEnabled="true">
+	             <and>
+	                <count
+	                      value="1">
+	                </count>  
+	             </and>
+	          	</visibleWhen>
+	        </command>
+	    </menuContribution>	    
+	 	<menuContribution
+	          locationURI="popup:org.eclipse.ui.popup.any?after=additions">
+	        <command
 	             commandId="com.collabnet.ccf.teamforge_sw.commands.mapUsers.product"
 	             label="Map users..."
 	             style="push">
@@ -170,7 +196,23 @@
 	             </and>
 	          	</visibleWhen>
 	        </command>
-	    </menuContribution>            	      		                	      	               	                
+	    </menuContribution> 
+	 	<menuContribution
+	          locationURI="popup:org.eclipse.ui.popup.any?after=additions">
+	        <command
+	             commandId="com.collabnet.ccf.teamforge_sw.commands.setTaskPointPersonMappingOption.product"
+	             label="Set task point person mapping option..."
+	             style="push">
+	        	<visibleWhen
+	                checkEnabled="true">
+	             <and>
+	                <count
+	                      value="1">
+	                </count>  
+	             </and>
+	          	</visibleWhen>
+	        </command>
+	    </menuContribution>	    	               	      		                	      	               	                
 	</extension>
    
     <extension
@@ -281,6 +323,24 @@
        </enabledWhen>
     </handler>
     <handler
+          class="com.collabnet.ccf.teamforge_sw.UserMappingOptionHandler"
+          commandId="com.collabnet.ccf.teamforge_sw.commands.setTaskPointPersonMappingOption">
+       <enabledWhen>
+          <iterate>
+              <and>
+                <adapt
+                      type="com.collabnet.ccf.model.AdministratorSynchronizationStatus">
+                </adapt>
+                <test
+                	  forcePluginActivation="true"
+                      property="com.collabnet.ccf.teamforge_sw.isTeamForgeScrumWorksMapping"
+                      value="true">
+                </test>                                    
+			 </and>
+          </iterate>
+       </enabledWhen>
+    </handler>    
+    <handler
           class="com.collabnet.ccf.teamforge_sw.MapUsersHandler"
           commandId="com.collabnet.ccf.teamforge_sw.commands.mapUsers.product">
        <enabledWhen>
@@ -297,7 +357,25 @@
 			 </and>
           </iterate>
        </enabledWhen>
-    </handler>                          
+    </handler>
+     <handler
+          class="com.collabnet.ccf.teamforge_sw.UserMappingOptionHandler"
+          commandId="com.collabnet.ccf.teamforge_sw.commands.setTaskPointPersonMappingOption.product">
+       <enabledWhen>
+          <iterate>
+              <and>
+                <adapt
+                      type="com.collabnet.ccf.model.AdministratorMappingGroup">
+                </adapt>
+                <test
+                	  forcePluginActivation="true"
+                      property="com.collabnet.ccf.teamforge_sw.isTeamForgeScrumWorksMappingGroup"
+                      value="true">
+                </test>                                    
+			 </and>
+          </iterate>
+       </enabledWhen>
+    </handler>                                        
  </extension>
       
  <extension

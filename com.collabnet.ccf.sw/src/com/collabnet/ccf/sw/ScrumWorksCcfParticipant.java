@@ -220,7 +220,7 @@ public class ScrumWorksCcfParticipant extends CcfParticipant {
 		metaDataGroup.setChildMappings(metaDataMappingArray);
 	}
 	
-	private String getProduct(SynchronizationStatus projectMapping) {
+	public static String getProduct(SynchronizationStatus projectMapping) {
 		String repositoryId = null;
 		if (projectMapping.getSourceRepositoryId().endsWith("-PBI") ||
 		    projectMapping.getSourceRepositoryId().endsWith("-Task") ||
