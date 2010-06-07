@@ -60,12 +60,15 @@ public class MapUsersWizard extends AbstractMappingWizard {
 					duplicateUsers = new ArrayList<String>();
 					for (User swpUser : createUserList) {
 						monitor.subTask("Creating " + swpUser.getUserName());
-						String email = swpUser.getUserName() + "@default.com";
+						String email = swpUser.getEmail();
+						if (email == null) {
+							email = swpUser.getUserName() + "@default.com";
+						}
 						String locale = "en";
 						String timeZone = getScrumWorksEndpoint().getTimezone();
 						String password = swpUser.getUserName() + "_defaultPassword";
 						try {
-							getSoapClient().createUser(swpUser.getUserName(), email, swpUser.getDisplayName(), locale, timeZone, false, false, password);
+							getSoapClient().createUser(swpUser.getUserName(), email, swpUser.getUserName(), locale, timeZone, false, false, password);
 						} catch (Exception e) {
 							notCreatedUsers.add(swpUser.getUserName());
 							if (e.getMessage().startsWith("Username already exists")) {

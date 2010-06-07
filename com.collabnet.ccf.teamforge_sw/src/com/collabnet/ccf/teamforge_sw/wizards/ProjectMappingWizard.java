@@ -441,12 +441,15 @@ public class ProjectMappingWizard extends Wizard {
 									userDO = getSoapClient().getUserData(swpUser.getUserName());
 								} catch (Exception e) {}
 								if (userDO == null) {
-									String email = swpUser.getUserName() + "@default.com";
+									String email = swpUser.getEmail();
+									if (email == null) {
+										email = swpUser.getUserName() + "@default.com";
+									}
 									String locale = "en";
 									String timeZone = getScrumWorksEndpoint().getTimezone();
 									String password = swpUser.getUserName() + "_defaultPassword";
 									try {
-										getSoapClient().createUser(swpUser.getUserName(), email, swpUser.getDisplayName(), locale, timeZone, false, false, password);
+										getSoapClient().createUser(swpUser.getUserName(), email, swpUser.getUserName(), locale, timeZone, false, false, password);
 									} catch (Exception e) {
 										createUserError = true;
 										if (e.getMessage().startsWith("Username already exists")) {
