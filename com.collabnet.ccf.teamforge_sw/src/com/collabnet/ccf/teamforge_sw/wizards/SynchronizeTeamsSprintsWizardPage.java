@@ -205,8 +205,8 @@ public class SynchronizeTeamsSprintsWizardPage extends WizardPage {
 					}
 				}
 				if (team != null) {
-					Date startDate = sprint.getStartDate().toGregorianCalendar().getTime();
-					Date endDate = sprint.getEndDate().toGregorianCalendar().getTime();
+					Date startDate = sprint.getStartDate();
+					Date endDate = sprint.getEndDate();
 					StringBuffer value = new StringBuffer(team.getName() + " " + simpleDateFormat.format(startDate) + " - " + simpleDateFormat.format(endDate));
 					if (sprint.getName() != null && sprint.getName().trim().length() > 0) {
 						value.append(" -- " + sprint.getName());

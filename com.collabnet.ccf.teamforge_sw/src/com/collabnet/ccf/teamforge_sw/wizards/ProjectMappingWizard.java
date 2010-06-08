@@ -7,6 +7,7 @@ import java.net.MalformedURLException;
 import java.rmi.RemoteException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -549,8 +550,8 @@ public class ProjectMappingWizard extends Wizard {
 					}
 				}
 				if (team != null) {
-					Date startDate = sprint.getStartDate().toGregorianCalendar().getTime();
-					Date endDate = sprint.getEndDate().toGregorianCalendar().getTime();
+					Date startDate = sprint.getStartDate();
+					Date endDate = sprint.getEndDate();
 					StringBuffer value = new StringBuffer(team.getName() + " " + simpleDateFormat.format(startDate) + " - " + simpleDateFormat.format(endDate));
 					if (sprint.getName() != null && sprint.getName().trim().length() > 0) {
 						value.append(" -- " + sprint.getName());
@@ -574,6 +575,7 @@ public class ProjectMappingWizard extends Wizard {
 		}
 		String[] themeValues = new String[themeList.size()];
 		themeList.toArray(themeValues);
+		Arrays.sort(themeValues);
 		return themeValues;
 	}
 	

@@ -3,6 +3,8 @@ package com.collabnet.ccf.teamforge_sw.wizards;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -76,6 +78,14 @@ public class SynchronizeThemesWizard extends AbstractMappingWizard {
 					}			
 					TrackerFieldValueDO[] fieldValues = new TrackerFieldValueDO[updatedValuesList.size()];
 					updatedValuesList.toArray(fieldValues);
+					
+					Comparator<TrackerFieldValueDO> comparator = new Comparator<TrackerFieldValueDO>() {
+						public int compare(TrackerFieldValueDO o1, TrackerFieldValueDO o2) {
+							return o1.getValue().compareTo(o2.getValue());
+						}
+					};
+					Arrays.sort(fieldValues, comparator);
+					
 					themesField.setFieldValues(fieldValues);
 					monitor.subTask("Updating tracker themes");
 					getSoapClient().setField(getTracker(), themesField);
