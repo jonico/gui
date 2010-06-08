@@ -27,6 +27,7 @@ public class SynchronizeThemesWizardPage extends WizardPage {
 	private TrackerFieldValueDO[] trackerThemes;
 	private Exception getProductThemesError;
 	private Exception getTrackerThemesError;	
+	private Exception unknownError;
 	private List<TrackerFieldValueDO> deletedValues;
 	private List<Theme> addedValues;
 	private Map<String, String> oldValuesMap;
@@ -96,6 +97,7 @@ public class SynchronizeThemesWizardPage extends WizardPage {
 	private void getThemes() {
 		getProductThemesError = null;
 		getTrackerThemesError = null;
+		unknownError = null;
 		deletedValues = new ArrayList<TrackerFieldValueDO>();	
 		addedValues = new ArrayList<Theme>();
 		oldValuesMap = new HashMap<String, String>();
@@ -172,7 +174,7 @@ public class SynchronizeThemesWizardPage extends WizardPage {
 			getContainer().run(true, false, runnable);
 		} catch (Exception e) {
 			Activator.handleError(e);
-			setErrorMessage(e.getMessage());
+			unknownError = e;
 		}
 		
 		if (getProductThemesError != null) {
@@ -181,6 +183,9 @@ public class SynchronizeThemesWizardPage extends WizardPage {
 		else if (getTrackerThemesError != null) {
 			setErrorMessage("An unexpected error occurred while getting TeamForge tracker themes.  See error log for details.");
 		}
+		else if (unknownError != null) {
+			setErrorMessage("An unexpected error occurred while getting themes.  See error log for details.");
+		}		
 		else if (addedValues.size() == 0 && deletedValues.size() == 0) {
 			setMessage("No differences found between TeamForge tracker themes and SWP product themes.");
 		} else {

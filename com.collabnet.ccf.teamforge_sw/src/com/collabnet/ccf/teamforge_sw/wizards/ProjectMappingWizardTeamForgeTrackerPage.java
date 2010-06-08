@@ -357,7 +357,7 @@ public class ProjectMappingWizardTeamForgeTrackerPage extends WizardPage {
 				getContainer().run(true, false, runnable);
 			} catch (Exception e) {
 				Activator.handleError(e);
-				setErrorMessage(e.getMessage());
+				getTrackersError = e;
 			}
 			if (getTrackersError != null) {
 				setErrorMessage("An unexpected error occurred while getting TeamForge trackers.  See error log for details.");

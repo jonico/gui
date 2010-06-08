@@ -32,6 +32,7 @@ public class SynchronizeTeamsSprintsWizardPage extends WizardPage {
 	private TrackerFieldValueDO[] trackerTeamsSprints;
 	private Exception getProductTeamsSprintsError;
 	private Exception getTrackerTeamsSprintsError;	
+	private Exception unknownError;
 	private List<TrackerFieldValueDO> deletedValues;
 	private List<String> addedValues;
 	private Map<String, String> oldValuesMap;
@@ -100,6 +101,7 @@ public class SynchronizeTeamsSprintsWizardPage extends WizardPage {
 	private void getTeamsSprints() {
 		getProductTeamsSprintsError = null;
 		getTrackerTeamsSprintsError = null;
+		unknownError = null;
 		deletedValues = new ArrayList<TrackerFieldValueDO>();	
 		addedValues = new ArrayList<String>();
 		oldValuesMap = new HashMap<String, String>();
@@ -173,7 +175,7 @@ public class SynchronizeTeamsSprintsWizardPage extends WizardPage {
 			getContainer().run(true, false, runnable);
 		} catch (Exception e) {
 			Activator.handleError(e);
-			setErrorMessage(e.getMessage());
+			unknownError = e;
 		}
 		
 		if (getProductTeamsSprintsError != null) {
@@ -181,6 +183,9 @@ public class SynchronizeTeamsSprintsWizardPage extends WizardPage {
 		}
 		else if (getTrackerTeamsSprintsError != null) {
 			setErrorMessage("An unexpected error occurred while getting TeamForge tracker teams/sprints.  See error log for details.");
+		}
+		else if (unknownError != null) {
+			setErrorMessage("An unexpected error occurred while getting teams/sprints.  See error log for details.");
 		}
 		else if (addedValues.size() == 0 && deletedValues.size() == 0) {
 			setMessage("No differences found between TeamForge tracker teams/sprints and SWP product teams/sprints.");

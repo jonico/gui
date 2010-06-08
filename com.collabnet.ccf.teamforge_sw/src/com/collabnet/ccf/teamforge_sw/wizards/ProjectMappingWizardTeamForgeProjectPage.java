@@ -31,7 +31,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.Text;
@@ -50,6 +49,7 @@ public class ProjectMappingWizardTeamForgeProjectPage extends WizardPage {
 	private boolean projectsRetrieved;
 	private String newProjectTitle;
 	private String selectedProduct;
+	private Exception getProjectsError;
 	
 	private String[] columnHeaders = {"Project"};
 	private ColumnLayoutData columnLayouts[] = {
@@ -189,7 +189,7 @@ public class ProjectMappingWizardTeamForgeProjectPage extends WizardPage {
 	}
 
 	private ProjectRow[] getProjects() {
-		
+		getProjectsError = null;
 		IRunnableWithProgress runnable = new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 				String taskName = "Retrieving TeamForge projects";
@@ -209,11 +209,7 @@ public class ProjectMappingWizardTeamForgeProjectPage extends WizardPage {
 					}
 				} catch (final RemoteException e) {
 					Activator.handleError(e);
-					Display.getDefault().syncExec(new Runnable() {					
-						public void run() {
-							setErrorMessage(e.getMessage());
-						}
-					});
+					getProjectsError = e;
 				}
 				monitor.done();
 			}
@@ -223,7 +219,11 @@ public class ProjectMappingWizardTeamForgeProjectPage extends WizardPage {
 			getContainer().run(true, false, runnable);
 		} catch (Exception e) {
 			Activator.handleError(e);
-			setErrorMessage(e.getMessage());
+			getProjectsError = e;
+		}
+		
+		if (getProjectsError != null) {
+			setErrorMessage("An unexpected error occurred while getting TeamForge projects.  See error log for details.");
 		}
 
 		return projects;

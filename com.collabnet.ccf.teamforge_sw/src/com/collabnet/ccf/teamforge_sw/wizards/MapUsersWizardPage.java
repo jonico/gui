@@ -217,7 +217,7 @@ public class MapUsersWizardPage extends WizardPage {
 			getContainer().run(true, false, runnable);
 		} catch (Exception e) {
 			Activator.handleError(e);
-			setErrorMessage(e.getMessage());
+			getUsersError = e;
 		}
 		if (getUsersError != null) {
 			setErrorMessage("An unexpected error occurred while retrieving users.  See error log for details.");

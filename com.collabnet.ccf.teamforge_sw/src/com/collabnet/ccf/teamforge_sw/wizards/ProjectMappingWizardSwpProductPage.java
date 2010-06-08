@@ -186,7 +186,7 @@ public class ProjectMappingWizardSwpProductPage extends WizardPage {
 			getContainer().run(true, false, runnable);
 		} catch (Exception e) {
 			Activator.handleError(e);
-			setErrorMessage(e.getMessage());
+			getProductsError = e;
 		}
 		
 		if (getProductsError != null) {
