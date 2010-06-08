@@ -268,21 +268,23 @@ public class CcfDataProvider {
 		
 		if (patients != null && Activator.getDefault().getPreferenceStore().getBoolean(Activator.PREFERENCES_HOSPITAL_FLAG_OUTDATED)) {
 			for (Patient patient : patients) {
-				IdentityMapping identityMapping = new IdentityMapping();
-				identityMapping.setSourceRepositoryId(patient.getSourceRepositoryId());
-				identityMapping.setTargetRepositoryId(patient.getTargetRepositoryId());
-				identityMapping.setSourceArtifactId(patient.getSourceArtifactId());
-				identityMapping.setArtifactType(patient.getArtifactType());
-				identityMapping.setLandscape(landscape);
-				identityMapping = getIdentityMapping(identityMapping);
-				if (identityMapping != null && identityMapping.getSourceArtifactVersion() != null) {
-					try {
-						if (Long.parseLong(patient.getSourceArtifactVersion()) < Long.parseLong(identityMapping.getSourceArtifactVersion())) {
-							patient.setOutdated(true);
+				if (patient.getSourceArtifactVersion() != null && !patient.getSourceArtifactVersion().equals("unknown")) {
+					IdentityMapping identityMapping = new IdentityMapping();
+					identityMapping.setSourceRepositoryId(patient.getSourceRepositoryId());
+					identityMapping.setTargetRepositoryId(patient.getTargetRepositoryId());
+					identityMapping.setSourceArtifactId(patient.getSourceArtifactId());
+					identityMapping.setArtifactType(patient.getArtifactType());
+					identityMapping.setLandscape(landscape);
+					identityMapping = getIdentityMapping(identityMapping);
+					if (identityMapping != null && identityMapping.getSourceArtifactVersion() != null) {
+						try {
+							if (Long.parseLong(patient.getSourceArtifactVersion()) < Long.parseLong(identityMapping.getSourceArtifactVersion())) {
+								patient.setOutdated(true);
+							}
+						} catch (Exception e) {
+							// Log unexpected parse error, but don't let it crash app.
+							Activator.handleError(e);
 						}
-					} catch (Exception e) {
-						// Log unexpected parse error, but don't let it crash app.
-						Activator.handleError(e);
 					}
 				}
 			}
