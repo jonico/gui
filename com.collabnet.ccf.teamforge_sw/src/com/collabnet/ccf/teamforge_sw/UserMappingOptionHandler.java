@@ -68,6 +68,7 @@ public class UserMappingOptionHandler extends AbstractHandler {
 											Update mappingUpdate = new Update(CcfDataProvider.SYNCHRONIZATION_STATUS_SOURCE_REPOSITORY_KIND, template);
 											Update[] updates = { mappingUpdate };						
 											ccfDataProvider.updateSynchronizationStatuses(mapping.getLandscape(), updates, filters);
+											Activator.notifyProjectMappingChangeListeners(mapping);
 										}										
 									}
 								}
