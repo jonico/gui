@@ -276,7 +276,7 @@ public class CcfDataProvider {
 					identityMapping.setArtifactType(patient.getArtifactType());
 					identityMapping.setLandscape(landscape);
 					identityMapping = getIdentityMapping(identityMapping);
-					if (identityMapping != null && identityMapping.getSourceArtifactVersion() != null) {
+					if (identityMapping != null && identityMapping.getSourceArtifactVersion() != null && !identityMapping.getSourceArtifactVersion().equals("unknown")) {
 						try {
 							if (Long.parseLong(patient.getSourceArtifactVersion()) < Long.parseLong(identityMapping.getSourceArtifactVersion())) {
 								patient.setOutdated(true);
