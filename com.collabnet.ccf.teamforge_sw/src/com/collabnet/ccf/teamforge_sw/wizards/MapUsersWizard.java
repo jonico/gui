@@ -68,7 +68,7 @@ public class MapUsersWizard extends AbstractMappingWizard {
 						String timeZone = getScrumWorksEndpoint().getTimezone();
 						String password = swpUser.getUserName() + "_defaultPassword";
 						try {
-							getSoapClient().createUser(swpUser.getUserName(), email, swpUser.getUserName(), locale, timeZone, false, false, password);
+							getSoapClient().createUser(swpUser.getUserName(), email, swpUser.getName(), locale, timeZone, false, false, password);
 						} catch (Exception e) {
 							notCreatedUsers.add(swpUser.getUserName());
 							if (e.getMessage().startsWith("Username already exists")) {
