@@ -539,7 +539,7 @@ public class ProjectMappingWizard extends Wizard {
 		Map<Long, Team> teamMap = new HashMap<Long, Team>();
 		List<String> teamSprintList = new ArrayList<String>();
 		List<Sprint> sprints = getSprints(getSelectedProduct());
-		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		if (sprints != null) {
 			for (Sprint sprint : sprints) {
 				Team team = teamMap.get(sprint.getTeamId());
@@ -562,6 +562,7 @@ public class ProjectMappingWizard extends Wizard {
 		}
 		String[] teamSprintValues = new String[teamSprintList.size()];
 		teamSprintList.toArray(teamSprintValues);
+		Arrays.sort(teamSprintValues);
 		return teamSprintValues;
 	}
 	

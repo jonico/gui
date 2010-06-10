@@ -199,7 +199,7 @@ public class SynchronizeTeamsSprintsWizardPage extends WizardPage {
 		Map<Long, Team> teamMap = new HashMap<Long, Team>();
 		List<String> teamSprintList = new ArrayList<String>();
 		List<Sprint> sprints = getSprints(product);
-		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		if (sprints != null) {
 			for (Sprint sprint : sprints) {
 				Team team = teamMap.get(sprint.getTeamId());
