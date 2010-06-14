@@ -723,9 +723,15 @@ public class ProjectMappingWizard extends Wizard {
 				field.setDisabled(true);
 				getSoapClient().setField(taskTrackerId, field);
 			}
-			if (fieldName.equals("Point Person")) addPointPerson = false;
+			if (fieldName.equals("Point Person")) {
+				addPointPerson = false;
+			}
 		}
-		if (addPointPerson) getSoapClient().addTextField(taskTrackerId, "Point Person", 30, 1, false, trackerPage.isMapToAssignedToUser(), false, null);
+		if (addPointPerson) {
+			getSoapClient().addTextField(taskTrackerId, "Point Person", 30, 1, false, trackerPage.isMapToAssignedToUser(), false, null);
+		} else {
+			getSoapClient().setFieldEnablement(taskTrackerId, "Point Person", trackerPage.isMapToAssignedToUser());
+		}
 		for (TrackerFieldDO field : fields) {
 			if (field.getName().equals("status")) {
 				TrackerFieldValueDO[] oldValues = field.getFieldValues();
