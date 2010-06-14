@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="com.collabnet.ccf.sw.feature"
-      label="ScrumWorksPro Connector for CCF"
+      label="ScrumWorks Pro Connector for CCF"
       version="1.0.1"
       provider-name="CollabNet"
       plugin="com.collabnet.ccf.sw">
 
    <description url="http://ccf.open.collab.net">
-      ScrumWorksPro Connector for CCF
+      ScrumWorks Pro Connector for CCF
    </description>
 
    <copyright url="http://ccf.open.collab.net/">

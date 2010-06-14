@@ -33,7 +33,7 @@ public class SetTaskPointPersonMappingOptionDialog extends CcfDialog {
 		layout.numColumns = 1;
 		composite.setLayout(layout);
 		composite.setLayoutData(new GridData(GridData.FILL_BOTH));		
-		composite.setText("Map ScrumWorksPro task point person to:");
+		composite.setText("Map ScrumWorks Pro task point person to:");
 	
 		assignedToButton = new Button(composite, SWT.RADIO);
 		assignedToButton.setText("Assigned To user");

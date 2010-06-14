@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="com.collabnet.ccf.teamforge_sw.feature"
-      label="TeamForge-ScrumWorksPro CCF Connector Contributor"
+      label="TeamForge-ScrumWorks Pro CCF Connector Contributor"
       version="1.0.3"
       provider-name="CollabNet">
 
    <description url="http://ccf.open.collab.net">
-      TeamForge-ScrumWorksPro CCF Connector Contributor
+      TeamForge-ScrumWorks Pro CCF Connector Contributor
    </description>
 
    <copyright url="http://ccf.open.collab.net/">

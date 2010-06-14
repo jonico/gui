@@ -22,7 +22,7 @@ import com.danube.scrumworks.api2.client.ScrumWorksAPIService;
  * The activator class controls the plug-in life cycle
  */
 public class Activator extends AbstractUIPlugin {
-	public static final String SYSTEM_ID = "ScrumWorksPro"; //$NON-NLS-1$
+	public static final String SYSTEM_ID = "ScrumWorks Pro"; //$NON-NLS-1$
 	
 	public static final String IMAGE_SW = "SWLogo.png"; //$NON-NLS-1$
 	public static final String IMAGE_SWP_PRODUCT = "swp_product.gif"; //$NON-NLS-1$

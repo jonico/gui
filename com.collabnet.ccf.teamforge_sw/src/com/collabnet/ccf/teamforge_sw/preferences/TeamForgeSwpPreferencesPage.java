@@ -41,7 +41,7 @@ public class TeamForgeSwpPreferencesPage extends PreferencePage implements IWork
 		composite.setLayoutData(gd);
 		
 		mapMultipleButton = new Button(composite, SWT.CHECK);
-		mapMultipleButton.setText("Map ScrumWorksPro product to multiple TeamForge projects");
+		mapMultipleButton.setText("Map ScrumWorks Pro product to multiple TeamForge projects");
 		
 		initializeValues();
 		

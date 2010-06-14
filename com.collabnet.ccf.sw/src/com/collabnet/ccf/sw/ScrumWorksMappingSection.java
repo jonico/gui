@@ -44,7 +44,7 @@ public class ScrumWorksMappingSection extends MappingSection {
 
 	private static final String PREVIOUS_TYPE = "ScrumWorksMappingSection.type";
 	
-	public final static String MAP_POINT_PERSON_TO_ASSIGNED_TO = "Map ScrumWorksPro Point Person to TeamForge Assigned To User";
+	public final static String MAP_POINT_PERSON_TO_ASSIGNED_TO = "Map ScrumWorks Pro Point Person to TeamForge Assigned To User";
 	public final static String TEMPLATE_TASKS = "TemplateTasks.xsl";
 	public final static String TEMPLATE_TASKS_FLEX_FIELD = "TemplateTasksFlexField.xsl";
 	

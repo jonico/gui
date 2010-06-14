@@ -4,7 +4,7 @@
    <extension
          point="com.collabnet.ccf.ccfParticipants">
       <participant
-            name="ScrumWorksPro"
+            name="ScrumWorks Pro"
             type="SWP"
             repositoryKind="TRACKER"
             class="com.collabnet.ccf.sw.ScrumWorksCcfParticipant"

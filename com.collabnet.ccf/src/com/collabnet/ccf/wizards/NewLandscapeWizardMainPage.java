@@ -191,6 +191,9 @@ public class NewLandscapeWizardMainPage extends WizardPage {
 	private void getCcfParticipants() {
 		String lastParticipant1Selection = settings.get(LAST_CCF_PARTICIPANT_1);
 		String lastParticipant2Selection = settings.get(LAST_CCF_PARTICIPANT_2);
+		if (lastParticipant2Selection.equals("ScrumWorksPro")) {
+			lastParticipant2Selection = "ScrumWorks Pro";
+		}
 		for (ICcfParticipant ccfParticipant : ccfParticipants) {
 			participant1Combo.add(ccfParticipant.getName());
 			participant2Combo.add(ccfParticipant.getName());
