@@ -13,15 +13,18 @@ import org.eclipse.ui.actions.ActionDelegate;
 
 import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.db.CcfDataProvider;
+import com.collabnet.ccf.model.MappingGroup;
 import com.collabnet.ccf.model.ProjectMappings;
 import com.collabnet.ccf.model.SynchronizationStatus;
 
 public class PauseSynchronizationAction extends ActionDelegate {
 	private IStructuredSelection fSelection;
+	private CcfDataProvider dataProvider;
+	private List<ProjectMappings> projectMappingsList;
 	
 	public void run(IAction action) {
-		final List<ProjectMappings> projectMappingsList = new ArrayList<ProjectMappings>();
-		final CcfDataProvider dataProvider = new CcfDataProvider();
+		projectMappingsList = new ArrayList<ProjectMappings>();
+		dataProvider = new CcfDataProvider();
 		BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
 			@SuppressWarnings("unchecked")
 			public void run() {
@@ -38,6 +41,15 @@ public class PauseSynchronizationAction extends ActionDelegate {
 						} catch (Exception e) {
 							Activator.handleError(e);
 							break;
+						}
+					}
+					if (object instanceof MappingGroup) {
+						MappingGroup mappingGroup = (MappingGroup)object;
+						try {
+							pauseSynchronization(mappingGroup);
+						} catch (Exception e) {
+							Activator.handleError(e);
+							break;							
 						}
 					}
 				}
@@ -66,7 +78,53 @@ public class PauseSynchronizationAction extends ActionDelegate {
 				if (status.isPaused())
 					return false;
 			}
+			if (object instanceof MappingGroup) {
+				MappingGroup mappingGroup = (MappingGroup)object;
+				if (!hasRunningMappings(mappingGroup)) {
+					return false;
+				}
+			}			
 		}
 		return true;
 	}	
+	
+	private boolean hasRunningMappings(MappingGroup mappingGroup) {
+		SynchronizationStatus[] childMappings = mappingGroup.getChildMappings();
+		if (childMappings != null) {
+			for (SynchronizationStatus status : childMappings) {
+				if (!status.isPaused()) {
+					return true;
+				}
+			}
+		}
+		MappingGroup[] childGroups = mappingGroup.getChildGroups();
+		if (childGroups != null) {
+			for (MappingGroup childGroup : childGroups) {
+				if (hasRunningMappings(childGroup)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	private void pauseSynchronization(MappingGroup mappingGroup) throws Exception {
+		SynchronizationStatus[] childMappings = mappingGroup.getChildMappings();
+		if (childMappings != null) {
+			for (SynchronizationStatus status : childMappings) {
+				if (!status.isPaused()) {
+					dataProvider.pauseSynchronization(status);
+					if (!projectMappingsList.contains(status.getProjectMappings())) {
+						projectMappingsList.add(status.getProjectMappings());
+					}
+				}
+			}
+		}
+		MappingGroup[] childGroups = mappingGroup.getChildGroups();
+		if (childGroups != null) {
+			for (MappingGroup childGroup : childGroups) {
+				pauseSynchronization(childGroup);
+			}
+		}		
+	}
 }

@@ -279,6 +279,18 @@
                id="com.collabnet.ccf.actions.RefreshAction">
          </action>
          <action
+               label="Resume synchronization"
+               class="com.collabnet.ccf.actions.ResumeSynchronizationAction"
+               menubarPath="group.c"
+               id="com.collabnet.ccf.actions.ResumeSynchronizationAction">
+         </action>          
+         <action
+               label="Pause synchronization"
+               class="com.collabnet.ccf.actions.PauseSynchronizationAction"
+               menubarPath="group.c"
+               id="com.collabnet.ccf.actions.PauseSynchronizationAction">
+         </action>                                             
+         <action
                label="Delete project mappings"
                class="com.collabnet.ccf.actions.DeleteSynchronizationStatusAction"
                menubarPath="group.d"
