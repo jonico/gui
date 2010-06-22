@@ -63,7 +63,7 @@ public class ProjectMappingWizardTeamForgeTrackerPage extends WizardPage {
 	private boolean mapToAssignedToUser = false;
 	private Exception getTrackersError;
 	
-	private String[] columnHeaders = {"Tracker"};
+	private String[] columnHeaders = {"Existing Trackers in the selected TeamForge project"};
 	private ColumnLayoutData columnLayouts[] = {
 		new ColumnWeightData(450, 450, true)};
 
@@ -83,7 +83,7 @@ public class ProjectMappingWizardTeamForgeTrackerPage extends WizardPage {
 		pbiLayout.numColumns = 2;
 		pbiGroup.setLayout(pbiLayout);
 		pbiGroup.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));
-		pbiGroup.setText("PBI Tracker:");
+		pbiGroup.setText("Tracker to be mapped to ScrumWorks PBI:");
 		
 		newPbiTrackerButton = new Button(pbiGroup, SWT.CHECK);
 		newPbiTrackerButton.setText("Create new tracker:");
@@ -101,7 +101,7 @@ public class ProjectMappingWizardTeamForgeTrackerPage extends WizardPage {
 		taskLayout.numColumns = 2;
 		taskGroup.setLayout(taskLayout);
 		taskGroup.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));
-		taskGroup.setText("Task Tracker:");
+		taskGroup.setText("Tracker to be mapped to ScrumWorks Task:");
 		
 		newTaskTrackerButton = new Button(taskGroup, SWT.CHECK);
 		newTaskTrackerButton.setText("Create new tracker:");
@@ -183,7 +183,7 @@ public class ProjectMappingWizardTeamForgeTrackerPage extends WizardPage {
 		newPbiTrackerText.addModifyListener(modifyListener);
 		newTaskTrackerText.addModifyListener(modifyListener);
 
-		setMessage("Select the TeamForge trackers to be mapped.");
+		setMessage("Select the TeamForge trackers to be mapped to ScrumWorks PBIs and Tasks.");
 
 		setControl(outerContainer);
 	}
