@@ -14,7 +14,9 @@ import org.eclipse.ui.part.EditorPart;
 import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.CCFJMXMonitorBean;
 import com.collabnet.ccf.ICcfParticipant;
+import com.collabnet.ccf.db.CcfDataProvider;
 import com.collabnet.ccf.model.Landscape;
+import com.collabnet.ccf.model.SynchronizationStatus;
 import com.collabnet.ccf.views.CcfExplorerView;
 
 public class CcfEditor extends FormEditor implements ISaveablePart2 {
@@ -100,12 +102,40 @@ public class CcfEditor extends FormEditor implements ISaveablePart2 {
 		
 		ccfPage.doSave(monitor);
 		
+		String oldTimezone1 = landscape.getTimezone1();
+		String oldTimezone2 = landscape.getTimezone2();
+		
 		if (page1 != null) {
 			page1.doSave(monitor);
 		}
 		
 		if (page2 != null) {
 			page2.doSave(monitor);
+		}
+		
+		boolean timezoneChanged = 
+			(oldTimezone1 == null && !(landscape.getTimezone1() == null)) ||
+			(oldTimezone2 == null && !(landscape.getTimezone2() == null)) ||
+			!oldTimezone1.equals(landscape.getTimezone1()) ||
+			!oldTimezone2.equals(landscape.getTimezone2());
+
+		if (timezoneChanged) {
+			CcfDataProvider dataProvider = new CcfDataProvider();
+			try {
+				SynchronizationStatus[] projectMappings = dataProvider.getSynchronizationStatuses(landscape, null);
+				for (SynchronizationStatus projectMapping : projectMappings) {
+					if (projectMapping.getSourceSystemKind().startsWith(landscape.getType1())) {
+						projectMapping.setSourceSystemTimezone(landscape.getTimezone1());
+						projectMapping.setTargetSystemTimezone(landscape.getTimezone2());
+					} else {
+						projectMapping.setSourceSystemTimezone(landscape.getTimezone2());
+						projectMapping.setTargetSystemTimezone(landscape.getTimezone1());
+					}
+					dataProvider.updateTimezones(projectMapping);
+				}
+			} catch (Exception e) {
+				Activator.handleError(e);
+			}
 		}
 		
 		setDirty();
