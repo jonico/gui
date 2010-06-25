@@ -76,12 +76,14 @@ public abstract class AbstractMappingWizard extends Wizard {
 		String repositoryId = null;
 		if (projectMapping.getSourceRepositoryId().endsWith("-PBI") ||
 		    projectMapping.getSourceRepositoryId().endsWith("-Task") ||
+		    projectMapping.getSourceRepositoryId().endsWith("-MetaData") ||
 	        projectMapping.getSourceRepositoryId().endsWith("-Product") ||
 	        projectMapping.getSourceRepositoryId().endsWith("-Release")) {
 			repositoryId = projectMapping.getSourceRepositoryId();
 		}
 		else if (projectMapping.getTargetRepositoryId().endsWith("-PBI") ||
 			    projectMapping.getTargetRepositoryId().endsWith("-Task") ||
+			    projectMapping.getTargetRepositoryId().endsWith("-MetaData") ||
 		        projectMapping.getTargetRepositoryId().endsWith("-Product") ||
 		        projectMapping.getTargetRepositoryId().endsWith("-Release")) {
 				repositoryId = projectMapping.getTargetRepositoryId();
@@ -101,12 +103,15 @@ public abstract class AbstractMappingWizard extends Wizard {
 		String repositoryId = null;
 		if (projectMapping.getSourceRepositoryId().endsWith("-PBI") ||
 		    projectMapping.getSourceRepositoryId().endsWith("-Task") ||
+		    projectMapping.getSourceRepositoryId().endsWith("-MetaData") ||
 	        projectMapping.getSourceRepositoryId().endsWith("-Product") ||
 	        projectMapping.getSourceRepositoryId().endsWith("-Release")) {
+			
 			repositoryId = projectMapping.getSourceRepositoryId();
 		}
 		else if (projectMapping.getTargetRepositoryId().endsWith("-PBI") ||
 			    projectMapping.getTargetRepositoryId().endsWith("-Task") ||
+			    projectMapping.getTargetRepositoryId().endsWith("-MetaData") ||
 		        projectMapping.getTargetRepositoryId().endsWith("-Product") ||
 		        projectMapping.getTargetRepositoryId().endsWith("-Release")) {
 				repositoryId = projectMapping.getTargetRepositoryId();

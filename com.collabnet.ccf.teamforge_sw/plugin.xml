@@ -31,6 +31,11 @@
 		</command>
 		<command
 	        categoryId="com.collabnet.ccf.teamforge_sw.commands"
+	        id="com.collabnet.ccf.teamforge_sw.commands.fixTrackers"
+	        name="Fix TeamForge Trackers">
+		</command>		
+		<command
+	        categoryId="com.collabnet.ccf.teamforge_sw.commands"
 	        id="com.collabnet.ccf.teamforge_sw.commands.syncThemes"
 	        name="Synchronize Themes">
 		</command>
@@ -196,6 +201,19 @@
 	             </and>
 	          	</visibleWhen>
 	        </command>
+	        <command
+	             commandId="com.collabnet.ccf.teamforge_sw.commands.fixTrackers"
+	             label="Fix TeamForge trackers..."
+	             style="push">
+	        	<visibleWhen
+	                checkEnabled="true">
+	             <and>
+	                <count
+	                      value="1">
+	                </count>  
+	             </and>
+	          	</visibleWhen>
+	        </command>	        
 	    </menuContribution> 
 	 	<menuContribution
 	          locationURI="popup:org.eclipse.ui.popup.any?after=additions">
@@ -358,6 +376,24 @@
           </iterate>
        </enabledWhen>
     </handler>
+    <handler
+          class="com.collabnet.ccf.teamforge_sw.FixTrackersHandler"
+          commandId="com.collabnet.ccf.teamforge_sw.commands.fixTrackers">
+       <enabledWhen>
+          <iterate>
+              <and>
+                <adapt
+                      type="com.collabnet.ccf.model.AdministratorMappingGroup">
+                </adapt>
+                <test
+                	  forcePluginActivation="true"
+                      property="com.collabnet.ccf.teamforge_sw.isTeamForgeScrumWorksMappingGroup"
+                      value="true">
+                </test>                                    
+			 </and>
+          </iterate>
+       </enabledWhen>
+    </handler>    
      <handler
           class="com.collabnet.ccf.teamforge_sw.UserMappingOptionHandler"
           commandId="com.collabnet.ccf.teamforge_sw.commands.setTaskPointPersonMappingOption.product">

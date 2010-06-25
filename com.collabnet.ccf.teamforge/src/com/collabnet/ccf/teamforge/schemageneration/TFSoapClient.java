@@ -127,6 +127,10 @@ public class TFSoapClient {
 		}
 	}
 	
+	public void deleteField(String objectId, String fieldId) throws RemoteException {
+		connection.getTrackerClient().deleteField(objectId, fieldId);
+	}
+	
 	public void addTextField(String trackerId, String fieldName, int displayColumns, int displayLines, boolean isRequired, boolean isDisabled, boolean isHiddenOnCreate, String defaultValue) throws RemoteException {
 		connection.getTrackerClient().addTextField(trackerId, fieldName, displayColumns, displayLines, isRequired, isDisabled, isHiddenOnCreate, defaultValue);
 	}
