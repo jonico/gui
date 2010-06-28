@@ -2,10 +2,8 @@ package com.collabnet.ccf.teamforge_sw.wizards;
 
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -950,8 +948,14 @@ public class FixTrackersWizardPage extends WizardPage {
 		Map<Long, Team> teamMap = new HashMap<Long, Team>();
 		List<String> teamSprintList = new ArrayList<String>();
 		FixTrackersWizard wizard = (FixTrackersWizard)getWizard();
+		Landscape landscape = wizard.getProjectMapping().getLandscape();
+		String swpTimezone;
+		if (landscape.getType1().equals("SWP")) {
+			swpTimezone = landscape.getTimezone1();
+		} else {
+			swpTimezone = landscape.getTimezone2();
+		}
 		List<Sprint> sprints = getSprints(wizard.getProductId());
-		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		if (sprints != null) {
 			for (Sprint sprint : sprints) {
 				Team team = teamMap.get(sprint.getTeamId());
@@ -962,13 +966,7 @@ public class FixTrackersWizardPage extends WizardPage {
 					}
 				}
 				if (team != null) {
-					Date startDate = sprint.getStartDate();
-					Date endDate = sprint.getEndDate();
-					StringBuffer value = new StringBuffer(team.getName() + " " + simpleDateFormat.format(startDate) + " - " + simpleDateFormat.format(endDate));
-					if (sprint.getName() != null && sprint.getName().trim().length() > 0) {
-						value.append(" -- " + sprint.getName());
-					}
-					teamSprintList.add(value.toString());
+					teamSprintList.add(com.collabnet.ccf.teamforge_sw.Activator.getTeamSprintStringRepresentation(sprint, team, swpTimezone));
 				}
 			}
 		}
