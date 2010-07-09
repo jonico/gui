@@ -71,6 +71,8 @@ public class QCLayoutExtractor implements RepositoryLayoutExtractor {
 	static final String apOldLongValueFieldName = "AP_OLD_LONG_VALUE";
 
 	static final String CARDINALITY_GREATER_THAN_ONE = "GT1";
+	
+	static final String lastModifiedUserFieldName = "LAST_MODIFIED_USER";
 	public static final String PARAM_DELIMITER = "-";
 
 	private String serverUrl;
@@ -360,6 +362,16 @@ public class QCLayoutExtractor implements RepositoryLayoutExtractor {
 			}
 		}
 
+		// add last modified user as a mappable field
+		GenericArtifactField lastModifiedByField = genericArtifact.addNewField(lastModifiedUserFieldName,
+				GenericArtifactField.VALUE_FIELD_TYPE_FLEX_FIELD);
+		lastModifiedByField.setFieldValueType(GenericArtifactField.FieldValueTypeValue.STRING);
+		lastModifiedByField.setMaxOccursValue("1");
+		lastModifiedByField.setMinOccurs(1);
+		lastModifiedByField.setNullValueSupported("false");
+		lastModifiedByField.setAlternativeFieldName(lastModifiedUserFieldName);
+		lastModifiedByField.setFieldValue("user that performed the last modification");
+
 		return genericArtifact;
 	}
 	
@@ -540,6 +552,16 @@ public class QCLayoutExtractor implements RepositoryLayoutExtractor {
 				rs = null;
 			}
 		}
+
+		// add last modified user as a mappable field
+		GenericArtifactField lastModifiedByField = genericArtifact.addNewField(lastModifiedUserFieldName,
+				GenericArtifactField.VALUE_FIELD_TYPE_FLEX_FIELD);
+		lastModifiedByField.setFieldValueType(GenericArtifactField.FieldValueTypeValue.STRING);
+		lastModifiedByField.setMaxOccursValue("1");
+		lastModifiedByField.setMinOccurs(1);
+		lastModifiedByField.setNullValueSupported("false");
+		lastModifiedByField.setAlternativeFieldName(lastModifiedUserFieldName);
+		lastModifiedByField.setFieldValue("user that performed the last modification");
 
 		return genericArtifact;
 	}
