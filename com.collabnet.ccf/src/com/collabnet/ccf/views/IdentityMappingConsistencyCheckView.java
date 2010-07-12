@@ -193,8 +193,17 @@ public class IdentityMappingConsistencyCheckView extends ViewPart implements IPr
 					problemChecks.toArray(consistencyChecks);
 					inconsistentIdentityMappings = new IdentityMapping[problemIdentityMappings.size()];
 					problemIdentityMappings.toArray(inconsistentIdentityMappings);
+					if (synchronizationStatus == null) {
+						if (landscape != null) {
+							setContentDescription(landscape.getDescription());
+						}
+					} else {
+						setContentDescription(synchronizationStatus.toString());
+					}
 				} catch (Exception e) {
-					Activator.handleError(e);
+					setContentDescription("Could not connect to database.  See error log.");
+					inconsistentIdentityMappings = new IdentityMapping[0];
+					Activator.handleDatabaseError(e, false, true, "Identity Mapping Consistency Check View");
 				}
 			}			
 		});
@@ -220,14 +229,6 @@ public class IdentityMappingConsistencyCheckView extends ViewPart implements IPr
 			treeViewer.setExpandedState(item.getData(), true);
 		}
 		treeViewer.expandAll();
-		
-		if (synchronizationStatus == null) {
-			if (landscape != null) {
-				setContentDescription(landscape.getDescription());
-			}
-		} else {
-			setContentDescription(synchronizationStatus.toString());
-		}
 	}
 
 	public static IdentityMappingConsistencyCheckView getView() {

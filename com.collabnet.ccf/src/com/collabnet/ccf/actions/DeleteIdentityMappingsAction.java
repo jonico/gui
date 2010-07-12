@@ -51,7 +51,7 @@ public class DeleteIdentityMappingsAction extends ActionDelegate {
 					try {
 						dataProvider.deleteIdentityMappings(status);
 					} catch (Exception e) {
-						Activator.handleError(e);
+						Activator.handleDatabaseError(e, false, true, "Delete Identity Mappings");
 						break;
 					}
 				}

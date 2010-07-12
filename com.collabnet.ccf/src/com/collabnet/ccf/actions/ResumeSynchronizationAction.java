@@ -39,7 +39,7 @@ public class ResumeSynchronizationAction extends ActionDelegate {
 								projectMappingsList.add(status.getProjectMappings());
 							}							
 						} catch (Exception e) {
-							Activator.handleError(e);
+							Activator.handleDatabaseError(e, false, true, "Resume Synchronization");
 							break;
 						}
 					}
@@ -48,7 +48,7 @@ public class ResumeSynchronizationAction extends ActionDelegate {
 						try {
 							resumeSynchronization(mappingGroup);
 						} catch (Exception e) {
-							Activator.handleError(e);
+							Activator.handleDatabaseError(e, false, true, "Resume Synchronization");
 							break;							
 						}
 					}

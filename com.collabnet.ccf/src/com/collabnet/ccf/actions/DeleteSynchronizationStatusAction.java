@@ -44,7 +44,7 @@ public class DeleteSynchronizationStatusAction extends ActionDelegate {
 								projectMappingsList.add(status.getProjectMappings());
 							}
 						} catch (Exception e) {
-							Activator.handleError(e);
+							Activator.handleDatabaseError(e, false, true, "Delete Project Mapping");
 							break;
 						}
 					}

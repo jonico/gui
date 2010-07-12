@@ -442,7 +442,7 @@ public class IdentityMappingView extends ViewPart {
 				} catch (Exception e) {
 					setContentDescription("Could not connect to database.  See error log.");
 					identityMappings = new IdentityMapping[0];
-					Activator.handleError("Could not connect to database", e);
+					Activator.handleDatabaseError(e, false, true, "Identity Mapping View");
 				}
 				tableViewer.setInput(identityMappings);
 				tableViewer.refresh();

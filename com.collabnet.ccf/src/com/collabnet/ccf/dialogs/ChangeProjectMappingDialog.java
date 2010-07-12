@@ -1,7 +1,5 @@
 package com.collabnet.ccf.dialogs;
 
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
@@ -214,9 +212,8 @@ public class ChangeProjectMappingDialog extends CcfDialog implements IPageComple
 					}
 					Activator.notifyProjectMappingChangeListeners(status);
 				} catch (Exception e) {
-					Activator.handleError(e);
+					Activator.handleDatabaseError(e, false, true, "Change Project Mapping");
 					changeError = true;
-					ExceptionDetailsErrorDialog.openError(getShell(), "Change Project Mapping", e.getMessage(), new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getLocalizedMessage(), e));
 				}
 			}			
 		});

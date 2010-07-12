@@ -133,9 +133,8 @@ public class ReverseProjectMappingDialog extends CcfDialog implements IPageCompl
 					CcfDataProvider dataProvider = new CcfDataProvider();
 					dataProvider.addSynchronizationStatus(projectMappings, status);
 				} catch (Exception e) {
-					Activator.handleError(e);
+					Activator.handleDatabaseError(e, false, true, "New Project Mapping");
 					addError = true;
-					MessageDialog.openError(getShell(), "New Project Mapping", e.getMessage());
 				}
 			}			
 		});

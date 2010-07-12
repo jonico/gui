@@ -2,6 +2,7 @@ package com.collabnet.ccf;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Hashtable;
@@ -27,6 +28,7 @@ import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.prefs.BackingStoreException;
@@ -34,6 +36,7 @@ import org.osgi.service.prefs.Preferences;
 import org.osgi.util.tracker.ServiceTracker;
 
 import com.collabnet.ccf.db.CcfDataProvider;
+import com.collabnet.ccf.dialogs.ExceptionDetailsErrorDialog;
 import com.collabnet.ccf.model.AdministratorLandscape;
 import com.collabnet.ccf.model.Database;
 import com.collabnet.ccf.model.Landscape;
@@ -677,6 +680,31 @@ public class Activator extends AbstractUIPlugin {
 	 */
 	public static Activator getDefault() {
 		return plugin;
+	}
+	
+	public static void handleDatabaseError(final Exception exception, boolean logError, boolean showErrorDialog, final String errorDialogTitle) {
+		if (showErrorDialog) {
+			Display.getDefault().syncExec(new Runnable() {
+				public void run() {
+					Exception messageException;
+					if (exception instanceof SQLException) {
+						messageException = new Exception("Could not connect to database.  Please make sure database is started.  See error log for more details.", exception);
+					} else {
+						messageException = exception;
+					}
+					String title;
+					if (errorDialogTitle == null) {
+						title = "Database Error";
+					} else {
+						title = errorDialogTitle;
+					}
+					ExceptionDetailsErrorDialog.openError(Display.getDefault().getActiveShell(), title, messageException.getMessage(), new Status(IStatus.ERROR, Activator.PLUGIN_ID, exception.getLocalizedMessage(), exception));
+				}			
+			});
+		}
+		if (logError) {
+			handleError(exception);
+		}
 	}
 	
 	public static void handleError(Exception exception) {

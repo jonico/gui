@@ -421,7 +421,7 @@ public class HospitalView extends ViewPart {
 				} catch (Exception e) {
 					setContentDescription("Could not connect to database.  See error log.");
 					patients = new Patient[0];
-					Activator.handleError("Could not connect to database", e);
+					Activator.handleDatabaseError(e, false, true, "Hospital View");
 				}
 				tableViewer.setInput(patients);
 				tableViewer.refresh();

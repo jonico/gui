@@ -96,8 +96,7 @@ public class EditFieldMappingsWizard extends Wizard {
 		try {
 			dataProvider.setFieldMappingMode(projectMapping);
 		} catch (Exception e) {
-			ExceptionDetailsErrorDialog.openError(getShell(), "Edit Field Mappings", e.getMessage(), new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getLocalizedMessage(), e));
-			Activator.handleError(e);
+			Activator.handleDatabaseError(e, false, true, "Edit Field Mappings");
 			return false;
 		}
 		MessageDialog.openInformation(getShell(), "Edit Field Mappings", message);
@@ -282,7 +281,7 @@ public class EditFieldMappingsWizard extends Wizard {
 			try {
 				dataProvider.setFieldMappingMode(projectMapping);
 			} catch (Exception e) {
-				Activator.handleError(e);
+				Activator.handleDatabaseError(e, false, true, "Edit Field Mappings");
 				return false;
 			}
 		}
