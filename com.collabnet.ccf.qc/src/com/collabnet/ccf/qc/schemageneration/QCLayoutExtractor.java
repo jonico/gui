@@ -45,6 +45,8 @@ import com.collabnet.ccf.schemageneration.RepositoryLayoutExtractor;
  */
 public class QCLayoutExtractor implements RepositoryLayoutExtractor {
 
+	private static final String RQ_DEV_COMMENTS = "RQ_DEV_COMMENTS";
+	private static final String BG_DEV_COMMENTS = "BG_DEV_COMMENTS";
 	static final String sfColumnName = "SF_COLUMN_NAME";
 	static final String sfColumnType = "SF_COLUMN_TYPE";
 	static final String sfUserLabel = "SF_USER_LABEL";
@@ -262,7 +264,7 @@ public class QCLayoutExtractor implements RepositoryLayoutExtractor {
 
 		// Get all the fields in the project represented
 		// by qcc
-		String sql = "SELECT * FROM REQ_TYPE_FIELD rf, system_field sf where rf.rtf_type_id = '"
+		String sql = "SELECT * FROM REQ_TYPE_FIELD rf, system_field sf where sf.sf_user_label is not null AND rf.rtf_type_id = '"
 				+ technicalReleaseTypeId
 				+ "' and rf.rtf_sf_column_name = sf.sf_column_name";
 		GenericArtifact genericArtifact = null;
@@ -344,7 +346,7 @@ public class QCLayoutExtractor implements RepositoryLayoutExtractor {
 					fieldValueType = FieldValueTypeValue.STRING;
 					field.setFieldValueType(FieldValueTypeValue.STRING);
 				}
-				if (columnName.equals("RQ_DEV_COMMENTS")) {
+				if (columnName.equals(RQ_DEV_COMMENTS)) {
 					field
 						.setFieldAction(GenericArtifactField.FieldActionValue.APPEND);
 				}
@@ -464,7 +466,7 @@ public class QCLayoutExtractor implements RepositoryLayoutExtractor {
 
 		// Get all the fields in the project represented
 		// by qcc
-		String sql = "SELECT * FROM SYSTEM_FIELD WHERE SF_TABLE_NAME='BUG'";
+		String sql = "SELECT * FROM SYSTEM_FIELD WHERE SF_TABLE_NAME='BUG' AND SF_USER_LABEL IS NOT NULL";
 		GenericArtifact genericArtifact = null;
 		IRecordSet rs = null;
 		try {
@@ -530,11 +532,11 @@ public class QCLayoutExtractor implements RepositoryLayoutExtractor {
 				// Only for the Comments field, the action value of the
 				// GenericArtifactField is set to APPEND. Later, this feature
 				// can be upgraded.
-				if (columnName != null && columnName.equals("BG_DEV_COMMENTS"))
+				if (columnName != null && columnName.equals(BG_DEV_COMMENTS))
 					field
 							.setFieldAction(GenericArtifactField.FieldActionValue.APPEND);
 				if (columnName != null
-						&& !(columnName.equals("BG_DEV_COMMENTS")))
+						&& !(columnName.equals(BG_DEV_COMMENTS)))
 					field
 							.setFieldAction(GenericArtifactField.FieldActionValue.REPLACE);
 				
