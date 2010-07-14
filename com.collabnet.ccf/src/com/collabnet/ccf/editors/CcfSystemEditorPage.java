@@ -7,6 +7,7 @@ import java.util.Properties;
 import java.util.TimeZone;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusAdapter;
@@ -19,6 +20,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -35,6 +37,8 @@ import org.eclipse.ui.forms.widgets.TableWrapData;
 import org.eclipse.ui.forms.widgets.TableWrapLayout;
 
 import com.collabnet.ccf.Activator;
+import com.collabnet.ccf.ICcfParticipant;
+import com.collabnet.ccf.IConnectionTester;
 
 public class CcfSystemEditorPage extends CcfEditorPage {
 	private ScrolledForm form;
@@ -66,6 +70,8 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 	private String resyncPassword;
 	private String attachmentSize;
 	private String timezone;
+	
+	private IConnectionTester connectionTester;
 	
 	public static final int QC = 0;
 	public static final int TF = 1;
@@ -115,7 +121,7 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 		default:
 			break;
 		}
-        
+        ICcfParticipant ccfParticipant = null;
 		switch (type) {
 		case QC:
 			headerLabel.setText("QC Properties");
@@ -123,6 +129,9 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 			break;
 		case TF:
 			headerLabel.setText("TeamForge Properties");
+			try {
+				ccfParticipant = Activator.getCcfParticipantForType("TF");
+			} catch (Exception e1) {}
 			initializeTeamForgeValues();
 			break;
 		case PT:
@@ -131,10 +140,17 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 			break;
 		case SW:
 			headerLabel.setText("ScrumWorks Properties");
+			try {
+				ccfParticipant = Activator.getCcfParticipantForType("SWP");
+			} catch (Exception e1) {}
 			initializeSwValues();
 			break;					
 		default:
 			break;
+		}
+		
+		if (ccfParticipant != null) {
+			connectionTester = ccfParticipant.getConnectionTester();
 		}
 		
 		timezone = properties.getProperty(Activator.PROPERTIES_SYSTEM_TIMEZONE, TimeZone.getDefault().getID()); //$NON-NLS-1$	
@@ -239,6 +255,19 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
 		passwordText.setLayoutData(gd);
 		passwordText.setEchoChar('*');
+		
+		if (connectionTester != null) {
+			Button testButton = toolkit.createButton(credentialsSectionClient, "Test Connection", SWT.PUSH);
+			gd = new GridData();
+			gd.horizontalSpan = 2;
+			gd.horizontalAlignment = GridData.HORIZONTAL_ALIGN_CENTER;
+			testButton.setLayoutData(gd);
+			testButton.addSelectionListener(new SelectionAdapter() {
+				public void widgetSelected(SelectionEvent se) {
+					testConnection(urlText.getText().trim(), userText.getText().trim(), passwordText.getText().trim());
+				}			
+			});			
+		}
         
 		Section resyncSection = toolkit.createSection(composite, Section.TITLE_BAR | Section.TWISTIE | Section.EXPANDED);
         td = new TableWrapData(TableWrapData.FILL_GRAB);
@@ -273,7 +302,20 @@ public class CcfSystemEditorPage extends CcfEditorPage {
         resyncPasswordText = toolkit.createText(resyncSectionClient, resyncPassword);
 		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
 		resyncPasswordText.setLayoutData(gd);
-		resyncPasswordText.setEchoChar('*');    
+		resyncPasswordText.setEchoChar('*'); 
+		
+		if (connectionTester != null) {
+			Button testButton = toolkit.createButton(resyncSectionClient, "Test Connection", SWT.PUSH);
+			gd = new GridData();
+			gd.horizontalSpan = 2;
+			gd.horizontalAlignment = GridData.HORIZONTAL_ALIGN_CENTER;
+			testButton.setLayoutData(gd);
+			testButton.addSelectionListener(new SelectionAdapter() {
+				public void widgetSelected(SelectionEvent se) {
+					testConnection(urlText.getText().trim(), resyncUserText.getText().trim(), resyncPasswordText.getText().trim());
+				}			
+			});			
+		}
 		
         toolkit.paintBordersFor(systemSectionClient);
         toolkit.paintBordersFor(credentialsSectionClient);
@@ -330,6 +372,15 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 		resyncPasswordText.addFocusListener(focusListener);
 		
 		urlText.setFocus();
+	}
+	
+	private void testConnection(String url, String user, String password) {
+		Exception connectionError = connectionTester.testConnection(url, user, password);
+		if (connectionError == null) {
+			MessageDialog.openInformation(Display.getDefault().getActiveShell(), "Test Connection", "Connection successful!");
+		} else {
+			MessageDialog.openError(Display.getDefault().getActiveShell(), "Test Connection", "Connection failed:\n\n" + connectionError.getLocalizedMessage());
+		}
 	}
 	
 	@Override

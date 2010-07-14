@@ -12,6 +12,8 @@ public class MappingGroup {
 	private Image image;
 	private MappingGroup[] childGroups;
 	private SynchronizationStatus[] childMappings;
+	private SynchronizationStatus[] hiddenChildMappings;
+	private int hospitalEntries;
 	
 	public MappingGroup(ICcfParticipant ccfParticipant, ProjectMappings projectMappingsParent, String id, String text, Image image) {
 		super();
@@ -53,6 +55,14 @@ public class MappingGroup {
 		this.childMappings = childMappings;
 	}
 
+	public SynchronizationStatus[] getHiddenChildMappings() {
+		return hiddenChildMappings;
+	}
+
+	public void setHiddenChildMappings(SynchronizationStatus[] hiddenChildMappings) {
+		this.hiddenChildMappings = hiddenChildMappings;
+	}
+
 	public String getText() {
 		return text;
 	}
@@ -74,10 +84,37 @@ public class MappingGroup {
 	}
 
 	public String toString() {
+		String returnString = null;
 		if (text != null) {
-			return text;
+			returnString = text;
+		} else {
+			return super.toString();
 		}
-		return super.toString();
+		if (getHospitalEntries() > 0) {
+			returnString = returnString + " (" + hospitalEntries + ")";
+		}
+		return returnString;
+	}
+	
+	public int getHospitalEntries() {
+		hospitalEntries = 0;
+		return getHospitalEntries(this);
+	}
+	
+	public int getHospitalEntries(MappingGroup mappingGroup) {
+		SynchronizationStatus[] childMappings = mappingGroup.getChildMappings();
+		if (childMappings != null) {
+			for (SynchronizationStatus status : childMappings) {
+				hospitalEntries += status.getHospitalEntries();
+			}
+		}
+		MappingGroup[] childGroups = mappingGroup.getChildGroups();
+		if (childGroups != null) {
+			for (MappingGroup childGroup : childGroups) {
+				getHospitalEntries(childGroup);
+			}
+		}		
+		return hospitalEntries;
 	}
 	
 	public Object[] getChildren() {

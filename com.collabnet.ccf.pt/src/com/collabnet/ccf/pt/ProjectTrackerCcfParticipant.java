@@ -12,6 +12,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.forms.editor.FormEditor;
 
 import com.collabnet.ccf.CcfParticipant;
+import com.collabnet.ccf.IConnectionTester;
 import com.collabnet.ccf.IMappingSection;
 import com.collabnet.ccf.core.GenericArtifactParsingException;
 import com.collabnet.ccf.editors.CcfEditorPage;
@@ -156,6 +157,14 @@ public class ProjectTrackerCcfParticipant extends CcfParticipant {
 
 	public String getEntityType(String repositoryId) {
 		return ENTITY_TRACKER;
+	}
+
+	@Override
+	public IConnectionTester getConnectionTester() {
+		// TODO Once ProjectTrackerConnectionTester implements the actual connection test,
+		//      return a ProjectTrackerConnectionTester instance instead of null.
+//		return new ProjectTrackerConnectionTester();
+		return null;
 	}
 
 }

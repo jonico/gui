@@ -78,7 +78,7 @@ public abstract class CcfParticipant implements ICcfParticipant {
 	public void setRepositoryKind(String repositoryKind) {
 		this.repositoryKind = repositoryKind;
 	}	
-	public MappingGroup[] getMappingGroups(ProjectMappings projectMappingsParent, SynchronizationStatus[] projectMappings) {
+	public MappingGroup[] getMappingGroups(ProjectMappings projectMappingsParent, SynchronizationStatus[] projectMappings, SynchronizationStatus[] hiddenProjectMappings) {
 		return null;
 	}
 	public int getSortPriority() {
@@ -95,6 +95,10 @@ public abstract class CcfParticipant implements ICcfParticipant {
 	
 	public boolean enableFieldMappingEditing(String toType) {
 		return true;
+	}
+	
+	public IConnectionTester getConnectionTester() {
+		return null;
 	}
 	
 	public int compareTo(Object compareToObject) {

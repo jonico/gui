@@ -202,7 +202,20 @@
                class="com.collabnet.ccf.actions.DeleteIdentityMappingAction"
                id="com.collabnet.ccf.actions.DeleteIdentityMappingAction">
          </action>                                                                         
-      </objectContribution>      
+      </objectContribution> 
+      
+      <objectContribution
+            objectClass="com.collabnet.ccf.model.MappingGroup"
+            id="com.collabnet.ccf.model.MappingGroup">                   
+         <action
+               label="Show Hospital"
+               class="com.collabnet.ccf.actions.HospitalAction"
+               enablesFor="1"
+               menubarPath="group.a"
+               icon="icons/hospitalView.gif"
+               id="com.collabnet.ccf.actions.HospitalAction">
+         </action>
+      </objectContribution>           
       
       <objectContribution
             objectClass="com.collabnet.ccf.model.Landscape"

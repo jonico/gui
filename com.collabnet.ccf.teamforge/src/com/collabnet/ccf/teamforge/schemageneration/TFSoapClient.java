@@ -277,6 +277,10 @@ public class TFSoapClient {
 		return connection.supports53();
 	}
 	
+	public String login() throws RemoteException {
+		return connection.login();
+	}
+	
 	public static EngineConfiguration getEngineConfiguration() {
 		SimpleProvider config = new SimpleProvider();
 		config.deployTransport("http", new SimpleTargetedChain(new TeamForgeHTTPSender())); //$NON-NLS-1$

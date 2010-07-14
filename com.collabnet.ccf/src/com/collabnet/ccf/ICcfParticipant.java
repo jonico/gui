@@ -85,7 +85,7 @@ public interface ICcfParticipant extends Comparable {
 			IProgressMonitor monitor) throws GenericArtifactParsingException,
 			IOException, TransformerException;
 	
-	public MappingGroup[] getMappingGroups(ProjectMappings projectMappingsParent, SynchronizationStatus[] projectMappings);
+	public MappingGroup[] getMappingGroups(ProjectMappings projectMappingsParent, SynchronizationStatus[] projectMappings, SynchronizationStatus[] hiddenProjectMappings);
 
 	public int getSortPriority();
 	
@@ -94,4 +94,11 @@ public interface ICcfParticipant extends Comparable {
 	public boolean allowAsTargetRepository(String repositoryId);
 	
 	public boolean enableFieldMappingEditing(String toType);
+
+	/**
+	 * 
+	 * @return Connection tester when Test Connection is pressed in Landscape editor.
+	 *         Return null if Test Connection button should not be shown.
+	 */
+	public IConnectionTester getConnectionTester();
 }

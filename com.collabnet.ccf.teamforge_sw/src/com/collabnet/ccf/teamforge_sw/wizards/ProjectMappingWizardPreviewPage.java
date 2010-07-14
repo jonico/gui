@@ -31,16 +31,7 @@ public class ProjectMappingWizardPreviewPage extends WizardPage {
 	private String productReleasePlanningFolderMapping;
 	private String metaDataMapping;
 	private String newProjectDescription = DEFAULT_PROJECT_DESCRIPTION;
-	
-	private Text trackerTaskText;
-	private Text trackerPbiText;
-	private Text planningFolderProductText;
-	private Text planningFolderProductReleaseText;
-	private Text taskTrackerText;
-	private Text pbiTrackerText;
-	private Text productPlanningFolderText;
-	private Text productReleasePlanningFolderText;
-	private Text metaDataText;
+
 	private Group projectDescriptionGroup;
 	private Text projectDescriptionText;
 	
@@ -57,75 +48,120 @@ public class ProjectMappingWizardPreviewPage extends WizardPage {
 	
 	private final static String DEFAULT_PROJECT_DESCRIPTION = "Project was automatically created for TeamForge-ScrumWorks integration.";
 
+	private final static String SCRUMWORKS_TO_TEAMFORGE = "ScrumWorks => TeamForge:";
+	private final static String TEAMFORGE_TO_SCRUMWORKS = "TeamForge => ScrumWorks:";
+	
 	public ProjectMappingWizardPreviewPage() {
-		super("previewPage", "Mappings Preview", Activator.getDefault().getImageDescriptor(Activator.IMAGE_NEW_PROJECT_MAPPING_WIZBAN));
+		super("previewPage", "Conflict Resolution", Activator.getDefault().getImageDescriptor(Activator.IMAGE_NEW_PROJECT_MAPPING_WIZBAN));
 		setPageComplete(false);
 	}
 
 	public void createControl(Composite parent) {
 		Composite outerContainer = new Composite(parent,SWT.NONE);
 		GridLayout layout = new GridLayout();
-		layout.numColumns = 2;
+		layout.numColumns = 1;
 		outerContainer.setLayout(layout);
 		outerContainer.setLayoutData(
 		new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));
 		
-		Label mappingLabel = new Label(outerContainer, SWT.NONE);
-		mappingLabel.setText("Project Mapping:");
+		Group mappingGroup = new Group(outerContainer,SWT.NONE);
+		mappingGroup.setText("Conflict Resolution:");
+		GridLayout mappingLayout = new GridLayout();
+		mappingGroup.setLayout(mappingLayout);
+		GridData data = new GridData(GridData.GRAB_HORIZONTAL | GridData.FILL_HORIZONTAL);
+		mappingGroup.setLayoutData(data);
 		
-		Label conflictLabel = new Label(outerContainer, SWT.NONE);
-		conflictLabel.setText("Conflict Resolution:");
-		
-		trackerTaskText = new Text(outerContainer, SWT.READ_ONLY | SWT.BORDER);
-		trackerTaskText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL));
-		trackerTaskCombo = new Combo(outerContainer, SWT.READ_ONLY);
-		populateConflictResolutionCombo(trackerTaskCombo);
-		
-		trackerPbiText = new Text(outerContainer, SWT.READ_ONLY | SWT.BORDER);
-		trackerPbiText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL));
-		trackerPbiCombo = new Combo(outerContainer, SWT.READ_ONLY);
+		Group pbiGroup = new Group(mappingGroup,SWT.NONE);
+		pbiGroup.setText("PBI:");
+		GridLayout pbiLayout = new GridLayout();
+		pbiLayout.numColumns = 2;
+		pbiGroup.setLayout(pbiLayout);
+		data = new GridData(GridData.GRAB_HORIZONTAL | GridData.FILL_HORIZONTAL);
+		pbiGroup.setLayoutData(data);
+
+		Label pbiTrackerText = new Label(pbiGroup, SWT.NONE);
+		pbiTrackerText.setText(SCRUMWORKS_TO_TEAMFORGE);
+		pbiTrackerCombo = new Combo(pbiGroup, SWT.READ_ONLY);
+		populateConflictResolutionCombo(pbiTrackerCombo);
+
+		Label trackerPbiText = new Label(pbiGroup, SWT.NONE);
+		trackerPbiText.setText(TEAMFORGE_TO_SCRUMWORKS);
+		trackerPbiCombo = new Combo(pbiGroup, SWT.READ_ONLY);
 		populateConflictResolutionCombo(trackerPbiCombo);
 		
-		planningFolderProductText = new Text(outerContainer, SWT.READ_ONLY | SWT.BORDER);
-		planningFolderProductText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL));
-		planningFolderProductCombo = new Combo(outerContainer, SWT.READ_ONLY);
+		Group taskGroup = new Group(mappingGroup,SWT.NONE);
+		taskGroup.setText("Task:");
+		GridLayout taskLayout = new GridLayout();
+		taskLayout.numColumns = 2;
+		taskGroup.setLayout(taskLayout);
+		data = new GridData(GridData.GRAB_HORIZONTAL | GridData.FILL_HORIZONTAL);
+		taskGroup.setLayoutData(data);
+
+		Label taskTrackerText = new Label(taskGroup, SWT.NONE);
+		taskTrackerText.setText(SCRUMWORKS_TO_TEAMFORGE);
+		taskTrackerCombo = new Combo(taskGroup, SWT.READ_ONLY);
+		populateConflictResolutionCombo(taskTrackerCombo);
+
+		Label trackerTaskText = new Label(taskGroup, SWT.NONE);
+		trackerTaskText.setText(TEAMFORGE_TO_SCRUMWORKS);
+		trackerTaskCombo = new Combo(taskGroup, SWT.READ_ONLY);
+		populateConflictResolutionCombo(trackerTaskCombo);	
+		
+		Group productGroup = new Group(mappingGroup,SWT.NONE);
+		productGroup.setText("Product:");
+		GridLayout productLayout = new GridLayout();
+		productLayout.numColumns = 2;
+		productGroup.setLayout(productLayout);
+		data = new GridData(GridData.GRAB_HORIZONTAL | GridData.FILL_HORIZONTAL);
+		productGroup.setLayoutData(data);
+
+		Label productPlanningFolderText = new Label(productGroup, SWT.NONE);
+		productPlanningFolderText.setText(SCRUMWORKS_TO_TEAMFORGE);
+		productPlanningFolderCombo = new Combo(productGroup, SWT.READ_ONLY);
+		populateConflictResolutionCombo(productPlanningFolderCombo);
+
+		Label planningFolderProductText = new Label(productGroup, SWT.NONE);
+		planningFolderProductText.setText(TEAMFORGE_TO_SCRUMWORKS);
+		planningFolderProductCombo = new Combo(productGroup, SWT.READ_ONLY);
 		populateConflictResolutionCombo(planningFolderProductCombo);
 		
-		planningFolderProductReleaseText = new Text(outerContainer, SWT.READ_ONLY | SWT.BORDER);
-		planningFolderProductReleaseText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL));
-		planningFolderProductReleaseCombo = new Combo(outerContainer, SWT.READ_ONLY);
+		Group releaseGroup = new Group(mappingGroup,SWT.NONE);
+		releaseGroup.setText("Release:");
+		GridLayout releaseLayout = new GridLayout();
+		releaseLayout.numColumns = 2;
+		releaseGroup.setLayout(releaseLayout);
+		data = new GridData(GridData.GRAB_HORIZONTAL | GridData.FILL_HORIZONTAL);
+		releaseGroup.setLayoutData(data);
+
+		Label productReleasePlanningFolderText = new Label(releaseGroup, SWT.NONE);
+		productReleasePlanningFolderText.setText(SCRUMWORKS_TO_TEAMFORGE);
+		productReleasePlanningFolderCombo = new Combo(releaseGroup, SWT.READ_ONLY);
+		populateConflictResolutionCombo(productReleasePlanningFolderCombo);
+
+		Label planningFolderProductReleaseText = new Label(releaseGroup, SWT.NONE);
+		planningFolderProductReleaseText.setText(TEAMFORGE_TO_SCRUMWORKS);
+		planningFolderProductReleaseCombo = new Combo(releaseGroup, SWT.READ_ONLY);
 		populateConflictResolutionCombo(planningFolderProductReleaseCombo);
 		
-		taskTrackerText = new Text(outerContainer, SWT.READ_ONLY | SWT.BORDER);
-		taskTrackerText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL));
-		taskTrackerCombo = new Combo(outerContainer, SWT.READ_ONLY);
-		populateConflictResolutionCombo(taskTrackerCombo);
-		
-		pbiTrackerText = new Text(outerContainer, SWT.READ_ONLY | SWT.BORDER);
-		pbiTrackerText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL));
-		pbiTrackerCombo = new Combo(outerContainer, SWT.READ_ONLY);
-		populateConflictResolutionCombo(pbiTrackerCombo);
-		
-		productPlanningFolderText = new Text(outerContainer, SWT.READ_ONLY | SWT.BORDER);
-		productPlanningFolderText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL));
-		productPlanningFolderCombo = new Combo(outerContainer, SWT.READ_ONLY);
-		populateConflictResolutionCombo(productPlanningFolderCombo);
-		
-		productReleasePlanningFolderText = new Text(outerContainer, SWT.READ_ONLY | SWT.BORDER);
-		productReleasePlanningFolderText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL));
-		productReleasePlanningFolderCombo = new Combo(outerContainer, SWT.READ_ONLY);
-		populateConflictResolutionCombo(productReleasePlanningFolderCombo);
-		
-		metaDataText = new Text(outerContainer, SWT.READ_ONLY | SWT.BORDER);
-		metaDataText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL));
-		new Label(outerContainer, SWT.NONE);
+//		Group metaDataGroup = new Group(mappingGroup,SWT.NONE);
+//		metaDataGroup.setText("MetaData:");
+//		GridLayout metaDataLayout = new GridLayout();
+//		metaDataLayout.numColumns = 2;
+//		metaDataGroup.setLayout(metaDataLayout);
+//		data = new GridData(GridData.GRAB_HORIZONTAL | GridData.FILL_HORIZONTAL);
+//		metaDataGroup.setLayoutData(data);
+//
+//		Label metaDataText = new Label(metaDataGroup, SWT.NONE);
+//		metaDataText.setText(SCRUMWORKS_TO_TEAMFORGE);
+//		Combo metaDataCombo = new Combo(metaDataGroup, SWT.READ_ONLY);
+//		populateConflictResolutionCombo(metaDataCombo);
+//		metaDataCombo.setVisible(false);
 		
 		projectDescriptionGroup = new Group(outerContainer,SWT.NONE);
 		projectDescriptionGroup.setText("Description for new TeamForge Project:");
 		GridLayout descriptionLayout = new GridLayout();
 		projectDescriptionGroup.setLayout(descriptionLayout);
-		GridData data = new GridData(GridData.GRAB_HORIZONTAL | GridData.GRAB_VERTICAL | GridData.FILL_BOTH);
-		data.horizontalSpan = 2;
+		data = new GridData(GridData.GRAB_HORIZONTAL | GridData.GRAB_VERTICAL | GridData.FILL_BOTH);
 		projectDescriptionGroup.setLayoutData(data);
 		
 		projectDescriptionText = new Text(projectDescriptionGroup, SWT.BORDER | SWT.MULTI | SWT.WRAP);
@@ -139,7 +175,7 @@ public class ProjectMappingWizardPreviewPage extends WizardPage {
 			}
 		});
 		
-		setMessage("The following mappings will be created.");
+		setMessage("Select the conflict resolution option to use for each mapping.");
 
 		setControl(outerContainer);
 	}
@@ -152,8 +188,10 @@ public class ProjectMappingWizardPreviewPage extends WizardPage {
 			if (((ProjectMappingWizard)getWizard()).getSelectedProject() != null) {
 				selectedProjectId = ((ProjectMappingWizard)getWizard()).getSelectedProject().getId();
 				projectDescriptionGroup.setVisible(false);
+				setMessage("Select the conflict resolution option to use for each mapping.");
 			} else {
 				projectDescriptionGroup.setVisible(true);
+				setMessage("Select the conflict resolution option to use for each mapping and enter a description for the new TeamForge project.");
 			}
 			if (product == null || !product.equals(((ProjectMappingWizard)getWizard()).getSelectedProduct().getName()) ||
 				projectId == null || !projectId.equals(selectedProjectId) ||
@@ -299,15 +337,6 @@ public class ProjectMappingWizardPreviewPage extends WizardPage {
 		productPlanningFolderMapping = productNameAndId + "-Product => " + project + "-planningFolders";
 		productReleasePlanningFolderMapping = productNameAndId + "-Release => " + project + "-planningFolders";
 		metaDataMapping = productNameAndId + "-MetaData => " + pbiTracker + "-MetaData";
-		trackerTaskText.setText(trackerTaskMapping);
-		trackerPbiText.setText(trackerPbiMapping);
-		planningFolderProductText.setText(planningFolderProductMapping);
-		planningFolderProductReleaseText.setText(planningFolderProductReleaseMapping);
-		taskTrackerText.setText(taskTrackerMapping);
-		pbiTrackerText.setText(pbiTrackerMapping);
-		productPlanningFolderText.setText(productPlanningFolderMapping);
-		productReleasePlanningFolderText.setText(productReleasePlanningFolderMapping);
-		metaDataText.setText(metaDataMapping);
 	}
 
 }

@@ -14,6 +14,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.forms.editor.FormEditor;
 
 import com.collabnet.ccf.CcfParticipant;
+import com.collabnet.ccf.IConnectionTester;
 import com.collabnet.ccf.IMappingSection;
 import com.collabnet.ccf.core.GenericArtifactParsingException;
 import com.collabnet.ccf.editors.CcfEditorPage;
@@ -124,7 +125,7 @@ public class ScrumWorksCcfParticipant extends CcfParticipant {
 	}
 
 	@Override
-	public MappingGroup[] getMappingGroups(ProjectMappings projectMappingsParent, SynchronizationStatus[] projectMappings) {
+	public MappingGroup[] getMappingGroups(ProjectMappings projectMappingsParent, SynchronizationStatus[] projectMappings, SynchronizationStatus[] hiddenProjectMappings) {
 		List<String> products = new ArrayList<String>();
 		for (SynchronizationStatus projectMapping : projectMappings) {
 			String product = getProduct(projectMapping);
@@ -158,7 +159,7 @@ public class ScrumWorksCcfParticipant extends CcfParticipant {
 				releaseGroup = new MappingGroup(this, projectMappingsParent, product + "-" + SWPMetaData.RELEASE.toString(), SWPMetaData.RELEASE.toString(), Activator.getImage(Activator.IMAGE_RELEASE));
 				metaDataGroup = new MappingGroup(this, projectMappingsParent, product + "-" + "MetaData", "MetaData", Activator.getImage(Activator.IMAGE_METADATA));
 			}
-			setChildMappings(product, pbiGroup, taskGroup, productGroup, releaseGroup, metaDataGroup, projectMappings);
+			setChildMappings(product, pbiGroup, taskGroup, productGroup, releaseGroup, metaDataGroup, projectMappings, hiddenProjectMappings);
 			MappingGroup[] subGroups = { pbiGroup, taskGroup, productGroup, releaseGroup, metaDataGroup };
 			productsGroup.setChildGroups(subGroups);
 			mappingGroups.add(productsGroup);
@@ -177,7 +178,32 @@ public class ScrumWorksCcfParticipant extends CcfParticipant {
 		}
 	}
 
-	private void setChildMappings(String product, MappingGroup pbiGroup, MappingGroup taskGroup, MappingGroup productGroup, MappingGroup releaseGroup, MappingGroup metaDataGroup, SynchronizationStatus[] projectMappings) {
+	@Override
+	public IConnectionTester getConnectionTester() {
+	// TODO If the ScrumWorksConnectionTester can be fixed to not prompt for credentials when
+	//      invalid credentials are provided, the change this to return a ScrumWorksConnectionTester
+	//      instance.  Until then, the Landscape editor will not show a Test Connection button
+	//      on the ScrumWorks Pro properties page.
+//		return new ScrumWorksConnectionTester();
+		return null;
+	}
+
+	private void setChildMappings(String product, MappingGroup pbiGroup, MappingGroup taskGroup, MappingGroup productGroup, MappingGroup releaseGroup, MappingGroup metaDataGroup, SynchronizationStatus[] projectMappings, SynchronizationStatus[] hiddenProjectMappings) {
+		if (hiddenProjectMappings != null) {
+			for (SynchronizationStatus projectMapping : hiddenProjectMappings) {
+				String mappingProduct = getProduct(projectMapping);
+				if (mappingProduct != null && mappingProduct.equals(product)) {
+					if (projectMapping.getTargetRepositoryId().endsWith("-Product")) {
+						SynchronizationStatus[] hiddenProductMappings = { projectMapping };
+						productGroup.setHiddenChildMappings(hiddenProductMappings);
+					}
+					if (projectMapping.getTargetRepositoryId().endsWith("-Release")) {
+						SynchronizationStatus[] hiddenReleaseMappings = { projectMapping };
+						releaseGroup.setHiddenChildMappings(hiddenReleaseMappings);
+					}
+				}
+			}
+		}
 		List<SynchronizationStatus> pbiMappings = new ArrayList<SynchronizationStatus>();
 		List<SynchronizationStatus> taskMappings = new ArrayList<SynchronizationStatus>();
 		List<SynchronizationStatus> productMappings = new ArrayList<SynchronizationStatus>();

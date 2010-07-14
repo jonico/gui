@@ -12,6 +12,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.forms.editor.FormEditor;
 
 import com.collabnet.ccf.CcfParticipant;
+import com.collabnet.ccf.IConnectionTester;
 import com.collabnet.ccf.IMappingSection;
 import com.collabnet.ccf.core.GenericArtifactParsingException;
 import com.collabnet.ccf.editors.CcfEditorPage;
@@ -168,6 +169,14 @@ public class QualityCenterCcfParticipant extends CcfParticipant {
 				return project.substring(index + 1);
 			}
 		}
+		return null;
+	}
+	
+	@Override
+	public IConnectionTester getConnectionTester() {
+		// TODO Once QualityCenterConnectionTester implements the actual connection test,
+		//      return a QualityCenterConnectionTester instance instead of null.
+//		return new QualityCenterConnectionTester();
 		return null;
 	}
 	

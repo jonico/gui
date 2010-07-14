@@ -78,6 +78,16 @@ public class DeleteSynchronizationStatusAction extends ActionDelegate {
 				}
 			}
 		}
+		SynchronizationStatus[] hiddenChildMappings = mappingGroup.getHiddenChildMappings();
+		if (hiddenChildMappings != null) {
+			for (SynchronizationStatus status : hiddenChildMappings) {
+				deleteProjectMapping(status);
+				mappingsDeleted = true;
+				if (!projectMappingsList.contains(status.getProjectMappings())) {
+					projectMappingsList.add(status.getProjectMappings());
+				}
+			}
+		}
 		MappingGroup[] childGroups = mappingGroup.getChildGroups();
 		if (childGroups != null) {
 			for (MappingGroup childGroup : childGroups) {

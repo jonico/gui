@@ -390,9 +390,21 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 		this.activeRole = activeRole;
 		toolbarNewLandscapeAction.setEnabled(activeRole.isAddLandscape());
 	}
-	
+
 	public static CcfExplorerView getView() {
 		return view;
+	}
+	
+	private Font getItalicFont() {
+		if (italicFont == null) {
+			Font defaultFont = JFaceResources.getDefaultFont();
+	        FontData[] data = defaultFont.getFontData();
+	        for (int i = 0; i < data.length; i++) {
+	          data[i].setStyle(SWT.ITALIC | SWT.BOLD);
+	        }
+	        italicFont = new Font(treeViewer.getControl().getDisplay(), data);
+		}
+        return italicFont;		
 	}
 	
 	class LandscapeLabelProvider extends LabelProvider implements IFontProvider {
@@ -427,15 +439,13 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 			if (obj instanceof SynchronizationStatus) {
 				SynchronizationStatus synchronizationStatus = (SynchronizationStatus)obj;
 				if (synchronizationStatus.getHospitalEntries() > 0) {
-					if (italicFont == null) {
-						Font defaultFont = JFaceResources.getDefaultFont();
-				        FontData[] data = defaultFont.getFontData();
-				        for (int i = 0; i < data.length; i++) {
-				          data[i].setStyle(SWT.ITALIC | SWT.BOLD);
-				        }
-				        italicFont = new Font(treeViewer.getControl().getDisplay(), data);
-					}
-			        return italicFont;
+					return getItalicFont();
+				}
+			}
+			if (obj instanceof MappingGroup) {
+				MappingGroup mappingGroup = (MappingGroup)obj;
+				if (mappingGroup.getHospitalEntries() > 0) {
+					return getItalicFont();
 				}
 			}
 			return null;
@@ -444,6 +454,7 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 	
 	class LandscapeContentProvider extends WorkbenchContentProvider {
 		private Object[] synchronizationStatuses;
+		private SynchronizationStatus[] hiddenSynchronizationStatuses;
 		
 		public Object getParent(Object element) {
 			return null;
@@ -485,6 +496,7 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 							IProjectMappingVisibilityChecker[] visibilityCheckers = Activator.getVisibilityCheckers();
 							if (visibilityCheckers != null && visibilityCheckers.length > 0) {
 								List<Object> visibleMappingList = new ArrayList<Object>();
+								List<SynchronizationStatus> hiddenMappingList = new ArrayList<SynchronizationStatus>();
 								for (Object object : synchronizationStatuses) {
 									if (object instanceof SynchronizationStatus) {
 										SynchronizationStatus projectMapping = (SynchronizationStatus)object;
@@ -499,6 +511,8 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 										}
 										if (visible) {
 											visibleMappingList.add(projectMapping);
+										} else {
+											hiddenMappingList.add(projectMapping);
 										}
 									} else {
 										visibleMappingList.add(object);
@@ -506,6 +520,8 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 								}
 								synchronizationStatuses = new Object[visibleMappingList.size()];
 								visibleMappingList.toArray(synchronizationStatuses);
+								hiddenSynchronizationStatuses = new SynchronizationStatus[hiddenMappingList.size()];
+								hiddenMappingList.toArray(hiddenSynchronizationStatuses);
 							}
 						} catch (Exception e) {
 							synchronizationStatuses = new Object[1];
@@ -533,7 +549,7 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 									for (int i = 0; i < synchronizationStatuses.length; i++) {
 										projectMappingArray[i] = (SynchronizationStatus)synchronizationStatuses[i];
 									}
-									MappingGroup[] mappingGroups = participant.getMappingGroups(projectMappings, projectMappingArray);
+									MappingGroup[] mappingGroups = participant.getMappingGroups(projectMappings, projectMappingArray, hiddenSynchronizationStatuses);
 									if (mappingGroups != null) {
 										synchronizationStatuses = mappingGroups;
 									}

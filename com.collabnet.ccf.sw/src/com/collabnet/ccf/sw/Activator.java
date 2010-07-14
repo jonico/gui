@@ -129,7 +129,6 @@ public class Activator extends AbstractUIPlugin {
 	}
 	
 	public static ScrumWorksAPIService getScrumWorksEndpoint(Landscape landscape) throws MalformedURLException {
-		ScrumWorksAPIService endpoint = null;
 		Properties properties = null;
 		if (landscape.getType1().equals(ScrumWorksCcfParticipant.TYPE)) {
 			properties = landscape.getProperties1();
@@ -139,8 +138,13 @@ public class Activator extends AbstractUIPlugin {
 		
 		String url = properties.get(PROPERTIES_SW_URL).toString();
 		String user = properties.get(PROPERTIES_SW_USER).toString();
-		String password = properties.get(PROPERTIES_SW_PASSWORD).toString();		
+		String password = properties.get(PROPERTIES_SW_PASSWORD).toString();	
 		
+		return getScrumWorksEndpoint(url, user, password);
+	}
+	
+	public static ScrumWorksAPIService getScrumWorksEndpoint(String url, String user, String password) throws MalformedURLException {
+		ScrumWorksAPIService endpoint = null;
 		Service service = Service.create(new URL(url), new QName(
 				"http://api2.scrumworks.danube.com/",
 				"ScrumWorksAPIBeanService"));

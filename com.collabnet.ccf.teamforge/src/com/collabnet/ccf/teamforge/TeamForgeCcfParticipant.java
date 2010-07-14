@@ -12,6 +12,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.forms.editor.FormEditor;
 
 import com.collabnet.ccf.CcfParticipant;
+import com.collabnet.ccf.IConnectionTester;
 import com.collabnet.ccf.IMappingSection;
 import com.collabnet.ccf.core.GenericArtifactParsingException;
 import com.collabnet.ccf.editors.CcfEditorPage;
@@ -173,6 +174,11 @@ public class TeamForgeCcfParticipant extends CcfParticipant {
 			return false;
 		}
 		return super.allowAsSourceRepository(repositoryId);
+	}
+
+	@Override
+	public IConnectionTester getConnectionTester() {
+		return new TeamForgeConnectionTester();
 	}
 	
 }

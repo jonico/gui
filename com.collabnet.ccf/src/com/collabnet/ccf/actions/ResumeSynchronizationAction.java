@@ -75,7 +75,7 @@ public class ResumeSynchronizationAction extends ActionDelegate {
 			Object object = iter.next();
 			if (object instanceof SynchronizationStatus) {
 				SynchronizationStatus status = (SynchronizationStatus)object;
-				if (!status.isPaused())
+				if (!status.isPaused() || status.isHiddenMapping())
 					return false;
 			}
 			if (object instanceof MappingGroup) {
@@ -92,7 +92,7 @@ public class ResumeSynchronizationAction extends ActionDelegate {
 		SynchronizationStatus[] childMappings = mappingGroup.getChildMappings();
 		if (childMappings != null) {
 			for (SynchronizationStatus status : childMappings) {
-				if (status.isPaused()) {
+				if (status.isPaused() && !status.isHiddenMapping()) {
 					return true;
 				}
 			}
@@ -112,7 +112,7 @@ public class ResumeSynchronizationAction extends ActionDelegate {
 		SynchronizationStatus[] childMappings = mappingGroup.getChildMappings();
 		if (childMappings != null) {
 			for (SynchronizationStatus status : childMappings) {
-				if (status.isPaused()) {
+				if (status.isPaused() && !status.isHiddenMapping()) {
 					dataProvider.resumeSynchronization(status);
 					if (!projectMappingsList.contains(status.getProjectMappings())) {
 						projectMappingsList.add(status.getProjectMappings());

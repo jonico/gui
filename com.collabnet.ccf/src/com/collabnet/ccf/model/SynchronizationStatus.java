@@ -11,6 +11,7 @@ import org.eclipse.ui.views.properties.PropertyDescriptor;
 
 import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.ICcfParticipant;
+import com.collabnet.ccf.IProjectMappingVisibilityChecker;
 
 @SuppressWarnings("unchecked")
 public class SynchronizationStatus implements IPropertySource, Comparable {
@@ -644,6 +645,20 @@ public class SynchronizationStatus implements IPropertySource, Comparable {
 	public boolean usesGraphicalMapping() {
 		return targetRepositoryKind != null
 				&& targetRepositoryKind.endsWith(".xsl");
+	}
+	
+	public boolean isHiddenMapping() {
+		try {
+			IProjectMappingVisibilityChecker[] visibilityCheckers = Activator.getVisibilityCheckers();
+			if (visibilityCheckers != null && visibilityCheckers.length > 0) {
+				for (IProjectMappingVisibilityChecker checker : visibilityCheckers) {
+					if (!checker.isProjectMappingVisible(this)) {
+						return true;
+					}
+				}
+			}
+		} catch (Exception e) {}
+		return false;
 	}
 
 	public int compareTo(Object compareToObject) {

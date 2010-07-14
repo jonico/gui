@@ -12,6 +12,7 @@ import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.db.CcfDataProvider;
 import com.collabnet.ccf.db.Filter;
 import com.collabnet.ccf.model.Landscape;
+import com.collabnet.ccf.model.MappingGroup;
 import com.collabnet.ccf.model.SynchronizationStatus;
 import com.collabnet.ccf.views.HospitalView;
 
@@ -23,7 +24,7 @@ public class HospitalAction extends ActionDelegate {
 		Iterator iter = fSelection.iterator();
 		while (iter.hasNext()) {
 			Object object = iter.next();
-			if (object instanceof Landscape || object instanceof SynchronizationStatus) {
+			if (object instanceof Landscape || object instanceof SynchronizationStatus || object instanceof MappingGroup) {
 				Landscape landscape = null;
 				SynchronizationStatus status = null;
 				if (object instanceof SynchronizationStatus) {
@@ -32,6 +33,10 @@ public class HospitalAction extends ActionDelegate {
 				}
 				else if (object instanceof Landscape) {
 					landscape = (Landscape)object;
+				}
+				else if (object instanceof MappingGroup) {
+					MappingGroup mappingGroup = (MappingGroup)object;
+					landscape = mappingGroup.getProjectMappingsParent().getLandscape();
 				}
 				try {
 					HospitalView.setLandscape(landscape);
