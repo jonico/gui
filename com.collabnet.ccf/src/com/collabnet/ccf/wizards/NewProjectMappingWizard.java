@@ -26,9 +26,7 @@ public class NewProjectMappingWizard extends Wizard {
 	private NewProjectMappingWizardProjectPage projectPage;
 	
 	private boolean addError;
-
-	public static final int TYPE_TF = 0;
-	public static final int TYPE_PT = 1;
+	private boolean conflictResolutionChanged;
 
 	public NewProjectMappingWizard(ProjectMappings projectMappings) {
 		super();
@@ -62,15 +60,19 @@ public class NewProjectMappingWizard extends Wizard {
 			return false;
 		}
 		addError = false;
+		conflictResolutionChanged = false;
 		final SynchronizationStatus status = new SynchronizationStatus();	
 		createProjectMapping(status);
-		if (addError) return false;		
+		if (addError) return false;	
+		if (conflictResolutionChanged) {
+			MessageDialog.openWarning(getShell(), "New Project Mapping", "Conflict resolution 'Overwrite target artifact and ignore locks' is only valid for Defects.  Conflict resolution was changed to 'Overwrite target artifact'.");
+		}
 		return true;
 	}
 
 	private void createProjectMapping(final SynchronizationStatus status) {
 		if (mainPage.system1ToSystem2Button.getSelection() || mainPage.bothButton.getSelection()) {
-			status.setConflictResolutionPriority(SynchronizationStatus.CONFLICT_RESOLUTIONS[mainPage.system1ToSystem2ConflictResolutionCombo.getSelectionIndex()]);
+			status.setConflictResolutionPriority(SynchronizationStatus.getConflictResolutionByDescription(mainPage.system1ToSystem2ConflictResolutionCombo.getText()));
 			status.setSourceSystemId(projectMappings.getLandscape().getId1());			
 			status.setTargetSystemId(projectMappings.getLandscape().getId2());			
 			status.setSourceSystemKind(projectMappings.getLandscape().getType1());			
@@ -86,7 +88,7 @@ public class NewProjectMappingWizard extends Wizard {
 			}
 			projectPage.getMappingSection1().updateSourceFields(status);
 			projectPage.getMappingSection2().updateTargetFields(status);
-			
+				
 			createMapping(status);
 			if (projectMappings.getLandscape().getRole() == Landscape.ROLE_ADMINISTRATOR) {
 				createFieldMappingFile(status);
@@ -94,7 +96,7 @@ public class NewProjectMappingWizard extends Wizard {
 			if (addError) return;
 		}
 		if (mainPage.system2ToSystem1Button.getSelection() || mainPage.bothButton.getSelection()) {
-			status.setConflictResolutionPriority(SynchronizationStatus.CONFLICT_RESOLUTIONS[mainPage.system2ToSystem1ConflictResolutionCombo.getSelectionIndex()]);
+			status.setConflictResolutionPriority(SynchronizationStatus.getConflictResolutionByDescription(mainPage.system2ToSystem1ConflictResolutionCombo.getText()));
 			status.setSourceSystemId(projectMappings.getLandscape().getId2());
 			status.setTargetSystemId(projectMappings.getLandscape().getId1());
 			status.setSourceSystemKind(projectMappings.getLandscape().getType2());
@@ -123,7 +125,12 @@ public class NewProjectMappingWizard extends Wizard {
 	}
 
 	private void createMapping(final SynchronizationStatus status) {
-		
+		if (status.getConflictResolutionPriority().equals(SynchronizationStatus.CONFLICT_RESOLUTION_ALWAYS_OVERRIDE_AND_IGNORE_LOCKS)) {
+			if (!SynchronizationStatus.isAlwaysOverrideAndIgnoreLocksValid(status)) {
+				status.setConflictResolutionPriority(SynchronizationStatus.CONFLICT_RESOLUTION_ALWAYS_OVERRIDE);
+				conflictResolutionChanged = true;
+			}
+		}
 		try {
 			ICcfParticipant p1 = Activator.getCcfParticipantForType(status.getSourceSystemKind());
 			if (!p1.allowAsSourceRepository(status.getSourceRepositoryId())) {

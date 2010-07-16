@@ -44,7 +44,7 @@ public class ProjectMappingWizardPreviewPage extends WizardPage {
 	private Combo productPlanningFolderCombo;
 	private Combo productReleasePlanningFolderCombo;
 	
-	private int selectionIndex;
+	private String comboText;
 	
 	private final static String DEFAULT_PROJECT_DESCRIPTION = "Project was automatically created for TeamForge-ScrumWorks integration.";
 
@@ -256,48 +256,48 @@ public class ProjectMappingWizardPreviewPage extends WizardPage {
 	}
 
 	public String getTrackerTaskConflictResolutionPriority() {
-		return SynchronizationStatus.CONFLICT_RESOLUTIONS[getSelectionIndex(trackerTaskCombo)];
+		return SynchronizationStatus.getConflictResolutionByDescription(getComboText(trackerTaskCombo));
 	}
 	
 	public String getTrackerPbiConflictResolutionPriority() {
-		return SynchronizationStatus.CONFLICT_RESOLUTIONS[getSelectionIndex(trackerPbiCombo)];
+		return SynchronizationStatus.getConflictResolutionByDescription(getComboText(trackerPbiCombo));
 	}
 	
 	public String getPlanningFolderProductConflictResolutionPriority() {
-		return SynchronizationStatus.CONFLICT_RESOLUTIONS[getSelectionIndex(planningFolderProductCombo)];
+		return SynchronizationStatus.getConflictResolutionByDescription(getComboText(planningFolderProductCombo));
 	}
 	
 	public String getPlanningFolderProductReleaseConflictResolutionPriority() {
-		return SynchronizationStatus.CONFLICT_RESOLUTIONS[getSelectionIndex(planningFolderProductReleaseCombo)];
+		return SynchronizationStatus.getConflictResolutionByDescription(getComboText(planningFolderProductReleaseCombo));
 	}
 	
 	public String getTaskTrackerConflictResolutionPriority() {
-		return SynchronizationStatus.CONFLICT_RESOLUTIONS[getSelectionIndex(taskTrackerCombo)];
+		return SynchronizationStatus.getConflictResolutionByDescription(getComboText(taskTrackerCombo));
 	}
 	
 	public String getPbiTrackerConflictResolutionPriority() {
-		return SynchronizationStatus.CONFLICT_RESOLUTIONS[getSelectionIndex(pbiTrackerCombo)];
+		return SynchronizationStatus.getConflictResolutionByDescription(getComboText(pbiTrackerCombo));
 	}
 	
 	public String getProductPlanningFolderConflictResolutionPriority() {
-		return SynchronizationStatus.CONFLICT_RESOLUTIONS[getSelectionIndex(productPlanningFolderCombo)];
+		return SynchronizationStatus.getConflictResolutionByDescription(getComboText(productPlanningFolderCombo));
 	}
 	
 	public String getProductReleasePlanningFolderConflictResolutionPriority() {
-		return SynchronizationStatus.CONFLICT_RESOLUTIONS[getSelectionIndex(productReleasePlanningFolderCombo)];
+		return SynchronizationStatus.getConflictResolutionByDescription(getComboText(productReleasePlanningFolderCombo));
+	}
+	
+	private String getComboText(final Combo combo) {
+		Display.getDefault().syncExec(new Runnable() {		
+			public void run() {
+				comboText = combo.getText();
+			}
+		});
+		return comboText;
 	}
 	
 	public String getNewProjectDescription() {
 		return newProjectDescription;
-	}
-	
-	private int getSelectionIndex(final Combo combo) {
-		Display.getDefault().syncExec(new Runnable() {		
-			public void run() {
-				selectionIndex = combo.getSelectionIndex();
-			}
-		});
-		return selectionIndex;
 	}
 	
 	private void populateConflictResolutionCombo(Combo combo) {

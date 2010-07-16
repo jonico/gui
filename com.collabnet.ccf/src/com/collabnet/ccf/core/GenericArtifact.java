@@ -422,6 +422,11 @@ public class GenericArtifact {
 	public static final String VALUE_CONFLICT_RESOLUTION_PRIORITY_ALWAYS_OVERRIDE = "alwaysOverride";
 
 	/**
+	 * Constant value for conflict resolution priority "alwaysOverrideAndIgnoreLocks";
+	 */
+	public static final String VALUE_CONFLICT_RESOLUTION_PRIORITY_ALWAYS_OVERRIDE_AND_IGNORE_LOCKS = "alwaysOverrideAndIgnoreLocks";
+	
+	/**
 	 * Constant value for conflict resolution priority "quarantineArtifact"
 	 */
 	public static final String VALUE_CONFLICT_RESOLUTION_PRIORITY_QUARANTINE_ARTIFACT = "quarantineArtifact";

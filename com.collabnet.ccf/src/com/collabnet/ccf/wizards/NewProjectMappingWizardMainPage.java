@@ -61,7 +61,7 @@ public class NewProjectMappingWizardMainPage extends WizardPage {
 		
 		system2ToSystem1Button = new Button(directionGroup, SWT.RADIO);
 		system1ToSystem2Button = new Button(directionGroup, SWT.RADIO);
-		
+
 		if (projectMappings.getLandscape().getType1().equals(projectMappings.getLandscape().getType2())) {
 			if (projectMappings.getLandscape().getRole() == Landscape.ROLE_ADMINISTRATOR) {
 				String url1 = projectMappings.getLandscape().getUrl(1);
@@ -133,19 +133,31 @@ public class NewProjectMappingWizardMainPage extends WizardPage {
 		system2ToSystem1ConflictResolutionCombo = new Combo(conflictGroup, SWT.READ_ONLY);
 		system2ToSystem1ConflictResolutionCombo.add(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_ALWAYS_IGNORE);
 		system2ToSystem1ConflictResolutionCombo.add(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_ALWAYS_OVERRIDE);
+		if (system2ToSystem1Button.getText().endsWith("Quality Center")) {
+			system2ToSystem1ConflictResolutionCombo.add(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_ALWAYS_OVERRIDE_AND_IGNORE_LOCKS);
+		}
 		system2ToSystem1ConflictResolutionCombo.add(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_QUARANTINE_ARTIFACT);
 
 		system2ToSystem1ConflictResolutionCombo.setText(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_ALWAYS_OVERRIDE);
+		
+		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.FILL_HORIZONTAL);
+		system2ToSystem1ConflictResolutionCombo.setLayoutData(gd);
 		
 		system1ToSystem2ConflictResolutionLabel = new Label(conflictGroup, SWT.NONE);
 		system1ToSystem2ConflictResolutionLabel.setText(system1ToSystem2Button.getText());
 		system1ToSystem2ConflictResolutionCombo = new Combo(conflictGroup, SWT.READ_ONLY);
 		system1ToSystem2ConflictResolutionCombo.add(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_ALWAYS_IGNORE);
 		system1ToSystem2ConflictResolutionCombo.add(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_ALWAYS_OVERRIDE);
+		if (system1ToSystem2Button.getText().endsWith("Quality Center")) {
+			system1ToSystem2ConflictResolutionCombo.add(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_ALWAYS_OVERRIDE_AND_IGNORE_LOCKS);
+		}
 		system1ToSystem2ConflictResolutionCombo.add(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_QUARANTINE_ARTIFACT);
 		
 		system1ToSystem2ConflictResolutionCombo.setText(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_ALWAYS_OVERRIDE);
 
+		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.FILL_HORIZONTAL);
+		system1ToSystem2ConflictResolutionCombo.setLayoutData(gd);
+		
 		setComboEnablement();
 		
 		setMessage("Select the mapping direction and conflict resolution handling");

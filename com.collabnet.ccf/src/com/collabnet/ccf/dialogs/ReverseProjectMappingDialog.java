@@ -85,6 +85,16 @@ public class ReverseProjectMappingDialog extends CcfDialog implements IPageCompl
 		conflictResolutionCombo = new Combo(composite, SWT.READ_ONLY);
 		conflictResolutionCombo.add(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_ALWAYS_IGNORE);
 		conflictResolutionCombo.add(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_ALWAYS_OVERRIDE);
+		SynchronizationStatus testStatus = new SynchronizationStatus();
+		testStatus.setTargetSystemId(reverseStatus.getSourceSystemId());
+		testStatus.setTargetRepositoryId(reverseStatus.getSourceRepositoryId());
+		if (SynchronizationStatus.isAlwaysOverrideAndIgnoreLocksValid(testStatus)) {
+			conflictResolutionCombo.add(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_ALWAYS_OVERRIDE_AND_IGNORE_LOCKS);
+		} else {
+			if (reverseStatus.getConflictResolutionPriority().equals(SynchronizationStatus.CONFLICT_RESOLUTION_ALWAYS_OVERRIDE_AND_IGNORE_LOCKS)) {
+				reverseStatus.setConflictResolutionPriority(SynchronizationStatus.CONFLICT_RESOLUTION_ALWAYS_OVERRIDE);
+			}
+		}
 		conflictResolutionCombo.add(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_QUARANTINE_ARTIFACT);
 
 		conflictResolutionCombo.setText(SynchronizationStatus.getConflictResolutionDescription(reverseStatus.getConflictResolutionPriority()));
@@ -99,9 +109,10 @@ public class ReverseProjectMappingDialog extends CcfDialog implements IPageCompl
 
 	@Override
 	protected void okPressed() {
+		boolean conflictResolutionChanged = false;
 		addError = false;
 		final SynchronizationStatus status = new SynchronizationStatus();
-		status.setConflictResolutionPriority(SynchronizationStatus.CONFLICT_RESOLUTIONS[conflictResolutionCombo.getSelectionIndex()]);
+		status.setConflictResolutionPriority(SynchronizationStatus.getConflictResolutionByDescription(conflictResolutionCombo.getText()));
 		status.setSourceSystemId(reverseStatus.getTargetSystemId());			
 		status.setTargetSystemId(reverseStatus.getSourceSystemId());			
 		status.setSourceSystemKind(reverseStatus.getTargetSystemKind());
@@ -117,11 +128,20 @@ public class ReverseProjectMappingDialog extends CcfDialog implements IPageCompl
 		status.setGroup(reverseStatus.getGroup());
 		status.setTargetSystemEncoding(reverseStatus.getGroup());
 		mappingSection1.updateSourceFields(status);
-		mappingSection2.updateTargetFields(status);		
+		mappingSection2.updateTargetFields(status);	
+		if (status.getConflictResolutionPriority().equals(SynchronizationStatus.CONFLICT_RESOLUTION_ALWAYS_OVERRIDE_AND_IGNORE_LOCKS)) {
+			if (!SynchronizationStatus.isAlwaysOverrideAndIgnoreLocksValid(status)) {
+				status.setConflictResolutionPriority(SynchronizationStatus.CONFLICT_RESOLUTION_ALWAYS_OVERRIDE);
+				conflictResolutionChanged = true;
+			}
+		}
 	
 		createMapping(status);
 		createFieldMappingFile(status);
 		if (addError) return;
+		if (conflictResolutionChanged) {
+			MessageDialog.openWarning(getShell(), "New Project Mapping", "Conflict resolution 'Overwrite target artifact and ignore locks' is only valid for Defects.  Conflict resolution was changed to 'Overwrite target artifact'.");
+		}
 		super.okPressed();
 	}
 

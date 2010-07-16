@@ -1,6 +1,7 @@
 package com.collabnet.ccf.dialogs;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.events.ModifyEvent;
@@ -57,6 +58,7 @@ public class ChangeProjectMappingDialog extends CcfDialog implements IPageComple
 	
 	private Database database;
 	private boolean changeError;
+	private boolean conflictResolutionChanged;
 
 	public ChangeProjectMappingDialog(Shell shell, SynchronizationStatus status) {
 		super(shell, "ChangeProjectMappingDialog.1." + status.getSourceSystemId() + "." + status.getTargetSystemId());
@@ -103,6 +105,9 @@ public class ChangeProjectMappingDialog extends CcfDialog implements IPageComple
 		conflictResolutionCombo = new Combo(conflictGroup, SWT.READ_ONLY);
 		conflictResolutionCombo.add(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_ALWAYS_IGNORE);
 		conflictResolutionCombo.add(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_ALWAYS_OVERRIDE);
+		if (SynchronizationStatus.isAlwaysOverrideAndIgnoreLocksValid(status)) {
+			conflictResolutionCombo.add(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_ALWAYS_OVERRIDE_AND_IGNORE_LOCKS);
+		}
 		conflictResolutionCombo.add(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_QUARANTINE_ARTIFACT);
 
 		conflictResolutionCombo.setText(SynchronizationStatus.getConflictResolutionDescription(status.getConflictResolutionPriority()));
@@ -164,6 +169,7 @@ public class ChangeProjectMappingDialog extends CcfDialog implements IPageComple
 			return;
 		}
 		changeError = false;
+		conflictResolutionChanged = false;
 		BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
 			public void run() {
 				try {
@@ -181,9 +187,16 @@ public class ChangeProjectMappingDialog extends CcfDialog implements IPageComple
 					String sourceRepository = status.getSourceRepositoryId();
 					String targetRepository = status.getTargetRepositoryId();
 
+					if (conflictResolutionCombo.getText().equals(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_ALWAYS_OVERRIDE_AND_IGNORE_LOCKS)) {
+						if (!SynchronizationStatus.isAlwaysOverrideAndIgnoreLocksValid(status)) {
+							conflictResolutionCombo.setText(SynchronizationStatus.CONFLICT_RESOLUTION_DESCRIPTION_ALWAYS_OVERRIDE);
+							conflictResolutionChanged = true;
+						}
+					}
+					
 					Update sourceRepositoryUpdate = new Update(CcfDataProvider.SYNCHRONIZATION_STATUS_SOURCE_REPOSITORY_ID, sourceRepository);
 					Update targetRepositoryUpdate = new Update(CcfDataProvider.SYNCHRONIZATION_STATUS_TARGET_REPOSITORY_ID, targetRepository);
-					Update conflictResolutionPriorityUpdate = new Update(CcfDataProvider.SYNCHRONIZATION_STATUS_CONFLICT_RESOLUTION_PRIORITY, SynchronizationStatus.CONFLICT_RESOLUTIONS[conflictResolutionCombo.getSelectionIndex()]);
+					Update conflictResolutionPriorityUpdate = new Update(CcfDataProvider.SYNCHRONIZATION_STATUS_CONFLICT_RESOLUTION_PRIORITY, SynchronizationStatus.getConflictResolutionByDescription(conflictResolutionCombo.getText()));
 					Update groupUpdate = new Update(CcfDataProvider.SYNCHRONIZATION_STATUS_SOURCE_SYSTEM_ENCODING, groupText.getText().trim());
 					Update[] updates = { sourceRepositoryUpdate, targetRepositoryUpdate, conflictResolutionPriorityUpdate, groupUpdate };						
 					dataProvider.updateSynchronizationStatuses(landscape, updates, filters);
@@ -218,6 +231,9 @@ public class ChangeProjectMappingDialog extends CcfDialog implements IPageComple
 			}			
 		});
 		if (changeError) return;
+		if (conflictResolutionChanged) {
+			MessageDialog.openWarning(getShell(), "Change Project Mapping", "Conflict resolution 'Overwrite target artifact and ignore locks' is only valid for Defects.  Conflict resolution was changed to 'Overwrite target artifact'.");
+		}
 		super.okPressed();
 	}
 	

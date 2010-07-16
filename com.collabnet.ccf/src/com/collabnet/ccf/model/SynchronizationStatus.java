@@ -48,10 +48,12 @@ public class SynchronizationStatus implements IPropertySource, Comparable {
 
 	public static final String CONFLICT_RESOLUTION_ALWAYS_IGNORE = "alwaysIgnore"; //$NON-NLS-1$
 	public static final String CONFLICT_RESOLUTION_ALWAYS_OVERRIDE = "alwaysOverride"; //$NON-NLS-1$
+	public static final String CONFLICT_RESOLUTION_ALWAYS_OVERRIDE_AND_IGNORE_LOCKS = "alwaysOverrideAndIgnoreLocks"; //$NON-NLS-1$
 	public static final String CONFLICT_RESOLUTION_QUARANTINE_ARTIFACT = "quarantineArtifact"; //$NON-NLS-1$
 
 	public static final String CONFLICT_RESOLUTION_DESCRIPTION_ALWAYS_IGNORE = "Do not update target artifact"; //$NON-NLS-1$
 	public static final String CONFLICT_RESOLUTION_DESCRIPTION_ALWAYS_OVERRIDE = "Overwrite target artifact"; //$NON-NLS-1$
+	public static final String CONFLICT_RESOLUTION_DESCRIPTION_ALWAYS_OVERRIDE_AND_IGNORE_LOCKS = "Overwrite target artifact and ignore locks"; //$NON-NLS-1$
 	public static final String CONFLICT_RESOLUTION_DESCRIPTION_QUARANTINE_ARTIFACT = "Store artifact in hospital"; //$NON-NLS-1$	
 
 	public static final String[] CONFLICT_RESOLUTIONS = {
@@ -134,6 +136,38 @@ public class SynchronizationStatus implements IPropertySource, Comparable {
 				P_SOURCE_SYSTEM_ENCODING));
 		descriptors.add(new PropertyDescriptor(P_ID_TARGET_SYSTEM_ENCODING,
 				P_TARGET_SYSTEM_ENCODING));
+	}
+	
+	public static String getConflictResolutionByDescription(String description) {
+		if (description.equals(CONFLICT_RESOLUTION_DESCRIPTION_ALWAYS_IGNORE)) {
+			return CONFLICT_RESOLUTION_ALWAYS_IGNORE;
+		}
+		if (description.equals(CONFLICT_RESOLUTION_DESCRIPTION_ALWAYS_OVERRIDE)) {
+			return CONFLICT_RESOLUTION_ALWAYS_OVERRIDE;
+		}
+		if (description.equals(CONFLICT_RESOLUTION_DESCRIPTION_ALWAYS_OVERRIDE_AND_IGNORE_LOCKS)) {
+			return CONFLICT_RESOLUTION_ALWAYS_OVERRIDE_AND_IGNORE_LOCKS;
+		}
+		if (description.equals(CONFLICT_RESOLUTION_DESCRIPTION_QUARANTINE_ARTIFACT)) {
+			return CONFLICT_RESOLUTION_QUARANTINE_ARTIFACT;
+		}
+		return null;
+	}
+	
+	public static boolean isAlwaysOverrideAndIgnoreLocksValid(SynchronizationStatus status) {
+		if (status.getTargetSystemId() != null && status.getTargetSystemId().equals("Quality Center")) {
+			int index = status.getTargetRepositoryId().indexOf("-");
+			if (index != -1) {
+				String project = status.getTargetRepositoryId().substring(index + 1);
+				index = project.indexOf("-");
+				if (index != -1) {
+					return false;
+				} else {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	public String getSourceSystemId() {
@@ -634,10 +668,17 @@ public class SynchronizationStatus implements IPropertySource, Comparable {
 	}
 
 	public static String getConflictResolutionDescription(String code) {
-		for (int i = 0; i < CONFLICT_RESOLUTIONS.length; i++) {
-			if (CONFLICT_RESOLUTIONS[i].equals(code)) {
-				return CONFLICT_RESOLUTION_DESCRIPTIONS[i];
-			}
+		if (code.equals(CONFLICT_RESOLUTION_ALWAYS_IGNORE)) {
+			return CONFLICT_RESOLUTION_DESCRIPTION_ALWAYS_IGNORE;
+		}
+		if (code.equals(CONFLICT_RESOLUTION_ALWAYS_OVERRIDE)) {
+			return CONFLICT_RESOLUTION_DESCRIPTION_ALWAYS_OVERRIDE;
+		}
+		if (code.equals(CONFLICT_RESOLUTION_ALWAYS_OVERRIDE_AND_IGNORE_LOCKS)) {
+			return CONFLICT_RESOLUTION_DESCRIPTION_ALWAYS_OVERRIDE_AND_IGNORE_LOCKS;
+		}
+		if (code.equals(CONFLICT_RESOLUTION_QUARANTINE_ARTIFACT)) {
+			return CONFLICT_RESOLUTION_DESCRIPTION_QUARANTINE_ARTIFACT;
 		}
 		return null;
 	}
