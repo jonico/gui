@@ -156,18 +156,10 @@ public class SynchronizationStatus implements IPropertySource, Comparable {
 	
 	public static boolean isAlwaysOverrideAndIgnoreLocksValid(SynchronizationStatus status) {
 		if (status.getTargetSystemId() != null && status.getTargetSystemId().equals("Quality Center")) {
-			int index = status.getTargetRepositoryId().indexOf("-");
-			if (index != -1) {
-				String project = status.getTargetRepositoryId().substring(index + 1);
-				index = project.indexOf("-");
-				if (index != -1) {
-					return false;
-				} else {
-					return true;
-				}
-			}
+			return true;
+		} else {
+			return false;
 		}
-		return false;
 	}
 
 	public String getSourceSystemId() {
