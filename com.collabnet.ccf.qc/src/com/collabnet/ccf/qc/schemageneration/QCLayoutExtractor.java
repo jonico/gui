@@ -17,10 +17,13 @@
 package com.collabnet.ccf.qc.schemageneration;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import com.collabnet.ccf.core.CCFRuntimeException;
 import com.collabnet.ccf.core.GenericArtifact;
@@ -45,6 +48,253 @@ import com.collabnet.ccf.schemageneration.RepositoryLayoutExtractor;
  */
 public class QCLayoutExtractor implements RepositoryLayoutExtractor {
 
+	private static final String HUMAN_READABLE_SUFFIX = "_HUMAN_READABLE";
+	static final String sfJoinTable = "SF_REFERENCE_TABLE";
+	static final String sfJoinRowKey = "SF_REFERENCE_ID_COLUMN";
+	static final String sfJoinRowDisplayName = "SF_REFERENCE_NAME_COLUMN";
+	static final String sfJoinParentTable = "SF_TABLE_NAME";
+
+	/**
+	 * Describe which columns in a child table are joined to which columns in a
+	 * parent table in the internal QC DB. The join is always done from the
+	 * parent to the child via an 'ID' column. But in the QC GUI (or in CCF) the
+	 * user only deals with human-readable 'display' columns
+	 */
+	static class JoinedField {
+		private String m_parentTable;
+		private String m_parentCol;
+		private String m_childTable;
+		private String m_childIdCol;
+		private String m_childDisplayCol;
+
+		JoinedField(String parentTable, String parentCol, String childTable,
+				String childIdCol, String childDisplayCol) {
+			m_parentTable = parentTable;
+			m_parentCol = parentCol;
+			m_childTable = childTable;
+			m_childIdCol = childIdCol;
+			m_childDisplayCol = childDisplayCol;
+
+			if (m_parentTable == null)
+				throw new IllegalArgumentException(
+						"Parent table name for joined field can't be null");
+			if (m_parentCol == null)
+				throw new IllegalArgumentException(
+						"Parent column name for joined field can't be null");
+			if (m_childTable == null)
+				throw new IllegalArgumentException(
+						"Child table name of joined field can't be null");
+			if (m_childIdCol == null)
+				throw new IllegalArgumentException(
+						"ID column of joined field can't be null");
+			if (m_childDisplayCol == null)
+				throw new IllegalArgumentException(
+						"Display column of joined field can't be null");
+		}
+
+		String parentTable() {
+			return m_parentTable;
+		}
+
+		String parentCol() {
+			return m_parentCol;
+		}
+
+		String childTable() {
+			return m_childTable;
+		}
+
+		String childIdCol() {
+			return m_childIdCol;
+		}
+
+		String childDisplayCol() {
+			return m_childDisplayCol;
+		}
+	}
+
+	/** Contains info on ALL joined columns in ALL tables. */
+	private static ArrayList<JoinedField> s_JoinedFields;
+
+	/**
+	 * Fill the s_JoinedFields list, which contains info on all joined (a.k.a
+	 * 'referenced') fields in all tables. The info in s_JoinedFields describes
+	 * how the join is performed (from which parent to which child cols) (e.g.
+	 * BUG.BG_DETECTED_IN_REL) Assume this information can not change while HPQC
+	 * is running; cache the result so we don't have to repeatedly to SQL
+	 * queries
+	 */
+	private static ArrayList<JoinedField> queryAllJoinedFields(IConnection qcc) {
+		final String sql = "SELECT * FROM SYSTEM_FIELD WHERE SF_REFERENCE_TABLE IS NOT NULL";
+
+		if (s_JoinedFields == null) {
+			// we're changing a static member: make sure only 1 thread at a time
+			synchronized (QCLayoutExtractor.class) {
+				s_JoinedFields = new ArrayList();
+				IRecordSet rs = null;
+				try {
+					rs = executeSQL(qcc, sql);
+					int rc = rs.getRecordCount();
+					for (int cnt = 0; cnt < rc; cnt++, rs.next()) {
+						String colName   = rs.getFieldValueAsString(sfColumnName);
+						String tableName = rs.getFieldValueAsString(sfJoinParentTable);
+						s_JoinedFields.add(new JoinedField(
+								tableName, 
+								colName, 
+								rs.getFieldValueAsString(sfJoinTable), 
+								rs.getFieldValueAsString(sfJoinRowKey), 
+								rs.getFieldValueAsString(sfJoinRowDisplayName)));
+						if ("BG_TARGET_REL".equals(colName) || "BG_TARGET_RCYC".equals(colName)) {
+							// special case: add corresponding RQ joined fields, because QC doesn't populate
+							// the columns for RQ_TARGET_*.
+							colName = colName.replaceFirst("BG", "RQ");
+							s_JoinedFields.add(new JoinedField(
+									"REQ", 
+									colName, 
+									rs.getFieldValueAsString(sfJoinTable), 
+									rs.getFieldValueAsString(sfJoinRowKey), 
+									rs.getFieldValueAsString(sfJoinRowDisplayName)));
+						}
+					}
+				} finally {
+					if (rs != null)
+						rs.safeRelease();
+				}
+			}
+		}
+		return s_JoinedFields;
+	}
+
+	static List<String> getJoinedFieldDisplayNames(IConnection qcc,boolean isDefect, String fieldName) {
+		String parentTable = isDefect ? "BUG" : "REQ";
+		List<String> result = new ArrayList<String>();
+		IRecordSet rs = null;
+		try {
+			JoinedField f = getJoinedField(qcc, parentTable, fieldName);
+			if (f == null) {
+				throw new IllegalArgumentException("Not a joined field: \""
+						+ String.valueOf(parentTable) + "\".\""
+						+ String.valueOf(fieldName) + "\"");
+			}
+
+			String sql = "SELECT " + f.childDisplayCol() + " FROM "
+					+ f.childTable();
+			rs = executeSQL(qcc, sql);
+			//String id = rs.getFieldValueAsString(f.childIdCol());
+			if (rs != null)  {
+				int count = rs.getRecordCount();
+				for (int i = 0; i < count; ++i, rs.next()) {
+					result.add(rs.getFieldValueAsString(f.childDisplayCol()));
+				}
+			}
+		} finally {
+			if (rs != null)
+				rs.safeRelease();
+		}
+		return result;
+	}
+	
+	/**
+	 * Map the 'displayed value' of a joined column to the actual primary-key-id
+	 * of the child table. In the QC gui, you always see a 'display value', i.e.
+	 * something human-readable like a string. This is the same when using CCF -
+	 * the foreign (exporting) system will not know the internal primary key
+	 * values, but only the 'display value'. But the internal QC database record
+	 * actually uses a join (FK) column containing the primary-key value of the
+	 * child record. When writing a QC record (Defect, Requirement, etc.) you
+	 * need this primary-key value.
+	 * 
+	 * @param qcc
+	 *            QualityCenter OTA connection
+	 * @param parentTableName
+	 *            the table the joined column is in
+	 * @param parentCol
+	 *            the name of the column in the parent table
+	 * @param parentDisplayColValue
+	 *            the value that is 'displayed' in the QC gui
+	 * @return the primary key value in the child table corresponding to
+	 *         parentDisplayColValue
+	 */
+	static String mapJoinedFieldDisplayToId(IConnection qcc,
+			boolean isDefect, String parentCol, String displayValue) {
+		String parentTable = isDefect ? "BUG" : "REQ";
+		String id = null;
+		if (displayValue != null) {
+			IRecordSet rs = null;
+			try {
+				JoinedField f = getJoinedField(qcc, parentTable, parentCol);
+				if (f == null) {
+					throw new IllegalArgumentException("Not a joined field: \""
+							+ String.valueOf(parentTable) + "\".\""
+							+ String.valueOf(parentCol) + "\"");
+				}
+
+				String sql = "SELECT " + f.childIdCol() + " FROM "
+						+ f.childTable() + " WHERE " + f.childDisplayCol()
+						+ " = '" + displayValue + "'";
+				rs = executeSQL(qcc, sql);
+				id = rs.getFieldValueAsString(f.childIdCol());
+			} finally {
+				if (rs != null)
+					rs.safeRelease();
+			}
+		}
+
+		if (id == null) {
+			String msg = new StringBuilder(
+					"Invalid value for Quality Center field ").append(
+					parentTable).append(".").append(parentCol).append(": ")
+					.append(displayValue).toString();
+			//log.error(msg);
+			throw new CCFRuntimeException(msg);
+		}
+
+		return id;
+	}
+
+	/**
+	 * Get the JoinedField corresponding to the given (parent) table and column
+	 * name
+	 */
+	static JoinedField getJoinedField(IConnection qcc, String parentTableName,
+			String parentColName) {
+		JoinedField jf = null;
+		for (JoinedField f : queryAllJoinedFields(qcc)) {
+			if (f.parentTable().equals(parentTableName)
+					&& f.parentCol().equals(parentColName)) {
+				jf = f;
+				break;
+			}
+		}
+		return jf;
+	}
+
+	/**
+	 * Certain fields are not directly contained in a given COM object/DB
+	 * record; instead their values are obtained by JOINing a row from another
+	 * table. These are also known as 'referenced' fields
+	 * 
+	 * @param tableName
+	 *            name of the (parent) table containing joined fields
+	 * @param fieldName
+	 *            name of the column
+	 * @return true if the field is not a simple scalar but instead a
+	 *         'referenced' field
+	 */
+	static boolean isJoinedField(IConnection qcc, String tableName,
+			String fieldName) {
+		boolean isRField = false;
+		if (fieldName != null && tableName != null) {
+			JoinedField jf = getJoinedField(qcc, tableName, fieldName);
+			isRField = jf != null;
+		}
+		return isRField;
+	}
+	
+	static boolean isJoinedField(IConnection qcc, boolean isDefect, String fieldName) {
+		return isJoinedField(qcc, isDefect ? "BUG" : "REQ", fieldName);
+	}
+	
 	private static final String RQ_DEV_COMMENTS = "RQ_DEV_COMMENTS";
 	private static final String BG_DEV_COMMENTS = "BG_DEV_COMMENTS";
 	static final String sfColumnName = "SF_COLUMN_NAME";
@@ -295,6 +545,8 @@ public class QCLayoutExtractor implements RepositoryLayoutExtractor {
 				// String isMultiValue =
 				// rs.getFieldValueAsString(sfIsMultiValue);
 				GenericArtifactField field;
+				
+				boolean joinedField = isJoinedField(qcc, false, columnName);
 
 				// obtain the GenericArtifactField datatype from the columnType
 				// and editStyle
@@ -311,16 +563,18 @@ public class QCLayoutExtractor implements RepositoryLayoutExtractor {
 					addFieldOptionValue(qcc, rootId, fieldValueOptions);
 
 					if (columnType.equals("char") && editStyle != null
-							&& isMultiValue != null
-							&& isMultiValue.trim().length() > 0
-//							&& !StringUtils.isEmpty(isMultiValue)
-							&& isMultiValue.equals("Y")) {
+							&& "Y".equals(isMultiValue)) {
 						if (editStyle.equals("ListCombo")
 								|| editStyle.equals("TreeCombo")
 								|| editStyle.equals("ReqTreeCombo")) {
 							isMultiSelectField = true;
 						}
 					}
+				} else if(fieldValueType.equals(GenericArtifactField.FieldValueTypeValue.INTEGER)) {
+					// these edit styles are used for RQ_TARGET_* fields and allow multi-select,
+					// even though the column sfIsMultiValue is set to "N".
+					isMultiSelectField = "ReleaseCycleMultiTreeCombo".equals(editStyle) ||
+										 "ReleaseMultiTreeCombo".equals(editStyle);
 				}
 
 				field = genericArtifact.addNewField(columnName,
@@ -337,6 +591,7 @@ public class QCLayoutExtractor implements RepositoryLayoutExtractor {
 				if (columnName.equals("RQ_TYPE_ID")) {
 					fieldValueType = FieldValueTypeValue.STRING;
 					field.setFieldValueType(FieldValueTypeValue.STRING);
+					fieldValueOptions = getJoinedFieldDisplayNames(qcc, false, columnName);
 				}
 				else if (columnName.equals("RQ_REQ_TIME")) {
 					fieldValueType = FieldValueTypeValue.STRING;
@@ -356,6 +611,27 @@ public class QCLayoutExtractor implements RepositoryLayoutExtractor {
 				}
 				field.setFieldValue(generateFieldDocumentation(
 						fieldDisplayName, fieldValueType, fieldValueOptions));
+				
+				if (joinedField && !"RQ_TYPE_ID".equals(columnName)) {
+					// RQ_TYPE_ID field identifies itself as a joined field, but it really is a regular string.
+					// generate a synthetic, "human readable" field for convenience.
+					// NOTE: mapping this field may introduce ambiguities, when i.e. cycle names occur
+					// multiple times.
+					List<String> possibleFieldValues = getJoinedFieldDisplayNames(qcc, false, columnName);
+					String humanReadableColumnName = columnName + HUMAN_READABLE_SUFFIX;
+					fieldValueType = FieldValueTypeValue.STRING;
+					GenericArtifactField humanReadableField = genericArtifact.addNewField(humanReadableColumnName, GenericArtifactField.VALUE_FIELD_TYPE_FLEX_FIELD);
+					humanReadableField.setFieldValueType(fieldValueType);
+					humanReadableField.setAlternativeFieldName(humanReadableColumnName);
+					humanReadableField.setMaxOccursValue(field.getMaxOccursValue());
+					humanReadableField.setMinOccurs(field.getMinOccurs());
+					humanReadableField.setNullValueSupported(field.getNullValueSupported());
+					humanReadableField.setFieldAction(GenericArtifactField.FieldActionValue.REPLACE);
+					humanReadableField.setFieldValue(generateFieldDocumentation(
+							fieldDisplayName + " [READ-ONLY]", fieldValueType, possibleFieldValues));
+
+				}
+
 			}
 		} finally {
 			if (rs != null) {
@@ -493,11 +769,14 @@ public class QCLayoutExtractor implements RepositoryLayoutExtractor {
 				// rs.getFieldValueAsString(sfIsMultiValue);
 				GenericArtifactField field;
 
+				boolean joinedField = isJoinedField(qcc, true, columnName);
+				
+					
 				// obtain the GenericArtifactField datatype from the columnType
 				// and editStyle
-				GenericArtifactField.FieldValueTypeValue fieldValueType = convertQCDataTypeToGADatatype(
-						columnType, editStyle, columnName);
+				GenericArtifactField.FieldValueTypeValue fieldValueType = convertQCDataTypeToGADatatype(columnType, editStyle, columnName);
 
+				
 				boolean isMultiSelectField = false;
 				if (fieldValueType
 						.equals(GenericArtifactField.FieldValueTypeValue.STRING)) {
@@ -547,6 +826,24 @@ public class QCLayoutExtractor implements RepositoryLayoutExtractor {
 				
 				field.setFieldValue(generateFieldDocumentation(
 						fieldDisplayName, fieldValueType, fieldValueOptions));
+				
+				if (joinedField) {
+					List<String> possibleFieldValues = getJoinedFieldDisplayNames(qcc, true, columnName);
+					// generate a synthetic, "human readable" field for convenience.
+					// NOTE: mapping this field may introduce ambiguities, when i.e. cycle names occur
+					// multiple times.
+					field = genericArtifact.addNewField(columnName + HUMAN_READABLE_SUFFIX, GenericArtifactField.VALUE_FIELD_TYPE_FLEX_FIELD);
+					fieldValueType = FieldValueTypeValue.STRING;
+					field.setFieldValueType(fieldValueType);
+					field.setMaxOccurs(1); // we assume multi-select isn't possible for joined fields.
+					field.setMinOccurs(0);
+					field.setNullValueSupported("true");
+					field.setAlternativeFieldName(columnName + HUMAN_READABLE_SUFFIX);
+					field.setFieldAction(GenericArtifactField.FieldActionValue.REPLACE);
+					field.setFieldValue(generateFieldDocumentation(
+							fieldDisplayName + " [READ-ONLY]", fieldValueType, possibleFieldValues));
+
+				}
 			}
 		} finally {
 			if (rs != null) {
