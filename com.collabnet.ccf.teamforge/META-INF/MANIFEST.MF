@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: TeamForge Connector for CCF
 Bundle-SymbolicName: com.collabnet.ccf.teamforge;singleton:=true
-Bundle-Version: 1.4.4
+Bundle-Version: 1.4.5
 Bundle-Activator: com.collabnet.ccf.teamforge.Activator
 Bundle-Vendor: CollabNet
 Require-Bundle: org.eclipse.ui,

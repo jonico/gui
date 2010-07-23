@@ -2,7 +2,7 @@
 <feature
       id="com.collabnet.ccf.qc.feature"
       label="Quality Center Connector for CCF"
-      version="1.4.1"
+      version="1.4.5"
       provider-name="CollabNet"
       plugin="com.collabnet.ccf.qc"
       os="win32">
