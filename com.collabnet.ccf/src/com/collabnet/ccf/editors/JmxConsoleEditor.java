@@ -38,7 +38,7 @@ public class JmxConsoleEditor extends FormEditor {
         setPartName(input.getName());
 		CcfEditorInput ccfEditorInput = (CcfEditorInput)getEditorInput();
 		landscape = ccfEditorInput.getLandscape();	
-		if (landscape != null && landscape.getRole() == Landscape.ROLE_ADMINISTRATOR) {
+		if (landscape != null) {
 			getMonitors();
 		}
     }
