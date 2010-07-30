@@ -465,7 +465,7 @@ public class Landscape implements IPropertySource {
 			else return null;
 		}
 		if (logsFolder1 == null) {
-			logsFolder1 = getLogsFolder(configurationFolder1);
+			logsFolder1 = getLogsFolder(configurationFolder2);
 		}
 		if (logsFolder1.exists()) return logsFolder1;
 		else return null;
@@ -479,7 +479,7 @@ public class Landscape implements IPropertySource {
 			else return null;
 		}
 		if (logsFolder2 == null) {
-			logsFolder2 = getLogsFolder(configurationFolder2);
+			logsFolder2 = getLogsFolder(configurationFolder1);
 		}
 		if (logsFolder2.exists()) return logsFolder2;
 		else return null;

@@ -22,9 +22,9 @@ public class Logs {
 		case TYPE_FOLDER:
 			return "Logs";
 		case TYPE_1_2:
-			return Landscape.getTypeDescription(landscape.getType2()) + " => " + Landscape.getTypeDescription(landscape.getType1());
+			return Landscape.getTypeDescription(landscape.getType1()) + " => " + Landscape.getTypeDescription(landscape.getType2());
 		case TYPE_2_1:
-			return Landscape.getTypeDescription(landscape.getType1()) + " => " + Landscape.getTypeDescription(landscape.getType2());			
+			return Landscape.getTypeDescription(landscape.getType2()) + " => " + Landscape.getTypeDescription(landscape.getType1());			
 		default:
 			return "Logs";
 		}

@@ -602,7 +602,7 @@ public class CcfCcfEditorPage extends CcfEditorPage {
 		try {
 			Properties properties = new Properties();
 			File folder = new File(getLandscape().getConfigurationFolder());
-			if (folder != null) {
+			if (folder != null && folder.length() > 0) {
 				File propertiesFile = new File(folder, "ccf.properties");
 				FileInputStream inputStream = new FileInputStream(propertiesFile);
 				properties.load(inputStream);
