@@ -682,20 +682,24 @@ public class Activator extends AbstractUIPlugin {
 			String folder2 = landscape.getConfigurationFolder2();
 			if (folder1 != null && folder2 != null) {
 				if (landscape.getType1().equals("QC")) {
-					if (!folder1.endsWith("QC2TF\\config") && !folder1.endsWith("QC2TF\\config\\") &&
-						!folder1.endsWith("QC2PT\\config") && !folder1.endsWith("QC2PT\\config\\") &&
-						!folder1.endsWith("QC2TF/config") && !folder1.endsWith("QC2TF/config/") &&
-						!folder1.endsWith("QC2PT/config") && !folder1.endsWith("QC2PT/config/")) {
-						switchConfigFolders = true;
+					if (landscape.getType2().equals("TF") || landscape.getType2().equals("PT")) {
+						if (!folder1.endsWith("QC2TF\\config") && !folder1.endsWith("QC2TF\\config\\") &&
+							!folder1.endsWith("QC2PT\\config") && !folder1.endsWith("QC2PT\\config\\") &&
+							!folder1.endsWith("QC2TF/config") && !folder1.endsWith("QC2TF/config/") &&
+							!folder1.endsWith("QC2PT/config") && !folder1.endsWith("QC2PT/config/")) {
+							switchConfigFolders = true;
+						}
 					}
 				}
 				else if (landscape.getType2().equals("QC")) {
-					if (!folder2.endsWith("QC2TF\\config") && !folder2.endsWith("QC2TF\\config\\") &&
-						!folder2.endsWith("QC2PT\\config") && !folder2.endsWith("QC2PT\\config\\") &&
-						!folder2.endsWith("QC2TF/config") && !folder2.endsWith("QC2TF/config/") &&
-						!folder2.endsWith("QC2PT/config") && !folder2.endsWith("QC2PT/config/")) {
-						switchConfigFolders = true;
-					}			
+					if (landscape.getType1().equals("TF") || landscape.getType1().equals("PT")) {
+						if (!folder2.endsWith("QC2TF\\config") && !folder2.endsWith("QC2TF\\config\\") &&
+							!folder2.endsWith("QC2PT\\config") && !folder2.endsWith("QC2PT\\config\\") &&
+							!folder2.endsWith("QC2TF/config") && !folder2.endsWith("QC2TF/config/") &&
+							!folder2.endsWith("QC2PT/config") && !folder2.endsWith("QC2PT/config/")) {
+							switchConfigFolders = true;
+						}	
+					}
 				}
 				if (switchConfigFolders) {
 					landscape.setConfigurationFolder1(folder2);
