@@ -673,7 +673,7 @@ public class Activator extends AbstractUIPlugin {
 	// This is to fix landscapes that were created prior to 1.4 so that they
 	// will work with 1.4 and greater.
 	private void fixOldLandscapes(Landscape[] landscapes) {
-		if (getDialogSettings().getBoolean("oldLandscapesFixed")) {
+		if (getDialogSettings().getBoolean("landscapes.oldLandscapesFixed")) {
 			return;
 		}
 		for (Landscape landscape : landscapes) {
@@ -682,16 +682,20 @@ public class Activator extends AbstractUIPlugin {
 			String folder2 = landscape.getConfigurationFolder2();
 			if (folder1 != null && folder2 != null) {
 				if (landscape.getType1().equals("QC")) {
-					if (!folder1.endsWith("QC2TF/config") && !folder1.endsWith("QC2TF/config/") &&
+					if (!folder1.endsWith("QC2TF\\config") && !folder1.endsWith("QC2TF\\config\\") &&
+						!folder1.endsWith("QC2PT\\config") && !folder1.endsWith("QC2PT\\config\\") &&
+						!folder1.endsWith("QC2TF/config") && !folder1.endsWith("QC2TF/config/") &&
 						!folder1.endsWith("QC2PT/config") && !folder1.endsWith("QC2PT/config/")) {
 						switchConfigFolders = true;
 					}
 				}
 				else if (landscape.getType2().equals("QC")) {
-					if (!folder2.endsWith("QC2TF/config") && !folder2.endsWith("QC2TF/config/") &&
+					if (!folder2.endsWith("QC2TF\\config") && !folder2.endsWith("QC2TF\\config\\") &&
+						!folder2.endsWith("QC2PT\\config") && !folder2.endsWith("QC2PT\\config\\") &&
+						!folder2.endsWith("QC2TF/config") && !folder2.endsWith("QC2TF/config/") &&
 						!folder2.endsWith("QC2PT/config") && !folder2.endsWith("QC2PT/config/")) {
 						switchConfigFolders = true;
-					}				
+					}			
 				}
 				if (switchConfigFolders) {
 					landscape.setConfigurationFolder1(folder2);
@@ -700,7 +704,7 @@ public class Activator extends AbstractUIPlugin {
 				}
 			}
 		}
-		getDialogSettings().put("oldLandscapesFixed", true);
+		getDialogSettings().put("landscapes.oldLandscapesFixed", true);
 	}
 	
 	public org.osgi.service.prefs.Preferences getInstancePreferences() {
