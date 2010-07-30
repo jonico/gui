@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: CollabNet Connector Framework
 Bundle-SymbolicName: com.collabnet.ccf; singleton:=true
-Bundle-Version: 1.4.6
+Bundle-Version: 1.4.7
 Bundle-Activator: com.collabnet.ccf.Activator
 Bundle-Vendor: CollabNet
 Require-Bundle: org.eclipse.ui,
