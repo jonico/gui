@@ -116,8 +116,8 @@ public class CcfEditor extends FormEditor implements ISaveablePart2 {
 		boolean timezoneChanged = 
 			(oldTimezone1 == null && !(landscape.getTimezone1() == null)) ||
 			(oldTimezone2 == null && !(landscape.getTimezone2() == null)) ||
-			!oldTimezone1.equals(landscape.getTimezone1()) ||
-			!oldTimezone2.equals(landscape.getTimezone2());
+			(oldTimezone1 != null && !oldTimezone1.equals(landscape.getTimezone1())) ||
+			(oldTimezone2 != null && !oldTimezone2.equals(landscape.getTimezone2()));
 
 		if (timezoneChanged) {
 			CcfDataProvider dataProvider = new CcfDataProvider();
