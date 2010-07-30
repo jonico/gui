@@ -596,8 +596,8 @@ public class Landscape implements IPropertySource {
 	}
 	
 	public Log[] getLogs(Logs logs) {
-		if (logs.getType() == Logs.TYPE_1_2) return getLogs1(logs);
-		else return getLogs2(logs);
+		if (logs.getType() == Logs.TYPE_1_2) return getLogs2(logs);
+		else return getLogs1(logs);
 	}
 	
 	public String getUrl(int systemNumber) {
