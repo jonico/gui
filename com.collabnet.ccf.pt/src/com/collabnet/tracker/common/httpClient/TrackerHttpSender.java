@@ -19,7 +19,6 @@ package com.collabnet.tracker.common.httpClient;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.Proxy;
 import java.net.URL;
 import java.net.UnknownHostException;
 
@@ -35,8 +34,10 @@ import org.apache.commons.httpclient.params.HttpClientParams;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
 
-import com.collabnet.tracker.core.TrackerClientManager;
+import com.collabnet.ccf.Activator;
+import com.collabnet.ccf.schemageneration.Proxy;
 import com.collabnet.tracker.core.PTrackerWebServicesClient;
+import com.collabnet.tracker.core.TrackerClientManager;
 
 /**
  * HTTPSender used by axis so that it uses the more full functioned
@@ -61,39 +62,27 @@ public class TrackerHttpSender extends CommonsHTTPSender {
 
 	@Override
 	protected HostConfiguration getHostConfiguration(HttpClient client, MessageContext context, URL url) {
-
-		Proxy proxy = null;
 		String httpUser = null;
 		String httpPassword = null;
 		String serverUrl = url.getProtocol() + "://" + url.getHost();
 		PTrackerWebServicesClient webServicesClient = TrackerClientManager.getInstance().getClient(serverUrl);
-
-		proxy = webServicesClient.getProxy();
+		
+		Proxy proxy = Activator.getPlatformProxy(url.toString());
+		if (proxy != null) {
+			proxy.setProxy(client);
+		}
+		
 		httpUser = webServicesClient.getHttpUser();
 		httpPassword = webServicesClient.getHttpPassword();
 
-		setupHttpClient(client, proxy, url.toString(), httpUser, httpPassword);
+		setupHttpClient(client, url.toString(), httpUser, httpPassword);
 		return client.getHostConfiguration();
 	}
 
-	public static void setupHttpClient(HttpClient client, Proxy proxySettings, String repositoryUrl, String user,
+	public static void setupHttpClient(HttpClient client, String repositoryUrl, String user,
 			String password) {
 
 		setupHttpClientParams(client, null);
-
-		if (proxySettings != null && !Proxy.NO_PROXY.equals(proxySettings)
-		/* && !WebClientUtil.repositoryUsesHttps(repositoryUrl) */
-		&& proxySettings.address() instanceof InetSocketAddress) {
-			InetSocketAddress address = (InetSocketAddress) proxySettings.address();
-			client.getHostConfiguration().setProxy(getDomain(address.getHostName()), address.getPort());
-			if (proxySettings instanceof AuthenticatedProxy) {
-				AuthenticatedProxy authProxy = (AuthenticatedProxy) proxySettings;
-				Credentials credentials = getCredentials(authProxy.getUserName(), authProxy.getPassword(),
-						address.getAddress());
-				AuthScope proxyAuthScope = new AuthScope(address.getHostName(), address.getPort(), AuthScope.ANY_REALM);
-				client.getState().setProxyCredentials(proxyAuthScope, credentials);
-			}
-		}
 
 		if (user != null && password != null) {
 			AuthScope authScope = new AuthScope(getDomain(repositoryUrl),

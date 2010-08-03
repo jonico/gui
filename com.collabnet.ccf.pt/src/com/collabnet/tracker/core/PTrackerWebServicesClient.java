@@ -134,16 +134,16 @@ public class PTrackerWebServicesClient {
 
 	private WebServiceClient mClient;
 	private TrackerClientData repositoryData;
-	private Proxy proxy;
+//	private Proxy proxy;
 	private String httpUser;
 	private String httpPassword;
 
-	public PTrackerWebServicesClient(String url, String username, String password, Proxy proxy, String httpUser,
+	public PTrackerWebServicesClient(String url, String username, String password, String httpUser,
 			String httpPassword) throws MalformedURLException {
 		mClient = new WebServiceClient();
 		mClient.init(username, password, url);
 
-		this.proxy = proxy;
+//		this.proxy = proxy;
 		this.httpUser = httpUser;
 		this.httpPassword = httpPassword;
 	}
@@ -888,9 +888,9 @@ public class PTrackerWebServicesClient {
 		this.repositoryData = data;
 	}
 
-	public Proxy getProxy() {
-		return proxy;
-	}
+//	public Proxy getProxy() {
+//		return proxy;
+//	}
 
 	public String getHttpUser() {
 		return httpUser;

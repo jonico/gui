@@ -18,7 +18,6 @@
 package com.collabnet.tracker.core;
 
 import java.net.MalformedURLException;
-import java.net.Proxy;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -51,8 +50,8 @@ public class TrackerClientManager {
 
 
 	public PTrackerWebServicesClient createClient(String serverUrl, String newUserId, String newPassword,
-			String httpAuthUser, String httpAuthPass, Proxy proxy) throws MalformedURLException {
-		PTrackerWebServicesClient client = new PTrackerWebServicesClient(serverUrl, newUserId, newPassword, proxy,
+			String httpAuthUser, String httpAuthPass) throws MalformedURLException {
+		PTrackerWebServicesClient client = new PTrackerWebServicesClient(serverUrl, newUserId, newPassword,
 				httpAuthUser, httpAuthPass);
 		clientByUrl.put(serverUrl, client);
 		return client;

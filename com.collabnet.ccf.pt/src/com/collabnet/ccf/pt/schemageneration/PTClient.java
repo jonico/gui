@@ -44,7 +44,7 @@ public class PTClient {
 		this.password = password;
 		clients.put(serverUrl + userId + password, this);
 		try {
-			TrackerClientManager.getInstance().createClient(serverUrl, userId, password, null, null, null);
+			TrackerClientManager.getInstance().createClient(serverUrl, userId, password, null, null);
 		} catch (MalformedURLException e) {}
 	}
 	
@@ -135,7 +135,7 @@ public class PTClient {
         
         if (TrackerClientManager.getInstance().getClient(projectUrl) == null) {
     		try {
-    			TrackerClientManager.getInstance().createClient(projectUrl, userId, password, null, null, null);
+    			TrackerClientManager.getInstance().createClient(projectUrl, userId, password, null, null);
     		} catch (MalformedURLException e) {}        	
         }
         
@@ -151,7 +151,7 @@ public class PTClient {
         
         if (TrackerClientManager.getInstance().getClient(projectUrl) == null) {
     		try {
-    			TrackerClientManager.getInstance().createClient(projectUrl, userId, password, null, null, null);
+    			TrackerClientManager.getInstance().createClient(projectUrl, userId, password, null, null);
     		} catch (MalformedURLException e) {}        	
         }
         

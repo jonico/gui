@@ -393,7 +393,7 @@ public class PTLayoutExtractor implements RepositoryLayoutExtractor {
 				proxy = Proxy.NO_PROXY;
 			}
 			twsclient = TrackerClientManager.getInstance().createClient(url,
-					username, password, null, null, proxy);
+					username, password, null, null);
 		} catch (MalformedURLException e) {
 			String message = "Exception when trying to get the Web Services client: "
 					+ e.getMessage();
