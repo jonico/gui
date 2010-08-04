@@ -17,9 +17,7 @@
 
 package com.collabnet.ccf.pt.schemageneration;
 
-import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
-import java.net.Proxy;
 import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.Map;
@@ -53,10 +51,6 @@ public class PTLayoutExtractor implements RepositoryLayoutExtractor {
 
 	private FieldNameAmbiguityDissolver fieldNameAmbiguityDissolver = new FieldNameAmbiguityDissolver();
 
-	private String proxyHost = null;
-	private String proxyType = null;
-	private int proxyPort = -1;
-	private boolean proxyUsed = false;
 	public static final String PARAM_DELIMITER = ":";
 
 	private String serverUrl = null;
@@ -367,31 +361,6 @@ public class PTLayoutExtractor implements RepositoryLayoutExtractor {
 				+ connectionInfo.substring(connectionInfo.indexOf("://") + 3);
 		PTrackerWebServicesClient twsclient = null;
 		try {
-			Proxy proxy = null;
-			if (proxyUsed) {
-				if (StringUtils.isEmpty(this.proxyHost)) {
-					throw new IllegalArgumentException(
-							"Proxy host is not valid." + this.proxyHost);
-				} else if (this.proxyPort == -1) {
-					throw new IllegalArgumentException(
-							"Proxy port is not valid " + this.proxyPort);
-				}
-				Proxy.Type type = null;
-				try {
-					type = Proxy.Type.valueOf(this.proxyType);
-				} catch (Exception e) {
-					throw new IllegalArgumentException(
-							"Proxy type is not valid "
-									+ this.proxyType
-									+ ". Proxy type should either be HTTP or SOCKS");
-				}
-				InetSocketAddress socketAddress = new InetSocketAddress(
-						this.proxyHost, this.proxyPort);
-
-				proxy = new Proxy(type, socketAddress);
-			} else {
-				proxy = Proxy.NO_PROXY;
-			}
 			twsclient = TrackerClientManager.getInstance().createClient(url,
 					username, password, null, null);
 		} catch (MalformedURLException e) {
@@ -477,34 +446,6 @@ public class PTLayoutExtractor implements RepositoryLayoutExtractor {
 	 */
 	public void setUsername(String username) {
 		this.username = username;
-	}
-
-	public void setProxyHost(String proxyHost) {
-		this.proxyHost = proxyHost;
-	}
-
-	public String getProxyType() {
-		return proxyType;
-	}
-
-	public void setProxyType(String proxyType) {
-		this.proxyType = proxyType;
-	}
-
-	public int getProxyPort() {
-		return proxyPort;
-	}
-
-	public void setProxyPort(int proxyPort) {
-		this.proxyPort = proxyPort;
-	}
-
-	public boolean isProxyUsed() {
-		return proxyUsed;
-	}
-
-	public void setProxyUsed(boolean proxyUsed) {
-		this.proxyUsed = proxyUsed;
 	}
 
 	public GenericArtifact getRepositoryLayout(String repositoryId) {
