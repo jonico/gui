@@ -2,7 +2,7 @@
 <feature
       id="com.collabnet.ccf.pt.feature"
       label="Project Tracker Connector for CCF"
-      version="1.4.6"
+      version="1.4.7"
       provider-name="CollabNet"
       plugin="com.collabnet.ccf.pt">
 
