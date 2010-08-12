@@ -93,9 +93,10 @@ public class ProjectTrackerCcfParticipant extends CcfParticipant {
 	}
 
 	public String getInitialMDFFileNameSegment(String repositoryId, boolean isSource) {
-		String fileNameSegment = com.collabnet.ccf.Activator.CREATE_INITIAL_MFD_FILE_PREFIX
-		+ com.collabnet.ccf.Activator.CREATE_INITIAL_MFD_FILE_SEPARATOR
-		+ CREATE_INITIAL_MFD_FILE_PT_ISSUE;
+		String fileNameSegment = isSource ? 
+				(com.collabnet.ccf.Activator.CREATE_INITIAL_MFD_FILE_PREFIX + com.collabnet.ccf.Activator.CREATE_INITIAL_MFD_FILE_SEPARATOR)
+				: "";
+		fileNameSegment += CREATE_INITIAL_MFD_FILE_PT_ISSUE;
 		if (isSource) {
 			fileNameSegment = fileNameSegment + com.collabnet.ccf.Activator.CREATE_INITIAL_MFD_FILE_SEPARATOR;
 		}

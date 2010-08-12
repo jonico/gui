@@ -90,15 +90,13 @@ public class QualityCenterCcfParticipant extends CcfParticipant {
 	}
 
 	public String getInitialMDFFileNameSegment(String repositoryId, boolean isSource) {
-		String fileNameSegment;
+		String fileNameSegment = isSource ?
+				(com.collabnet.ccf.Activator.CREATE_INITIAL_MFD_FILE_PREFIX + com.collabnet.ccf.Activator.CREATE_INITIAL_MFD_FILE_SEPARATOR) 
+				: "";
 		if (QCLayoutExtractor.isDefectRepository(repositoryId)) {
-			fileNameSegment = com.collabnet.ccf.Activator.CREATE_INITIAL_MFD_FILE_PREFIX
-			+ com.collabnet.ccf.Activator.CREATE_INITIAL_MFD_FILE_SEPARATOR
-			+ CREATE_INITIAL_MFD_FILE_QC_DEFECT;
+			fileNameSegment += CREATE_INITIAL_MFD_FILE_QC_DEFECT;
 		} else {
-			fileNameSegment = com.collabnet.ccf.Activator.CREATE_INITIAL_MFD_FILE_PREFIX
-			+com.collabnet.ccf. Activator.CREATE_INITIAL_MFD_FILE_SEPARATOR
-			+ CREATE_INITIAL_MFD_FILE_QC_REQUIREMENT;
+			fileNameSegment += CREATE_INITIAL_MFD_FILE_QC_REQUIREMENT;
 		}
 		if (isSource) {
 			fileNameSegment = fileNameSegment + com.collabnet.ccf.Activator.CREATE_INITIAL_MFD_FILE_SEPARATOR;

@@ -93,15 +93,13 @@ public class TeamForgeCcfParticipant extends CcfParticipant {
 	}
 
 	public String getInitialMDFFileNameSegment(String repositoryId, boolean isSource) {
-		String fileNameSegment;
+		String fileNameSegment = isSource ?
+				(com.collabnet.ccf.Activator.CREATE_INITIAL_MFD_FILE_PREFIX + com.collabnet.ccf.Activator.CREATE_INITIAL_MFD_FILE_SEPARATOR) 
+				: "";
 		if (TFLayoutExtractor.isTrackerRepository(repositoryId)) {
-			fileNameSegment = com.collabnet.ccf.Activator.CREATE_INITIAL_MFD_FILE_PREFIX
-			+ com.collabnet.ccf.Activator.CREATE_INITIAL_MFD_FILE_SEPARATOR
-			+ CREATE_INITIAL_MFD_FILE_TF_TRACKER_ITEM;
+			fileNameSegment += CREATE_INITIAL_MFD_FILE_TF_TRACKER_ITEM;
 		} else {
-			fileNameSegment = com.collabnet.ccf.Activator.CREATE_INITIAL_MFD_FILE_PREFIX
-			+ com.collabnet.ccf.Activator.CREATE_INITIAL_MFD_FILE_SEPARATOR
-			+ CREATE_INITIAL_MFD_FILE_TF_PF;
+			fileNameSegment += CREATE_INITIAL_MFD_FILE_TF_PF;
 		}
 		if (isSource) {
 			fileNameSegment = fileNameSegment + com.collabnet.ccf.Activator.CREATE_INITIAL_MFD_FILE_SEPARATOR;

@@ -511,7 +511,9 @@ public class SynchronizationStatus implements IPropertySource, Comparable {
 					+ Activator.CREATE_INITIAL_MFD_FILE_UNKNOWN_ENTITY
 					+ Activator.CREATE_INITIAL_MFD_FILE_SUFFIX;					
 				} else {
-					createInitialMFDFileName = createInitialMFDFileName + ccfParticipant.getInitialMDFFileNameSegment(getTargetRepositoryId(), false);
+					createInitialMFDFileName = createInitialMFDFileName
+					+ ccfParticipant.getInitialMDFFileNameSegment(getTargetRepositoryId(), false)
+					+ Activator.CREATE_INITIAL_MFD_FILE_SUFFIX;
 				}
 				createInitialMFDFile = new File(xsltFolder,
 						createInitialMFDFileName);

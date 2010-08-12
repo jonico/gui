@@ -9,6 +9,7 @@ import java.util.Properties;
 
 import javax.xml.transform.TransformerException;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.forms.editor.FormEditor;
@@ -69,8 +70,14 @@ public class ScrumWorksCcfParticipant extends CcfParticipant {
 
 	public String getInitialMDFFileNameSegment(String repositoryId,
 			boolean isSource) {
-		// TODO Auto-generated method stub
-		return null;
+		String fileNameSegment = isSource ? 
+				(com.collabnet.ccf.Activator.CREATE_INITIAL_MFD_FILE_PREFIX + com.collabnet.ccf.Activator.CREATE_INITIAL_MFD_FILE_SEPARATOR)
+				: "";
+		fileNameSegment += StringUtils.substringAfterLast(repositoryId, "-");
+		if (isSource) {
+			fileNameSegment += com.collabnet.ccf.Activator.CREATE_INITIAL_MFD_FILE_SEPARATOR;
+		}
+		return fileNameSegment;
 	}
 
 	public String getDefaultJmxPort() {
