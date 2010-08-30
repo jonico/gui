@@ -46,6 +46,9 @@ import com.collabnet.teamforge.api.Connection;
 import com.collabnet.teamforge.api.main.ProjectList;
 import com.collabnet.teamforge.api.main.ProjectRow;
 import com.collabnet.teamforge.api.main.TeamForgeClient;
+import com.collabnet.teamforge.api.tracker.TrackerClient;
+import com.collabnet.teamforge.api.tracker.TrackerList;
+import com.collabnet.teamforge.api.tracker.TrackerRow;
 
 public class ProjectTrackerSelectionDialog extends CcfDialog {
 	private Properties properties;
@@ -56,10 +59,12 @@ public class ProjectTrackerSelectionDialog extends CcfDialog {
 
 	private PTClient ptClient;
 	private TeamForgeClient tfClient;
+	private TrackerClient tfTrackerClient;
 	private Project[] projects;
 	private ArtifactType[] artifactTypes;
 	private String projectName;
 	private String artifactType;
+	private boolean teamForgeInstance;
 	
 	public static final int BROWSER_TYPE_PROJECT = 0;
 	public static final int BROWSER_TYPE_ARTIFACT_TYPE = 1;
@@ -176,12 +181,13 @@ public class ProjectTrackerSelectionDialog extends CcfDialog {
 	//       then be filtered to include only projects whose ID is included in the list from the
 	//       first call.
 	private Project[] getTeamForgeProjects() {
+		teamForgeInstance = true;
 		try {
 			ProjectList projectList = getTeamForgeClient().getProjectList();
 			ProjectRow[] projectRows = projectList.getDataRows();
 			projects = new Project[projectRows.length];
 			for (int i = 0; i < projectRows.length; i++) {
-				projects[i] = new Project(projectRows[i].getTitle(), getProjectUrl(projectRows[i].getTitle()));
+				projects[i] = new Project(projectRows[i].getId(), projectRows[i].getTitle(), getProjectUrl(projectRows[i].getTitle()));
 			}
 		} catch (Exception e) {
 			Activator.handleError(e);
@@ -200,7 +206,7 @@ public class ProjectTrackerSelectionDialog extends CcfDialog {
 					projects = new Project[projectList.size()];
 					int i = 0;
 					for (String projectName : projectList) {
-						projects[i++] = new Project(projectName, getProjectUrl(projectName));
+						projects[i++] = new Project(null, projectName, getProjectUrl(projectName));
 					}
 				} catch (Exception e) {
 					if (e.getMessage().indexOf("could not find a target service") != -1) {
@@ -214,6 +220,27 @@ public class ProjectTrackerSelectionDialog extends CcfDialog {
 		});
 		if (projects == null) return new Project[0];
 		else return projects;
+	}
+	
+	private ArtifactType[] getTeamForgeArtifactTypes(final Project project) {
+		BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
+			public void run() {
+				artifactTypes = null;
+				try {
+					TrackerList trackerList = tfTrackerClient.getTrackerList(project.getId());
+					TrackerRow[] trackerRows = trackerList.getDataRows();
+					artifactTypes = new ArtifactType[trackerRows.length];
+					for (int i = 0; i < trackerRows.length; i++) {
+						artifactTypes[i] = new ArtifactType(trackerRows[i].getTitle(), project.getName());
+					}
+				} catch (Exception e) {
+					Activator.handleError(e);
+					ExceptionDetailsErrorDialog.openError(getShell(), title, e.getMessage(), new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getLocalizedMessage(), e));
+				}
+			}
+		});
+		if (artifactTypes == null) return new ArtifactType[0];
+		else return artifactTypes;				
 	}
 	
 	private ArtifactType[] getArtifactTypes(final Project project) {
@@ -277,6 +304,7 @@ public class ProjectTrackerSelectionDialog extends CcfDialog {
 			Connection connection = Connection.getConnection(serverUrl, userId, password, null, null, null, false);
 			Connection.setEngineConfiguration(getEngineConfiguration());	
 			tfClient = connection.getTeamForgeClient();
+			tfTrackerClient = connection.getTrackerClient();
 		}
 		return tfClient;
 	}
@@ -325,7 +353,11 @@ public class ProjectTrackerSelectionDialog extends CcfDialog {
 				return getProjects();
 			}
 			if (element instanceof Project) {
-				return getArtifactTypes((Project)element);
+				if (teamForgeInstance) {
+					return getTeamForgeArtifactTypes((Project)element);
+				} else {
+					return getArtifactTypes((Project)element);
+				}
 			}
 			return new Object[0];
 		}
@@ -343,12 +375,18 @@ public class ProjectTrackerSelectionDialog extends CcfDialog {
 	class Project {
 		private String name;
 		private String url;
+		private String id;
 		
-		public Project(String name, String url) {
+		public Project(String id, String name, String url) {
+			this.id = id;
 			this.name = name;
 			this.url = url;
 		}
 		
+		public String getId() {
+			return id;
+		}
+
 		public String getName() {
 			return name;
 		}
