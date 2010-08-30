@@ -46,9 +46,6 @@ import com.collabnet.teamforge.api.Connection;
 import com.collabnet.teamforge.api.main.ProjectList;
 import com.collabnet.teamforge.api.main.ProjectRow;
 import com.collabnet.teamforge.api.main.TeamForgeClient;
-import com.collabnet.teamforge.api.tracker.TrackerClient;
-import com.collabnet.teamforge.api.tracker.TrackerList;
-import com.collabnet.teamforge.api.tracker.TrackerRow;
 
 public class ProjectTrackerSelectionDialog extends CcfDialog {
 	private Properties properties;
@@ -59,12 +56,10 @@ public class ProjectTrackerSelectionDialog extends CcfDialog {
 
 	private PTClient ptClient;
 	private TeamForgeClient tfClient;
-	private TrackerClient tfTrackerClient;
 	private Project[] projects;
 	private ArtifactType[] artifactTypes;
 	private String projectName;
 	private String artifactType;
-	private boolean teamForgeInstance;
 	
 	public static final int BROWSER_TYPE_PROJECT = 0;
 	public static final int BROWSER_TYPE_ARTIFACT_TYPE = 1;
@@ -140,7 +135,12 @@ public class ProjectTrackerSelectionDialog extends CcfDialog {
 		IStructuredSelection selection = (IStructuredSelection)treeViewer.getSelection();
 		Object firstSelection = selection.getFirstElement();
 		if (firstSelection instanceof Project) {
-			projectName = ((Project)firstSelection).getName();
+			Project project = (Project)firstSelection;
+			if (project.getInternalName() == null) {
+				projectName = project.getName();
+			} else {
+				projectName = project.getInternalName();
+			}
 		}
 		if (firstSelection instanceof ArtifactType) {
 			projectName = ((ArtifactType)firstSelection).getProjectName();
@@ -181,13 +181,18 @@ public class ProjectTrackerSelectionDialog extends CcfDialog {
 	//       then be filtered to include only projects whose ID is included in the list from the
 	//       first call.
 	private Project[] getTeamForgeProjects() {
-		teamForgeInstance = true;
 		try {
 			ProjectList projectList = getTeamForgeClient().getProjectList();
 			ProjectRow[] projectRows = projectList.getDataRows();
 			projects = new Project[projectRows.length];
 			for (int i = 0; i < projectRows.length; i++) {
-				projects[i] = new Project(projectRows[i].getId(), projectRows[i].getTitle(), getProjectUrl(projectRows[i].getTitle()));
+				String internalName;
+				if (projectRows[i].getPath() == null || !projectRows[i].getPath().startsWith("projects.")) {
+					internalName = projectRows[i].getTitle();
+				} else {
+					internalName = projectRows[i].getPath().substring(9);
+				}
+				projects[i] = new Project(projectRows[i].getId(), internalName, projectRows[i].getTitle(), getProjectUrl(internalName));
 			}
 		} catch (Exception e) {
 			Activator.handleError(e);
@@ -206,7 +211,7 @@ public class ProjectTrackerSelectionDialog extends CcfDialog {
 					projects = new Project[projectList.size()];
 					int i = 0;
 					for (String projectName : projectList) {
-						projects[i++] = new Project(null, projectName, getProjectUrl(projectName));
+						projects[i++] = new Project(null, null, projectName, getProjectUrl(projectName));
 					}
 				} catch (Exception e) {
 					if (e.getMessage().indexOf("could not find a target service") != -1) {
@@ -221,28 +226,7 @@ public class ProjectTrackerSelectionDialog extends CcfDialog {
 		if (projects == null) return new Project[0];
 		else return projects;
 	}
-	
-	private ArtifactType[] getTeamForgeArtifactTypes(final Project project) {
-		BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
-			public void run() {
-				artifactTypes = null;
-				try {
-					TrackerList trackerList = tfTrackerClient.getTrackerList(project.getId());
-					TrackerRow[] trackerRows = trackerList.getDataRows();
-					artifactTypes = new ArtifactType[trackerRows.length];
-					for (int i = 0; i < trackerRows.length; i++) {
-						artifactTypes[i] = new ArtifactType(trackerRows[i].getTitle(), project.getName());
-					}
-				} catch (Exception e) {
-					Activator.handleError(e);
-					ExceptionDetailsErrorDialog.openError(getShell(), title, e.getMessage(), new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getLocalizedMessage(), e));
-				}
-			}
-		});
-		if (artifactTypes == null) return new ArtifactType[0];
-		else return artifactTypes;				
-	}
-	
+
 	private ArtifactType[] getArtifactTypes(final Project project) {
 		BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
 			public void run() {
@@ -252,7 +236,13 @@ public class ProjectTrackerSelectionDialog extends CcfDialog {
 					artifactTypes = new ArtifactType[artifactTypeList.size()];
 					int i = 0;
 					for (String artifactTypeName : artifactTypeList) {
-						artifactTypes[i++] = new ArtifactType(artifactTypeName, project.getName());
+						String internalName;
+						if (project.getInternalName() == null) {
+							internalName = project.getName();
+						} else {
+							internalName = project.getInternalName();
+						}
+						artifactTypes[i++] = new ArtifactType(artifactTypeName, internalName);
 					}
 				} catch (Exception e) {
 					// For now we are just catching the error when a non-PT project is expanded.
@@ -304,7 +294,6 @@ public class ProjectTrackerSelectionDialog extends CcfDialog {
 			Connection connection = Connection.getConnection(serverUrl, userId, password, null, null, null, false);
 			Connection.setEngineConfiguration(getEngineConfiguration());	
 			tfClient = connection.getTeamForgeClient();
-			tfTrackerClient = connection.getTrackerClient();
 		}
 		return tfClient;
 	}
@@ -353,11 +342,7 @@ public class ProjectTrackerSelectionDialog extends CcfDialog {
 				return getProjects();
 			}
 			if (element instanceof Project) {
-				if (teamForgeInstance) {
-					return getTeamForgeArtifactTypes((Project)element);
-				} else {
-					return getArtifactTypes((Project)element);
-				}
+				return getArtifactTypes((Project)element);
 			}
 			return new Object[0];
 		}
@@ -376,15 +361,21 @@ public class ProjectTrackerSelectionDialog extends CcfDialog {
 		private String name;
 		private String url;
 		private String id;
+		private String internalName;
 		
-		public Project(String id, String name, String url) {
+		public Project(String id, String internalName, String name, String url) {
 			this.id = id;
+			this.internalName = internalName;
 			this.name = name;
 			this.url = url;
 		}
 		
 		public String getId() {
 			return id;
+		}
+
+		public String getInternalName() {
+			return internalName;
 		}
 
 		public String getName() {
