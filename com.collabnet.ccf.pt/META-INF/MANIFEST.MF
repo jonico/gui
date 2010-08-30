@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Project Tracker Connector for CCF
 Bundle-SymbolicName: com.collabnet.ccf.pt;singleton:=true
-Bundle-Version: 1.4.7
+Bundle-Version: 1.4.8
 Bundle-Activator: com.collabnet.ccf.pt.Activator
 Bundle-Vendor: CollabNet
 Require-Bundle: org.eclipse.ui,
