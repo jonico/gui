@@ -77,10 +77,18 @@ public class ProjectTrackerSelectionDialog extends CcfDialog {
 		this.type = type;
 		switch (systemNumber) {
 		case 1:
-			properties = landscape.getProperties1();
+			if (!landscape.getType1().equals("PT") && landscape.getType2().equals("PT")) {
+				properties = landscape.getProperties2();
+			} else {
+				properties = landscape.getProperties1();
+			}
 			break;
 		case 2:
-			properties = landscape.getProperties2();
+			if (!landscape.getType2().equals("PT") && landscape.getType1().equals("PT")) {
+				properties = landscape.getProperties1();
+			} else {
+				properties = landscape.getProperties2();
+			}
 			break;
 		default:
 			break;
