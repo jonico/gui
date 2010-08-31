@@ -17,6 +17,7 @@ import org.apache.commons.httpclient.params.HttpClientParams;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -42,6 +43,7 @@ import com.collabnet.ccf.dialogs.ExceptionDetailsErrorDialog;
 import com.collabnet.ccf.model.Landscape;
 import com.collabnet.ccf.pt.schemageneration.PTClient;
 import com.collabnet.ccf.schemageneration.Proxy;
+import com.collabnet.core.ws.exception.WSException;
 import com.collabnet.teamforge.api.Connection;
 import com.collabnet.teamforge.api.main.ProjectList;
 import com.collabnet.teamforge.api.main.ProjectRow;
@@ -214,7 +216,7 @@ public class ProjectTrackerSelectionDialog extends CcfDialog {
 						projects[i++] = new Project(null, null, projectName, getProjectUrl(projectName));
 					}
 				} catch (Exception e) {
-					if (e.getMessage().indexOf("could not find a target service") != -1) {
+					if (e.getMessage() != null && e.getMessage().indexOf("could not find a target service") != -1) {
 						projects = getTeamForgeProjects();
 					} else {
 						Activator.handleError(e);
@@ -249,6 +251,12 @@ public class ProjectTrackerSelectionDialog extends CcfDialog {
 					// Eventually, these projects will not be included in the pick list.
 					if (e.getMessage() != null && e.getMessage().contains("while initializing the call context")) {
 						return;
+					}
+					if (e instanceof WSException && e.getMessage() != null && e.getMessage().contains("View artifact")) {
+						if (((WSException)e).getCauseExceptionType() != null && ((WSException)e).getCauseExceptionType().contains("AccessControlException")) {
+							MessageDialog.openError(getShell(), title, "You do not have permission to view artifact types for project " + project.getName() + ".");
+							return;
+						}
 					}
 					Activator.handleError(e);
 					ExceptionDetailsErrorDialog.openError(getShell(), title, e.getMessage(), new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getLocalizedMessage(), e));
