@@ -141,10 +141,10 @@ public class CcfPreferencePage extends PreferencePage implements IWorkbenchPrefe
 		gd = new GridData(GridData.FILL_HORIZONTAL);
 		gd.horizontalSpan = 2;
 		encryptGroup.setLayoutData(gd);	
-		encryptGroup.setText("Encrypt passwords:");
+		encryptGroup.setText("Obfuscate passwords:");
 		
 		encryptIfPreviouslyEncryptedButton = new Button(encryptGroup, SWT.RADIO);
-		encryptIfPreviouslyEncryptedButton.setText("If previously encrypted");
+		encryptIfPreviouslyEncryptedButton.setText("If previously obfuscated");
 		encryptAlwaysButton = new Button(encryptGroup, SWT.RADIO);
 		encryptAlwaysButton.setText("Always");	
 		encryptNeverButton = new Button(encryptGroup, SWT.RADIO);
