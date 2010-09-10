@@ -111,8 +111,8 @@ public class ProjectTrackerCcfParticipant extends CcfParticipant {
 		Properties properties = status.getLandscape().getProperties2();
 		String url = properties.getProperty(PROPERTIES_CEE_URL, "");
 		String user = properties.getProperty(PROPERTIES_CEE_USER, "");
-		String password = properties.getProperty(
-				PROPERTIES_CEE_PASSWORD, "");
+		String password = com.collabnet.ccf.Activator.decodePassword(properties.getProperty(
+				PROPERTIES_CEE_PASSWORD, ""));
 		ptLayoutExtractor.setServerUrl(url);
 		ptLayoutExtractor.setUsername(user);
 		ptLayoutExtractor.setPassword(password);

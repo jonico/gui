@@ -122,8 +122,8 @@ public class QualityCenterCcfParticipant extends CcfParticipant {
 		Properties properties = status.getLandscape().getProperties1();
 		String url = properties.getProperty(PROPERTIES_QC_URL, "");
 		String user = properties.getProperty(PROPERTIES_QC_USER, "");
-		String password = properties.getProperty(
-				PROPERTIES_QC_PASSWORD, "");
+		String password = com.collabnet.ccf.Activator.decodePassword(properties.getProperty(
+				PROPERTIES_QC_PASSWORD, ""));
 		qcLayoutExtractor.setServerUrl(url);
 		qcLayoutExtractor.setUserName(user);
 		qcLayoutExtractor.setPassword(password);

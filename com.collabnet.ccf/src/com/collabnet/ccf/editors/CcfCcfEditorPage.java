@@ -625,7 +625,9 @@ public class CcfCcfEditorPage extends CcfEditorPage {
 			properties.setProperty(Activator.PROPERTIES_CCF_URL, getUrl());
 			properties.setProperty(Activator.PROPERTIES_CCF_DRIVER, getDriver());
 			properties.setProperty(Activator.PROPERTIES_CCF_USER, getUser());
-			properties.setProperty(Activator.PROPERTIES_CCF_PASSWORD, getPassword());
+			String previousPassword = properties.getProperty(Activator.PROPERTIES_CCF_PASSWORD);
+			boolean passwordPreviouslyEncoded = previousPassword != null && previousPassword.startsWith(Activator.OBFUSCATED_PASSWORD_PREFIX);
+			properties.setProperty(Activator.PROPERTIES_CCF_PASSWORD, Activator.encodePassword(getPassword(), passwordPreviouslyEncoded));
 			if (getLandscape().getRole() == Landscape.ROLE_ADMINISTRATOR) {
 				properties.setProperty(Activator.PROPERTIES_CCF_LOG_MESSAGE_TEMPLATE, getLogMessageTemplate());
 				if (propertiesFile1 != null) {

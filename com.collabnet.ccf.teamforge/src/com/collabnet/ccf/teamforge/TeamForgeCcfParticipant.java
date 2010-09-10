@@ -125,8 +125,8 @@ public class TeamForgeCcfParticipant extends CcfParticipant {
 		String url = properties.getProperty(PROPERTIES_SFEE_URL, "");
 		String user = properties
 				.getProperty(PROPERTIES_SFEE_USER, "");
-		String password = properties.getProperty(
-				PROPERTIES_SFEE_PASSWORD, "");
+		String password = com.collabnet.ccf.Activator.decodePassword(properties.getProperty(
+				PROPERTIES_SFEE_PASSWORD, ""));
 		TFLayoutExtractor tfLayoutExtractor = new TFLayoutExtractor(url, user, password);
 		String repositoryId = null;
 

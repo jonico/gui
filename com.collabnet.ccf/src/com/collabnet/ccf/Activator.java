@@ -123,6 +123,12 @@ public class Activator extends AbstractUIPlugin {
 	public static final String PREFERENCES_GRAPHICAL_MAPPING_AVAILABLE = "pref_graphical_mapping_available"; //$NON-NLS-1$
 	public static final String PREFERENCES_MAPFORCE_PATH = "pref_mapforce_path"; //$NON-NLS-1$
 	
+	public static final String PREFERENCES_ENCRYPT_PASSWORDS = "pref_encrypt_passwords"; //$NON-NLS-1$
+	public static final int ENCRYPT_PASSWORDS_IF_PREVIOUSLY_ENCRYPTED = 0;
+	public static final int ENCRYPT_PASSWORDS_ALWAYS = 1;
+	public static final int ENCRYPT_PASSWORDS_NEVER = 2;
+	public static final int DEFAULT_ENCRYPT_PASSWORDS = ENCRYPT_PASSWORDS_IF_PREVIOUSLY_ENCRYPTED;
+	
 	// CCF Properties
 	public static final String PROPERTIES_CCF_URL = "ccf.db.url"; //$NON-NLS-1$
 	public static final String PROPERTIES_CCF_DRIVER = "ccf.db.driver"; //$NON-NLS-1$
@@ -228,6 +234,7 @@ public class Activator extends AbstractUIPlugin {
 	public static final String CREATE_INITIAL_MFD_FILE_SEPARATOR = "-"; //$NON-NLS-1$
 	public static final String CREATE_INITIAL_MFD_FILE_UNKNOWN_ENTITY = "Unknown"; //$NON-NLS-1$
 	
+	public static final String OBFUSCATED_PASSWORD_PREFIX = "OBF:"; //$NON-NLS-1$
 	
 	/*
 	 * (non-Javadoc)
@@ -485,7 +492,9 @@ public class Activator extends AbstractUIPlugin {
 			prefs.put("databaseUrl", landscape.getDatabaseUrl()); //$NON-NLS-1$
 			prefs.put("databaseDriver", landscape.getDatabaseDriver()); //$NON-NLS-1$
 			prefs.put("databaseUser", landscape.getDatabaseUser()); //$NON-NLS-1$
-			prefs.put("databasePassword", landscape.getDatabasePassword()); //$NON-NLS-1$	
+			String previousPassword = prefs.get("databasePassword", null);
+			boolean passwordPreviouslyEncoded = previousPassword != null && previousPassword.startsWith(OBFUSCATED_PASSWORD_PREFIX);
+			prefs.put("databasePassword", encodePassword(landscape.getDatabasePassword(), passwordPreviouslyEncoded)); //$NON-NLS-1$	
 			if (landscape.getGroup() != null) prefs.put("group", landscape.getGroup());
 			if (landscape.getCcfHost1() != null) prefs.put("ccfHost1", landscape.getCcfHost1()); //$NON-NLS-1$
 			if (landscape.getCcfHost2() != null) prefs.put("ccfHost2", landscape.getCcfHost2()); //$NON-NLS-1$
@@ -626,7 +635,7 @@ public class Activator extends AbstractUIPlugin {
 					landscape.setDatabaseUrl(node.get("databaseUrl", DATABASE_DEFAULT_URL)); //$NON-NLS-1$
 					landscape.setDatabaseDriver(node.get("databaseDriver", DATABASE_DEFAULT_DRIVER)); //$NON-NLS-1$
 					landscape.setDatabaseUser(node.get("databaseUser", DATABASE_DEFAULT_USER)); //$NON-NLS-1$
-					landscape.setDatabasePassword(node.get("databasePassword", DATABASE_DEFAULT_PASSWORD)); //$NON-NLS-1$
+					landscape.setDatabasePassword(decodePassword(node.get("databasePassword", DATABASE_DEFAULT_PASSWORD))); //$NON-NLS-1$
 					
 					landscape.setLogsPath1(node.get("logsPath1", "")); //$NON-NLS-1$ //$NON-NLS-2$
 					landscape.setLogsPath2(node.get("logsPath2", "")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -901,6 +910,29 @@ public class Activator extends AbstractUIPlugin {
 	
 	private static String decode(String string) {
 		return Obfuscator.deObfuscateString(string);
+	}
+	
+	public static String encodePassword(String password, boolean previouslyEncoded) {
+		String encodedPassword = password;
+		int encryptPasswords = plugin.getPreferenceStore().getInt(PREFERENCES_ENCRYPT_PASSWORDS);
+		if (encryptPasswords == ENCRYPT_PASSWORDS_ALWAYS || ((encryptPasswords == ENCRYPT_PASSWORDS_IF_PREVIOUSLY_ENCRYPTED) && previouslyEncoded)) {
+			if (encodedPassword != null && encodedPassword.length() > 0) {
+				encodedPassword = OBFUSCATED_PASSWORD_PREFIX + encode(encodedPassword);
+			}
+		}
+		return encodedPassword;
+	}
+	
+	public static String decodePassword(String password) {
+		String decodedPassword = password;
+		if (decodedPassword != null && decodedPassword.startsWith(OBFUSCATED_PASSWORD_PREFIX)) {
+			if (decodedPassword.length() > 4) {
+				decodedPassword = decode(decodedPassword.substring(4));
+			} else {
+				decodedPassword = "";
+			}
+		}
+		return decodedPassword;
 	}
 	
 	public IProxyService getProxyService() {

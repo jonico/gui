@@ -240,7 +240,7 @@ public class Landscape implements IPropertySource {
 		String password = null;
 		ccfProperties1 = getCcfProperties1();
 		if (ccfProperties1 != null) {
-			password = ccfProperties1.getProperty(Activator.PROPERTIES_CCF_PASSWORD);
+			password = Activator.decodePassword(ccfProperties1.getProperty(Activator.PROPERTIES_CCF_PASSWORD));
 		}
 		return password;
 	}

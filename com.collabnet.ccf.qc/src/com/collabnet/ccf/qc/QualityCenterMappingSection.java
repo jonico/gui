@@ -250,8 +250,8 @@ public class QualityCenterMappingSection extends MappingSection {
 		Properties properties = landscape.getProperties1();
 		String url = properties.getProperty(Activator.PROPERTIES_QC_URL, "");
 		String user = properties.getProperty(Activator.PROPERTIES_QC_USER, "");
-		String password = properties.getProperty(
-				Activator.PROPERTIES_QC_PASSWORD, "");
+		String password = Activator.decodePassword(properties.getProperty(
+				Activator.PROPERTIES_QC_PASSWORD, ""));
 		qcLayoutExtractor.setServerUrl(url);
 		qcLayoutExtractor.setUserName(user);
 		qcLayoutExtractor.setPassword(password);

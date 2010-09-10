@@ -164,7 +164,7 @@ public class TeamForgeSelectionDialog extends CcfDialog {
 			if (properties != null) {
 				String serverUrl = properties.getProperty(Activator.PROPERTIES_SFEE_URL);
 				String userId = properties.getProperty(Activator.PROPERTIES_SFEE_USER);
-				String password = properties.getProperty(Activator.PROPERTIES_SFEE_PASSWORD);
+				String password = Activator.decodePassword(properties.getProperty(Activator.PROPERTIES_SFEE_PASSWORD));
 				soapClient = TFSoapClient.getSoapClient(serverUrl, userId, password);
 			}
 		}

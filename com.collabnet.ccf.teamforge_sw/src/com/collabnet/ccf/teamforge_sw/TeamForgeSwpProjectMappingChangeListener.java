@@ -34,7 +34,7 @@ public class TeamForgeSwpProjectMappingChangeListener implements IProjectMapping
 						if (properties != null) {
 							String serverUrl = properties.getProperty(com.collabnet.ccf.Activator.PROPERTIES_SFEE_URL);
 							String userId = properties.getProperty(com.collabnet.ccf.Activator.PROPERTIES_SFEE_USER);
-							String password = properties.getProperty(com.collabnet.ccf.Activator.PROPERTIES_SFEE_PASSWORD);
+							String password = Activator.decodePassword(properties.getProperty(com.collabnet.ccf.Activator.PROPERTIES_SFEE_PASSWORD));
 							TFSoapClient soapClient = TFSoapClient.getSoapClient(serverUrl, userId, password);
 							boolean disabled = projectMapping.getSourceRepositoryKind().equals(ScrumWorksMappingSection.TEMPLATE_TASKS);
 							String trackerId;

@@ -375,7 +375,7 @@ public class ProjectMappingWizard extends Wizard {
 			if (properties != null) {
 				String serverUrl = properties.getProperty(Activator.PROPERTIES_SFEE_URL);
 				userId = properties.getProperty(Activator.PROPERTIES_SFEE_USER);
-				String password = properties.getProperty(Activator.PROPERTIES_SFEE_PASSWORD);
+				String password = Activator.decodePassword(properties.getProperty(Activator.PROPERTIES_SFEE_PASSWORD));
 				soapClient = TFSoapClient.getSoapClient(serverUrl, userId, password);
 			}
 		}

@@ -296,7 +296,7 @@ public class ProjectTrackerSelectionDialog extends CcfDialog {
 		if (ptClient == null) {
 			String serverUrl = getPickerUrl(properties.getProperty(Activator.PROPERTIES_CEE_URL));
 			String userId = properties.getProperty(Activator.PROPERTIES_CEE_USER);
-			String password = properties.getProperty(Activator.PROPERTIES_CEE_PASSWORD);
+			String password = Activator.decodePassword(properties.getProperty(Activator.PROPERTIES_CEE_PASSWORD));
 			ptClient = PTClient.getClient(serverUrl, userId, password);
 		}
 		return ptClient;
@@ -306,7 +306,7 @@ public class ProjectTrackerSelectionDialog extends CcfDialog {
 		if (tfClient == null) {
 			String serverUrl = getPickerUrl(properties.getProperty(Activator.PROPERTIES_CEE_URL));
 			String userId = properties.getProperty(Activator.PROPERTIES_CEE_USER);
-			String password = properties.getProperty(Activator.PROPERTIES_CEE_PASSWORD);
+			String password = Activator.decodePassword(properties.getProperty(Activator.PROPERTIES_CEE_PASSWORD));
 			Connection connection = Connection.getConnection(serverUrl, userId, password, null, null, null, false);
 			Connection.setEngineConfiguration(getEngineConfiguration());	
 			tfClient = connection.getTeamForgeClient();

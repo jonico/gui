@@ -410,7 +410,7 @@ public class HospitalView extends ViewPart {
 					landscape.setDatabaseUrl(Activator.getDefault().getPreferenceStore().getString(Activator.PREFERENCES_DATABASE_URL));
 					landscape.setDatabaseDriver(Activator.getDefault().getPreferenceStore().getString(Activator.PREFERENCES_DATABASE_DRIVER));
 					landscape.setDatabaseUser(Activator.getDefault().getPreferenceStore().getString(Activator.PREFERENCES_DATABASE_USER));
-					landscape.setDatabasePassword(Activator.getDefault().getPreferenceStore().getString(Activator.PREFERENCES_DATABASE_PASSWORD));
+					landscape.setDatabasePassword(Activator.decodePassword(Activator.getDefault().getPreferenceStore().getString(Activator.PREFERENCES_DATABASE_PASSWORD)));
 				}
 				if (contentDescription == null) setContentDescription("");
 				else setContentDescription(contentDescription);

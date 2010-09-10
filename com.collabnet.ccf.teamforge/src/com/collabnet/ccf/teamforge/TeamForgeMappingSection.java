@@ -225,7 +225,7 @@ public class TeamForgeMappingSection extends MappingSection {
 			if (properties != null) {
 				String serverUrl = properties.getProperty(Activator.PROPERTIES_SFEE_URL);
 				String userId = properties.getProperty(Activator.PROPERTIES_SFEE_USER);
-				String password = properties.getProperty(Activator.PROPERTIES_SFEE_PASSWORD);
+				String password = Activator.decodePassword(properties.getProperty(Activator.PROPERTIES_SFEE_PASSWORD));
 				TFSoapClient soapClient = TFSoapClient.getSoapClient(serverUrl, userId, password);
 				if (!soapClient.supports53()) {
 					showValidationErrorDialog("Server does not support planning folders.");

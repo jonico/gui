@@ -474,37 +474,37 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 		url = properties.getProperty(Activator.PROPERTIES_CEE_URL, "");
 		user = properties.getProperty(Activator.PROPERTIES_CEE_USER, "");
 		displayName = properties.getProperty(Activator.PROPERTIES_CEE_DISPLAY_NAME, "");
-		password = properties.getProperty(Activator.PROPERTIES_CEE_PASSWORD, "");	
+		password = Activator.decodePassword(properties.getProperty(Activator.PROPERTIES_CEE_PASSWORD, ""));	
 		resyncUser = properties.getProperty(Activator.PROPERTIES_CEE_RESYNC_USER, "");
 		resyncDisplayName = properties.getProperty(Activator.PROPERTIES_CEE_RESYNC_DISPLAY_NAME, "");
-		resyncPassword = properties.getProperty(Activator.PROPERTIES_CEE_RESYNC_PASSWORD, "");
+		resyncPassword = Activator.decodePassword(properties.getProperty(Activator.PROPERTIES_CEE_RESYNC_PASSWORD, ""));
 		attachmentSize = properties.getProperty(Activator.PROPERTIES_CEE_ATTACHMENT_SIZE, "10485760");			
 	}
 	
 	private void initializeQcValues() {
 		url = properties.getProperty(Activator.PROPERTIES_QC_URL, "");
 		user = properties.getProperty(Activator.PROPERTIES_QC_USER, "");
-		password = properties.getProperty(Activator.PROPERTIES_QC_PASSWORD, "");
+		password = Activator.decodePassword(properties.getProperty(Activator.PROPERTIES_QC_PASSWORD, ""));
 		resyncUser = properties.getProperty(Activator.PROPERTIES_QC_RESYNC_USER,"");
-		resyncPassword = properties.getProperty(Activator.PROPERTIES_QC_RESYNC_PASSWORD, "");	
+		resyncPassword = Activator.decodePassword(properties.getProperty(Activator.PROPERTIES_QC_RESYNC_PASSWORD, ""));	
 		attachmentSize = properties.getProperty(Activator.PROPERTIES_QC_ATTACHMENT_SIZE, "10485760");
 	}
 	
 	private void initializeTeamForgeValues() {
 		url = properties.getProperty(Activator.PROPERTIES_SFEE_URL, "");
 		user = properties.getProperty(Activator.PROPERTIES_SFEE_USER, "");
-		password = properties.getProperty(Activator.PROPERTIES_SFEE_PASSWORD, "");	
+		password = Activator.decodePassword(properties.getProperty(Activator.PROPERTIES_SFEE_PASSWORD, ""));	
 		resyncUser = properties.getProperty(Activator.PROPERTIES_SFEE_RESYNC_USER, "");
-		resyncPassword = properties.getProperty(Activator.PROPERTIES_SFEE_RESYNC_PASSWORD, "");	
+		resyncPassword = Activator.decodePassword(properties.getProperty(Activator.PROPERTIES_SFEE_RESYNC_PASSWORD, ""));	
 		attachmentSize = properties.getProperty(Activator.PROPERTIES_SFEE_ATTACHMENT_SIZE, "10485760");	
 	}
 	
 	private void initializeSwValues() {
 		url = properties.getProperty(Activator.PROPERTIES_SW_URL, "");
 		user = properties.getProperty(Activator.PROPERTIES_SW_USER, "");
-		password = properties.getProperty(Activator.PROPERTIES_SW_PASSWORD, "");	
+		password = Activator.decodePassword(properties.getProperty(Activator.PROPERTIES_SW_PASSWORD, ""));	
 		resyncUser = properties.getProperty(Activator.PROPERTIES_SW_RESYNC_USER, "");
-		resyncPassword = properties.getProperty(Activator.PROPERTIES_SW_RESYNC_PASSWORD, "");	
+		resyncPassword = Activator.decodePassword(properties.getProperty(Activator.PROPERTIES_SW_RESYNC_PASSWORD, ""));	
 		attachmentSize = properties.getProperty(Activator.PROPERTIES_SW_ATTACHMENT_SIZE, "10485760");	
 	}
 	
@@ -522,22 +522,32 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 	}
 	
 	private void setCeeProperties() throws Exception {
+		String password = properties.getProperty(Activator.PROPERTIES_CEE_PASSWORD);
+		boolean passwordPreviouslyEncoded = password != null && password.startsWith(Activator.OBFUSCATED_PASSWORD_PREFIX);
+		password = properties.getProperty(Activator.PROPERTIES_CEE_RESYNC_PASSWORD);
+		boolean resyncPasswordPreviouslyEncoded = password != null && password.startsWith(Activator.OBFUSCATED_PASSWORD_PREFIX);
+		
 		properties.setProperty(Activator.PROPERTIES_CEE_URL, urlText.getText().trim());
 		properties.setProperty(Activator.PROPERTIES_CEE_USER, userText.getText().trim());
 		properties.setProperty(Activator.PROPERTIES_CEE_DISPLAY_NAME, displayNameText.getText().trim());
-		properties.setProperty(Activator.PROPERTIES_CEE_PASSWORD, passwordText.getText().trim());		
+		properties.setProperty(Activator.PROPERTIES_CEE_PASSWORD, Activator.encodePassword(passwordText.getText().trim(), passwordPreviouslyEncoded));		
 		properties.setProperty(Activator.PROPERTIES_CEE_RESYNC_USER, resyncUserText.getText().trim());
 		properties.setProperty(Activator.PROPERTIES_CEE_RESYNC_DISPLAY_NAME, resyncDisplayNameText.getText().trim());
-		properties.setProperty(Activator.PROPERTIES_CEE_RESYNC_PASSWORD, resyncPasswordText.getText().trim());
+		properties.setProperty(Activator.PROPERTIES_CEE_RESYNC_PASSWORD, Activator.encodePassword(resyncPasswordText.getText().trim(), resyncPasswordPreviouslyEncoded));
 		properties.setProperty(Activator.PROPERTIES_CEE_ATTACHMENT_SIZE, attachmentSizeText.getText().trim());		
 	}
 	
 	private void setQcProperties() throws Exception {
+		String password = properties.getProperty(Activator.PROPERTIES_QC_PASSWORD);
+		boolean passwordPreviouslyEncoded = password != null && password.startsWith(Activator.OBFUSCATED_PASSWORD_PREFIX);
+		password = properties.getProperty(Activator.PROPERTIES_QC_RESYNC_PASSWORD);
+		boolean resyncPasswordPreviouslyEncoded = password != null && password.startsWith(Activator.OBFUSCATED_PASSWORD_PREFIX);
+		
 		properties.setProperty(Activator.PROPERTIES_QC_URL, urlText.getText().trim());
 		properties.setProperty(Activator.PROPERTIES_QC_USER, userText.getText().trim());
-		properties.setProperty(Activator.PROPERTIES_QC_PASSWORD, passwordText.getText().trim());		
+		properties.setProperty(Activator.PROPERTIES_QC_PASSWORD, Activator.encodePassword(passwordText.getText().trim(), passwordPreviouslyEncoded));		
 		properties.setProperty(Activator.PROPERTIES_QC_RESYNC_USER, resyncUserText.getText().trim());
-		properties.setProperty(Activator.PROPERTIES_QC_RESYNC_PASSWORD, resyncPasswordText.getText().trim());
+		properties.setProperty(Activator.PROPERTIES_QC_RESYNC_PASSWORD, Activator.encodePassword(resyncPasswordText.getText().trim(), resyncPasswordPreviouslyEncoded));
 		properties.setProperty(Activator.PROPERTIES_QC_ATTACHMENT_SIZE, attachmentSizeText.getText().trim());
 	}
 	
@@ -547,20 +557,30 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 	}
 	
 	private void setTeamForgeProperties() throws Exception {
+		String password = properties.getProperty(Activator.PROPERTIES_SFEE_PASSWORD);
+		boolean passwordPreviouslyEncoded = password != null && password.startsWith(Activator.OBFUSCATED_PASSWORD_PREFIX);
+		password = properties.getProperty(Activator.PROPERTIES_SFEE_RESYNC_PASSWORD);
+		boolean resyncPasswordPreviouslyEncoded = password != null && password.startsWith(Activator.OBFUSCATED_PASSWORD_PREFIX);
+		
 		properties.setProperty(Activator.PROPERTIES_SFEE_URL, urlText.getText().trim());
 		properties.setProperty(Activator.PROPERTIES_SFEE_USER, userText.getText().trim());
-		properties.setProperty(Activator.PROPERTIES_SFEE_PASSWORD, passwordText.getText().trim());		
+		properties.setProperty(Activator.PROPERTIES_SFEE_PASSWORD, Activator.encodePassword(passwordText.getText().trim(), passwordPreviouslyEncoded));		
 		properties.setProperty(Activator.PROPERTIES_SFEE_RESYNC_USER, resyncUserText.getText().trim());
-		properties.setProperty(Activator.PROPERTIES_SFEE_RESYNC_PASSWORD, resyncPasswordText.getText().trim());
+		properties.setProperty(Activator.PROPERTIES_SFEE_RESYNC_PASSWORD, Activator.encodePassword(resyncPasswordText.getText().trim(), resyncPasswordPreviouslyEncoded));
 		properties.setProperty(Activator.PROPERTIES_SFEE_ATTACHMENT_SIZE, attachmentSizeText.getText().trim());
 	}
 	
 	private void setSwProperties() throws Exception {
+		String password = properties.getProperty(Activator.PROPERTIES_SW_PASSWORD);
+		boolean passwordPreviouslyEncoded = password != null && password.startsWith(Activator.OBFUSCATED_PASSWORD_PREFIX);
+		password = properties.getProperty(Activator.PROPERTIES_SW_RESYNC_PASSWORD);
+		boolean resyncPasswordPreviouslyEncoded = password != null && password.startsWith(Activator.OBFUSCATED_PASSWORD_PREFIX);
+		
 		properties.setProperty(Activator.PROPERTIES_SW_URL, urlText.getText().trim());
 		properties.setProperty(Activator.PROPERTIES_SW_USER, userText.getText().trim());
-		properties.setProperty(Activator.PROPERTIES_SW_PASSWORD, passwordText.getText().trim());		
+		properties.setProperty(Activator.PROPERTIES_SW_PASSWORD, Activator.encodePassword(passwordText.getText().trim(), passwordPreviouslyEncoded));		
 		properties.setProperty(Activator.PROPERTIES_SW_RESYNC_USER, resyncUserText.getText().trim());
-		properties.setProperty(Activator.PROPERTIES_SW_RESYNC_PASSWORD, resyncPasswordText.getText().trim());
+		properties.setProperty(Activator.PROPERTIES_SW_RESYNC_PASSWORD, Activator.encodePassword(resyncPasswordText.getText().trim(), resyncPasswordPreviouslyEncoded));
 		properties.setProperty(Activator.PROPERTIES_SW_ATTACHMENT_SIZE, attachmentSizeText.getText().trim());
 	}
 

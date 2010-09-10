@@ -36,6 +36,10 @@ public class CcfPreferencePage extends PreferencePage implements IWorkbenchPrefe
 	
 	private Text resetDelayText;
 	
+	private Button encryptIfPreviouslyEncryptedButton;
+	private Button encryptAlwaysButton;
+	private Button encryptNeverButton;
+	
 	private IPreferenceStore store = Activator.getDefault().getPreferenceStore();
 	
 	public static final String ID = "com.collabnet.ccf.preferences";
@@ -130,6 +134,22 @@ public class CcfPreferencePage extends PreferencePage implements IWorkbenchPrefe
 			}			
 		});
 		
+		Group encryptGroup = new Group(composite, SWT.NULL);
+		GridLayout encryptLayout = new GridLayout();
+		encryptLayout.numColumns = 1;
+		encryptGroup.setLayout(encryptLayout);
+		gd = new GridData(GridData.FILL_HORIZONTAL);
+		gd.horizontalSpan = 2;
+		encryptGroup.setLayoutData(gd);	
+		encryptGroup.setText("Encrypt passwords:");
+		
+		encryptIfPreviouslyEncryptedButton = new Button(encryptGroup, SWT.RADIO);
+		encryptIfPreviouslyEncryptedButton.setText("If previously encrypted");
+		encryptAlwaysButton = new Button(encryptGroup, SWT.RADIO);
+		encryptAlwaysButton.setText("Always");	
+		encryptNeverButton = new Button(encryptGroup, SWT.RADIO);
+		encryptNeverButton.setText("Never");
+		
 		Label resetDelayLabel = new Label(composite, SWT.NONE);
 		resetDelayLabel.setText("Reset synchronization status delay (seconds):");
 		resetDelayText = new Text(composite, SWT.BORDER);
@@ -153,13 +173,15 @@ public class CcfPreferencePage extends PreferencePage implements IWorkbenchPrefe
 			!(urlText.getText().trim().equals(store.getString(Activator.PREFERENCES_DATABASE_URL))) ||
 			!(driverText.getText().trim().equals(store.getString(Activator.PREFERENCES_DATABASE_DRIVER))) ||
 			!(userText.getText().trim().equals(store.getString(Activator.PREFERENCES_DATABASE_USER))) ||
-			!(passwordText.getText().trim().equals(store.getString(Activator.PREFERENCES_DATABASE_PASSWORD)));			
+			!(passwordText.getText().trim().equals(Activator.decodePassword(store.getString(Activator.PREFERENCES_DATABASE_PASSWORD))));			
 		boolean showHospitalChanged = store.getBoolean(Activator.PREFERENCES_SHOW_HOSPITAL_COUNT) != hospitalCountButton.getSelection();
+		String previousPassword = store.getString(Activator.PREFERENCES_DATABASE_PASSWORD);
+		boolean passwordPreviouslyEncoded = previousPassword != null && previousPassword.startsWith(Activator.OBFUSCATED_PASSWORD_PREFIX);
 		store.setValue(Activator.PREFERENCES_DATABASE_DESCRIPTION, descriptionCombo.getText().trim());
 		store.setValue(Activator.PREFERENCES_DATABASE_URL, urlText.getText().trim());
 		store.setValue(Activator.PREFERENCES_DATABASE_DRIVER, driverText.getText().trim());
 		store.setValue(Activator.PREFERENCES_DATABASE_USER, userText.getText().trim());
-		store.setValue(Activator.PREFERENCES_DATABASE_PASSWORD, passwordText.getText().trim());
+		store.setValue(Activator.PREFERENCES_DATABASE_PASSWORD, Activator.encodePassword(passwordText.getText().trim(), passwordPreviouslyEncoded));
 		store.setValue(Activator.PREFERENCES_AUTOCONNECT, autoConnectButton.getSelection());
 		int resetDelay = Activator.DEFAULT_RESET_DELAY;
 		try {
@@ -170,6 +192,15 @@ public class CcfPreferencePage extends PreferencePage implements IWorkbenchPrefe
 			HospitalView.getView().refresh();
 		}
 		store.setValue(Activator.PREFERENCES_SHOW_HOSPITAL_COUNT, hospitalCountButton.getSelection());
+		if (encryptAlwaysButton.getSelection()) {
+			store.setValue(Activator.PREFERENCES_ENCRYPT_PASSWORDS, Activator.ENCRYPT_PASSWORDS_ALWAYS);
+		}
+		else if (encryptNeverButton.getSelection()) {
+			store.setValue(Activator.PREFERENCES_ENCRYPT_PASSWORDS, Activator.ENCRYPT_PASSWORDS_NEVER);
+		}
+		else {
+			store.setValue(Activator.PREFERENCES_ENCRYPT_PASSWORDS, Activator.ENCRYPT_PASSWORDS_IF_PREVIOUSLY_ENCRYPTED);
+		}
 		if (showHospitalChanged && CcfExplorerView.getView() != null) {
 			CcfExplorerView.getView().refreshProjectMappings();
 		}
@@ -185,6 +216,9 @@ public class CcfPreferencePage extends PreferencePage implements IWorkbenchPrefe
 		autoConnectButton.setSelection(Activator.DEFAULT_AUTOCONNECT);
 		resetDelayText.setText(Integer.toString(Activator.DEFAULT_RESET_DELAY));
 		hospitalCountButton.setSelection(Activator.DEFAULT_SHOW_HOSPITAL_COUNT);
+		encryptIfPreviouslyEncryptedButton.setSelection(true);
+		encryptAlwaysButton.setSelection(false);
+		encryptNeverButton.setSelection(false);
 		super.performDefaults();
 	}
 
@@ -197,10 +231,22 @@ public class CcfPreferencePage extends PreferencePage implements IWorkbenchPrefe
 		urlText.setText(store.getString(Activator.PREFERENCES_DATABASE_URL));
 		driverText.setText(store.getString(Activator.PREFERENCES_DATABASE_DRIVER));
 		userText.setText(store.getString(Activator.PREFERENCES_DATABASE_USER));
-		passwordText.setText(store.getString(Activator.PREFERENCES_DATABASE_PASSWORD));
+		passwordText.setText(Activator.decodePassword(store.getString(Activator.PREFERENCES_DATABASE_PASSWORD)));
 		autoConnectButton.setSelection(store.getBoolean(Activator.PREFERENCES_AUTOCONNECT));
 		resetDelayText.setText(Integer.toString(store.getInt(Activator.PREFERENCES_RESET_DELAY)));
 		hospitalCountButton.setSelection(store.getBoolean(Activator.PREFERENCES_SHOW_HOSPITAL_COUNT));
+		int encrypt = store.getInt(Activator.PREFERENCES_ENCRYPT_PASSWORDS);
+		switch (encrypt) {
+		case Activator.ENCRYPT_PASSWORDS_ALWAYS:
+			encryptAlwaysButton.setSelection(true);
+			break;
+		case Activator.ENCRYPT_PASSWORDS_NEVER:
+			encryptNeverButton.setSelection(true);
+			break;			
+		default:
+			encryptIfPreviouslyEncryptedButton.setSelection(true);
+			break;
+		}
 	}
 
 }

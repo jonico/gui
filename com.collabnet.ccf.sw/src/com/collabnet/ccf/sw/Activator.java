@@ -138,7 +138,7 @@ public class Activator extends AbstractUIPlugin {
 		
 		String url = properties.get(PROPERTIES_SW_URL).toString();
 		String user = properties.get(PROPERTIES_SW_USER).toString();
-		String password = properties.get(PROPERTIES_SW_PASSWORD).toString();	
+		String password = com.collabnet.ccf.Activator.decodePassword(properties.get(PROPERTIES_SW_PASSWORD).toString());	
 		
 		return getScrumWorksEndpoint(url, user, password);
 	}
