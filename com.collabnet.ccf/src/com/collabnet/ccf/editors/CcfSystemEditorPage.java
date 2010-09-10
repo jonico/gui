@@ -465,6 +465,7 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 				properties.store(outputStream, null);
 				outputStream.close();
 			}
+			timezone = timeZonesCombo.getText();
 		} catch (Exception e) {
 			Activator.handleError(e);
 		}		
