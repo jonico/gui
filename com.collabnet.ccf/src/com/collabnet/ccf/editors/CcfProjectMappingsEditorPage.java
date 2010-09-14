@@ -338,7 +338,11 @@ public class CcfProjectMappingsEditorPage extends CcfEditorPage implements IProj
 					NewProjectMappingWizard wizard = new NewProjectMappingWizard(projectMappings);
 					if (tableViewer == tableViewer1) wizard.setDirection(0);
 					else wizard.setDirection(1);
-					WizardDialog dialog = new CustomWizardDialog(Display.getDefault().getActiveShell(), wizard);
+					String dialogId = null;
+					if (getLandscape() != null) {
+						dialogId = getLandscape().getType1() + "_" + getLandscape().getType2();
+					}
+					WizardDialog dialog = new CustomWizardDialog(Display.getDefault().getActiveShell(), wizard, dialogId);
 					if (dialog.open() == WizardDialog.OK) {
 						refresh();
 						if (CcfExplorerView.getView() != null) {

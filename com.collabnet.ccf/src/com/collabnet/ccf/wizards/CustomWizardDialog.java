@@ -10,10 +10,16 @@ import com.collabnet.ccf.Activator;
 
 public class CustomWizardDialog extends WizardDialog {
 	private IDialogSettings settings;
+	private String dialogId;
 	
 	public CustomWizardDialog(Shell parentShell, IWizard wizard) {
 		super(parentShell, wizard);
 		settings = Activator.getDefault().getDialogSettings();	
+	}
+	
+	public CustomWizardDialog(Shell parentShell, IWizard wizard, String dialogId) {
+		this(parentShell, wizard);
+		this.dialogId = dialogId;
 	}
 	
     protected void cancelPressed() {
@@ -33,8 +39,8 @@ public class CustomWizardDialog extends WizardDialog {
 
 	protected Point getInitialLocation(Point initialSize) {
 	    try {
-	        int x = settings.getInt(getWizard().getClass().getName() + ".location.x"); //$NON-NLS-1$
-	        int y = settings.getInt(getWizard().getClass().getName() + ".location.y"); //$NON-NLS-1$
+	        int x = settings.getInt(getDialogKey() + ".location.x"); //$NON-NLS-1$
+	        int y = settings.getInt(getDialogKey() + ".location.y"); //$NON-NLS-1$
 	        return new Point(x, y);
 	    } catch (NumberFormatException e) {}
 	    return super.getInitialLocation(initialSize);
@@ -42,8 +48,8 @@ public class CustomWizardDialog extends WizardDialog {
 	
 	protected Point getInitialSize() {
 	    try {
-	        int x = settings.getInt(getWizard().getClass().getName() + ".size.x"); //$NON-NLS-1$
-	        int y = settings.getInt(getWizard().getClass().getName() + ".size.y"); //$NON-NLS-1$
+	        int x = settings.getInt(getDialogKey() + ".size.x"); //$NON-NLS-1$
+	        int y = settings.getInt(getDialogKey() + ".size.y"); //$NON-NLS-1$
 	        return new Point(x, y);
 	    } catch (NumberFormatException e) {}		
 		 return super.getInitialSize();
@@ -52,11 +58,19 @@ public class CustomWizardDialog extends WizardDialog {
 	protected void saveLocation() {
         int x = getShell().getLocation().x;
         int y = getShell().getLocation().y;
-        settings.put(getWizard().getClass().getName() + ".location.x", x); //$NON-NLS-1$
-        settings.put(getWizard().getClass().getName() + ".location.y", y); //$NON-NLS-1$  
+        settings.put(getDialogKey() + ".location.x", x); //$NON-NLS-1$
+        settings.put(getDialogKey() + ".location.y", y); //$NON-NLS-1$  
         x = getShell().getSize().x;
         y = getShell().getSize().y; 
-        settings.put(getWizard().getClass().getName() + ".size.x", x); //$NON-NLS-1$
-        settings.put(getWizard().getClass().getName() + ".size.y", y); //$NON-NLS-1$    
-	}	
+        settings.put(getDialogKey() + ".size.x", x); //$NON-NLS-1$
+        settings.put(getDialogKey() + ".size.y", y); //$NON-NLS-1$    
+	}
+	
+	private String getDialogKey() {
+		if (dialogId == null) {
+			return getWizard().getClass().getName();
+		} else {
+			return getWizard().getClass().getName() + "." + dialogId;
+		}
+	}
 }
