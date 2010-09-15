@@ -447,7 +447,11 @@ public class Activator extends AbstractUIPlugin {
 	
 	public boolean storeRole(Role role) {
 		Preferences prefs = getInstancePreferences().node(PREF_CCF_ROLES_NODE).node(role.getName());
-		prefs.put(PREF_CCF_ROLES_PASSWORD, encode(role.getPassword()));
+		if (role.getPassword() == null) {
+			prefs.put(PREF_CCF_ROLES_PASSWORD, "");
+		} else {
+			prefs.put(PREF_CCF_ROLES_PASSWORD, encode(role.getPassword()));
+		}
 		prefs.putBoolean(PREF_CCF_ROLES_ADD_LANDSCAPE, role.isAddLandscape());
 		prefs.putBoolean(PREF_CCF_ROLES_EDIT_LANDSCAPE, role.isEditLandscape());
 		prefs.putBoolean(PREF_CCF_ROLES_DELETE_LANDSCAPE, role.isDeleteLandscape());
@@ -905,10 +909,16 @@ public class Activator extends AbstractUIPlugin {
 	}
 	
 	private static String encode(String string) {
+		if (string == null) {
+			return null;
+		}
 		return Obfuscator.obfuscateString(string);
 	}
 	
 	private static String decode(String string) {
+		if (string == null) {
+			return null;
+		}
 		return Obfuscator.deObfuscateString(string);
 	}
 	
