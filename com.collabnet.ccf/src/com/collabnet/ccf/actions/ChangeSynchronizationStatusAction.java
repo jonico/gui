@@ -6,19 +6,24 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.actions.ActionDelegate;
 
 import com.collabnet.ccf.Activator;
+import com.collabnet.ccf.db.CcfDataProvider;
+import com.collabnet.ccf.db.Filter;
+import com.collabnet.ccf.db.Update;
 import com.collabnet.ccf.dialogs.ChangeProjectMappingDialog;
+import com.collabnet.ccf.dialogs.ProjectMappingRenameDialog;
 import com.collabnet.ccf.model.ProjectMappings;
 import com.collabnet.ccf.model.SynchronizationStatus;
 
 public class ChangeSynchronizationStatusAction extends ActionDelegate {
 	private IStructuredSelection fSelection;
+	private String oldSourceRepositoryId;
 
 	@SuppressWarnings("unchecked")
 	public void run(IAction action) {
@@ -28,7 +33,7 @@ public class ChangeSynchronizationStatusAction extends ActionDelegate {
 		while (iter.hasNext()) {
 			Object object = iter.next();
 			if (object instanceof SynchronizationStatus) {
-				SynchronizationStatus status = (SynchronizationStatus)object;
+				final SynchronizationStatus status = (SynchronizationStatus)object;
 				File xslFile = status.getXslFile();
 				File graphicalXslFile = status.getGraphicalXslFile();
 				File sourceRepositorySchemaFile = status.getSourceRepositorySchemaFile();
@@ -38,6 +43,8 @@ public class ChangeSynchronizationStatusAction extends ActionDelegate {
 				File sourceRepositorySchemaToGenericArtifactFile = status.getSourceRepositorySchemaToGenericArtifactFile();
 				File targetRepositorySchemaToGenericArtifactFile = status.getTargetRepositorySchemaToGenericArtifactFile();
 				
+				oldSourceRepositoryId = status.getSourceRepositoryId();
+				final String oldTargetRepositoryId = status.getTargetRepositoryId();
 				ChangeProjectMappingDialog dialog = new ChangeProjectMappingDialog(Display.getDefault().getActiveShell(), status);
 				if (dialog.open() == ChangeProjectMappingDialog.CANCEL) return;
 				if (!projectMappingsList.contains(status.getProjectMappings())) {
@@ -61,7 +68,10 @@ public class ChangeSynchronizationStatusAction extends ActionDelegate {
 						(genericArtifactToTargetRepositorySchemaFile != null && genericArtifactToTargetRepositorySchemaFile.exists() && !newGenericArtifactToTargetRepositorySchemaFile.exists()) ||					
 						(sourceRepositorySchemaToGenericArtifactFile != null && sourceRepositorySchemaToGenericArtifactFile.exists() && !newSourceRepositorySchemaToGenericArtifactFile.exists()) ||			
 						(targetRepositorySchemaToGenericArtifactFile != null && targetRepositorySchemaToGenericArtifactFile.exists() && !newTargetRepositorySchemaToGenericArtifactFile.exists())) {		
-						if (MessageDialog.openQuestion(Display.getDefault().getActiveShell(), "Change Project Mapping", "Do you wish to rename field mapping files?")) {
+						ProjectMappingRenameDialog renameDialog = new ProjectMappingRenameDialog(Display.getDefault().getActiveShell(), true, true);
+						renameDialog.open();
+//						if (MessageDialog.openQuestion(Display.getDefault().getActiveShell(), "Change Project Mapping", "Do you wish to rename field mapping files?")) {
+						if (renameDialog.isRenameFiles()) {
 							if (xslFile != null && xslFile.exists() && !newXslFile.exists()) {
 								xslFile.renameTo(newXslFile);
 							}
@@ -86,7 +96,57 @@ public class ChangeSynchronizationStatusAction extends ActionDelegate {
 							if (targetRepositorySchemaToGenericArtifactFile != null && targetRepositorySchemaToGenericArtifactFile.exists() && !newTargetRepositorySchemaToGenericArtifactFile.exists()) {
 								targetRepositorySchemaToGenericArtifactFile.renameTo(newTargetRepositorySchemaToGenericArtifactFile);
 							}								
-						}					
+						}	
+						if (renameDialog.isUpdateIdentityMappings()) {
+							BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
+								public void run() {
+									try {
+										CcfDataProvider dataProvider = new CcfDataProvider();
+										if (!oldSourceRepositoryId.equals(status.getSourceRepositoryId())) {
+											Filter sourceSystemFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_SOURCE_SYSTEM_ID, status.getSourceSystemId(), true);
+											Filter sourceRepositoryFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_SOURCE_REPOSITORY_ID, oldSourceRepositoryId, true);
+											Filter targetSystemFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_TARGET_SYSTEM_ID, status.getTargetSystemId(), true);
+											Filter targetRepositoryFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_TARGET_REPOSITORY_ID, oldTargetRepositoryId, true);
+											Filter[] filters = { sourceSystemFilter, sourceRepositoryFilter, targetSystemFilter, targetRepositoryFilter };										
+											Update sourceRepositoryUpdate = new Update(CcfDataProvider.IDENTITY_MAPPING_SOURCE_REPOSITORY_ID, status.getSourceRepositoryId());
+											Update[] updates = { sourceRepositoryUpdate };
+											dataProvider.updateIdentityMappings(status.getLandscape(), updates, filters);
+											// Update reverse
+											sourceSystemFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_SOURCE_SYSTEM_ID, status.getTargetSystemId(), true);
+											sourceRepositoryFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_SOURCE_REPOSITORY_ID, oldTargetRepositoryId, true);
+											targetSystemFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_TARGET_SYSTEM_ID, status.getSourceSystemId(), true);
+											targetRepositoryFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_TARGET_REPOSITORY_ID, oldSourceRepositoryId, true);
+											Filter[] reverseFilters = { sourceSystemFilter, sourceRepositoryFilter, targetSystemFilter, targetRepositoryFilter };										
+											Update targetRepositoryUpdate = new Update(CcfDataProvider.IDENTITY_MAPPING_TARGET_REPOSITORY_ID, status.getSourceRepositoryId());
+											Update[] reverseUpdates = { targetRepositoryUpdate };
+											dataProvider.updateIdentityMappings(status.getLandscape(), reverseUpdates, reverseFilters);
+											oldSourceRepositoryId = status.getSourceRepositoryId();
+										}
+										if (!oldTargetRepositoryId.equals(status.getTargetRepositoryId())) {
+											Filter sourceSystemFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_SOURCE_SYSTEM_ID, status.getSourceSystemId(), true);
+											Filter sourceRepositoryFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_SOURCE_REPOSITORY_ID, oldSourceRepositoryId, true);
+											Filter targetSystemFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_TARGET_SYSTEM_ID, status.getTargetSystemId(), true);
+											Filter targetRepositoryFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_TARGET_REPOSITORY_ID, oldTargetRepositoryId, true);
+											Filter[] filters = { sourceSystemFilter, sourceRepositoryFilter, targetSystemFilter, targetRepositoryFilter };										
+											Update targetRepositoryUpdate = new Update(CcfDataProvider.IDENTITY_MAPPING_TARGET_REPOSITORY_ID, status.getTargetRepositoryId());
+											Update[] updates = { targetRepositoryUpdate };
+											dataProvider.updateIdentityMappings(status.getLandscape(), updates, filters);
+											// Update reverse
+											sourceSystemFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_SOURCE_SYSTEM_ID, status.getTargetSystemId(), true);
+											sourceRepositoryFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_SOURCE_REPOSITORY_ID, oldTargetRepositoryId, true);
+											targetSystemFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_TARGET_SYSTEM_ID, status.getSourceSystemId(), true);
+											targetRepositoryFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_TARGET_REPOSITORY_ID, oldSourceRepositoryId, true);
+											Filter[] reverseFilters = { sourceSystemFilter, sourceRepositoryFilter, targetSystemFilter, targetRepositoryFilter };										
+											Update sourceRepositoryUpdate = new Update(CcfDataProvider.IDENTITY_MAPPING_SOURCE_REPOSITORY_ID, status.getTargetRepositoryId());
+											Update[] reverseUpdates = { sourceRepositoryUpdate };
+											dataProvider.updateIdentityMappings(status.getLandscape(), reverseUpdates, reverseFilters);
+										}
+									} catch (Exception e) {
+										Activator.handleDatabaseError(e, false, true, "Update Identity Mappings");
+									}
+								}								
+							});
+						}
 					}
 				}
 				mappingsChanged = true;
@@ -104,7 +164,11 @@ public class ChangeSynchronizationStatusAction extends ActionDelegate {
 			fSelection= (IStructuredSelection) sel;
 		}
 		if (action != null) {
-			action.setEnabled(Activator.getDefault().getActiveRole().isChangeProjectMapping());
+			boolean paused = false;
+			if (fSelection != null && fSelection.getFirstElement() instanceof SynchronizationStatus) {
+				paused = ((SynchronizationStatus)fSelection.getFirstElement()).isPaused();
+			}
+			action.setEnabled(Activator.getDefault().getActiveRole().isChangeProjectMapping() && paused);
 		}
 	}	
 	
