@@ -63,7 +63,6 @@ import com.collabnet.ccf.model.IdentityMapping;
 import com.collabnet.ccf.model.Landscape;
 import com.collabnet.ccf.preferences.CcfPreferencePage;
 import com.collabnet.ccf.preferences.IdentityMappingPreferencePage;
-import com.collabnet.ccf.views.HospitalView.HospitalSorter;
 
 public class IdentityMappingView extends ViewPart {
 	private Composite parentComposite;
@@ -374,7 +373,7 @@ public class IdentityMappingView extends ViewPart {
 		}
 		tableViewer.getTable().setSortColumn(tableViewer.getTable().getColumn(column));
 		String columnName = tableViewer.getTable().getColumn(column).getText();
-		HospitalSorter sorter = (HospitalSorter)tableViewer.getSorter();
+		IdentityMappingSorter sorter = (IdentityMappingSorter)tableViewer.getSorter();
 		settings.put("IdentityMappingView.sortColumn", columnName);
 		settings.put("IdentityMappingView.sortReversed", sorter.isReversed());
 	}
