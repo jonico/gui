@@ -10,14 +10,14 @@ import org.eclipse.swt.widgets.Shell;
 
 public class ProjectMappingRenameDialog extends CcfDialog {
 	private Button renameFilesButton;
-	private Button updateIdentityMappingsButton;
+	private Button updateDatabaseButton;
 	private boolean renameFiles;
-	private boolean updateIdentityMappings;
+	private boolean updateDatabase;
 
 	public ProjectMappingRenameDialog(Shell shell, boolean renameFiles, boolean updateIdentityMappings) {
 		super(shell, "renameProjectMappingDialog");
 		this.renameFiles = renameFiles;
-		this.updateIdentityMappings = updateIdentityMappings;
+		this.updateDatabase = updateIdentityMappings;
 	}
 	
 	protected Control createDialogArea(Composite parent) {
@@ -34,10 +34,10 @@ public class ProjectMappingRenameDialog extends CcfDialog {
 			renameFilesButton.setSelection(true);
 		}
 		
-		if (updateIdentityMappings) {
-			updateIdentityMappingsButton = new Button(composite, SWT.CHECK);
-			updateIdentityMappingsButton.setText("Update identity mappings");
-			updateIdentityMappingsButton.setSelection(true);
+		if (updateDatabase) {
+			updateDatabaseButton = new Button(composite, SWT.CHECK);
+			updateDatabaseButton.setText("Update identity mappings and hospital");
+			updateDatabaseButton.setSelection(true);
 		}
 		
 		return composite;
@@ -48,8 +48,8 @@ public class ProjectMappingRenameDialog extends CcfDialog {
 		if (renameFilesButton != null) {
 			renameFiles = renameFilesButton.getSelection();
 		}
-		if (updateIdentityMappingsButton != null) {
-			updateIdentityMappings = updateIdentityMappingsButton.getSelection();
+		if (updateDatabaseButton != null) {
+			updateDatabase = updateDatabaseButton.getSelection();
 		}
 		super.okPressed();
 	}
@@ -58,8 +58,8 @@ public class ProjectMappingRenameDialog extends CcfDialog {
 		return renameFiles;
 	}
 
-	public boolean isUpdateIdentityMappings() {
-		return updateIdentityMappings;
+	public boolean isUpdateDatabase() {
+		return updateDatabase;
 	}
 
 }

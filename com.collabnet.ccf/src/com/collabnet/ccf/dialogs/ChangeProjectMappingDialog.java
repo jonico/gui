@@ -42,6 +42,7 @@ public class ChangeProjectMappingDialog extends CcfDialog implements IPageComple
 
 	private String oldGroup;
 	private String oldXslFileName;
+	private boolean oldUsesGraphicalMapping;
 	private String newXslFileName;
 	private String newGraphicalXslFileName;
 	private String newSourceRepositorySchemaFileName;
@@ -50,6 +51,7 @@ public class ChangeProjectMappingDialog extends CcfDialog implements IPageComple
 	private String newGenericArtifactToTargetREpositorySchemaFileName;
 	private String newSourceRepositorySchemaToGenericArtifactFileName;
 	private String newTargetRepositorySchemaToGenericArtifactFileName;
+	private String newMfdFileName;
 	
 	private Combo conflictResolutionCombo;
 	private Text groupText;
@@ -64,6 +66,7 @@ public class ChangeProjectMappingDialog extends CcfDialog implements IPageComple
 		super(shell, "ChangeProjectMappingDialog.1." + status.getSourceSystemId() + "." + status.getTargetSystemId());
 		this.status = status;
 		oldXslFileName = status.getXslFileName();
+		oldUsesGraphicalMapping = status.usesGraphicalMapping();
 		oldGroup = status.getGroup();
 		database = status.getLandscape().getDatabase();
 		getCcfParticipants();
@@ -211,8 +214,9 @@ public class ChangeProjectMappingDialog extends CcfDialog implements IPageComple
 					newGenericArtifactToTargetREpositorySchemaFileName = status.getGenericArtifactToTargetRepositorySchemaFileName();
 					newSourceRepositorySchemaToGenericArtifactFileName = status.getSourceRepositorySchemaToGenericArtifactFileName();
 					newTargetRepositorySchemaToGenericArtifactFileName = status.getTargetRepositorySchemaToGenericArtifactFileName();
+					newMfdFileName = status.getMFDFileName();
 					
-					if (status.usesGraphicalMapping() && !newXslFileName.equals(oldXslFileName)) {
+					if (oldUsesGraphicalMapping && !newXslFileName.equals(oldXslFileName)) {
 						status.switchToGraphicalMapping();
 					}
 					
@@ -281,6 +285,10 @@ public class ChangeProjectMappingDialog extends CcfDialog implements IPageComple
 		this.newXslFileName = newXslFileName;
 	}
 	
+	public String getNewMfdFileName() {
+		return newMfdFileName;
+	}
+
 	protected Button createButton(Composite parent, int id, String label, boolean defaultButton) {
         Button button = super.createButton(parent, id, label, defaultButton);
 		if (id == IDialogConstants.OK_ID) {

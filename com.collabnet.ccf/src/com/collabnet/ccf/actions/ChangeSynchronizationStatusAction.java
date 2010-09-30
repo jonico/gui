@@ -23,7 +23,6 @@ import com.collabnet.ccf.model.SynchronizationStatus;
 
 public class ChangeSynchronizationStatusAction extends ActionDelegate {
 	private IStructuredSelection fSelection;
-	private String oldSourceRepositoryId;
 
 	@SuppressWarnings("unchecked")
 	public void run(IAction action) {
@@ -34,6 +33,7 @@ public class ChangeSynchronizationStatusAction extends ActionDelegate {
 			Object object = iter.next();
 			if (object instanceof SynchronizationStatus) {
 				final SynchronizationStatus status = (SynchronizationStatus)object;
+
 				File xslFile = status.getXslFile();
 				File graphicalXslFile = status.getGraphicalXslFile();
 				File sourceRepositorySchemaFile = status.getSourceRepositorySchemaFile();
@@ -42,15 +42,16 @@ public class ChangeSynchronizationStatusAction extends ActionDelegate {
 				File genericArtifactToTargetRepositorySchemaFile = status.getGenericArtifactToTargetRepositorySchemaFile();
 				File sourceRepositorySchemaToGenericArtifactFile = status.getSourceRepositorySchemaToGenericArtifactFile();
 				File targetRepositorySchemaToGenericArtifactFile = status.getTargetRepositorySchemaToGenericArtifactFile();
+				File mfdFile = status.getMappingFile(status.getMFDFileName());
 				
-				oldSourceRepositoryId = status.getSourceRepositoryId();
+				final String oldSourceRepositoryId = status.getSourceRepositoryId();
 				final String oldTargetRepositoryId = status.getTargetRepositoryId();
 				ChangeProjectMappingDialog dialog = new ChangeProjectMappingDialog(Display.getDefault().getActiveShell(), status);
 				if (dialog.open() == ChangeProjectMappingDialog.CANCEL) return;
 				if (!projectMappingsList.contains(status.getProjectMappings())) {
 					projectMappingsList.add(status.getProjectMappings());
 				}
-				
+
 				if (dialog.isXslFileNameChanged()) {
 					File newXslFile = new File(xslFile.getParentFile(), dialog.getNewXslFileName());
 					File newGraphicalXslFile = new File(graphicalXslFile.getParentFile(), dialog.getNewGraphicalXslFileName());
@@ -60,8 +61,11 @@ public class ChangeSynchronizationStatusAction extends ActionDelegate {
 					File newGenericArtifactToTargetRepositorySchemaFile = new File(genericArtifactToTargetRepositorySchemaFile.getParentFile(), dialog.getNewGenericArtifactToTargetRepositorySchemaFileName());
 					File newSourceRepositorySchemaToGenericArtifactFile = new File(sourceRepositorySchemaToGenericArtifactFile.getParentFile(), dialog.getNewSourceRepositorySchemaToGenericArtifactFileName());
 					File newTargetRepositorySchemaToGenericArtifactFile = new File(targetRepositorySchemaToGenericArtifactFile.getParentFile(), dialog.getNewTargetRepositorySchemaToGenericArtifactFileName());
+					File newMfdFile = new File(mfdFile.getParentFile(), dialog.getNewMfdFileName());
+	
 					if ((xslFile != null && xslFile.exists() && !newXslFile.exists()) ||
 						(graphicalXslFile != null && graphicalXslFile.exists() && !newGraphicalXslFile.exists()) ||
+						(mfdFile != null && mfdFile.exists() && !newMfdFile.exists()) ||
 						(sourceRepositorySchemaFile != null && sourceRepositorySchemaFile.exists() && !newSourceRepositorySchemaFile.exists()) ||
 						(targetRepositorySchemaFile != null && targetRepositorySchemaFile.exists() && !newTargetRepositorySchemaFile.exists()) ||
 						(genericArtifactToSourceRepositorySchemaFile != null && genericArtifactToSourceRepositorySchemaFile.exists() && !newGenericArtifactToSourceRepositorySchemaFile.exists()) ||					
@@ -70,13 +74,15 @@ public class ChangeSynchronizationStatusAction extends ActionDelegate {
 						(targetRepositorySchemaToGenericArtifactFile != null && targetRepositorySchemaToGenericArtifactFile.exists() && !newTargetRepositorySchemaToGenericArtifactFile.exists())) {		
 						ProjectMappingRenameDialog renameDialog = new ProjectMappingRenameDialog(Display.getDefault().getActiveShell(), true, true);
 						renameDialog.open();
-//						if (MessageDialog.openQuestion(Display.getDefault().getActiveShell(), "Change Project Mapping", "Do you wish to rename field mapping files?")) {
 						if (renameDialog.isRenameFiles()) {
 							if (xslFile != null && xslFile.exists() && !newXslFile.exists()) {
 								xslFile.renameTo(newXslFile);
 							}
 							if (graphicalXslFile != null && graphicalXslFile.exists() && !newGraphicalXslFile.exists()) {
 								graphicalXslFile.renameTo(newGraphicalXslFile);
+							}
+							if (mfdFile != null && mfdFile.exists() && !newMfdFile.exists()) {
+								mfdFile.renameTo(newMfdFile);
 							}
 							if (sourceRepositorySchemaFile != null && sourceRepositorySchemaFile.exists() && !newSourceRepositorySchemaFile.exists()) {
 								sourceRepositorySchemaFile.renameTo(newSourceRepositorySchemaFile);
@@ -97,52 +103,25 @@ public class ChangeSynchronizationStatusAction extends ActionDelegate {
 								targetRepositorySchemaToGenericArtifactFile.renameTo(newTargetRepositorySchemaToGenericArtifactFile);
 							}								
 						}	
-						if (renameDialog.isUpdateIdentityMappings()) {
+						if (renameDialog.isUpdateDatabase()) {
 							BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
 								public void run() {
-									try {
-										CcfDataProvider dataProvider = new CcfDataProvider();
-										if (!oldSourceRepositoryId.equals(status.getSourceRepositoryId())) {
-											Filter sourceSystemFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_SOURCE_SYSTEM_ID, status.getSourceSystemId(), true);
-											Filter sourceRepositoryFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_SOURCE_REPOSITORY_ID, oldSourceRepositoryId, true);
-											Filter targetSystemFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_TARGET_SYSTEM_ID, status.getTargetSystemId(), true);
-											Filter targetRepositoryFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_TARGET_REPOSITORY_ID, oldTargetRepositoryId, true);
-											Filter[] filters = { sourceSystemFilter, sourceRepositoryFilter, targetSystemFilter, targetRepositoryFilter };										
-											Update sourceRepositoryUpdate = new Update(CcfDataProvider.IDENTITY_MAPPING_SOURCE_REPOSITORY_ID, status.getSourceRepositoryId());
-											Update[] updates = { sourceRepositoryUpdate };
-											dataProvider.updateIdentityMappings(status.getLandscape(), updates, filters);
-											// Update reverse
-											sourceSystemFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_SOURCE_SYSTEM_ID, status.getTargetSystemId(), true);
-											sourceRepositoryFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_SOURCE_REPOSITORY_ID, oldTargetRepositoryId, true);
-											targetSystemFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_TARGET_SYSTEM_ID, status.getSourceSystemId(), true);
-											targetRepositoryFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_TARGET_REPOSITORY_ID, oldSourceRepositoryId, true);
-											Filter[] reverseFilters = { sourceSystemFilter, sourceRepositoryFilter, targetSystemFilter, targetRepositoryFilter };										
-											Update targetRepositoryUpdate = new Update(CcfDataProvider.IDENTITY_MAPPING_TARGET_REPOSITORY_ID, status.getSourceRepositoryId());
-											Update[] reverseUpdates = { targetRepositoryUpdate };
-											dataProvider.updateIdentityMappings(status.getLandscape(), reverseUpdates, reverseFilters);
-											oldSourceRepositoryId = status.getSourceRepositoryId();
-										}
-										if (!oldTargetRepositoryId.equals(status.getTargetRepositoryId())) {
-											Filter sourceSystemFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_SOURCE_SYSTEM_ID, status.getSourceSystemId(), true);
-											Filter sourceRepositoryFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_SOURCE_REPOSITORY_ID, oldSourceRepositoryId, true);
-											Filter targetSystemFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_TARGET_SYSTEM_ID, status.getTargetSystemId(), true);
-											Filter targetRepositoryFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_TARGET_REPOSITORY_ID, oldTargetRepositoryId, true);
-											Filter[] filters = { sourceSystemFilter, sourceRepositoryFilter, targetSystemFilter, targetRepositoryFilter };										
-											Update targetRepositoryUpdate = new Update(CcfDataProvider.IDENTITY_MAPPING_TARGET_REPOSITORY_ID, status.getTargetRepositoryId());
-											Update[] updates = { targetRepositoryUpdate };
-											dataProvider.updateIdentityMappings(status.getLandscape(), updates, filters);
-											// Update reverse
-											sourceSystemFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_SOURCE_SYSTEM_ID, status.getTargetSystemId(), true);
-											sourceRepositoryFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_SOURCE_REPOSITORY_ID, oldTargetRepositoryId, true);
-											targetSystemFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_TARGET_SYSTEM_ID, status.getSourceSystemId(), true);
-											targetRepositoryFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_TARGET_REPOSITORY_ID, oldSourceRepositoryId, true);
-											Filter[] reverseFilters = { sourceSystemFilter, sourceRepositoryFilter, targetSystemFilter, targetRepositoryFilter };										
-											Update sourceRepositoryUpdate = new Update(CcfDataProvider.IDENTITY_MAPPING_SOURCE_REPOSITORY_ID, status.getTargetRepositoryId());
-											Update[] reverseUpdates = { sourceRepositoryUpdate };
-											dataProvider.updateIdentityMappings(status.getLandscape(), reverseUpdates, reverseFilters);
-										}
+									CcfDataProvider dataProvider = new CcfDataProvider();
+									try {										
+										updateIdentityMappings(status,
+												oldSourceRepositoryId,
+												oldTargetRepositoryId,
+												dataProvider);
 									} catch (Exception e) {
 										Activator.handleDatabaseError(e, false, true, "Update Identity Mappings");
+									}
+									try {										
+										updateHospital(status,
+												oldSourceRepositoryId,
+												oldTargetRepositoryId,
+												dataProvider);
+									} catch (Exception e) {
+										Activator.handleDatabaseError(e, false, true, "Update Hospital");
 									}
 								}								
 							});
@@ -169,6 +148,102 @@ public class ChangeSynchronizationStatusAction extends ActionDelegate {
 				paused = ((SynchronizationStatus)fSelection.getFirstElement()).isPaused();
 			}
 			action.setEnabled(Activator.getDefault().getActiveRole().isChangeProjectMapping() && paused);
+		}
+	}
+
+	private void updateIdentityMappings(final SynchronizationStatus status,
+			String oldSourceRepositoryId, final String oldTargetRepositoryId, CcfDataProvider dataProvider)
+			throws Exception {
+		if (!oldSourceRepositoryId.equals(status.getSourceRepositoryId())) {
+			Filter sourceSystemFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_SOURCE_SYSTEM_ID, status.getSourceSystemId(), true);
+			Filter sourceRepositoryFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_SOURCE_REPOSITORY_ID, oldSourceRepositoryId, true);
+			Filter targetSystemFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_TARGET_SYSTEM_ID, status.getTargetSystemId(), true);
+			Filter targetRepositoryFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_TARGET_REPOSITORY_ID, oldTargetRepositoryId, true);
+			Filter[] filters = { sourceSystemFilter, sourceRepositoryFilter, targetSystemFilter, targetRepositoryFilter };										
+			Update sourceRepositoryUpdate = new Update(CcfDataProvider.IDENTITY_MAPPING_SOURCE_REPOSITORY_ID, status.getSourceRepositoryId());
+			Update sourceRepositoryKindUpdate = new Update(CcfDataProvider.IDENTITY_MAPPING_SOURCE_REPOSITORY_KIND, status.getSourceRepositoryKind());
+			Update[] updates = { sourceRepositoryUpdate, sourceRepositoryKindUpdate };
+			dataProvider.updateIdentityMappings(status.getLandscape(), updates, filters);
+			// Update reverse
+			sourceSystemFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_SOURCE_SYSTEM_ID, status.getTargetSystemId(), true);
+			sourceRepositoryFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_SOURCE_REPOSITORY_ID, oldTargetRepositoryId, true);
+			targetSystemFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_TARGET_SYSTEM_ID, status.getSourceSystemId(), true);
+			targetRepositoryFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_TARGET_REPOSITORY_ID, oldSourceRepositoryId, true);
+			Filter[] reverseFilters = { sourceSystemFilter, sourceRepositoryFilter, targetSystemFilter, targetRepositoryFilter };										
+			Update targetRepositoryUpdate = new Update(CcfDataProvider.IDENTITY_MAPPING_TARGET_REPOSITORY_ID, status.getSourceRepositoryId());
+			Update targetRepositoryKindUpdate = new Update(CcfDataProvider.IDENTITY_MAPPING_TARGET_REPOSITORY_KIND, status.getSourceRepositoryKind());
+			Update[] reverseUpdates = { targetRepositoryUpdate, targetRepositoryKindUpdate };
+			dataProvider.updateIdentityMappings(status.getLandscape(), reverseUpdates, reverseFilters);
+			oldSourceRepositoryId = status.getSourceRepositoryId();
+		}
+		if (!oldTargetRepositoryId.equals(status.getTargetRepositoryId())) {
+			Filter sourceSystemFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_SOURCE_SYSTEM_ID, status.getSourceSystemId(), true);
+			Filter sourceRepositoryFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_SOURCE_REPOSITORY_ID, oldSourceRepositoryId, true);
+			Filter targetSystemFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_TARGET_SYSTEM_ID, status.getTargetSystemId(), true);
+			Filter targetRepositoryFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_TARGET_REPOSITORY_ID, oldTargetRepositoryId, true);
+			Filter[] filters = { sourceSystemFilter, sourceRepositoryFilter, targetSystemFilter, targetRepositoryFilter };										
+			Update targetRepositoryUpdate = new Update(CcfDataProvider.IDENTITY_MAPPING_TARGET_REPOSITORY_ID, status.getTargetRepositoryId());
+			Update targetRepositoryKindUpdate = new Update(CcfDataProvider.IDENTITY_MAPPING_TARGET_REPOSITORY_KIND, status.getTargetRepositoryKind());
+			Update[] updates = { targetRepositoryUpdate, targetRepositoryKindUpdate };
+			dataProvider.updateIdentityMappings(status.getLandscape(), updates, filters);
+			// Update reverse
+			sourceSystemFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_SOURCE_SYSTEM_ID, status.getTargetSystemId(), true);
+			sourceRepositoryFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_SOURCE_REPOSITORY_ID, oldTargetRepositoryId, true);
+			targetSystemFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_TARGET_SYSTEM_ID, status.getSourceSystemId(), true);
+			targetRepositoryFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_TARGET_REPOSITORY_ID, oldSourceRepositoryId, true);
+			Filter[] reverseFilters = { sourceSystemFilter, sourceRepositoryFilter, targetSystemFilter, targetRepositoryFilter };										
+			Update sourceRepositoryUpdate = new Update(CcfDataProvider.IDENTITY_MAPPING_SOURCE_REPOSITORY_ID, status.getTargetRepositoryId());
+			Update sourceRepositoryKindUpdate = new Update(CcfDataProvider.IDENTITY_MAPPING_SOURCE_REPOSITORY_KIND, status.getTargetRepositoryKind());
+			Update[] reverseUpdates = { sourceRepositoryUpdate, sourceRepositoryKindUpdate };
+			dataProvider.updateIdentityMappings(status.getLandscape(), reverseUpdates, reverseFilters);
+		}
+	}
+	
+	private void updateHospital(final SynchronizationStatus status,
+			String oldSourceRepositoryId, final String oldTargetRepositoryId, CcfDataProvider dataProvider)
+			throws Exception {
+		if (!oldSourceRepositoryId.equals(status.getSourceRepositoryId())) {
+			Filter sourceSystemFilter = new Filter(CcfDataProvider.HOSPITAL_SOURCE_SYSTEM_ID, status.getSourceSystemId(), true);
+			Filter sourceRepositoryFilter = new Filter(CcfDataProvider.HOSPITAL_SOURCE_REPOSITORY_ID, oldSourceRepositoryId, true);
+			Filter targetSystemFilter = new Filter(CcfDataProvider.HOSPITAL_TARGET_SYSTEM_ID, status.getTargetSystemId(), true);
+			Filter targetRepositoryFilter = new Filter(CcfDataProvider.HOSPITAL_TARGET_REPOSITORY_ID, oldTargetRepositoryId, true);
+			Filter[] filters = { sourceSystemFilter, sourceRepositoryFilter, targetSystemFilter, targetRepositoryFilter };										
+			Update sourceRepositoryUpdate = new Update(CcfDataProvider.HOSPITAL_SOURCE_REPOSITORY_ID, status.getSourceRepositoryId());
+			Update sourceRepositoryKindUpdate = new Update(CcfDataProvider.HOSPITAL_SOURCE_REPOSITORY_KIND, status.getSourceRepositoryKind());
+			Update[] updates = { sourceRepositoryUpdate, sourceRepositoryKindUpdate };
+			dataProvider.updatePatients(status.getLandscape(), updates, filters);
+			// Update reverse
+			sourceSystemFilter = new Filter(CcfDataProvider.HOSPITAL_SOURCE_SYSTEM_ID, status.getTargetSystemId(), true);
+			sourceRepositoryFilter = new Filter(CcfDataProvider.HOSPITAL_SOURCE_REPOSITORY_ID, oldTargetRepositoryId, true);
+			targetSystemFilter = new Filter(CcfDataProvider.HOSPITAL_TARGET_SYSTEM_ID, status.getSourceSystemId(), true);
+			targetRepositoryFilter = new Filter(CcfDataProvider.HOSPITAL_TARGET_REPOSITORY_ID, oldSourceRepositoryId, true);
+			Filter[] reverseFilters = { sourceSystemFilter, sourceRepositoryFilter, targetSystemFilter, targetRepositoryFilter };										
+			Update targetRepositoryUpdate = new Update(CcfDataProvider.HOSPITAL_TARGET_REPOSITORY_ID, status.getSourceRepositoryId());
+			Update targetRepositoryKindUpdate = new Update(CcfDataProvider.HOSPITAL_TARGET_REPOSITORY_KIND, status.getSourceRepositoryKind());
+			Update[] reverseUpdates = { targetRepositoryUpdate, targetRepositoryKindUpdate };
+			dataProvider.updatePatients(status.getLandscape(), reverseUpdates, reverseFilters);
+			oldSourceRepositoryId = status.getSourceRepositoryId();
+		}
+		if (!oldTargetRepositoryId.equals(status.getTargetRepositoryId())) {
+			Filter sourceSystemFilter = new Filter(CcfDataProvider.HOSPITAL_SOURCE_SYSTEM_ID, status.getSourceSystemId(), true);
+			Filter sourceRepositoryFilter = new Filter(CcfDataProvider.HOSPITAL_SOURCE_REPOSITORY_ID, oldSourceRepositoryId, true);
+			Filter targetSystemFilter = new Filter(CcfDataProvider.HOSPITAL_TARGET_SYSTEM_ID, status.getTargetSystemId(), true);
+			Filter targetRepositoryFilter = new Filter(CcfDataProvider.HOSPITAL_TARGET_REPOSITORY_ID, oldTargetRepositoryId, true);
+			Filter[] filters = { sourceSystemFilter, sourceRepositoryFilter, targetSystemFilter, targetRepositoryFilter };										
+			Update targetRepositoryUpdate = new Update(CcfDataProvider.HOSPITAL_TARGET_REPOSITORY_ID, status.getTargetRepositoryId());
+			Update targetRepositoryKindUpdate = new Update(CcfDataProvider.HOSPITAL_TARGET_REPOSITORY_KIND, status.getTargetRepositoryKind());
+			Update[] updates = { targetRepositoryUpdate, targetRepositoryKindUpdate };
+			dataProvider.updatePatients(status.getLandscape(), updates, filters);
+			// Update reverse
+			sourceSystemFilter = new Filter(CcfDataProvider.HOSPITAL_SOURCE_SYSTEM_ID, status.getTargetSystemId(), true);
+			sourceRepositoryFilter = new Filter(CcfDataProvider.HOSPITAL_SOURCE_REPOSITORY_ID, oldTargetRepositoryId, true);
+			targetSystemFilter = new Filter(CcfDataProvider.HOSPITAL_TARGET_SYSTEM_ID, status.getSourceSystemId(), true);
+			targetRepositoryFilter = new Filter(CcfDataProvider.HOSPITAL_TARGET_REPOSITORY_ID, oldSourceRepositoryId, true);
+			Filter[] reverseFilters = { sourceSystemFilter, sourceRepositoryFilter, targetSystemFilter, targetRepositoryFilter };										
+			Update sourceRepositoryUpdate = new Update(CcfDataProvider.HOSPITAL_SOURCE_REPOSITORY_ID, status.getTargetRepositoryId());
+			Update sourceRepositoryKindUpdate = new Update(CcfDataProvider.HOSPITAL_SOURCE_REPOSITORY_KIND, status.getTargetRepositoryKind());
+			Update[] reverseUpdates = { sourceRepositoryUpdate, sourceRepositoryKindUpdate };
+			dataProvider.updatePatients(status.getLandscape(), reverseUpdates, reverseFilters);
 		}
 	}	
 	
