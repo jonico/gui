@@ -18,6 +18,7 @@
 package com.collabnet.ccf.teamforge.schemageneration;
 
 import java.io.IOException;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -35,6 +36,7 @@ import com.collabnet.ccf.schemageneration.FieldNameAmbiguityDissolver;
 import com.collabnet.ccf.schemageneration.RepositoryLayoutExtractor;
 import com.collabnet.ccf.teamforge.schemageneration.TFArtifactMetaData.FIELD_TYPE;
 import com.collabnet.ccf.teamforge.schemageneration.TFArtifactMetaData.SFEEFields;
+import com.collabnet.teamforge.api.tracker.IFieldValueDO;
 import com.collabnet.teamforge.api.tracker.TrackerFieldDO;
 import com.collabnet.teamforge.api.tracker.TrackerFieldValueDO;
 
@@ -94,7 +96,7 @@ public class TFLayoutExtractor implements RepositoryLayoutExtractor {
 	 */
 	private GenericArtifactField createGenericArtifactField(
 			TFArtifactMetaData.SFEEFields sfField,
-			GenericArtifact genericArtifact, TrackerFieldValueDO[] fieldInfo) {
+			GenericArtifact genericArtifact, IFieldValueDO[] fieldInfo) {
 		String fieldName = sfField.getFieldName();
 
 		GenericArtifactField field = genericArtifact.addNewField(fieldName,
@@ -122,15 +124,15 @@ public class TFLayoutExtractor implements RepositoryLayoutExtractor {
 	private static Object generateFieldDocumentation(String fieldName,
 			String alternativeFieldName, FieldValueTypeValue fieldValueType,
 			String fieldType, String isNullValueSupported,
-			TrackerFieldValueDO[] fieldValues) {
+			IFieldValueDO[] fieldValues) {
 		StringBuffer documentation = new StringBuffer();
 		documentation.append(fieldName + " (" + fieldType + " / "
 				+ fieldValueType + ")\n");
 		if (fieldValues != null && fieldValues.length != 0) {
 			documentation.append(" Values: [");
 			Set<String> sortedValues = new TreeSet<String>();
-			for (TrackerFieldValueDO trackerFieldValueSoapDO : fieldValues) {
-				sortedValues.add(trackerFieldValueSoapDO.getValue());
+			for (IFieldValueDO fieldValueSoapDO : fieldValues) {
+				sortedValues.add(fieldValueSoapDO.getValue());
 			}
 			for (String fieldValueOption : sortedValues) {
 				documentation.append(" '" + fieldValueOption + "',");
@@ -204,10 +206,43 @@ public class TFLayoutExtractor implements RepositoryLayoutExtractor {
 		createGenericArtifactField(TFArtifactMetaData.SFEEFields.version,
 				genericArtifact, null);
 		
-		// in later versions we may add support for planning folder stats as well
+		if (soapClient.supports54()) {
+			IFieldValueDO[] fieldValues = null;
+			try {
+				fieldValues = soapClient.getPlanningClient().getPlanningStatusValues(extractProjectFromRepositoryId(repositoryId));
+			} catch (RemoteException e) {
+				// do nothing. 
+				// If the exception occurs, the alternatives simply don't appear in the GUI.
+			}
+			createGenericArtifactField(TFArtifactMetaData.SFEEFields.status, genericArtifact, fieldValues);
+			createGenericArtifactField(TFArtifactMetaData.SFEEFields.statusClass, genericArtifact, null);
+			createGenericArtifactField(TFArtifactMetaData.SFEEFields.capacity, genericArtifact, null);
+			createGenericArtifactField(TFArtifactMetaData.SFEEFields.releaseId, genericArtifact, null);
+		}
 		
 		return genericArtifact;
 	}
+	
+	/**
+	 * If the planning folder repository id contains the project id this will be returned
+	 * @param repositoryId
+	 * @return project id
+	 */
+	public static String extractProjectFromRepositoryId(String repositoryId) {
+		if(repositoryId != null){
+			String[] splitRepo = repositoryId.split("-");
+			if(splitRepo != null){
+				if(splitRepo.length != 2){
+					throw new IllegalArgumentException("Repository id is not valid.");
+				}
+				else {
+					return splitRepo[0];
+				}
+			}
+		}
+		throw new IllegalArgumentException("Repository id is not valid.");
+	}
+
 
 	/**
 	 * Returns whether this repository id belongs to a tracker
@@ -234,13 +269,13 @@ public class TFLayoutExtractor implements RepositoryLayoutExtractor {
 					.getFlexFields(trackerId);
 
 			// write schema for system defined and configurable fields
+			createGenericArtifactField(
+					TFArtifactMetaData.SFEEFields.actualHours,
+					genericArtifact, null);
+			createGenericArtifactField(
+					TFArtifactMetaData.SFEEFields.estimatedHours,
+					genericArtifact, null);
 			if (soapClient.supports53()) {
-				createGenericArtifactField(
-						TFArtifactMetaData.SFEEFields.actualHours,
-						genericArtifact, null);
-				createGenericArtifactField(
-						TFArtifactMetaData.SFEEFields.estimatedHours,
-						genericArtifact, null);
 				createGenericArtifactField(
 						TFArtifactMetaData.SFEEFields.remainingEffort,
 						genericArtifact, null);
@@ -252,12 +287,10 @@ public class TFLayoutExtractor implements RepositoryLayoutExtractor {
 						genericArtifact, getSupportedFieldValues(trackerFields,
 								TFArtifactMetaData.SFEEFields.autosumming
 										.getFieldName()));
-			} else {
-				createGenericArtifactField(
-						TFArtifactMetaData.SFEEFields.actualHours,
-						genericArtifact, null);
-				createGenericArtifactField(
-						TFArtifactMetaData.SFEEFields.estimatedHours,
+			}
+			
+			if (soapClient.supports54()) {
+				createGenericArtifactField(TFArtifactMetaData.SFEEFields.points,
 						genericArtifact, null);
 			}
 
@@ -454,7 +487,7 @@ public class TFLayoutExtractor implements RepositoryLayoutExtractor {
 	 * @throws RemoteException
 	 *             thrown if an errors occurs within SFEE
 	 */
-	private TrackerFieldValueDO[] getSupportedFieldValues(
+	private IFieldValueDO[] getSupportedFieldValues(
 			TrackerFieldDO[] trackerFields, String fieldName) {
 		// TODO: Decide between flex fields and mandatory fields with same name
 		for (TrackerFieldDO trackerFieldSoapDO : trackerFields) {

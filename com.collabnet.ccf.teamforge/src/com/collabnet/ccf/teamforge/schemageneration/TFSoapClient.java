@@ -17,6 +17,7 @@ import com.collabnet.teamforge.api.main.ProjectMemberRow;
 import com.collabnet.teamforge.api.main.ProjectRow;
 import com.collabnet.teamforge.api.main.UserDO;
 import com.collabnet.teamforge.api.main.UserList;
+import com.collabnet.teamforge.api.planning.PlanningClient;
 import com.collabnet.teamforge.api.rbac.RoleDO;
 import com.collabnet.teamforge.api.rbac.RoleList;
 import com.collabnet.teamforge.api.tracker.ArtifactDependencyRow;
@@ -46,6 +47,10 @@ public class TFSoapClient {
 		TFSoapClient client = clients.get(serverUrl + userId + password);
 		if (client == null) client = new TFSoapClient(serverUrl, userId, password);
 		return client;
+	}
+	
+	public PlanningClient getPlanningClient() throws RemoteException {
+		return connection.getPlanningClient();
 	}
 	
 	public UserDO createUser(String userName, String email, String fullName, String locale, String timeZone, boolean isSuperUser, boolean isRestrictedUser, String password) throws RemoteException {
@@ -275,6 +280,10 @@ public class TFSoapClient {
 	
 	public boolean supports53() {
 		return connection.supports53();
+	}
+	
+	public boolean supports54() {
+		return connection.supports54();
 	}
 	
 	public String login() throws RemoteException {

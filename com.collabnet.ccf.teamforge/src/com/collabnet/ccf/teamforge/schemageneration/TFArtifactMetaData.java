@@ -108,7 +108,12 @@ public class TFArtifactMetaData {
 		resolvedReleaseId("resolvedReleaseId", "Resolved in release", FIELD_TYPE.CONFIGURABLE, GenericArtifactField.FieldValueTypeValue.STRING, false,"resolvedInRelease",true),
 		status("status", "Status", FIELD_TYPE.CONFIGURABLE, GenericArtifactField.FieldValueTypeValue.STRING, true,"",false),
 		statusClass("statusClass", "Status class", FIELD_TYPE.SYSTEM_DEFINED, GenericArtifactField.FieldValueTypeValue.STRING, false,"",false),
-		commentText("Comment Text", "Comment Text", FIELD_TYPE.SYSTEM_DEFINED, GenericArtifactField.FieldValueTypeValue.STRING, false,"",false);
+		commentText("Comment Text", "Comment Text", FIELD_TYPE.SYSTEM_DEFINED, GenericArtifactField.FieldValueTypeValue.STRING, false,"",false),
+		//FIXME: this is just guessing.
+		points("points", "Story Points", FIELD_TYPE.CONFIGURABLE, GenericArtifactField.FieldValueTypeValue.INTEGER, false,"", true),
+		capacity("capacity", "Capacity", FIELD_TYPE.SYSTEM_DEFINED, GenericArtifactField.FieldValueTypeValue.INTEGER, false,"", true),
+		releaseId("releaseId", "Release ID", FIELD_TYPE.SYSTEM_DEFINED, GenericArtifactField.FieldValueTypeValue.STRING, false, "", true),
+		;
 
 		private String fieldName;
 		private String displayName;
