@@ -820,6 +820,10 @@ public class FixTrackersWizardPage extends WizardPage {
 							}
 						}					
 					}
+					if (wizard.getSoapClient().supports54()) {
+						backlogEffortTypeCorrect = true; // Backlog effort not used
+						backlogEffortExists = true; // Story points used instead
+					}
 					monitor.worked(1);
 					if (taskTrackerId != null) {
 						monitor.subTask("Checking Task tracker fields");

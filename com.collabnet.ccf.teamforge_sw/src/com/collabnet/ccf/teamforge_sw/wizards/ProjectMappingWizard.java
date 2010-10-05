@@ -643,7 +643,7 @@ public class ProjectMappingWizard extends Wizard {
 		TrackerFieldDO[] fields = getSoapClient().getFields(pbiTrackerId);
 		boolean addBenefit = true;
 		boolean addPenalty = true;
-		boolean addBacklogEffort = true;
+		boolean addBacklogEffort = !getSoapClient().supports54();
 		boolean addSwpKey = true;
 		boolean addTeamSprint = true;
 		boolean addSprintStart = true;
@@ -716,7 +716,8 @@ public class ProjectMappingWizard extends Wizard {
 			    fieldName.equals("reportedInRelease") ||
 			    fieldName.equals("resolvedInRelease") ||
 			    fieldName.startsWith("autosumming") ||
-			    fieldName.startsWith("actual")) {
+			    fieldName.startsWith("actual") ||
+			    (fieldName.equals("points") && getSoapClient().supports54())) {
 				field.setDisabled(true);
 				getSoapClient().setField(taskTrackerId, field);
 			}
