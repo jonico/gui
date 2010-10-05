@@ -31,6 +31,11 @@
 		</command>
 		<command
 	        categoryId="com.collabnet.ccf.teamforge_sw.commands"
+	        id="com.collabnet.ccf.teamforge_sw.commands.upgradeTo54"
+	        name="Upgrade TeamForge Trackers to 5.4 layout">
+		</command>		
+		<command
+	        categoryId="com.collabnet.ccf.teamforge_sw.commands"
 	        id="com.collabnet.ccf.teamforge_sw.commands.fixTrackers"
 	        name="Fix TeamForge Trackers">
 		</command>		
@@ -93,6 +98,19 @@
 	             </and>
 	          	</visibleWhen>
 	        </command>
+	        <command
+	             commandId="com.collabnet.ccf.teamforge_sw.commands.upgradeTo54"
+	             label="Upgrade TeamForge Trackers to 5.4 layout..."
+	             style="push">
+	        	<visibleWhen
+	                checkEnabled="true">
+	             <and>
+	                <count
+	                      value="1">
+	                </count>  
+	             </and>
+	          	</visibleWhen>
+	        </command>	        
 	    </menuContribution>
 	 	<menuContribution
 	          locationURI="popup:org.eclipse.ui.popup.any?after=additions">
@@ -235,6 +253,21 @@
    
     <extension
        point="org.eclipse.ui.handlers">
+     <handler
+          class="com.collabnet.ccf.teamforge_sw.UpgradeTo54Handler"
+          commandId="com.collabnet.ccf.teamforge_sw.commands.upgradeTo54">
+       <enabledWhen>
+          <iterate>
+              <and>
+                <test
+                	  forcePluginActivation="true"
+                      property="com.collabnet.ccf.teamforge_sw.isTeamForgeSwpLandscape"
+                      value="true">
+                </test>                                    
+			 </and>
+          </iterate>
+       </enabledWhen>
+    </handler>       
      <handler
           class="com.collabnet.ccf.teamforge_sw.MapProjectsHandler"
           commandId="com.collabnet.ccf.teamforge_sw.commands.mapProjects">

@@ -295,5 +295,10 @@ public class TFSoapClient {
 		config.deployTransport("http", new SimpleTargetedChain(new TeamForgeHTTPSender())); //$NON-NLS-1$
 		config.deployTransport("https", new SimpleTargetedChain(new TeamForgeHTTPSender())); //$NON-NLS-1$
 		return config;
-	}		
+	}
+
+	public Connection getConnection() {
+		return connection;
+	}	
+	
 }
