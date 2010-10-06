@@ -49,6 +49,13 @@ public class UpgradeTo54WizardPage extends WizardPage {
 		outerContainer.setLayoutData(
 		new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));
 		
+		if (!getSoapClient().supports54()) {
+			setErrorMessage("Server does not support TeamForge 5.4");
+			setPageComplete(false);
+			setControl(outerContainer);
+			return;
+		}
+		
 		checkTrackers();
 		
 		if (backLogEffortFieldsToRemove.size() > 0 || storyPointFieldsToHide.size() > 0) {
@@ -158,11 +165,6 @@ public class UpgradeTo54WizardPage extends WizardPage {
 	}
 	
 	private void checkTrackers() {
-		if (!getSoapClient().supports54()) {
-			setErrorMessage("Server does not support TeamForge 5.4");
-			setPageComplete(false);
-			return;
-		}
 		initializeFlags();
 		IRunnableWithProgress runnable = new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
