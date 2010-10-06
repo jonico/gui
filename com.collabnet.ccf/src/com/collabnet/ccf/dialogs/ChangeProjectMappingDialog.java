@@ -61,10 +61,12 @@ public class ChangeProjectMappingDialog extends CcfDialog implements IPageComple
 	private Database database;
 	private boolean changeError;
 	private boolean conflictResolutionChanged;
+	private SynchronizationStatus reverseStatus;
 
-	public ChangeProjectMappingDialog(Shell shell, SynchronizationStatus status) {
+	public ChangeProjectMappingDialog(Shell shell, SynchronizationStatus status, SynchronizationStatus reverseStatus) {
 		super(shell, "ChangeProjectMappingDialog.1." + status.getSourceSystemId() + "." + status.getTargetSystemId());
 		this.status = status;
+		this.reverseStatus = reverseStatus;
 		oldXslFileName = status.getXslFileName();
 		oldUsesGraphicalMapping = status.usesGraphicalMapping();
 		oldGroup = status.getGroup();
@@ -178,6 +180,7 @@ public class ChangeProjectMappingDialog extends CcfDialog implements IPageComple
 				try {
 					Landscape landscape = status.getLandscape();
 					CcfDataProvider dataProvider = new CcfDataProvider();
+
 					Filter sourceSystemFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_SOURCE_SYSTEM_ID, status.getSourceSystemId(), true);
 					Filter sourceRepositoryFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_SOURCE_REPOSITORY_ID, status.getSourceRepositoryId(), true);
 					Filter targetSystemFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_TARGET_SYSTEM_ID, status.getTargetSystemId(), true);
@@ -216,11 +219,32 @@ public class ChangeProjectMappingDialog extends CcfDialog implements IPageComple
 					newTargetRepositorySchemaToGenericArtifactFileName = status.getTargetRepositorySchemaToGenericArtifactFileName();
 					newMfdFileName = status.getMFDFileName();
 					
+					if (reverseStatus != null && !newXslFileName.equals(oldXslFileName)) {
+						Filter reverseSourceSystemFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_SOURCE_SYSTEM_ID, reverseStatus.getSourceSystemId(), true);
+						Filter reverseSourceRepositoryFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_SOURCE_REPOSITORY_ID, reverseStatus.getSourceRepositoryId(), true);
+						Filter reverseTargetSystemFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_TARGET_SYSTEM_ID, reverseStatus.getTargetSystemId(), true);
+						Filter reverseTargetRepositoryFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_TARGET_REPOSITORY_ID, reverseStatus.getTargetRepositoryId(), true);
+						Filter[] reverseFilters = { reverseSourceSystemFilter, reverseSourceRepositoryFilter, reverseTargetSystemFilter, reverseTargetRepositoryFilter };		
+						
+						Update reverseSourceRepositoryUpdate = new Update(CcfDataProvider.SYNCHRONIZATION_STATUS_SOURCE_REPOSITORY_ID, targetRepository);
+						Update reverseTargetRepositoryUpdate = new Update(CcfDataProvider.SYNCHRONIZATION_STATUS_TARGET_REPOSITORY_ID, sourceRepository);
+						Update[] reverseUpdates = { reverseSourceRepositoryUpdate, reverseTargetRepositoryUpdate };	
+						dataProvider.updateSynchronizationStatuses(landscape, reverseUpdates, reverseFilters);
+						reverseStatus.setSourceRepositoryId(targetRepository);
+						reverseStatus.setTargetRepositoryId(sourceRepository);
+					}
+					
 					if (oldUsesGraphicalMapping && !newXslFileName.equals(oldXslFileName)) {
 						status.switchToGraphicalMapping();
+						if (reverseStatus != null) {
+							reverseStatus.switchToGraphicalMapping();
+						}
 					}
 					
 					dataProvider.setFieldMappingMode(status);
+					if (reverseStatus != null) {
+						dataProvider.setFieldMappingMode(reverseStatus);
+					}
 					
 					if (groupText.getText().trim().length() > 0 && !groupText.getText().trim().equals(oldGroup)) {
 						if (!dataProvider.groupExists(groupText.getText().trim(), database)) {
@@ -228,6 +252,9 @@ public class ChangeProjectMappingDialog extends CcfDialog implements IPageComple
 						}
 					}
 					Activator.notifyProjectMappingChangeListeners(status);
+					if (reverseStatus != null) {
+						Activator.notifyProjectMappingChangeListeners(reverseStatus);
+					}
 				} catch (Exception e) {
 					Activator.handleDatabaseError(e, false, true, "Change Project Mapping");
 					changeError = true;

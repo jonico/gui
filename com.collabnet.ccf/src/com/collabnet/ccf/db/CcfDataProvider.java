@@ -932,6 +932,20 @@ public class CcfDataProvider {
 		return hospitalCounts;
 	}
 	
+	public SynchronizationStatus getReverseSynchronizationStatus(SynchronizationStatus status) throws Exception {
+		Filter sourceSystemFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_SOURCE_SYSTEM_ID, status.getTargetSystemId(), true);
+		Filter sourceRepositoryFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_SOURCE_REPOSITORY_ID, status.getTargetRepositoryId(), true);
+		Filter targetSystemFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_TARGET_SYSTEM_ID, status.getSourceSystemId(), true);
+		Filter targetRepositoryFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_TARGET_REPOSITORY_ID, status.getSourceRepositoryId(), true);
+		Filter[] filters = { sourceSystemFilter, sourceRepositoryFilter, targetSystemFilter, targetRepositoryFilter };		
+		Filter[][] filterGroups = { filters };
+		SynchronizationStatus[] statuses = getSynchronizationStatuses(status.getLandscape(), status.getProjectMappings(), filterGroups);
+		if (statuses != null && statuses.length > 0) {
+			return statuses[0];
+		}
+		return null;
+	}
+	
 	public SynchronizationStatus[] getSynchronizationStatuses(Landscape landscape, ProjectMappings projectMappings, Filter[][] filters) throws Exception {
 		Connection connection = null;
 		Statement stmt = null;
