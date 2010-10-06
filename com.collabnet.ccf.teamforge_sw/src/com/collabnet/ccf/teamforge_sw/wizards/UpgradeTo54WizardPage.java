@@ -210,7 +210,7 @@ public class UpgradeTo54WizardPage extends WizardPage {
 						monitor.subTask("Checking fields for Tasks tracker " + taskTracker);
 						TrackerFieldDO[] fields = getSoapClient().getFields(taskTracker);
 						for (TrackerFieldDO field : fields) {
-							if (field.getName().equals("points")) {
+							if (field.getName().equals("points") && !field.getDisabled()) {
 								storyPointFieldsToHide.put(taskTracker, field.getId());
 							}
 						}
