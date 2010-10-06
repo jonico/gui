@@ -1,6 +1,7 @@
 package com.collabnet.ccf.teamforge_sw.wizards;
 
 import java.lang.reflect.InvocationTargetException;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -48,6 +49,15 @@ public class UpgradeTo54WizardPage extends WizardPage {
 		outerContainer.setLayout(new GridLayout());
 		outerContainer.setLayoutData(
 		new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));
+		
+		try {
+			getSoapClient().login();
+		} catch (RemoteException e) {
+			Activator.handleError(e);
+			setErrorMessage(e.getMessage());
+			setControl(outerContainer);
+			return;
+		}
 		
 		if (!getSoapClient().supports54()) {
 			setErrorMessage("Server does not support TeamForge 5.4");
