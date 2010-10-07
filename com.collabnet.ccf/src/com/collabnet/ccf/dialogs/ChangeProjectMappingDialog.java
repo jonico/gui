@@ -43,6 +43,7 @@ public class ChangeProjectMappingDialog extends CcfDialog implements IPageComple
 	private String oldGroup;
 	private String oldXslFileName;
 	private boolean oldUsesGraphicalMapping;
+	private boolean oldReverseUsesGraphicalMapping;
 	private String newXslFileName;
 	private String newGraphicalXslFileName;
 	private String newSourceRepositorySchemaFileName;
@@ -69,6 +70,9 @@ public class ChangeProjectMappingDialog extends CcfDialog implements IPageComple
 		this.reverseStatus = reverseStatus;
 		oldXslFileName = status.getXslFileName();
 		oldUsesGraphicalMapping = status.usesGraphicalMapping();
+		if (reverseStatus != null) {
+			oldReverseUsesGraphicalMapping = reverseStatus.usesGraphicalMapping();
+		}
 		oldGroup = status.getGroup();
 		database = status.getLandscape().getDatabase();
 		getCcfParticipants();
@@ -234,9 +238,11 @@ public class ChangeProjectMappingDialog extends CcfDialog implements IPageComple
 						reverseStatus.setTargetRepositoryId(sourceRepository);
 					}
 					
-					if (oldUsesGraphicalMapping && !newXslFileName.equals(oldXslFileName)) {
-						status.switchToGraphicalMapping();
-						if (reverseStatus != null) {
+					if (!newXslFileName.equals(oldXslFileName)) {
+						if (oldUsesGraphicalMapping) {
+							status.switchToGraphicalMapping();
+						}
+						if (reverseStatus != null && oldReverseUsesGraphicalMapping) {
 							reverseStatus.switchToGraphicalMapping();
 						}
 					}
