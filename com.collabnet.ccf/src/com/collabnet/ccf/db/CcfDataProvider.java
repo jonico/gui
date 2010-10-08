@@ -1155,7 +1155,7 @@ public class CcfDataProvider {
 		runAfterDelay(runnable, delay);
 	}
 	
-	private void runAfterDelay(final Runnable runnable, final int delaySeconds) {
+	public void runAfterDelay(final Runnable runnable, final int delaySeconds) {
 		Thread thread = new Thread() {
 			@Override
 			public void run() {

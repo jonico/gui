@@ -29,7 +29,7 @@ public class ChangeSynchronizationStatusAction extends ActionDelegate {
 
 	@SuppressWarnings("unchecked")
 	public void run(IAction action) {
-		List<ProjectMappings> projectMappingsList = new ArrayList<ProjectMappings>();
+		final List<ProjectMappings> projectMappingsList = new ArrayList<ProjectMappings>();
 		boolean mappingsChanged = false;
 		Iterator iter = fSelection.iterator();
 		while (iter.hasNext()) {
@@ -75,7 +75,7 @@ public class ChangeSynchronizationStatusAction extends ActionDelegate {
 				
 				final String oldSourceRepositoryId = status.getSourceRepositoryId();
 				final String oldTargetRepositoryId = status.getTargetRepositoryId();
-				ChangeProjectMappingDialog dialog = new ChangeProjectMappingDialog(Display.getDefault().getActiveShell(), status, reverseStatus);
+				final ChangeProjectMappingDialog dialog = new ChangeProjectMappingDialog(Display.getDefault().getActiveShell(), status, reverseStatus);
 				if (dialog.open() == ChangeProjectMappingDialog.CANCEL) return;
 				if (!projectMappingsList.contains(status.getProjectMappings())) {
 					projectMappingsList.add(status.getProjectMappings());
@@ -217,6 +217,38 @@ public class ChangeSynchronizationStatusAction extends ActionDelegate {
 					}
 				}
 				mappingsChanged = true;
+				
+				// After delay, resume mappings that were automatically paused.
+				if (dialog.needsResume() || dialog.reverseNeedsResume()) {
+					int delay = Activator.getDefault().getPreferenceStore().getInt(Activator.PREFERENCES_RESET_DELAY);
+					dataProvider.runAfterDelay(new Runnable() {
+						public void run() {
+							if (dialog.needsResume()) {
+								try {
+									dataProvider.resumeSynchronization(status);
+								} catch (Exception e) {
+									Activator.handleError(e);
+								}
+							}
+							if (dialog.reverseNeedsResume()) {
+								try {
+									dataProvider.resumeSynchronization(reverseStatus);
+								} catch (Exception e) {
+									Activator.handleError(e);
+								}
+							}
+							
+							// Refresh view automatically after resume, being sure to do it in UI thread.						
+							for (final ProjectMappings projectMappings: projectMappingsList) {
+								Display.getDefault().syncExec(new Runnable() {								
+									public void run() {
+										Activator.notifyChanged(projectMappings);
+									}
+								});								
+							}
+						}						
+					}, delay);
+				}
 			}
 		}
 		if (mappingsChanged) {
@@ -230,13 +262,17 @@ public class ChangeSynchronizationStatusAction extends ActionDelegate {
 		if (sel instanceof IStructuredSelection) {
 			fSelection= (IStructuredSelection) sel;
 		}
-		if (action != null) {
-			boolean paused = false;
-			if (fSelection != null && fSelection.getFirstElement() instanceof SynchronizationStatus) {
-				paused = ((SynchronizationStatus)fSelection.getFirstElement()).isPaused();
-			}
-			action.setEnabled(Activator.getDefault().getActiveRole().isChangeProjectMapping() && paused);
-		}
+
+// Rather than disabling action for non-paused mapping, we will automatically pause
+// before mapping is changed and resume after.
+		
+//		if (action != null) {
+//			boolean paused = false;
+//			if (fSelection != null && fSelection.getFirstElement() instanceof SynchronizationStatus) {
+//				paused = ((SynchronizationStatus)fSelection.getFirstElement()).isPaused();
+//			}
+//			action.setEnabled(Activator.getDefault().getActiveRole().isChangeProjectMapping() && paused);
+//		}
 	}
 
 	private void updateIdentityMappings(final SynchronizationStatus status,

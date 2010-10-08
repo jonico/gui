@@ -149,7 +149,7 @@ public class CcfExplorerView extends ViewPart implements IProjectMappingsChangeL
 					}
 					else if (selection.getFirstElement() instanceof SynchronizationStatus) {
 						SynchronizationStatus status = (SynchronizationStatus)selection.getFirstElement();
-						if (status.getLandscape().getRole() == Landscape.ROLE_ADMINISTRATOR && activeRole.isChangeProjectMapping() && status.isPaused()) {
+						if (status.getLandscape().getRole() == Landscape.ROLE_ADMINISTRATOR && activeRole.isChangeProjectMapping()) {
 							action = new ChangeSynchronizationStatusAction();
 						}
 					}

@@ -63,15 +63,23 @@ public class ChangeProjectMappingDialog extends CcfDialog implements IPageComple
 	private boolean changeError;
 	private boolean conflictResolutionChanged;
 	private SynchronizationStatus reverseStatus;
+	private boolean needsPause;
+	private boolean reverseNeedsPause;
 
 	public ChangeProjectMappingDialog(Shell shell, SynchronizationStatus status, SynchronizationStatus reverseStatus) {
-		super(shell, "ChangeProjectMappingDialog.1." + status.getSourceSystemId() + "." + status.getTargetSystemId());
+		super(shell, "ChangeProjectMappingDialog.2." + status.getSourceSystemId() + "." + status.getTargetSystemId());
 		this.status = status;
 		this.reverseStatus = reverseStatus;
+		if (!status.isPaused()) {
+			needsPause = true;
+		}
 		oldXslFileName = status.getXslFileName();
 		oldUsesGraphicalMapping = status.usesGraphicalMapping();
 		if (reverseStatus != null) {
 			oldReverseUsesGraphicalMapping = reverseStatus.usesGraphicalMapping();
+			if (!reverseStatus.isPaused()) {
+				reverseNeedsPause = true;
+			}
 		}
 		oldGroup = status.getGroup();
 		database = status.getLandscape().getDatabase();
@@ -84,6 +92,12 @@ public class ChangeProjectMappingDialog extends CcfDialog implements IPageComple
 		GridLayout layout = new GridLayout();
 		composite.setLayout(layout);
 		composite.setLayoutData(new GridData(GridData.FILL_BOTH));
+		
+		if (needsPause || reverseNeedsPause) {
+			int delay = Activator.getDefault().getPreferenceStore().getInt(Activator.PREFERENCES_RESET_DELAY);
+			Label pauseLabel = new Label(composite, SWT.WRAP);
+			pauseLabel.setText("Synchronization will be paused for " + delay + " seconds before project mapping is changed, then resumed automatically.\n\n");		
+		}
 		
 		if (ccfParticipant1 != null) {
 			mappingSection1 = ccfParticipant1.getMappingSection(1);
@@ -184,6 +198,13 @@ public class ChangeProjectMappingDialog extends CcfDialog implements IPageComple
 				try {
 					Landscape landscape = status.getLandscape();
 					CcfDataProvider dataProvider = new CcfDataProvider();
+					
+					if (needsPause) {
+						dataProvider.pauseSynchronization(status);
+					}
+					if (reverseNeedsPause) {
+						dataProvider.pauseSynchronization(reverseStatus);
+					}
 
 					Filter sourceSystemFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_SOURCE_SYSTEM_ID, status.getSourceSystemId(), true);
 					Filter sourceRepositoryFilter = new Filter(CcfDataProvider.SYNCHRONIZATION_STATUS_SOURCE_REPOSITORY_ID, status.getSourceRepositoryId(), true);
@@ -320,6 +341,16 @@ public class ChangeProjectMappingDialog extends CcfDialog implements IPageComple
 	
 	public String getNewMfdFileName() {
 		return newMfdFileName;
+	}
+	
+	public boolean needsResume() {
+		// If it needed to be paused, it will need to be resumed.
+		return needsPause;
+	}
+	
+	public boolean reverseNeedsResume() {
+		// If it needed to be paused, it will need to be resumed.
+		return reverseNeedsPause;
 	}
 
 	protected Button createButton(Composite parent, int id, String label, boolean defaultButton) {
