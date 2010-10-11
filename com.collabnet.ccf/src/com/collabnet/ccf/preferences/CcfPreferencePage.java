@@ -151,7 +151,7 @@ public class CcfPreferencePage extends PreferencePage implements IWorkbenchPrefe
 		encryptNeverButton.setText("Never");
 		
 		Label resetDelayLabel = new Label(composite, SWT.NONE);
-		resetDelayLabel.setText("Reset synchronization status delay (seconds):");
+		resetDelayLabel.setText("Auto-resume delay (seconds):");
 		resetDelayText = new Text(composite, SWT.BORDER);
 		gd = new GridData();
 		gd.widthHint = 75;
