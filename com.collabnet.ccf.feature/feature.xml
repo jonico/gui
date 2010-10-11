@@ -2,7 +2,7 @@
 <feature
       id="com.collabnet.ccf.feature"
       label="CollabNet Connector Framework"
-      version="1.4.14"
+      version="1.4.15"
       provider-name="CollabNet"
       plugin="com.collabnet.ccf">
 
