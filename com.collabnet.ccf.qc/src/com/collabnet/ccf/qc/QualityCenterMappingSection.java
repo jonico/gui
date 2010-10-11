@@ -244,7 +244,7 @@ public class QualityCenterMappingSection extends MappingSection {
 	}
 
 	public boolean validate(Landscape landscape) {
-		// Only validate on windows.
+		// Only validate on 32-bit windows, because the COM driver doesn't work on 64-bit windows.
 		if (landscape.getRole() == Landscape.ROLE_OPERATOR || !"win32".equals(SWT.getPlatform())) return true;
 		QCLayoutExtractor qcLayoutExtractor = new QCLayoutExtractor();
 		Properties properties = landscape.getProperties1();
@@ -264,7 +264,7 @@ public class QualityCenterMappingSection extends MappingSection {
 			validDomainAndProject = false;
 		}
 		if (!validDomainAndProject) {
-			if (!showValidationQuestionDialog("Invalid Quality Center Domain/Project entered.  Add project mapping anyway?")) {
+			if (!showValidationQuestionDialog("Could not validate the supplied Quality Center Domain/Project.  Continue anyway?")) {
 				return false;
 			}
 		}
