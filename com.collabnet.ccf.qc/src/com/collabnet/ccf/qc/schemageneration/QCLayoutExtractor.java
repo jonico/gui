@@ -506,8 +506,8 @@ public class QCLayoutExtractor implements RepositoryLayoutExtractor {
 		} finally {
 			if (qcConnection != null) {
 				closeConnection(qcConnection);
-			}
-			tearDownCOM();
+			}		
+			// tearDownCOM();
 		}
 		return requirementTypes;
 	}
