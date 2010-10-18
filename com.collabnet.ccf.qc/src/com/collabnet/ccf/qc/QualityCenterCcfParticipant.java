@@ -119,7 +119,12 @@ public class QualityCenterCcfParticipant extends CcfParticipant {
 			IProgressMonitor monitor) throws GenericArtifactParsingException,
 			IOException, TransformerException {
 		QCLayoutExtractor qcLayoutExtractor = new QCLayoutExtractor();
-		Properties properties = status.getLandscape().getProperties1();
+		Properties properties;
+		if (status.getLandscape().getType2().equals(getType())) {
+			properties = status.getLandscape().getProperties2();
+		} else {
+			properties = status.getLandscape().getProperties1();
+		}
 		String url = properties.getProperty(PROPERTIES_QC_URL, "");
 		String user = properties.getProperty(PROPERTIES_QC_USER, "");
 		String password = com.collabnet.ccf.Activator.decodePassword(properties.getProperty(

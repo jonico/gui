@@ -121,7 +121,12 @@ public class TeamForgeCcfParticipant extends CcfParticipant {
 			CCFSchemaAndXSLTFileGenerator xmlFileGenerator,
 			IProgressMonitor monitor) throws GenericArtifactParsingException,
 			IOException, TransformerException {
-		Properties properties = status.getLandscape().getProperties2();
+		Properties properties;
+		if (status.getLandscape().getType2().equals(getType())) {
+			properties = status.getLandscape().getProperties2();
+		} else {
+			properties = status.getLandscape().getProperties1();
+		}
 		String url = properties.getProperty(PROPERTIES_SFEE_URL, "");
 		String user = properties
 				.getProperty(PROPERTIES_SFEE_USER, "");
