@@ -27,12 +27,15 @@ import com.collabnet.ccf.IMappingSection;
 import com.collabnet.ccf.MappingSection;
 import com.collabnet.ccf.model.Landscape;
 import com.collabnet.ccf.model.SynchronizationStatus;
+import com.collabnet.ccf.qc.dialogs.DomainProjectSelectionDialog;
 import com.collabnet.ccf.qc.dialogs.RequirementTypeSelectionDialog;
 import com.collabnet.ccf.qc.schemageneration.QCLayoutExtractor;
 
 public class QualityCenterMappingSection extends MappingSection {
 	private Combo domainCombo;
 	private Text projectText;
+	private Button domainBrowseButton;
+	private Button projectBrowseButton;
 	private Label requirementTypeLabel;
 	private Text requirementTypeText;
 	private Button requirementTypeBrowseButton;
@@ -101,7 +104,20 @@ public class QualityCenterMappingSection extends MappingSection {
 		}
 		if (previousDomains.length > 0) domainCombo.setText(previousDomains[0]);
 		
-		new Label(qcGroup, SWT.NONE);
+		domainBrowseButton = new Button(qcGroup, SWT.PUSH);
+		domainBrowseButton.setText("Browse...");
+		domainBrowseButton.setVisible("win32".equals(SWT.getPlatform()));
+		domainBrowseButton.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent arg0) {
+				DomainProjectSelectionDialog dialog = new DomainProjectSelectionDialog(Display.getDefault().getActiveShell(), landscape, domainCombo.getText(), null, DomainProjectSelectionDialog.BROWSER_TYPE_DOMAIN);
+				if (dialog.open() == DomainProjectSelectionDialog.OK) {
+					domainCombo.setText(dialog.getDomain());
+					if (getProjectPage() != null) {
+						getProjectPage().setPageComplete();
+					}
+				}
+			}			
+		});
 		
 		Label projectLabel = new Label(qcGroup, SWT.NONE);
 		projectLabel.setText("Project:");
@@ -110,7 +126,21 @@ public class QualityCenterMappingSection extends MappingSection {
 		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
 		projectText.setLayoutData(gd);	
 		
-		new Label(qcGroup, SWT.NONE);
+		projectBrowseButton = new Button(qcGroup, SWT.PUSH);
+		projectBrowseButton.setText("Browse...");
+		projectBrowseButton.setVisible("win32".equals(SWT.getPlatform()));
+		projectBrowseButton.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent arg0) {
+				DomainProjectSelectionDialog dialog = new DomainProjectSelectionDialog(Display.getDefault().getActiveShell(), landscape, domainCombo.getText(), projectText.getText(), DomainProjectSelectionDialog.BROWSER_TYPE_PROJECT);
+				if (dialog.open() == DomainProjectSelectionDialog.OK) {
+					domainCombo.setText(dialog.getDomain());
+					projectText.setText(dialog.getProject());
+					if (getProjectPage() != null) {
+						getProjectPage().setPageComplete();
+					}
+				}
+			}			
+		});
 		
 		defectsButton = new Button(qcGroup, SWT.RADIO);
 		defectsButton.setText("Defects");
@@ -163,6 +193,8 @@ public class QualityCenterMappingSection extends MappingSection {
 		});
 		
 		if (landscape.getRole() == Landscape.ROLE_OPERATOR) {
+			domainBrowseButton.setEnabled(false);
+			projectBrowseButton.setEnabled(false);
 			requirementTypeBrowseButton.setEnabled(false);
 		}
 	
@@ -247,7 +279,12 @@ public class QualityCenterMappingSection extends MappingSection {
 		// Only validate on 32-bit windows, because the COM driver doesn't work on 64-bit windows.
 		if (landscape.getRole() == Landscape.ROLE_OPERATOR || !"win32".equals(SWT.getPlatform())) return true;
 		QCLayoutExtractor qcLayoutExtractor = new QCLayoutExtractor();
-		Properties properties = landscape.getProperties1();
+		Properties properties;
+		if (landscape.getType2().equals("QT")) {
+			properties = landscape.getProperties2();
+		} else {
+			properties = landscape.getProperties1();
+		}
 		String url = properties.getProperty(Activator.PROPERTIES_QC_URL, "");
 		String user = properties.getProperty(Activator.PROPERTIES_QC_USER, "");
 		String password = Activator.decodePassword(properties.getProperty(

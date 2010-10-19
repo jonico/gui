@@ -109,7 +109,12 @@ public class RequirementTypeSelectionDialog extends CcfDialog {
 			public void run() {
 				try {
 					QCLayoutExtractor qcLayoutExtractor = new QCLayoutExtractor();
-					Properties properties = landscape.getProperties1();
+					Properties properties;
+					if (landscape.getType2().equals("QT")) {
+						properties = landscape.getProperties2();
+					} else {
+						properties = landscape.getProperties1();
+					}
 					String url = properties.getProperty(Activator.PROPERTIES_QC_URL, "");
 					String user = properties.getProperty(Activator.PROPERTIES_QC_USER, "");
 					String password = Activator.decodePassword(properties.getProperty(
