@@ -17,6 +17,8 @@
 
 package com.collabnet.ccf.pi.qc.v90.api;
 
+import java.util.List;
+
 
 public interface IConnection extends ILifeCycle {
 	void login(String user, String pass);
@@ -32,4 +34,6 @@ public interface IConnection extends ILifeCycle {
     public ICommand getCommand();
     public IHistory getHistory();
 	void disconnect();
+	List<String> getUserVisibleDomains();
+	List<String> getUserVisibleProjects(String domain);
 }

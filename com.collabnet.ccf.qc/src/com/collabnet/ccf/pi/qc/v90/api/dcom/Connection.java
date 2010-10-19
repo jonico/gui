@@ -18,12 +18,16 @@
 package com.collabnet.ccf.pi.qc.v90.api.dcom;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.collabnet.ccf.pi.qc.v90.api.ICommand;
 import com.collabnet.ccf.pi.qc.v90.api.IConnection;
 import com.collabnet.ccf.pi.qc.v90.api.IFactory;
 import com.collabnet.ccf.pi.qc.v90.api.IHistory;
 import com.jacob.activeX.ActiveXComponent;
 import com.jacob.com.Dispatch;
+import com.jacob.com.Variant;
 
 public class Connection extends ActiveXComponent implements IConnection
 {
@@ -39,7 +43,63 @@ public class Connection extends ActiveXComponent implements IConnection
         login(user, pass);
         connect(domain, project);
     }
+	
+	/**
+	 * Creates a connection without logging in
+	 * @param server
+	 * @param user
+	 * @param pass
+	 */
+	public Connection(String server, String user, String pass) {
+        super("TDApiOle80.TDConnection");
+        initConnectionEx(server);
+        login(user, pass);
+    }
+	
+	public List<String> getUserVisibleDomains() {
+		List<String> result = new ArrayList<String>();
+		if (loggedIn) {
+	    	Variant res = Dispatch.call(this, "VisibleDomains");
+	    	if (!res.isNull()) {
+	    		assert(res.getvt() == Variant.VariantDispatch);
+	    		Dispatch list = res.getDispatch();
+	    		Variant listSize = Dispatch.call(list, "Count");
+	    		assert(listSize.getvt() == Variant.VariantInt);
+	    		int numItems = listSize.getInt();
+	    		for(int i = 1; i <= numItems; i++) {
+	    			Variant subFieldVal = Dispatch.call(list, "Item", i);
+					assert(subFieldVal.getvt() == Variant.VariantString);
+					if (!subFieldVal.isNull()) {
+						result.add(subFieldVal.getString());
+					}
+	    		}
+	    	}
+		}
+    	return result;
+	}
 
+	public List<String> getUserVisibleProjects(String domain) {
+		List<String> result = new ArrayList<String>();
+		if (loggedIn) {
+	    	Variant res = Dispatch.call(this, "VisibleProjects", domain);
+	    	if (!res.isNull()) {
+	    		assert(res.getvt() == Variant.VariantDispatch);
+	    		Dispatch list = res.getDispatch();
+	    		Variant listSize = Dispatch.call(list, "Count");
+	    		assert(listSize.getvt() == Variant.VariantInt);
+	    		int numItems = listSize.getInt();
+	    		for(int i = 1; i <= numItems; i++) {
+	    			Variant subFieldVal = Dispatch.call(list, "Item", i);
+					assert(subFieldVal.getvt() == Variant.VariantString);
+					if (!subFieldVal.isNull()) {
+						result.add(subFieldVal.getString());
+					}
+	    		}
+	    	}
+		}
+    	return result;
+	}
+	
     boolean loggedIn = false;
     public void login(String user, String pass)
     {
@@ -49,7 +109,9 @@ public class Connection extends ActiveXComponent implements IConnection
 
     public void logout()
     {
-        Dispatch.call(this, "Logout");
+    	if (loggedIn) {
+    		Dispatch.call(this, "Logout");
+    	}
         loggedIn = false;
     }
 
@@ -100,7 +162,6 @@ public class Connection extends ActiveXComponent implements IConnection
 
     public void disconnect()
     {
-    	loggedIn = false;
     	if(factory != null) {
 	    	factory.safeRelease();
 	    	factory = null;
@@ -109,7 +170,11 @@ public class Connection extends ActiveXComponent implements IConnection
 	    	command.safeRelease();
 	    	command = null;
     	}
-        Dispatch.call(this, "DisconnectProject");
+    	
+    	if (loggedIn) {
+    		Dispatch.call(this, "DisconnectProject");
+    		logout();
+    	}
         Dispatch.call(this, "ReleaseConnection");
     }
 

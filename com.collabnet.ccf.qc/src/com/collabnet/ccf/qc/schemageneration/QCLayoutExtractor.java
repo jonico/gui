@@ -971,5 +971,31 @@ public class QCLayoutExtractor implements RepositoryLayoutExtractor {
 			}
 		}
 	}
+	
+	public List<String> getDomains () {
+		IConnection qcConnection = null;
+		try {
+			initCOM();
+			qcConnection = new Connection(getServerUrl(), userName, password);
+			return qcConnection.getUserVisibleDomains();
+		} finally {
+			if (qcConnection != null) {
+				closeConnection(qcConnection);
+			}		
+		}
+	}
+	
+	public List<String> getProjects (String domain) {
+		IConnection qcConnection = null;
+		try {
+			initCOM();
+			qcConnection = new Connection(getServerUrl(), userName, password);
+			return qcConnection.getUserVisibleProjects(domain);
+		} finally {
+			if (qcConnection != null) {
+				closeConnection(qcConnection);
+			}		
+		}
+	}
 
 }
