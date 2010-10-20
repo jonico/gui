@@ -1,7 +1,5 @@
 package com.collabnet.ccf.qc;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 
 import org.eclipse.jface.dialogs.IDialogSettings;
@@ -15,7 +13,6 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
@@ -32,9 +29,8 @@ import com.collabnet.ccf.qc.dialogs.RequirementTypeSelectionDialog;
 import com.collabnet.ccf.qc.schemageneration.QCLayoutExtractor;
 
 public class QualityCenterMappingSection extends MappingSection {
-	private Combo domainCombo;
+	private Text domainText;
 	private Text projectText;
-	private Button domainBrowseButton;
 	private Button projectBrowseButton;
 	private Label requirementTypeLabel;
 	private Text requirementTypeText;
@@ -60,7 +56,7 @@ public class QualityCenterMappingSection extends MappingSection {
 	}
 	
 	private String getRepositoryId() {
-		StringBuffer repositoryId = new StringBuffer(domainCombo.getText().trim() + "-" + projectText.getText().trim());
+		StringBuffer repositoryId = new StringBuffer(domainText.getText().trim() + "-" + projectText.getText().trim());
 		if (requirementsButton.getSelection()) {
 			repositoryId.append("-" + requirementTypeText.getText().trim());
 		}
@@ -94,31 +90,12 @@ public class QualityCenterMappingSection extends MappingSection {
 		Label domainLabel = new Label(qcGroup, SWT.NONE);
 		domainLabel.setText("Domain:");
 
-		domainCombo = new Combo(qcGroup, SWT.BORDER);
+		domainText = new Text(qcGroup, SWT.BORDER);
 		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
-		domainCombo.setLayoutData(gd);	
+		domainText.setLayoutData(gd);	
 		
-		String[] previousDomains = getPreviousDomains();
-		for (String domain : previousDomains) {
-			domainCombo.add(domain);
-		}
-		if (previousDomains.length > 0) domainCombo.setText(previousDomains[0]);
-		
-		domainBrowseButton = new Button(qcGroup, SWT.PUSH);
-		domainBrowseButton.setText("Browse...");
-		domainBrowseButton.setVisible("win32".equals(SWT.getPlatform()));
-		domainBrowseButton.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent arg0) {
-				DomainProjectSelectionDialog dialog = new DomainProjectSelectionDialog(Display.getDefault().getActiveShell(), landscape, domainCombo.getText(), null, DomainProjectSelectionDialog.BROWSER_TYPE_DOMAIN);
-				if (dialog.open() == DomainProjectSelectionDialog.OK) {
-					domainCombo.setText(dialog.getDomain());
-					if (getProjectPage() != null) {
-						getProjectPage().setPageComplete();
-					}
-				}
-			}			
-		});
-		
+		new Label(qcGroup, SWT.NONE);
+
 		Label projectLabel = new Label(qcGroup, SWT.NONE);
 		projectLabel.setText("Project:");
 	
@@ -131,9 +108,9 @@ public class QualityCenterMappingSection extends MappingSection {
 		projectBrowseButton.setVisible("win32".equals(SWT.getPlatform()));
 		projectBrowseButton.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent arg0) {
-				DomainProjectSelectionDialog dialog = new DomainProjectSelectionDialog(Display.getDefault().getActiveShell(), landscape, domainCombo.getText(), projectText.getText(), DomainProjectSelectionDialog.BROWSER_TYPE_PROJECT);
+				DomainProjectSelectionDialog dialog = new DomainProjectSelectionDialog(Display.getDefault().getActiveShell(), landscape, domainText.getText(), projectText.getText(), DomainProjectSelectionDialog.BROWSER_TYPE_PROJECT);
 				if (dialog.open() == DomainProjectSelectionDialog.OK) {
-					domainCombo.setText(dialog.getDomain());
+					domainText.setText(dialog.getDomain());
 					projectText.setText(dialog.getProject());
 					if (getProjectPage() != null) {
 						getProjectPage().setPageComplete();
@@ -182,7 +159,7 @@ public class QualityCenterMappingSection extends MappingSection {
 					MessageDialog.openError(Display.getDefault().getActiveShell(), "Select Requirement Type", "Invalid Quality Center Domain/Project entered.");
 					return;
 				}
-				RequirementTypeSelectionDialog dialog = new RequirementTypeSelectionDialog(Display.getDefault().getActiveShell(), landscape, domainCombo.getText().trim(), projectText.getText().trim());
+				RequirementTypeSelectionDialog dialog = new RequirementTypeSelectionDialog(Display.getDefault().getActiveShell(), landscape, domainText.getText().trim(), projectText.getText().trim());
 				if (dialog.open() == RequirementTypeSelectionDialog.OK) {
 					requirementTypeText.setText(dialog.getType());
 					if (getProjectPage() != null) {
@@ -193,7 +170,6 @@ public class QualityCenterMappingSection extends MappingSection {
 		});
 		
 		if (landscape.getRole() == Landscape.ROLE_OPERATOR) {
-			domainBrowseButton.setEnabled(false);
 			projectBrowseButton.setEnabled(false);
 			requirementTypeBrowseButton.setEnabled(false);
 		}
@@ -207,10 +183,10 @@ public class QualityCenterMappingSection extends MappingSection {
 		};
 		
 		projectText.addModifyListener(modifyListener);
-		domainCombo.addModifyListener(modifyListener);
+		domainText.addModifyListener(modifyListener);
 		requirementTypeText.addModifyListener(modifyListener);
 		
-		domainCombo.addSelectionListener(new SelectionAdapter() {
+		domainText.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent se) {
 				if (getProjectPage() != null) {
 					getProjectPage().setPageComplete();
@@ -242,7 +218,7 @@ public class QualityCenterMappingSection extends MappingSection {
 	}
 
 	public void initializeComposite(SynchronizationStatus projectMapping, int type) {
-		domainCombo.setText(getDomain(projectMapping, type));
+		domainText.setText(getDomain(projectMapping, type));
 		projectText.setText(getProject(projectMapping, type));
 		String requirementType = getRequirementType(projectMapping, type);
 		if (requirementType != null) {
@@ -262,10 +238,10 @@ public class QualityCenterMappingSection extends MappingSection {
 	}
 
 	public boolean isPageComplete() {
-		if (domainCombo == null) {
+		if (domainText == null) {
 			return false;
 		}
-		if (domainCombo.getText().trim().length() == 0 ||
+		if (domainText.getText().trim().length() == 0 ||
 			projectText.getText().trim().length() == 0) {
 			return false;
 		}
@@ -295,7 +271,7 @@ public class QualityCenterMappingSection extends MappingSection {
 		
 		boolean validDomainAndProject;
 		try {
-			qcLayoutExtractor.validateQCDomainAndProject(domainCombo.getText().trim(), projectText.getText().trim());
+			qcLayoutExtractor.validateQCDomainAndProject(domainText.getText().trim(), projectText.getText().trim());
 			validDomainAndProject = true;
 		} catch (Exception e) {
 			validDomainAndProject = false;
@@ -306,23 +282,6 @@ public class QualityCenterMappingSection extends MappingSection {
 			}
 		}
 		return true;
-	}
-	
-	private String[] getPreviousDomains() {
-		List<String> domainList = new ArrayList<String>();
-		int count = 0;
-		try {
-			count = settings.getInt(PREVIOUS_DOMAIN_COUNT);
-		} catch (Exception e) {}
-		if (count > 0) {
-			for (int i = 0; i < count; i++) {
-				String domain = settings.get(PREVIOUS_DOMAIN + i);
-				if (domain != null) domainList.add(domain);
-			}
-		}
-		String[] domains = new String[domainList.size()];
-		domainList.toArray(domains);
-		return domains;
 	}
 	
 	private String getDomain(SynchronizationStatus projectMapping, int type) {
