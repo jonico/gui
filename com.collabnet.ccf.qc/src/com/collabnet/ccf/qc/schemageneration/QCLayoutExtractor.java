@@ -867,38 +867,51 @@ public class QCLayoutExtractor implements RepositoryLayoutExtractor {
 		return genericArtifact;
 	}
 
-	private static void addFieldOptionValue(IConnection qcc, String rootId,
+	/**
+	 * Populates the available field values into the passed list
+	 * This function has to be recursive because field values can result from a hierarchical field value tree hierarchy
+	 * 
+	 * @param qcc TDConnection objects
+	 * @param rootId field value node id
+	 * @param fieldValueOptions list that will be filled with the available field values
+	 * @return true if rootId field value node had children
+	 */
+	private static boolean addFieldOptionValue(IConnection qcc, String rootId,
 			List<String> fieldValueOptions) {
 		if ("0".equals(rootId)) {
-			return;
+			return false;
 		}
+		boolean isQC11 = "11".equals(qcc.getMajorVersion());
 		IRecordSet rsDetails = null;
 		try {
-			String detailSQL = "SELECT al_description as VALUE, al_no_of_sons AS SONS, al_item_id AS ROOT_ID FROM ALL_LISTS where al_father_id = "
+			String detailSQL = "SELECT al_description as VALUE, al_item_id AS ROOT_ID FROM ALL_LISTS where al_father_id = "
 					+ rootId;
+			if (isQC11) {
+				detailSQL = "SELECT ls_name as VALUE, ls_id AS ROOT_ID FROM LISTS where ls_father_id = "
+					+ rootId;
+			}
 			rsDetails = executeSQL(qcc, detailSQL);
 			int detailRowCount = rsDetails.getRecordCount();
-
+			if (detailRowCount == 0) {
+				// No records retrieved, return false
+				return false;
+			}
 			for (int i = 0; i < detailRowCount; ++i) {
-				int noOfSons = Integer.parseInt(rsDetails
-						.getFieldValueAsString("SONS"));
-				if (noOfSons == 0) {
-					fieldValueOptions.add(rsDetails
-							.getFieldValueAsString("VALUE"));
-				} else {
-					addFieldOptionValue(qcc, rsDetails
-							.getFieldValueAsString("ROOT_ID"),
-							fieldValueOptions);
+				if (!addFieldOptionValue(qcc, rsDetails
+						.getFieldValueAsString("ROOT_ID"),
+						fieldValueOptions)) {
+					fieldValueOptions.add(rsDetails.getFieldValueAsString("VALUE"));
 				}
 				rsDetails.next();
 			}
+			// records retrieved, return true
+			return true;
 		} finally {
 			if (rsDetails != null) {
 				rsDetails.safeRelease();
 				rsDetails = null;
 			}
 		}
-
 	}
 	
 	public static IRecordSet executeSQL(IConnection qcc, String sql) {
