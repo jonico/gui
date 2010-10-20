@@ -36,4 +36,6 @@ public interface IConnection extends ILifeCycle {
 	void disconnect();
 	List<String> getUserVisibleDomains();
 	List<String> getUserVisibleProjects(String domain);
+	String getMajorVersion();
+	String getMinorVersion();
 }

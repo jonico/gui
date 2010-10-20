@@ -33,28 +33,37 @@ public class Connection extends ActiveXComponent implements IConnection
 {
 	private IFactory factory = null;
 	private ICommand command = null;
+	
+	
+	private String majorVersion = null, minorVersion = null;
     /**
 	 *
 	 */
 	private static final long serialVersionUID = 1L;
 	public Connection(String server, String domain, String project, String user, String pass) {
-        super("TDApiOle80.TDConnection");
-        initConnectionEx(server);
-        login(user, pass);
+        this(server, user, pass);
         connect(domain, project);
     }
 	
-	/**
-	 * Creates a connection without logging in
-	 * @param server
-	 * @param user
-	 * @param pass
-	 */
 	public Connection(String server, String user, String pass) {
         super("TDApiOle80.TDConnection");
         initConnectionEx(server);
         login(user, pass);
+        populateVersions();
     }
+	
+	private void populateVersions() {
+		Variant majorRef = new Variant("defaultMajor", true);
+		Variant minorRef = new Variant("defaultMinor", true);
+		try {
+			Dispatch.callSub(this, "GetTDVersion", majorRef, minorRef);
+			majorVersion = majorRef.getStringRef();
+			minorVersion = minorRef.getStringRef();
+		} finally {
+			majorRef.safeRelease();
+			minorRef.safeRelease();
+		}
+	}
 	
 	public List<String> getUserVisibleDomains() {
 		List<String> result = new ArrayList<String>();
@@ -73,6 +82,7 @@ public class Connection extends ActiveXComponent implements IConnection
 						result.add(subFieldVal.getString());
 					}
 	    		}
+	    		res.safeRelease();
 	    	}
 		}
     	return result;
@@ -95,6 +105,7 @@ public class Connection extends ActiveXComponent implements IConnection
 						result.add(subFieldVal.getString());
 					}
 	    		}
+	    		res.safeRelease();
 	    	}
 		}
     	return result;
@@ -186,6 +197,13 @@ public class Connection extends ActiveXComponent implements IConnection
 	public IHistory getHistory() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	public String getMajorVersion() {
+		return majorVersion;
+	}
+	public String getMinorVersion() {
+		return minorVersion;
 	}
 
 }
