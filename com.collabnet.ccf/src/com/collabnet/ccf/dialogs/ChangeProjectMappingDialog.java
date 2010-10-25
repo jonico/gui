@@ -259,13 +259,11 @@ public class ChangeProjectMappingDialog extends CcfDialog implements IPageComple
 						reverseStatus.setTargetRepositoryId(sourceRepository);
 					}
 					
-					if (!newXslFileName.equals(oldXslFileName)) {
-						if (oldUsesGraphicalMapping) {
-							status.switchToGraphicalMapping();
-						}
-						if (reverseStatus != null && oldReverseUsesGraphicalMapping) {
-							reverseStatus.switchToGraphicalMapping();
-						}
+					if (oldUsesGraphicalMapping) {
+						status.switchToGraphicalMapping();
+					}
+					if (reverseStatus != null && oldReverseUsesGraphicalMapping) {
+						reverseStatus.switchToGraphicalMapping();
 					}
 					
 					dataProvider.setFieldMappingMode(status);
