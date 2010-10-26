@@ -115,6 +115,7 @@ public class EditFieldMappingsWizard extends Wizard {
 		}
 		canceled = false;
 		mapForceException = null;
+		final CcfDataProvider dataProvider = new CcfDataProvider();
 		final String mapForcePath = getMapForcePath();
 		final boolean generate = mainPage.isGenerate();
 		final boolean switchToGraphical = mainPage.isSwitchToGraphicalMapping();
@@ -122,7 +123,6 @@ public class EditFieldMappingsWizard extends Wizard {
 			public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 				if (switchToGraphical) {
 					projectMapping.switchToGraphicalMapping();
-					CcfDataProvider dataProvider = new CcfDataProvider();
 					try {
 						dataProvider.setFieldMappingMode(projectMapping);
 					} catch (Exception e) {
@@ -271,7 +271,16 @@ public class EditFieldMappingsWizard extends Wizard {
 					.getActiveShell(), "Edit Field Mappings",
 					errorMessage);
 		}
-		return !canceled && mapForceException == null;
+		boolean success = !canceled && mapForceException == null;
+		if (switchToGraphical && !success) {
+			projectMapping.switchToNonGraphicalMapping();
+			try {
+				dataProvider.setFieldMappingMode(projectMapping);
+			} catch (Exception e) {
+				Activator.handleError(e);
+			}			
+		}
+		return success;
 	}
 	
 	public boolean edit(boolean prompt) {
