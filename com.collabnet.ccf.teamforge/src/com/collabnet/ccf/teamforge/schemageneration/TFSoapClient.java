@@ -38,7 +38,11 @@ public class TFSoapClient {
 	public final static String FIELD_TYPE_SINGLE_SELECT = "single-select";
 	
 	public TFSoapClient(String serverUrl, String userId, String password) {
-		connection = Connection.getConnection(serverUrl, userId, password, null, null, null, false);
+		connection = Connection.builder(serverUrl)
+		.userNamePassword(userId, password)
+		.httpAuth(null, null)
+		.proxy(null)
+		.build();
 		Connection.setEngineConfiguration(getEngineConfiguration());
 		clients.put(serverUrl + userId + password, this);
 	}

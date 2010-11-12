@@ -307,7 +307,11 @@ public class ProjectTrackerSelectionDialog extends CcfDialog {
 			String serverUrl = getPickerUrl(properties.getProperty(Activator.PROPERTIES_CEE_URL));
 			String userId = properties.getProperty(Activator.PROPERTIES_CEE_USER);
 			String password = Activator.decodePassword(properties.getProperty(Activator.PROPERTIES_CEE_PASSWORD));
-			Connection connection = Connection.getConnection(serverUrl, userId, password, null, null, null, false);
+			Connection connection = Connection.builder(serverUrl)
+			.userNamePassword(userId, password)
+			.httpAuth(null, null)
+			.proxy(null)
+			.build();
 			Connection.setEngineConfiguration(getEngineConfiguration());	
 			tfClient = connection.getTeamForgeClient();
 		}
