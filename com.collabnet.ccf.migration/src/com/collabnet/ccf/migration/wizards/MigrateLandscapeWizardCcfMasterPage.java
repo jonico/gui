@@ -14,6 +14,10 @@ public class MigrateLandscapeWizardCcfMasterPage extends WizardPage {
 	private Text ccfMasterUrlText;
 	private Text ccfMasterUserText;
 	private Text ccfMasterPasswordText;
+	
+	private String url;
+	private String user;
+	private String password;
 
 	public MigrateLandscapeWizardCcfMasterPage() {
 		super("ccfMasterPage", "CCF Master", null);
@@ -58,6 +62,15 @@ public class MigrateLandscapeWizardCcfMasterPage extends WizardPage {
 		ModifyListener modifyListener = new ModifyListener() {			
 			@Override
 			public void modifyText(ModifyEvent e) {
+				if (e.getSource() == ccfMasterUrlText) {
+					url = ccfMasterUrlText.getText().trim();
+				}
+				else if (e.getSource() == ccfMasterUserText) {
+					user = ccfMasterUserText.getText().trim();
+				}
+				else if (e.getSource() == ccfMasterPasswordText) {
+					password = ccfMasterPasswordText.getText().trim();
+				}
 				setPageComplete(canFinish());
 			}
 		};
@@ -70,15 +83,18 @@ public class MigrateLandscapeWizardCcfMasterPage extends WizardPage {
 	}
 	
 	public String getCcfMasterUrl() {
-		return ccfMasterUrlText.getText().trim();
+		if (!url.endsWith("/")) {
+			url = url + "/";
+		}
+		return url;
 	}
 	
 	public String getCcfMasterUser() {
-		return ccfMasterUserText.getText().trim();
+		return user;
 	}
 	
 	public String getCcfMasterPassword() {
-		return ccfMasterPasswordText.getText().trim();
+		return password;
 	}
 	
 	private boolean canFinish() {
