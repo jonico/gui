@@ -320,6 +320,7 @@ public class MigrateLandscapeWizard extends Wizard {
 					}
 					
 					monitor.subTask("Compiling TeamForge project list");
+					Map<SynchronizationStatus, String> projectMappingMap = new HashMap<SynchronizationStatus, String>();
 					List<String> projectIds = new ArrayList<String>();
 					for (SynchronizationStatus projectMapping : projectMappings) {
 						String repositoryId = null;
@@ -353,6 +354,9 @@ public class MigrateLandscapeWizard extends Wizard {
 										projectId = tracker.getProjectId();
 									}
 								}
+							}
+							if (projectId != null) {
+								projectMappingMap.put(projectMapping, projectId);
 							}
 							if (projectId != null && !projectIds.contains(projectId)) {
 								projectIds.add(projectId);
@@ -394,6 +398,7 @@ public class MigrateLandscapeWizard extends Wizard {
 					}
 					monitor.worked(1);
 					
+					Map<String, ExternalApp> externalAppMap = new HashMap<String, ExternalApp>();
 					if (linkMap.size() > 0) {
 						monitor.subTask("Creating CCF Master external applications");
 						ExternalApp[] externalApps = ccfMasterClient.getExternalApps();
@@ -413,6 +418,7 @@ public class MigrateLandscapeWizard extends Wizard {
 								externalApp = ccfMasterClient.createExternalApp(externalApp);
 								migrationResults.add(new MigrationResult("External application " + externalApp.getLinkId() + " (" + project + ") created in CCF Master."));
 							}
+							externalAppMap.put(project, externalApp);
 							if (monitor.isCanceled()) {
 								canceled = true;
 								return;
@@ -422,6 +428,44 @@ public class MigrateLandscapeWizard extends Wizard {
 					monitor.worked(1);
 					
 					monitor.subTask("Creating CCF Master repository mappings");
+					List<String> repositoryMappingList = new ArrayList<String>();
+					RepositoryMapping[] repositoryMappings = ccfMasterClient.getRepositoryMappings();
+					for (SynchronizationStatus projectMapping : projectMappings) {
+						String projectId = projectMappingMap.get(projectMapping);
+						if (projectId != null) {
+							ExternalApp externalApp = externalAppMap.get(projectId);
+							if (externalApp != null) {
+								String teamForgeRepositoryId = null;
+								String participantRepositoryId = null;
+								if (projectMapping.getSourceSystemKind().startsWith("TF")) {
+									teamForgeRepositoryId = projectMapping.getSourceRepositoryId();
+									participantRepositoryId = projectMapping.getTargetRepositoryId();
+								}
+								else if (projectMapping.getTargetSystemKind().startsWith("TF")) {
+									teamForgeRepositoryId = projectMapping.getTargetRepositoryId();
+									participantRepositoryId = projectMapping.getSourceRepositoryId();
+								}
+								if (teamForgeRepositoryId != null) {
+									if (!repositoryMappingList.contains(projectId + teamForgeRepositoryId + participantRepositoryId)) {										
+										RepositoryMapping repositoryMapping = new RepositoryMapping();
+										repositoryMapping.setDescription(teamForgeRepositoryId + "/" + participantRepositoryId);
+										repositoryMapping.setExternalApp(externalApp);
+										repositoryMapping.setParticipantRepositoryId(participantRepositoryId);
+										repositoryMapping.setTeamForgeRepositoryId(teamForgeRepositoryId);
+										RepositoryMapping checkMapping = getRepositoryMapping(repositoryMapping, repositoryMappings);
+										if (checkMapping == null) {
+											repositoryMapping = ccfMasterClient.createRepositoryMapping(repositoryMapping);
+											migrationResults.add(new MigrationResult("Repository mapping " + repositoryMapping.getDescription() + " created in CCF Master."));
+										} else {
+											repositoryMapping = checkMapping;
+											migrationResults.add(new MigrationResult("Repository mapping " + repositoryMapping.getDescription() + " already exists in CCF Master."));										
+										}
+										repositoryMappingList.add(projectId + teamForgeRepositoryId + participantRepositoryId);
+									}
+								}
+							}
+						}
+					}
 					monitor.worked(1);
 					
 					monitor.subTask("Creating CCF Master identity mappings");
@@ -446,7 +490,7 @@ public class MigrateLandscapeWizard extends Wizard {
 			getContainer().run(true, false, runnable);
 		} catch (Exception e) {
 			Activator.handleError(e);
-			if (e.getMessage().contains("<html>")) {
+			if (e.getMessage() != null && e.getMessage().contains("<html>")) {
 				MigrateLandscapeErrorDialog dialog = new MigrateLandscapeErrorDialog(getShell(), e);
 				dialog.open();				
 			} else {
@@ -458,7 +502,7 @@ public class MigrateLandscapeWizard extends Wizard {
 		
 		if (exception != null) {
 			Activator.handleError(exception);
-			if (exception.getMessage().contains("<html>")) {
+			if (exception.getMessage() != null && exception.getMessage().contains("<html>")) {
 				MigrateLandscapeErrorDialog dialog = new MigrateLandscapeErrorDialog(getShell(), exception);
 				dialog.open();					
 			} else {
@@ -512,22 +556,26 @@ public class MigrateLandscapeWizard extends Wizard {
 	}
 	
 	private ExternalApp getExternalApp(ExternalApp checkApp, ExternalApp[] existingApps) {
-		for (ExternalApp externalApp : existingApps) {
-			if (externalApp.getLandscape().getId() == checkApp.getLandscape().getId() &&
-					externalApp.getLinkId().equals(checkApp.getLinkId()) &&
-					externalApp.getProjectId().equals(checkApp.getProjectId())) {
-				return externalApp;
+		if (checkApp.getLandscape() != null) {
+			for (ExternalApp externalApp : existingApps) {
+				if (externalApp.getLandscape() != null && externalApp.getLandscape().getId() == checkApp.getLandscape().getId() &&
+						externalApp.getLinkId().equals(checkApp.getLinkId()) &&
+						externalApp.getProjectId().equals(checkApp.getProjectId())) {
+					return externalApp;
+				}
 			}
 		}
 		return null;
 	}
 	
 	private RepositoryMapping getRepositoryMapping(RepositoryMapping checkMapping, RepositoryMapping[] existingMappings) {
-		for (RepositoryMapping repositoryMapping: existingMappings) {
-			if (repositoryMapping.getExternalApp().getId() == checkMapping.getExternalApp().getId() &&
-					repositoryMapping.getParticipantRepositoryId().equals(checkMapping.getParticipantRepositoryId()) &&
-					repositoryMapping.getTeamForgeRepositoryId().equals(checkMapping.getTeamForgeRepositoryId())) {
-				return repositoryMapping;		
+		if (checkMapping.getExternalApp() != null) {
+			for (RepositoryMapping repositoryMapping: existingMappings) {
+				if (repositoryMapping.getExternalApp() != null && repositoryMapping.getExternalApp().getId() == checkMapping.getExternalApp().getId() &&
+						repositoryMapping.getParticipantRepositoryId().equals(checkMapping.getParticipantRepositoryId()) &&
+						repositoryMapping.getTeamForgeRepositoryId().equals(checkMapping.getTeamForgeRepositoryId())) {
+					return repositoryMapping;		
+				}
 			}
 		}
 		return null;
