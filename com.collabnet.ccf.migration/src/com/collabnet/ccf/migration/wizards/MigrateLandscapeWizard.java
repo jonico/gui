@@ -19,6 +19,7 @@ import com.collabnet.ccf.api.model.Direction;
 import com.collabnet.ccf.api.model.Directions;
 import com.collabnet.ccf.api.model.ExternalApp;
 import com.collabnet.ccf.api.model.Participant;
+import com.collabnet.ccf.api.model.RepositoryMapping;
 import com.collabnet.ccf.db.CcfDataProvider;
 import com.collabnet.ccf.dialogs.ExceptionDetailsErrorDialog;
 import com.collabnet.ccf.migration.MigrationResult;
@@ -27,6 +28,7 @@ import com.collabnet.ccf.migration.dialogs.MigrateLandscapeResultsDialog;
 import com.collabnet.ccf.migration.webclient.TeamForgeClient;
 import com.collabnet.ccf.model.Landscape;
 import com.collabnet.ccf.model.SynchronizationStatus;
+import com.collabnet.teamforge.api.main.ProjectDO;
 import com.collabnet.teamforge.api.pluggable.PluggableComponentDO;
 import com.collabnet.teamforge.api.pluggable.PluggableComponentParameterDO;
 import com.collabnet.teamforge.api.pluggable.PluggablePermissionDO;
@@ -39,6 +41,7 @@ public class MigrateLandscapeWizard extends Wizard {
 	
 	private List<MigrationResult> migrationResults;
 	private Exception exception;
+	private boolean canceled;
 
 	public MigrateLandscapeWizard(Landscape landscape) {
 		super();
@@ -59,13 +62,14 @@ public class MigrateLandscapeWizard extends Wizard {
 	public boolean performFinish() {
 		migrationResults = new ArrayList<MigrationResult>();
 		exception = null;
+		canceled = false;
 		
 		IRunnableWithProgress runnable = new IRunnableWithProgress() {
 			@Override
 			public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 				String taskName = "Migrating landscape";
 				monitor.setTaskName(taskName);
-				monitor.beginTask(taskName, 16);	
+				monitor.beginTask(taskName, 20);	
 				CcfMasterClient ccfMasterClient = getCcfMasterClient();
 				try {					
 					
@@ -90,6 +94,10 @@ public class MigrateLandscapeWizard extends Wizard {
 						}
 					}
 					monitor.worked(1);
+					if (monitor.isCanceled()) {
+						canceled = true;
+						return;
+					}
 					if (teamForgeParticipant == null) {
 						monitor.subTask("Creating CCF Master TeamForge participant");
 						teamForgeParticipant = new Participant();
@@ -99,6 +107,10 @@ public class MigrateLandscapeWizard extends Wizard {
 						migrationResults.add(new MigrationResult("TeamForge participant created in CCF Master."));
 					}
 					monitor.worked(1);
+					if (monitor.isCanceled()) {
+						canceled = true;
+						return;
+					}
 					
 					if (otherParticipant == null) {
 						String otherDescription = getParticipantDescription(otherType);			
@@ -110,6 +122,10 @@ public class MigrateLandscapeWizard extends Wizard {
 						migrationResults.add(new MigrationResult(getParticipantDescription(otherType) + " participant created in CCF Master."));
 					}
 					monitor.worked(1);
+					if (monitor.isCanceled()) {
+						canceled = true;
+						return;
+					}
 					
 					teamForgeClient.getConnection().login();
 					monitor.subTask("Checking for CCF Master integrated application");
@@ -118,6 +134,10 @@ public class MigrateLandscapeWizard extends Wizard {
 						migrationResults.add(new MigrationResult("Integrated application " + plugId + " already exists."));
 					}
 					monitor.worked(1);
+					if (monitor.isCanceled()) {
+						canceled = true;
+						return;
+					}
 					
 					boolean integratedApplicationCreated = false;
 					if (plugId == null) {
@@ -172,18 +192,30 @@ public class MigrateLandscapeWizard extends Wizard {
 						integratedApplicationCreated = true;
 					}
 					monitor.worked(1);
+					if (monitor.isCanceled()) {
+						canceled = true;
+						return; 
+					}
 					
 					if (plugId == null) {
 						PluggableComponentDO integratedApplication = teamForgeClient.getConnection().getIntegratedAppClient(false).getIntegratedApplicationByName(landscape.getDescription());
 						plugId = integratedApplication.getId();
 					}
 					monitor.worked(1);
+					if (monitor.isCanceled()) {
+						canceled = true;
+						return;
+					}
 					
 					if (integratedApplicationCreated) {
 						migrationResults.add(new MigrationResult("Integrated application " + plugId + " created."));
 						teamForgeClient.getConnection().getIntegratedAppClient(false).setPluggableAppMessageResource(plugId, "en_US", "19n.CCFMASTER", "CCFMASTER");					
 					}
 					monitor.worked(1);
+					if (monitor.isCanceled()) {
+						canceled = true;
+						return;
+					}
 					
 					monitor.subTask("Checking for existing CCF Master landscape");
 					com.collabnet.ccf.api.model.Landscape ccfMasterLandscape = null;
@@ -196,6 +228,10 @@ public class MigrateLandscapeWizard extends Wizard {
 						}
 					}
 					monitor.worked(1);
+					if (monitor.isCanceled()) {
+						canceled = true;
+						return;
+					}
 					
 					boolean landscapeAlreadyExists = ccfMasterLandscape != null;
 					
@@ -210,6 +246,10 @@ public class MigrateLandscapeWizard extends Wizard {
 						migrationResults.add(new MigrationResult("Landscape " + ccfMasterLandscape.getDescription() + " created in CCF Master."));
 					}
 					monitor.worked(1);
+					if (monitor.isCanceled()) {
+						canceled = true;
+						return;
+					}
 					
 					Direction forward = null;
 					Direction reverse = null;
@@ -233,6 +273,10 @@ public class MigrateLandscapeWizard extends Wizard {
 						}
 					}
 					monitor.worked(1);
+					if (monitor.isCanceled()) {
+						canceled = true;
+						return;
+					}
 					
 					if (forward == null || reverse == null) {
 						monitor.subTask("Creating CCF Master directions");
@@ -247,6 +291,10 @@ public class MigrateLandscapeWizard extends Wizard {
 						migrationResults.add(new MigrationResult("Direction " + forward.getDescription() + " (FORWARD) created in CCF Master."));
 					}
 					monitor.worked(1);
+					if (monitor.isCanceled()) {
+						canceled = true;
+						return;
+					}
 					
 					if (reverse == null) {
 						reverse = new Direction();
@@ -257,11 +305,19 @@ public class MigrateLandscapeWizard extends Wizard {
 						migrationResults.add(new MigrationResult("Direction " + reverse.getDescription() + " (REVERSE) created in CCF Master."));
 					}
 					monitor.worked(1);
+					if (monitor.isCanceled()) {
+						canceled = true;
+						return;
+					}
 					
 					monitor.subTask("Retrieving CCF 1.x project mappings");
 					CcfDataProvider ccfDataProvider = new CcfDataProvider();
 					SynchronizationStatus[] projectMappings = ccfDataProvider.getSynchronizationStatuses(landscape, null);
 					monitor.worked(1);
+					if (monitor.isCanceled()) {
+						canceled = true;
+						return;
+					}
 					
 					monitor.subTask("Compiling TeamForge project list");
 					List<String> projectIds = new ArrayList<String>();
@@ -304,6 +360,10 @@ public class MigrateLandscapeWizard extends Wizard {
 						}
 					}
 					monitor.worked(1);
+					if (monitor.isCanceled()) {
+						canceled = true;
+						return;
+					}
 					
 					Map<String, String> linkMap = new HashMap<String, String>();
 					
@@ -323,8 +383,12 @@ public class MigrateLandscapeWizard extends Wizard {
 								PluggableComponentParameterDO[] params = {};
 								teamForgeClient.getConnection().getIntegratedAppClient(false).enablePluggableComponent(projectId, plugId, params, "ccf");							
 								linkId = teamForgeClient.getConnection().getIntegratedAppClient(false).getLinkPlugIdByPlugId(projectId, plugId);
-								linkMap.put(projectId, linkId);
 								migrationResults.add(new MigrationResult("Integrated application " + linkId + " enabled for project " + projectId + "."));
+							}	
+							linkMap.put(projectId, linkId);
+							if (monitor.isCanceled()) {
+								canceled = true;
+								return;
 							}
 						}
 					}
@@ -332,18 +396,43 @@ public class MigrateLandscapeWizard extends Wizard {
 					
 					if (linkMap.size() > 0) {
 						monitor.subTask("Creating CCF Master external applications");
+						ExternalApp[] externalApps = ccfMasterClient.getExternalApps();
 						Set<String> projects = linkMap.keySet();
 						for (String project : projects) {
 							String linkId = linkMap.get(project);
+							ProjectDO projectDO = teamForgeClient.getConnection().getTeamForgeClient().getProjectData(project);
 							ExternalApp externalApp = new ExternalApp();
-							externalApp.setProjectId(project);
+							externalApp.setProjectId(projectDO.getPath());
 							externalApp.setLinkId(linkId);
 							externalApp.setLandscape(ccfMasterLandscape);
-							externalApp = ccfMasterClient.createExternalApp(externalApp);
-							migrationResults.add(new MigrationResult("External application " + externalApp.getLinkId() + " (" + project + ") created in CCF Master."));
+							ExternalApp existingApp = getExternalApp(externalApp, externalApps);
+							if (existingApp != null) {
+								externalApp = existingApp;
+								migrationResults.add(new MigrationResult("External application " + externalApp.getLinkId() + " (" + project + ") already exists in CCF Master."));
+							} else {
+								externalApp = ccfMasterClient.createExternalApp(externalApp);
+								migrationResults.add(new MigrationResult("External application " + externalApp.getLinkId() + " (" + project + ") created in CCF Master."));
+							}
+							if (monitor.isCanceled()) {
+								canceled = true;
+								return;
+							}
 						}
 					}
 					monitor.worked(1);
+					
+					monitor.subTask("Creating CCF Master repository mappings");
+					monitor.worked(1);
+					
+					monitor.subTask("Creating CCF Master identity mappings");
+					monitor.worked(1);
+					
+					monitor.subTask("Creating CCF Master repository mapping directions");
+					monitor.worked(1);
+					
+					monitor.subTask("Creating CCF Master hospital entries");
+					monitor.worked(1);
+					
 				} catch (Exception e) {
 					exception = e;
 					return;					
@@ -378,6 +467,10 @@ public class MigrateLandscapeWizard extends Wizard {
 			migrationResults.add(new MigrationResult(exception));
 		}
 		
+		if (canceled) {
+			migrationResults.add(new MigrationResult(new Exception("Migration canceled by user.")));
+		}
+		
 		MigrationResult[] migrationResultArray = new MigrationResult[migrationResults.size()];
 		migrationResults.toArray(migrationResultArray);
 		MigrateLandscapeResultsDialog dialog = new MigrateLandscapeResultsDialog(getShell(), migrationResultArray);
@@ -385,7 +478,7 @@ public class MigrateLandscapeWizard extends Wizard {
 			return false;
 		}
 		
-		return exception == null;
+		return exception == null && !canceled;
 	}
 	
 	@Override
@@ -416,5 +509,27 @@ public class MigrateLandscapeWizard extends Wizard {
 			description = "Unknown";
 		}
 		return description;
+	}
+	
+	private ExternalApp getExternalApp(ExternalApp checkApp, ExternalApp[] existingApps) {
+		for (ExternalApp externalApp : existingApps) {
+			if (externalApp.getLandscape().getId() == checkApp.getLandscape().getId() &&
+					externalApp.getLinkId().equals(checkApp.getLinkId()) &&
+					externalApp.getProjectId().equals(checkApp.getProjectId())) {
+				return externalApp;
+			}
+		}
+		return null;
+	}
+	
+	private RepositoryMapping getRepositoryMapping(RepositoryMapping checkMapping, RepositoryMapping[] existingMappings) {
+		for (RepositoryMapping repositoryMapping: existingMappings) {
+			if (repositoryMapping.getExternalApp().getId() == checkMapping.getExternalApp().getId() &&
+					repositoryMapping.getParticipantRepositoryId().equals(checkMapping.getParticipantRepositoryId()) &&
+					repositoryMapping.getTeamForgeRepositoryId().equals(checkMapping.getTeamForgeRepositoryId())) {
+				return repositoryMapping;		
+			}
+		}
+		return null;
 	}
 }
