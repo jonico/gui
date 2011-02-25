@@ -21,6 +21,8 @@ import com.collabnet.ccf.api.model.Directions;
 import com.collabnet.ccf.api.model.ExternalApp;
 import com.collabnet.ccf.api.model.Participant;
 import com.collabnet.ccf.api.model.RepositoryMapping;
+import com.collabnet.ccf.api.model.RepositoryMappingDirection;
+import com.collabnet.ccf.api.model.RepositoryMappingDirectionStatus;
 import com.collabnet.ccf.db.CcfDataProvider;
 import com.collabnet.ccf.dialogs.ExceptionDetailsErrorDialog;
 import com.collabnet.ccf.migration.MigrationResult;
@@ -488,14 +490,58 @@ public class MigrateLandscapeWizard extends Wizard {
 									}
 								}
 							}
+							if (monitor.isCanceled()) {
+								canceled = true;
+								return;
+							}
 						}
 					}
 					monitor.worked(1);
 					
-					monitor.subTask("Creating CCF Master identity mappings");
+					monitor.subTask("Creating CCF Master repository mapping directions");
+					repositoryMappings = ccfMasterClient.getRepositoryMappings();
+					RepositoryMappingDirection[] repositoryMappingDirections = ccfMasterClient.getRepositoryMappingDirections();
+					if (monitor.isCanceled()) {
+						canceled = true;
+						return;
+					}
+					for (SynchronizationStatus projectMapping : projectMappings) {
+						if (projectMapping.getSourceSystemKind().startsWith("TF") || projectMapping.getTargetSystemKind().startsWith("TF")) {
+							RepositoryMappingDirection repositoryMappingDirection = new RepositoryMappingDirection();
+							if (projectMapping.getTargetSystemKind().startsWith("TF")) {
+								repositoryMappingDirection.setDirection(Directions.REVERSE);
+							} else {
+								repositoryMappingDirection.setDirection(Directions.FORWARD);
+							}
+							repositoryMappingDirection.setRepositoryMapping(getRepositoryMapping(projectMapping, repositoryMappings));
+							if (projectMapping.isPaused()) {
+								repositoryMappingDirection.setStatus(RepositoryMappingDirectionStatus.PAUSED);
+							} else {
+								repositoryMappingDirection.setStatus(RepositoryMappingDirectionStatus.RUNNING);
+							}
+							repositoryMappingDirection.setLastSourceArtifactModificationDate(projectMapping.getSourceLastModificationTime());
+							repositoryMappingDirection.setLastSourceArtifactVersion(projectMapping.getSourceLastArtifactVersion());
+							repositoryMappingDirection.setLastSourceArtifactId(projectMapping.getSourceLastArtifactId());
+							repositoryMappingDirection.setConflictResolutionPolicy(projectMapping.getConflictResolutionPriority());
+							RepositoryMappingDirection checkRepositoryMappingDirection = getRepositoryMappinDirection(repositoryMappingDirection, repositoryMappingDirections);
+							if (checkRepositoryMappingDirection == null) {
+								repositoryMappingDirection = ccfMasterClient.createRepositoryMappingDirection(repositoryMappingDirection);
+								migrationResults.add(new MigrationResult("Repository mapping direction " + repositoryMappingDirection.getRepositoryMapping().getDescription() + " (" + repositoryMappingDirection.getDirection() + ") created in CCF Master."));
+							} else {
+								repositoryMappingDirection = checkRepositoryMappingDirection;
+								migrationResults.add(new MigrationResult("Repository mapping direction " + repositoryMappingDirection.getRepositoryMapping().getDescription() + " (" + repositoryMappingDirection.getDirection() + ") already exists in CCF Master."));
+							}
+							if (monitor.isCanceled()) {
+								canceled = true;
+								return;
+							}
+						}
+						
+					}
+					
 					monitor.worked(1);
 					
-					monitor.subTask("Creating CCF Master repository mapping directions");
+					monitor.subTask("Creating CCF Master identity mappings");
 					monitor.worked(1);
 					
 					monitor.subTask("Creating CCF Master hospital entries");
@@ -604,6 +650,29 @@ public class MigrateLandscapeWizard extends Wizard {
 		}
 		return null;
 	}
+	
+	private RepositoryMapping getRepositoryMapping(SynchronizationStatus projectMapping, RepositoryMapping[] repositoryMappings) {
+		for (RepositoryMapping repositoryMapping : repositoryMappings) {
+			if (projectMapping.getSourceRepositoryId().equals(repositoryMapping.getTeamForgeRepositoryId()) || projectMapping.getSourceRepositoryId().equals(repositoryMapping.getParticipantRepositoryId())) {
+				if (projectMapping.getTargetRepositoryId().equals(repositoryMapping.getTeamForgeRepositoryId()) || projectMapping.getTargetRepositoryId().equals(repositoryMapping.getParticipantRepositoryId())) {
+					return repositoryMapping;
+				}
+			}
+		}
+		return null;
+	}
+	
+	private RepositoryMappingDirection getRepositoryMappinDirection(RepositoryMappingDirection checkMappingDirection, RepositoryMappingDirection[] existingDirections) {
+		if (checkMappingDirection.getRepositoryMapping() != null) {
+			for (RepositoryMappingDirection repositoryMappingDirection: existingDirections) {
+				if (repositoryMappingDirection.getRepositoryMapping() != null && repositoryMappingDirection.getRepositoryMapping().getId() == checkMappingDirection.getRepositoryMapping().getId() &&
+						repositoryMappingDirection.getDirection().toString().equals(checkMappingDirection.getDirection().toString())) {
+					return repositoryMappingDirection;		
+				}
+			}
+		}
+		return null;
+	}	
 	
 	private void saveSelections() {
 	    List<String> urls = new ArrayList<String>();
