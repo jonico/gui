@@ -1,23 +1,31 @@
 package com.collabnet.ccf.migration.wizards;
 
+import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
+import com.collabnet.ccf.migration.Activator;
+
 public class MigrateLandscapeWizardCcfMasterPage extends WizardPage {
-	private Text ccfMasterUrlText;
+	private Combo ccfMasterUrlCombo;
 	private Text ccfMasterUserText;
 	private Text ccfMasterPasswordText;
 	
 	private String url;
 	private String user;
 	private String password;
+	
+	private IDialogSettings settings = Activator.getDefault().getDialogSettings();
 
 	public MigrateLandscapeWizardCcfMasterPage() {
 		super("ccfMasterPage", "CCF Master", null);
@@ -37,10 +45,28 @@ public class MigrateLandscapeWizardCcfMasterPage extends WizardPage {
 		Label ccfMasterUrlLabel = new Label(outerContainer, SWT.NONE);
 		ccfMasterUrlLabel.setText("CCF Master URL:");
 		
-		ccfMasterUrlText = new Text(outerContainer, SWT.BORDER);
+		ccfMasterUrlCombo = new Combo(outerContainer, SWT.BORDER);
 		GridData gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.FILL_HORIZONTAL);
 		gd.widthHint = 300;
-		ccfMasterUrlText.setLayoutData(gd);
+		ccfMasterUrlCombo.setLayoutData(gd);
+		
+	    for (int i = 0; i < 5; i++) {
+	        String url = settings.get("CCFMaster.url." + i); //$NON-NLS-1$ //$NON-NLS-2$
+	        if (url == null)
+	          break;
+	        ccfMasterUrlCombo.add(url);
+	    }
+	    
+	    ccfMasterUrlCombo.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				String user = settings.get("CCFMaster.user." + ccfMasterUrlCombo.getText());
+				if (user != null) {
+					ccfMasterUserText.setText(user);
+					ccfMasterPasswordText.setFocus();
+					ccfMasterPasswordText.selectAll();
+				}
+			}
+		});
 		
 		Label ccfMasterUserLabel = new Label(outerContainer, SWT.NONE);
 		ccfMasterUserLabel.setText("User name:");
@@ -62,8 +88,8 @@ public class MigrateLandscapeWizardCcfMasterPage extends WizardPage {
 		ModifyListener modifyListener = new ModifyListener() {			
 			@Override
 			public void modifyText(ModifyEvent e) {
-				if (e.getSource() == ccfMasterUrlText) {
-					url = ccfMasterUrlText.getText().trim();
+				if (e.getSource() == ccfMasterUrlCombo) {
+					url = ccfMasterUrlCombo.getText().trim();
 				}
 				else if (e.getSource() == ccfMasterUserText) {
 					user = ccfMasterUserText.getText().trim();
@@ -75,7 +101,7 @@ public class MigrateLandscapeWizardCcfMasterPage extends WizardPage {
 			}
 		};
 		
-		ccfMasterUrlText.addModifyListener(modifyListener);
+		ccfMasterUrlCombo.addModifyListener(modifyListener);
 		ccfMasterUserText.addModifyListener(modifyListener);
 		ccfMasterPasswordText.addModifyListener(modifyListener);
 
@@ -98,7 +124,7 @@ public class MigrateLandscapeWizardCcfMasterPage extends WizardPage {
 	}
 	
 	private boolean canFinish() {
-		String url = ccfMasterUrlText.getText().trim();
+		String url = ccfMasterUrlCombo.getText().trim();
 		if (!url.startsWith("http://") && !url.startsWith("https://")) {
 			return false;
 		}

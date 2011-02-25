@@ -10,6 +10,7 @@ import java.util.Set;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.wizard.Wizard;
 
@@ -42,6 +43,8 @@ public class MigrateLandscapeWizard extends Wizard {
 	private List<MigrationResult> migrationResults;
 	private Exception exception;
 	private boolean canceled;
+	
+	private IDialogSettings settings = com.collabnet.ccf.migration.Activator.getDefault().getDialogSettings();
 
 	public MigrateLandscapeWizard(Landscape landscape) {
 		super();
@@ -60,6 +63,9 @@ public class MigrateLandscapeWizard extends Wizard {
 
 	@Override
 	public boolean performFinish() {
+		
+		saveSelections();
+		
 		migrationResults = new ArrayList<MigrationResult>();
 		exception = null;
 		canceled = false;
@@ -103,6 +109,11 @@ public class MigrateLandscapeWizard extends Wizard {
 						teamForgeParticipant = new Participant();
 						teamForgeParticipant.setSystemId("TF");
 						teamForgeParticipant.setDescription("TeamForge");
+						if (landscape.getType2().equals("TF")) {
+							teamForgeParticipant.setTimezone(landscape.getTimezone2());
+						} else {
+							teamForgeParticipant.setTimezone(landscape.getTimezone1());
+						}
 						teamForgeParticipant = ccfMasterClient.createParticipant(teamForgeParticipant);
 						migrationResults.add(new MigrationResult("TeamForge participant created in CCF Master."));
 					}
@@ -117,7 +128,12 @@ public class MigrateLandscapeWizard extends Wizard {
 						monitor.subTask("Creating CCF Master " + otherDescription + " participant");
 						otherParticipant = new Participant();
 						otherParticipant.setSystemId(otherType);
-						otherParticipant.setDescription(otherDescription);			
+						otherParticipant.setDescription(otherDescription);	
+						if (landscape.getType2().equals("TF")) {
+							otherParticipant.setTimezone(landscape.getTimezone1());
+						} else {
+							otherParticipant.setTimezone(landscape.getTimezone2());
+						}
 						otherParticipant = ccfMasterClient.createParticipant(otherParticipant);
 						migrationResults.add(new MigrationResult(getParticipantDescription(otherType) + " participant created in CCF Master."));
 					}
@@ -286,7 +302,11 @@ public class MigrateLandscapeWizard extends Wizard {
 						forward = new Direction();
 						forward.setLandscape(ccfMasterLandscape);
 						forward.setDirections(Directions.FORWARD);
-						forward.setDescription(landscape.getType1() + landscape.getType2());
+						if (landscape.getType1().equals("TF")) {
+							forward.setDescription(landscape.getType1() + landscape.getType2());
+						} else {
+							forward.setDescription(landscape.getType2() + landscape.getType1());
+						}
 						forward = ccfMasterClient.createDirection(forward);
 						migrationResults.add(new MigrationResult("Direction " + forward.getDescription() + " (FORWARD) created in CCF Master."));
 					}
@@ -300,7 +320,11 @@ public class MigrateLandscapeWizard extends Wizard {
 						reverse = new Direction();
 						reverse.setLandscape(ccfMasterLandscape);
 						reverse.setDirections(Directions.REVERSE);
-						reverse.setDescription(landscape.getType2() + landscape.getType1());
+						if (landscape.getType1().equals("TF")) {
+							reverse.setDescription(landscape.getType2() + landscape.getType1());
+						} else {
+							reverse.setDescription(landscape.getType1() + landscape.getType2());
+						}
 						reverse = ccfMasterClient.createDirection(reverse);
 						migrationResults.add(new MigrationResult("Direction " + reverse.getDescription() + " (REVERSE) created in CCF Master."));
 					}
@@ -579,5 +603,24 @@ public class MigrateLandscapeWizard extends Wizard {
 			}
 		}
 		return null;
+	}
+	
+	private void saveSelections() {
+	    List<String> urls = new ArrayList<String>();
+	    urls.add(ccfMasterPage.getCcfMasterUrl());
+	    for (int i = 0; i < 5; i++) {
+	      String url = settings.get("CCFMaster.url." + i);
+	      if (url == null)
+	        break;
+	      if (!urls.contains(url))
+	        urls.add(url);
+	    }	
+	    int i = 0;
+	    for (String url : urls) {
+	        settings.put("CCFMaster.url." + i++, url); //$NON-NLS-1$ //$NON-NLS-2$
+	        if (i == 5)
+	          break;	    	
+	    }
+	    settings.put("CCFMaster.user." + ccfMasterPage.getCcfMasterUrl(), ccfMasterPage.getCcfMasterUser());
 	}
 }
