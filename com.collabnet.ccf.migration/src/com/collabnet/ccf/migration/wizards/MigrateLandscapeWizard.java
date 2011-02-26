@@ -519,6 +519,8 @@ public class MigrateLandscapeWizard extends Wizard {
 							} else {
 								repositoryMappingDirection.setStatus(RepositoryMappingDirectionStatus.RUNNING);
 							}
+							repositoryMappingDirection.setSourceMappingInfo(projectMapping.getSourceRepositoryKind());
+							repositoryMappingDirection.setTargetMappingInfo(projectMapping.getTargetRepositoryKind());
 							repositoryMappingDirection.setLastSourceArtifactModificationDate(projectMapping.getSourceLastModificationTime());
 							repositoryMappingDirection.setLastSourceArtifactVersion(projectMapping.getSourceLastArtifactVersion());
 							repositoryMappingDirection.setLastSourceArtifactId(projectMapping.getSourceLastArtifactId());
