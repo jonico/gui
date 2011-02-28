@@ -548,6 +548,7 @@ public class MigrateLandscapeWizard extends Wizard {
 					monitor.worked(1);
 					
 					monitor.subTask("Creating CCF Master identity mappings");
+					int identityMappingCount = 0;
 					Filter[] filter = new Filter[0];
 					IdentityMapping[] identityMappings = ccfDataProvider.getIdentityMappings(landscape, filter);
 					for (IdentityMapping mapping : identityMappings) {
@@ -570,16 +571,24 @@ public class MigrateLandscapeWizard extends Wizard {
 							identityMapping.setTargetArtifactId(mapping.getTargetArtifactId());
 							identityMapping.setTargetArtifactVersion(mapping.getTargetArtifactVersion());
 							identityMapping.setTargetLastModificationTime(mapping.getTargetLastModificationTime());
-							ccfMasterClient.createIdentityMapping(identityMapping);
+							ccfMasterClient.createIdentityMapping(identityMapping, mapping.getTargetSystemKind().startsWith("TF"));
+							identityMappingCount++;
 							if (monitor.isCanceled()) {
+								if (identityMappingCount > 0) {
+									migrationResults.add(new MigrationResult(identityMappingCount + " identity mappings created in CCF Master"));
+								}
 								canceled = true;
 								return;
 							}
 						}
 					}
+					if (identityMappingCount > 0) {
+						migrationResults.add(new MigrationResult(identityMappingCount + " identity mappings created in CCF Master"));
+					}
 					monitor.worked(1);
 					
 					monitor.subTask("Creating CCF Master hospital entries");
+					int hospitalEntryCount = 0;
 					Patient[] hospitalEntries = ccfDataProvider.getPatients(landscape, filter);
 					for (Patient patient : hospitalEntries) {
 						if (patient.getSourceSystemKind().startsWith("TF") || patient.getTargetSystemKind().startsWith("TF")) {
@@ -608,11 +617,18 @@ public class MigrateLandscapeWizard extends Wizard {
 							hospitalEntry.setTargetLastModificationTime(patient.getTargetLastModificationTime());
 							hospitalEntry.setTimestamp(patient.getTimeStamp());
 							ccfMasterClient.createHospitalEntry(hospitalEntry);
+							hospitalEntryCount++;
 							if (monitor.isCanceled()) {
+								if (hospitalEntryCount > 0) {
+									migrationResults.add(new MigrationResult(hospitalEntryCount + " hospitalEntries created in CCF Master"));
+								}
 								canceled = true;
 								return;
 							}
 						}
+					}
+					if (hospitalEntryCount > 0) {
+						migrationResults.add(new MigrationResult(hospitalEntryCount + " hospitalEntries created in CCF Master"));
 					}
 					monitor.worked(1);
 					
