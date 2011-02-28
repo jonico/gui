@@ -19,17 +19,21 @@ import com.collabnet.ccf.api.CcfMasterClient;
 import com.collabnet.ccf.api.model.Direction;
 import com.collabnet.ccf.api.model.Directions;
 import com.collabnet.ccf.api.model.ExternalApp;
+import com.collabnet.ccf.api.model.HospitalEntry;
 import com.collabnet.ccf.api.model.Participant;
 import com.collabnet.ccf.api.model.RepositoryMapping;
 import com.collabnet.ccf.api.model.RepositoryMappingDirection;
 import com.collabnet.ccf.api.model.RepositoryMappingDirectionStatus;
 import com.collabnet.ccf.db.CcfDataProvider;
+import com.collabnet.ccf.db.Filter;
 import com.collabnet.ccf.dialogs.ExceptionDetailsErrorDialog;
 import com.collabnet.ccf.migration.MigrationResult;
 import com.collabnet.ccf.migration.dialogs.MigrateLandscapeErrorDialog;
 import com.collabnet.ccf.migration.dialogs.MigrateLandscapeResultsDialog;
 import com.collabnet.ccf.migration.webclient.TeamForgeClient;
+import com.collabnet.ccf.model.IdentityMapping;
 import com.collabnet.ccf.model.Landscape;
+import com.collabnet.ccf.model.Patient;
 import com.collabnet.ccf.model.SynchronizationStatus;
 import com.collabnet.teamforge.api.main.ProjectDO;
 import com.collabnet.teamforge.api.pluggable.PluggableComponentDO;
@@ -544,9 +548,71 @@ public class MigrateLandscapeWizard extends Wizard {
 					monitor.worked(1);
 					
 					monitor.subTask("Creating CCF Master identity mappings");
+					Filter[] filter = new Filter[0];
+					IdentityMapping[] identityMappings = ccfDataProvider.getIdentityMappings(landscape, filter);
+					for (IdentityMapping mapping : identityMappings) {
+						com.collabnet.ccf.api.model.IdentityMapping identityMapping = new com.collabnet.ccf.api.model.IdentityMapping();
+						identityMapping.setArtifactType(mapping.getArtifactType());
+						identityMapping.setDepChildSourceArtifactId(mapping.getChildSourceArtifactId());
+						identityMapping.setDepChildSourceRepositoryId(mapping.getChildSourceRepositoryId());
+						identityMapping.setDepChildTargetArtifactId(mapping.getChildTargetArtifactId());
+						identityMapping.setDepChildTargetRepositoryId(mapping.getChildTargetRepositoryId());
+						identityMapping.setDepParentSourceArtifactId(mapping.getParentSourceArtifactId());
+						identityMapping.setDepParentSourceRepositoryId(mapping.getParentSourceRepositoryId());
+						identityMapping.setDepParentTargetArtifactId(mapping.getParentTargetArtifactId());
+						identityMapping.setDepParentTargetRepositoryId(mapping.getParentTargetRepositoryId());
+						// TODO Set description, repositoryMapping
+						// identityMapping.setDescription(xxxx);
+						// identityMapping.setRepositoryMapping(xxxx);
+						identityMapping.setSourceArtifactId(mapping.getSourceArtifactId());
+						identityMapping.setSourceArtifactVersion(mapping.getSourceArtifactVersion());
+						identityMapping.setSourceLastModificationTime(mapping.getSourceLastModificationTime());
+						identityMapping.setTargetArtifactId(mapping.getTargetArtifactId());
+						identityMapping.setTargetArtifactVersion(mapping.getTargetArtifactVersion());
+						identityMapping.setTargetLastModificationTime(mapping.getTargetLastModificationTime());
+						ccfMasterClient.createIdentityMapping(identityMapping);
+						if (monitor.isCanceled()) {
+							canceled = true;
+							return;
+						}						
+					}
 					monitor.worked(1);
 					
 					monitor.subTask("Creating CCF Master hospital entries");
+					Patient[] hospitalEntries = ccfDataProvider.getPatients(landscape, filter);
+					for (Patient patient : hospitalEntries) {
+						HospitalEntry hospitalEntry = new HospitalEntry();
+						hospitalEntry.setAdaptorName(patient.getAdaptorName());
+						hospitalEntry.setArtifactType(patient.getArtifactType());
+						hospitalEntry.setCauseExceptionClassName(patient.getCauseExceptionClassName());
+						hospitalEntry.setCauseExceptionMessage(patient.getCauseExceptionMessage());
+						hospitalEntry.setData(patient.getData());
+						hospitalEntry.setDataType(patient.getDataType());
+						// TODO Set description
+						// hospitalEntry.setDescription(xxxx);
+						hospitalEntry.setErrorCode(patient.getErrorCode());
+						hospitalEntry.setExceptionClassName(patient.getExceptionClassName());
+						hospitalEntry.setExceptionMessage(patient.getExceptionMessage());
+						hospitalEntry.setFixed(patient.isFixed());
+						hospitalEntry.setGenericArtifact(patient.getGenericArtifact());
+						hospitalEntry.setOriginatingComponent(patient.getOriginatingComponent());
+						// TODO Set repository mapping direction
+						// hospitalEntry.setRepositoryMappingDirection(repositoryMappingDirection)
+						hospitalEntry.setReprocessed(patient.isReprocessed());
+						hospitalEntry.setSourceArtifactId(patient.getSourceArtifactId());
+						hospitalEntry.setSourceArtifactVersion(patient.getSourceArtifactVersion());
+						hospitalEntry.setSourceLastModificationTime(patient.getSourceLastModificationTime());
+						hospitalEntry.setStackTrace(patient.getStackTrace());
+						hospitalEntry.setTargetArtifactId(patient.getTargetArtifactId());
+						hospitalEntry.setTargetArtifactVersion(patient.getTargetArtifactVersion());
+						hospitalEntry.setTargetLastModificationTime(patient.getTargetLastModificationTime());
+						hospitalEntry.setTimestamp(patient.getTimeStamp());
+						ccfMasterClient.createHospitalEntry(hospitalEntry);
+						if (monitor.isCanceled()) {
+							canceled = true;
+							return;
+						}
+					}
 					monitor.worked(1);
 					
 				} catch (Exception e) {
