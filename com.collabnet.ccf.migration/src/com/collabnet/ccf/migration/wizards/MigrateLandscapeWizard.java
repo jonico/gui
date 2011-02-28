@@ -551,66 +551,67 @@ public class MigrateLandscapeWizard extends Wizard {
 					Filter[] filter = new Filter[0];
 					IdentityMapping[] identityMappings = ccfDataProvider.getIdentityMappings(landscape, filter);
 					for (IdentityMapping mapping : identityMappings) {
-						com.collabnet.ccf.api.model.IdentityMapping identityMapping = new com.collabnet.ccf.api.model.IdentityMapping();
-						identityMapping.setArtifactType(mapping.getArtifactType());
-						identityMapping.setDepChildSourceArtifactId(mapping.getChildSourceArtifactId());
-						identityMapping.setDepChildSourceRepositoryId(mapping.getChildSourceRepositoryId());
-						identityMapping.setDepChildTargetArtifactId(mapping.getChildTargetArtifactId());
-						identityMapping.setDepChildTargetRepositoryId(mapping.getChildTargetRepositoryId());
-						identityMapping.setDepParentSourceArtifactId(mapping.getParentSourceArtifactId());
-						identityMapping.setDepParentSourceRepositoryId(mapping.getParentSourceRepositoryId());
-						identityMapping.setDepParentTargetArtifactId(mapping.getParentTargetArtifactId());
-						identityMapping.setDepParentTargetRepositoryId(mapping.getParentTargetRepositoryId());
-						// TODO Set description, repositoryMapping
-						// identityMapping.setDescription(xxxx);
-						// identityMapping.setRepositoryMapping(xxxx);
-						identityMapping.setSourceArtifactId(mapping.getSourceArtifactId());
-						identityMapping.setSourceArtifactVersion(mapping.getSourceArtifactVersion());
-						identityMapping.setSourceLastModificationTime(mapping.getSourceLastModificationTime());
-						identityMapping.setTargetArtifactId(mapping.getTargetArtifactId());
-						identityMapping.setTargetArtifactVersion(mapping.getTargetArtifactVersion());
-						identityMapping.setTargetLastModificationTime(mapping.getTargetLastModificationTime());
-						ccfMasterClient.createIdentityMapping(identityMapping);
-						if (monitor.isCanceled()) {
-							canceled = true;
-							return;
-						}						
+						if (mapping.getSourceSystemKind().startsWith("TF") || mapping.getTargetSystemKind().startsWith("TF")) {
+							com.collabnet.ccf.api.model.IdentityMapping identityMapping = new com.collabnet.ccf.api.model.IdentityMapping();
+							identityMapping.setArtifactType(mapping.getArtifactType());
+							identityMapping.setDepChildSourceArtifactId(mapping.getChildSourceArtifactId());
+							identityMapping.setDepChildSourceRepositoryId(mapping.getChildSourceRepositoryId());
+							identityMapping.setDepChildTargetArtifactId(mapping.getChildTargetArtifactId());
+							identityMapping.setDepChildTargetRepositoryId(mapping.getChildTargetRepositoryId());
+							identityMapping.setDepParentSourceArtifactId(mapping.getParentSourceArtifactId());
+							identityMapping.setDepParentSourceRepositoryId(mapping.getParentSourceRepositoryId());
+							identityMapping.setDepParentTargetArtifactId(mapping.getParentTargetArtifactId());
+							identityMapping.setDepParentTargetRepositoryId(mapping.getParentTargetRepositoryId());
+							identityMapping.setDescription("This identity mapping has been added by CCF GUI during migration");
+							identityMapping.setRepositoryMapping(getRepositoryMapping(mapping, repositoryMappings));
+							identityMapping.setSourceArtifactId(mapping.getSourceArtifactId());
+							identityMapping.setSourceArtifactVersion(mapping.getSourceArtifactVersion());
+							identityMapping.setSourceLastModificationTime(mapping.getSourceLastModificationTime());
+							identityMapping.setTargetArtifactId(mapping.getTargetArtifactId());
+							identityMapping.setTargetArtifactVersion(mapping.getTargetArtifactVersion());
+							identityMapping.setTargetLastModificationTime(mapping.getTargetLastModificationTime());
+							ccfMasterClient.createIdentityMapping(identityMapping);
+							if (monitor.isCanceled()) {
+								canceled = true;
+								return;
+							}
+						}
 					}
 					monitor.worked(1);
 					
 					monitor.subTask("Creating CCF Master hospital entries");
 					Patient[] hospitalEntries = ccfDataProvider.getPatients(landscape, filter);
 					for (Patient patient : hospitalEntries) {
-						HospitalEntry hospitalEntry = new HospitalEntry();
-						hospitalEntry.setAdaptorName(patient.getAdaptorName());
-						hospitalEntry.setArtifactType(patient.getArtifactType());
-						hospitalEntry.setCauseExceptionClassName(patient.getCauseExceptionClassName());
-						hospitalEntry.setCauseExceptionMessage(patient.getCauseExceptionMessage());
-						hospitalEntry.setData(patient.getData());
-						hospitalEntry.setDataType(patient.getDataType());
-						// TODO Set description
-						// hospitalEntry.setDescription(xxxx);
-						hospitalEntry.setErrorCode(patient.getErrorCode());
-						hospitalEntry.setExceptionClassName(patient.getExceptionClassName());
-						hospitalEntry.setExceptionMessage(patient.getExceptionMessage());
-						hospitalEntry.setFixed(patient.isFixed());
-						hospitalEntry.setGenericArtifact(patient.getGenericArtifact());
-						hospitalEntry.setOriginatingComponent(patient.getOriginatingComponent());
-						// TODO Set repository mapping direction
-						// hospitalEntry.setRepositoryMappingDirection(repositoryMappingDirection)
-						hospitalEntry.setReprocessed(patient.isReprocessed());
-						hospitalEntry.setSourceArtifactId(patient.getSourceArtifactId());
-						hospitalEntry.setSourceArtifactVersion(patient.getSourceArtifactVersion());
-						hospitalEntry.setSourceLastModificationTime(patient.getSourceLastModificationTime());
-						hospitalEntry.setStackTrace(patient.getStackTrace());
-						hospitalEntry.setTargetArtifactId(patient.getTargetArtifactId());
-						hospitalEntry.setTargetArtifactVersion(patient.getTargetArtifactVersion());
-						hospitalEntry.setTargetLastModificationTime(patient.getTargetLastModificationTime());
-						hospitalEntry.setTimestamp(patient.getTimeStamp());
-						ccfMasterClient.createHospitalEntry(hospitalEntry);
-						if (monitor.isCanceled()) {
-							canceled = true;
-							return;
+						if (patient.getSourceSystemKind().startsWith("TF") || patient.getTargetSystemKind().startsWith("TF")) {
+							HospitalEntry hospitalEntry = new HospitalEntry();
+							hospitalEntry.setAdaptorName(patient.getAdaptorName());
+							hospitalEntry.setArtifactType(patient.getArtifactType());
+							hospitalEntry.setCauseExceptionClassName(patient.getCauseExceptionClassName());
+							hospitalEntry.setCauseExceptionMessage(patient.getCauseExceptionMessage());
+							hospitalEntry.setData(patient.getData());
+							hospitalEntry.setDataType(patient.getDataType());
+							hospitalEntry.setDescription("This hospital entry has been added by CCF GUI during migration");
+							hospitalEntry.setErrorCode(patient.getErrorCode());
+							hospitalEntry.setExceptionClassName(patient.getExceptionClassName());
+							hospitalEntry.setExceptionMessage(patient.getExceptionMessage());
+							hospitalEntry.setFixed(patient.isFixed());
+							hospitalEntry.setGenericArtifact(patient.getGenericArtifact());
+							hospitalEntry.setOriginatingComponent(patient.getOriginatingComponent());
+							hospitalEntry.setRepositoryMappingDirection(getRepositoryMappingDirection(patient, repositoryMappingDirections));
+							hospitalEntry.setReprocessed(patient.isReprocessed());
+							hospitalEntry.setSourceArtifactId(patient.getSourceArtifactId());
+							hospitalEntry.setSourceArtifactVersion(patient.getSourceArtifactVersion());
+							hospitalEntry.setSourceLastModificationTime(patient.getSourceLastModificationTime());
+							hospitalEntry.setStackTrace(patient.getStackTrace());
+							hospitalEntry.setTargetArtifactId(patient.getTargetArtifactId());
+							hospitalEntry.setTargetArtifactVersion(patient.getTargetArtifactVersion());
+							hospitalEntry.setTargetLastModificationTime(patient.getTargetLastModificationTime());
+							hospitalEntry.setTimestamp(patient.getTimeStamp());
+							ccfMasterClient.createHospitalEntry(hospitalEntry);
+							if (monitor.isCanceled()) {
+								canceled = true;
+								return;
+							}
 						}
 					}
 					monitor.worked(1);
@@ -729,6 +730,35 @@ public class MigrateLandscapeWizard extends Wizard {
 		}
 		return null;
 	}
+	
+	private RepositoryMapping getRepositoryMapping(IdentityMapping identityMapping, RepositoryMapping[] repositoryMappings) {
+		for (RepositoryMapping repositoryMapping : repositoryMappings) {
+			if (identityMapping.getSourceRepositoryId().equals(repositoryMapping.getTeamForgeRepositoryId()) || identityMapping.getSourceRepositoryId().equals(repositoryMapping.getParticipantRepositoryId())) {
+				if (identityMapping.getTargetRepositoryId().equals(repositoryMapping.getTeamForgeRepositoryId()) || identityMapping.getTargetRepositoryId().equals(repositoryMapping.getParticipantRepositoryId())) {
+					return repositoryMapping;
+				}
+			}
+		}
+		return null;
+	}
+	
+	private RepositoryMappingDirection getRepositoryMappingDirection(Patient patient, RepositoryMappingDirection[] repositoryMappingDirections) {
+		String teamForgeRepositoryId;
+		String participantRepositoryId;
+		if (patient.getTargetSystemKind().startsWith("TF")) {
+			teamForgeRepositoryId = patient.getTargetRepositoryId();
+			participantRepositoryId = patient.getSourceRepositoryId();
+		} else {
+			teamForgeRepositoryId = patient.getSourceRepositoryId();
+			participantRepositoryId = patient.getTargetRepositoryId();
+		}
+		for (RepositoryMappingDirection repositoryMappingDirection : repositoryMappingDirections) {
+			if (repositoryMappingDirection.getRepositoryMapping().getTeamForgeRepositoryId().equals(teamForgeRepositoryId) && repositoryMappingDirection.getRepositoryMapping().getParticipantRepositoryId().equals(participantRepositoryId)) {
+				return repositoryMappingDirection;
+			}
+		}
+		return null;
+	}		
 	
 	private RepositoryMappingDirection getRepositoryMappinDirection(RepositoryMappingDirection checkMappingDirection, RepositoryMappingDirection[] existingDirections) {
 		if (checkMappingDirection.getRepositoryMapping() != null) {
