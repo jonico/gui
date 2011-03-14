@@ -115,11 +115,13 @@ public class MigrateLandscapeWizard extends Wizard {
 						teamForgeParticipant = new Participant();
 						teamForgeParticipant.setSystemId("TF");
 						teamForgeParticipant.setDescription("TeamForge");
+						teamForgeParticipant.setSystemKind(teamForgeParticipant.getSystemId());
 						if (landscape.getType2().equals("TF")) {
 							teamForgeParticipant.setTimezone(landscape.getTimezone2());
 						} else {
 							teamForgeParticipant.setTimezone(landscape.getTimezone1());
 						}
+
 						teamForgeParticipant = ccfMasterClient.createParticipant(teamForgeParticipant);
 						migrationResults.add(new MigrationResult("TeamForge participant created in CCF Master."));
 					}
@@ -135,6 +137,7 @@ public class MigrateLandscapeWizard extends Wizard {
 						otherParticipant = new Participant();
 						otherParticipant.setSystemId(otherType);
 						otherParticipant.setDescription(otherDescription);	
+						otherParticipant.setSystemKind(otherParticipant.getSystemId());
 						if (landscape.getType2().equals("TF")) {
 							otherParticipant.setTimezone(landscape.getTimezone1());
 						} else {
