@@ -41,7 +41,6 @@ import com.collabnet.ccf.model.SynchronizationStatus;
 import com.collabnet.teamforge.api.main.ProjectDO;
 import com.collabnet.teamforge.api.pluggable.PluggableComponentDO;
 import com.collabnet.teamforge.api.pluggable.PluggableComponentParameterDO;
-import com.collabnet.teamforge.api.pluggable.PluggablePermissionDO;
 import com.collabnet.teamforge.api.tracker.TrackerDO;
 
 public class MigrateLandscapeWizard extends Wizard {
@@ -181,104 +180,14 @@ public class MigrateLandscapeWizard extends Wizard {
 					}
 					
 					teamForgeClient.getConnection().login();
-					monitor.subTask("Checking for CCF Master integrated application");
-					String plugId = teamForgeClient.getConnection().getIntegratedAppClient(false).getPlugIdByBaseUrl(ccfMasterPage.getCcfMasterUrl());
-					if (plugId != null) {
-						migrationResults.add(new MigrationResult("Integrated application " + plugId + " already exists."));
-					}
-					monitor.worked(1);
-					if (monitor.isCanceled()) {
-						canceled = true;
-						return;
-					}
-					
-					boolean integratedApplicationCreated = false;
-					if (plugId == null) {
-						monitor.subTask("Creating CCF Master integrated application");				
-						String plugName = landscape.getDescription();
-						String description = "19n.CCFMASTER";
-						String baseUrl = ccfMasterPage.getCcfMasterUrl();
-						String goUrl = ccfMasterPage.getCcfMasterUrl() + "gourl/%p/%o";
-						String prefix = "ccf";
-						String isScmRequired = "false";
-						String requireProjPrefix = "false";
-						String iconFileId = "";
-						String endPoint = "http://localhost:8090/services/DummyService";
-						PluggableComponentParameterDO[] paramDO = {};
-						String adminUrl = "http://localhost/";
-						PluggablePermissionDO defaultPermission = new PluggablePermissionDO();
-						defaultPermission.setDapMappedTo("View");
-						defaultPermission.setPermission("Default");
-						PluggablePermissionDO hospitalPermission = new PluggablePermissionDO();
-						hospitalPermission.setPermission("Hospital");
-						PluggablePermissionDO identityMappingsPermission = new PluggablePermissionDO();
-						identityMappingsPermission.setPermission("Identity Mappings");
-						PluggablePermissionDO repositoryMappingsPermission = new PluggablePermissionDO();
-						repositoryMappingsPermission.setPermission("Repository Mappings");
-						PluggablePermissionDO resetSynchronizationStatusPermission = new PluggablePermissionDO();
-						resetSynchronizationStatusPermission.setPermission("Reset Synchronization Status");
-						PluggablePermissionDO pauseSynchronizationPermission = new PluggablePermissionDO();
-						pauseSynchronizationPermission.setPermission("Pause Synchronization");
-						PluggablePermissionDO mappingRulesPermission = new PluggablePermissionDO();
-						mappingRulesPermission.setPermission("Mapping Rules");
-						PluggablePermissionDO mappingRuleTemplatesPermission = new PluggablePermissionDO();
-						mappingRuleTemplatesPermission.setPermission("Mapping Rule Templates");
-						PluggablePermissionDO ccfCoreConfigurationPermission = new PluggablePermissionDO();
-						ccfCoreConfigurationPermission.setPermission("CCF Core Configuration");
-						PluggablePermissionDO[] permDO = {
-								defaultPermission,
-								hospitalPermission,
-								identityMappingsPermission,
-								repositoryMappingsPermission, 
-								resetSynchronizationStatusPermission,
-								pauseSynchronizationPermission,
-								mappingRulesPermission,
-								mappingRuleTemplatesPermission,
-								ccfCoreConfigurationPermission
-						};
-						String pceInputType = "select";
-						String pceResultFormat = "list";
-						String pceDescription = "description";
-						String pceTitle = "title";
-										
-						teamForgeClient.getConnection().getIntegratedAppClient(false).createIntegratedApplication(plugName, description, baseUrl, goUrl, prefix, isScmRequired, requireProjPrefix, iconFileId, endPoint, paramDO, adminUrl, permDO, pceInputType, pceResultFormat, pceDescription, pceTitle);					
-						integratedApplicationCreated = true;
-					}
-					monitor.worked(1);
-					if (monitor.isCanceled()) {
-						canceled = true;
-						return; 
-					}
-					
-					if (plugId == null) {
-						PluggableComponentDO integratedApplication = teamForgeClient.getConnection().getIntegratedAppClient(false).getIntegratedApplicationByName(landscape.getDescription());
-						plugId = integratedApplication.getId();
-					}
-					monitor.worked(1);
-					if (monitor.isCanceled()) {
-						canceled = true;
-						return;
-					}
-					
-					if (integratedApplicationCreated) {
-						migrationResults.add(new MigrationResult("Integrated application " + plugId + " created."));
-						teamForgeClient.getConnection().getIntegratedAppClient(false).setPluggableAppMessageResource(plugId, "en_US", "19n.CCFMASTER", "CCFMASTER");					
-					}
-					monitor.worked(1);
-					if (monitor.isCanceled()) {
-						canceled = true;
-						return;
-					}
 					
 					monitor.subTask("Checking for existing CCF Master landscape");
 					com.collabnet.ccf.api.model.Landscape ccfMasterLandscape = null;
 					com.collabnet.ccf.api.model.Landscape[] landscapes = ccfMasterClient.getLandscapes();
 					for (com.collabnet.ccf.api.model.Landscape landscape : landscapes) {
-						if (landscape.getPlugId().equals(plugId) && landscape.getTeamForge().getId() == teamForgeParticipant.getId() && landscape.getParticipant().getId() == otherParticipant.getId()) {
-							ccfMasterLandscape = landscape;
-							migrationResults.add(new MigrationResult("Landscape " + ccfMasterLandscape.getDescription() + " already exists in CCF Master."));
-							break;
-						}
+						ccfMasterLandscape = landscape;
+						migrationResults.add(new MigrationResult("Landscape " + ccfMasterLandscape.getDescription() + " already exists in CCF Master."));
+						break;
 					}
 					monitor.worked(1);
 					if (monitor.isCanceled()) {
@@ -294,7 +203,6 @@ public class MigrateLandscapeWizard extends Wizard {
 						ccfMasterLandscape = new com.collabnet.ccf.api.model.Landscape();
 						ccfMasterLandscape.setDescription(landscape.getDescription());
 						ccfMasterLandscape.setParticipant(otherParticipant);
-						ccfMasterLandscape.setPlugId(plugId);
 						ccfMasterLandscape.setTeamForge(teamForgeParticipant);
 						ccfMasterLandscape = ccfMasterClient.createLandscape(ccfMasterLandscape);
 						
@@ -589,6 +497,8 @@ public class MigrateLandscapeWizard extends Wizard {
 					
 					if (projectIds.size() > 0) {
 						monitor.subTask("Enabling integrated application for projects");
+						PluggableComponentDO integratedApplication = teamForgeClient.getConnection().getIntegratedAppClient(false).getIntegratedApplicationByName(landscape.getDescription());
+						String plugId = integratedApplication.getId();						
 						for (String projectId : projectIds) {
 							String linkId = null;
 							try {
