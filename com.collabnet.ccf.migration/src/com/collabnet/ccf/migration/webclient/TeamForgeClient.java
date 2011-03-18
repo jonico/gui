@@ -37,7 +37,7 @@ public class TeamForgeClient {
 			String userId = properties.getProperty(Activator.PROPERTIES_SFEE_USER);
 			String password = Activator.decodePassword(properties.getProperty(Activator.PROPERTIES_SFEE_PASSWORD));
 			client = clients.get(serverUrl + userId);
-			if (client == null) {
+			if (client == null || !client.getConnection().getPassword().equals(password)) {
 				client = new TeamForgeClient(serverUrl, userId, password, null, null, null);
 			}
 		}	

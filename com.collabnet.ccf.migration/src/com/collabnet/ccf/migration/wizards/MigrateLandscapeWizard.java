@@ -52,6 +52,10 @@ public class MigrateLandscapeWizard extends Wizard {
 	private Exception exception;
 	private boolean canceled;
 	
+	private ParticipantConfig[] participantConfigs;
+	private LandscapeConfig[] landscapeConfigs;
+	private DirectionConfig[] directionConfigs;
+	
 	private IDialogSettings settings = com.collabnet.ccf.migration.Activator.getDefault().getDialogSettings();
 
 	public MigrateLandscapeWizard(Landscape landscape) {
@@ -74,6 +78,9 @@ public class MigrateLandscapeWizard extends Wizard {
 		
 		saveSelections();
 		
+		participantConfigs = null;
+		landscapeConfigs = null;
+		directionConfigs = null;
 		migrationResults = new ArrayList<MigrationResult>();
 		exception = null;
 		canceled = false;
@@ -83,10 +90,11 @@ public class MigrateLandscapeWizard extends Wizard {
 			public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 				String taskName = "Migrating landscape";
 				monitor.setTaskName(taskName);
-				monitor.beginTask(taskName, 28);	
+				monitor.beginTask(taskName, 30);	
 				CcfMasterClient ccfMasterClient = getCcfMasterClient();
 				try {					
-					
+					teamForgeClient.getConnection().login();
+					monitor.worked(1);
 					monitor.subTask("Checking for existing CCF Master participants");
 					String otherType;
 					if (landscape.getType1().equals("TF")) {
@@ -112,75 +120,94 @@ public class MigrateLandscapeWizard extends Wizard {
 						canceled = true;
 						return;
 					}
+					
+					boolean teamForgeParticipantAlreadyExists = teamForgeParticipant != null;
 					if (teamForgeParticipant == null) {
-						monitor.subTask("Creating CCF Master TeamForge participant");
-						ParticipantConfig teamForgeParticipantConfig = new ParticipantConfig();
-						teamForgeParticipantConfig.setName(ParticipantConfig.TF_URL);
+						monitor.subTask("Creating CCF Master TeamForge participant");						
 						teamForgeParticipant = new Participant();
 						teamForgeParticipant.setSystemId("TF");
 						teamForgeParticipant.setDescription("TeamForge");
 						teamForgeParticipant.setSystemKind(teamForgeParticipant.getSystemId());
 						if (landscape.getType2().equals("TF")) {
 							teamForgeParticipant.setTimezone(landscape.getTimezone2());
-							teamForgeParticipantConfig.setVal(landscape.getUrl(2));
 						} else {
 							teamForgeParticipant.setTimezone(landscape.getTimezone1());
-							teamForgeParticipantConfig.setVal(landscape.getUrl(1));
 						}
-
 						teamForgeParticipant = ccfMasterClient.createParticipant(teamForgeParticipant);
 						monitor.worked(1);
-						teamForgeParticipantConfig.setParticipant(teamForgeParticipant);
-						ccfMasterClient.createParticipantConfig(teamForgeParticipantConfig);
 						migrationResults.add(new MigrationResult("TeamForge participant created in CCF Master."));
-						monitor.worked(1);
 					}
-					else {
-						monitor.worked(2);
-					}
+					monitor.worked(1);
 					if (monitor.isCanceled()) {
 						canceled = true;
 						return;
 					}
 					
+					ParticipantConfig teamForgeParticipantConfig = new ParticipantConfig();
+					teamForgeParticipantConfig.setName(ParticipantConfig.TF_URL);
+					if (landscape.getType2().equals("TF")) {
+						teamForgeParticipantConfig.setVal(landscape.getUrl(2));
+					} else {
+						teamForgeParticipantConfig.setVal(landscape.getUrl(1));
+					}
+					teamForgeParticipantConfig.setParticipant(teamForgeParticipant);
+					createOrUpdateParticipantConfig(ccfMasterClient,
+							teamForgeParticipant,
+							teamForgeParticipantAlreadyExists,
+							teamForgeParticipantConfig);
+					migrationResults.add(new MigrationResult("TeamForge participant properties set in CCF Master."));
+					monitor.worked(1);
+					if (monitor.isCanceled()) {
+						canceled = true;
+						return;
+					}
+					
+					boolean otherParticipantAlreadyExists = otherParticipant != null;
 					if (otherParticipant == null) {
 						String otherDescription = getParticipantDescription(otherType);			
 						monitor.subTask("Creating CCF Master " + otherDescription + " participant");
-						ParticipantConfig otherParticipantConfig = new ParticipantConfig();
-						if (otherType.equals("SWP")) {
-							otherParticipantConfig.setName(ParticipantConfig.SWP_URL);
-						}
-						else {
-							otherParticipantConfig.setName(ParticipantConfig.QC_URL);
-						}
 						otherParticipant = new Participant();
 						otherParticipant.setSystemId(otherType);
 						otherParticipant.setDescription(otherDescription);	
 						otherParticipant.setSystemKind(otherParticipant.getSystemId());
 						if (landscape.getType2().equals("TF")) {
 							otherParticipant.setTimezone(landscape.getTimezone1());
-							otherParticipantConfig.setVal(landscape.getUrl(1));
 						} else {
 							otherParticipant.setTimezone(landscape.getTimezone2());
-							otherParticipantConfig.setVal(landscape.getUrl(2));
 						}
 						otherParticipant = ccfMasterClient.createParticipant(otherParticipant);
 						monitor.worked(1);
-						otherParticipantConfig.setParticipant(otherParticipant);
-						ccfMasterClient.createParticipantConfig(otherParticipantConfig);
 						migrationResults.add(new MigrationResult(getParticipantDescription(otherType) + " participant created in CCF Master."));
-						monitor.worked(1);
 					}
-					else {
-						monitor.worked(2);
-					}
+					monitor.worked(1);
 					if (monitor.isCanceled()) {
 						canceled = true;
 						return;
 					}
 					
-					teamForgeClient.getConnection().login();
-					
+					ParticipantConfig otherParticipantConfig = new ParticipantConfig();
+					if (otherType.equals("SWP")) {
+						otherParticipantConfig.setName(ParticipantConfig.SWP_URL);
+					}
+					else {
+						otherParticipantConfig.setName(ParticipantConfig.QC_URL);
+					}		
+					if (landscape.getType2().equals("TF")) {
+						otherParticipantConfig.setVal(landscape.getUrl(1));
+					} else {
+						otherParticipantConfig.setVal(landscape.getUrl(2));
+					}		
+					otherParticipantConfig.setParticipant(otherParticipant);
+					createOrUpdateParticipantConfig(ccfMasterClient,
+							otherParticipant,
+							otherParticipantAlreadyExists,
+							otherParticipantConfig);
+					migrationResults.add(new MigrationResult(getParticipantDescription(otherType) + " participant properties set in CCF Master."));
+					monitor.worked(1);
+					if (monitor.isCanceled()) {
+						canceled = true;
+						return;
+					}										
 					monitor.subTask("Checking for existing CCF Master landscape");
 					com.collabnet.ccf.api.model.Landscape ccfMasterLandscape = null;
 					com.collabnet.ccf.api.model.Landscape[] landscapes = ccfMasterClient.getLandscapes();
@@ -199,99 +226,122 @@ public class MigrateLandscapeWizard extends Wizard {
 					
 					if (ccfMasterLandscape == null) {
 						monitor.subTask("Creating CCF Master landscape");
-						LandscapeConfig landscapeConfig = new LandscapeConfig();
 						ccfMasterLandscape = new com.collabnet.ccf.api.model.Landscape();
 						ccfMasterLandscape.setDescription(landscape.getDescription());
 						ccfMasterLandscape.setParticipant(otherParticipant);
 						ccfMasterLandscape.setTeamForge(teamForgeParticipant);
-						ccfMasterLandscape = ccfMasterClient.createLandscape(ccfMasterLandscape);
-						
-						monitor.worked(1);
-						
-						String teamForgeUsername = null;
-						String teamForgePassword = null;
-						String otherUsername = null;
-						String otherPassword = null;
-						String swpResyncUsername = null;
-						String swpResyncPassword = null;
-						if (landscape.getType2().equals("TF")) {
-							teamForgeUsername = landscape.getProperties2().getProperty(Activator.PROPERTIES_SFEE_USER, "");
-							teamForgePassword = landscape.getProperties2().getProperty(Activator.PROPERTIES_SFEE_PASSWORD, "");
-							if (otherType.equals("QC")) {
-								otherUsername = landscape.getProperties1().getProperty(Activator.PROPERTIES_QC_USER, "");
-								otherPassword = landscape.getProperties1().getProperty(Activator.PROPERTIES_QC_PASSWORD, "");								
-							}
-							else if (otherType.equals("SWP")) {
-								otherUsername = landscape.getProperties1().getProperty(Activator.PROPERTIES_SW_USER, "");
-								otherPassword = landscape.getProperties1().getProperty(Activator.PROPERTIES_SW_PASSWORD, "");
-								swpResyncUsername = landscape.getProperties1().getProperty(Activator.PROPERTIES_SW_RESYNC_USER, "");
-								swpResyncPassword = landscape.getProperties1().getProperty(Activator.PROPERTIES_SW_RESYNC_PASSWORD, "");		
-							}
-						} else {
-							teamForgeUsername = landscape.getProperties1().getProperty(Activator.PROPERTIES_SFEE_USER, "");
-							teamForgePassword = landscape.getProperties1().getProperty(Activator.PROPERTIES_SFEE_PASSWORD, "");
-							if (otherType.equals("QC")) {
-								otherUsername = landscape.getProperties2().getProperty(Activator.PROPERTIES_QC_USER, "");
-								otherPassword = landscape.getProperties2().getProperty(Activator.PROPERTIES_QC_PASSWORD, "");								
-							}
-							else if (otherType.equals("SWP")) {
-								otherUsername = landscape.getProperties2().getProperty(Activator.PROPERTIES_SW_USER, "");
-								otherPassword = landscape.getProperties2().getProperty(Activator.PROPERTIES_SW_PASSWORD, "");
-								swpResyncUsername = landscape.getProperties2().getProperty(Activator.PROPERTIES_SW_RESYNC_USER, "");
-								swpResyncPassword = landscape.getProperties2().getProperty(Activator.PROPERTIES_SW_RESYNC_PASSWORD, "");		
-							}
-						}
-						
-						landscapeConfig.setLandscape(ccfMasterLandscape);
-						landscapeConfig.setName(LandscapeConfig.TF_USERNAME);
-						landscapeConfig.setVal(teamForgeUsername);
-						ccfMasterClient.createLandscapeConfig(landscapeConfig);
-						monitor.worked(1);
-						landscapeConfig.setName(LandscapeConfig.TF_PASSWORD);
-						landscapeConfig.setVal(obfuscatePassword(teamForgePassword));
-						ccfMasterClient.createLandscapeConfig(landscapeConfig);
-						monitor.worked(1);
-						if (otherUsername != null) {
-							if (otherType.equals("SWP")) {
-								landscapeConfig.setName(LandscapeConfig.SWP_USERNAME);
-							}
-							else {
-								landscapeConfig.setName(LandscapeConfig.QC_USERNAME);
-							}
-							landscapeConfig.setVal(otherUsername);
-							ccfMasterClient.createLandscapeConfig(landscapeConfig);
-						}
-						monitor.worked(1);
-						if (otherPassword != null) {
-							if (otherType.equals("SWP")) {
-								landscapeConfig.setName(LandscapeConfig.SWP_PASSWORD);
-							}
-							else {
-								landscapeConfig.setName(LandscapeConfig.QC_PASSWORD);
-							}
-							landscapeConfig.setVal(obfuscatePassword(otherPassword));
-							ccfMasterClient.createLandscapeConfig(landscapeConfig);
-						}
-						monitor.worked(1);
-						if (swpResyncUsername != null) {
-							landscapeConfig.setName(LandscapeConfig.SWP_RESYNC_USERNAME);
-							landscapeConfig.setVal(swpResyncUsername);
-							ccfMasterClient.createLandscapeConfig(landscapeConfig);
-						}
-						if (swpResyncPassword != null) {
-							landscapeConfig.setName(LandscapeConfig.SWP_RESYNC_PASSWORD);
-							landscapeConfig.setVal(obfuscatePassword(swpResyncPassword));
-							ccfMasterClient.createLandscapeConfig(landscapeConfig);
-						}						
+						ccfMasterLandscape = ccfMasterClient.createLandscape(ccfMasterLandscape);												
 						migrationResults.add(new MigrationResult("Landscape " + ccfMasterLandscape.getDescription() + " created in CCF Master."));
 					}
-					else {
-						monitor.worked(5);
-					}
+					monitor.worked(1);
 					if (monitor.isCanceled()) {
 						canceled = true;
 						return;
 					}
+					
+					String teamForgeUsername = null;
+					String teamForgePassword = null;
+					String otherUsername = null;
+					String otherPassword = null;
+					String swpResyncUsername = null;
+					String swpResyncPassword = null;
+					if (landscape.getType2().equals("TF")) {
+						teamForgeUsername = landscape.getProperties2().getProperty(Activator.PROPERTIES_SFEE_USER, "");
+						teamForgePassword = landscape.getProperties2().getProperty(Activator.PROPERTIES_SFEE_PASSWORD, "");
+						if (otherType.equals("QC")) {
+							otherUsername = landscape.getProperties1().getProperty(Activator.PROPERTIES_QC_USER, "");
+							otherPassword = landscape.getProperties1().getProperty(Activator.PROPERTIES_QC_PASSWORD, "");								
+						}
+						else if (otherType.equals("SWP")) {
+							otherUsername = landscape.getProperties1().getProperty(Activator.PROPERTIES_SW_USER, "");
+							otherPassword = landscape.getProperties1().getProperty(Activator.PROPERTIES_SW_PASSWORD, "");
+							swpResyncUsername = landscape.getProperties1().getProperty(Activator.PROPERTIES_SW_RESYNC_USER, "");
+							swpResyncPassword = landscape.getProperties1().getProperty(Activator.PROPERTIES_SW_RESYNC_PASSWORD, "");		
+						}
+					} else {
+						teamForgeUsername = landscape.getProperties1().getProperty(Activator.PROPERTIES_SFEE_USER, "");
+						teamForgePassword = landscape.getProperties1().getProperty(Activator.PROPERTIES_SFEE_PASSWORD, "");
+						if (otherType.equals("QC")) {
+							otherUsername = landscape.getProperties2().getProperty(Activator.PROPERTIES_QC_USER, "");
+							otherPassword = landscape.getProperties2().getProperty(Activator.PROPERTIES_QC_PASSWORD, "");								
+						}
+						else if (otherType.equals("SWP")) {
+							otherUsername = landscape.getProperties2().getProperty(Activator.PROPERTIES_SW_USER, "");
+							otherPassword = landscape.getProperties2().getProperty(Activator.PROPERTIES_SW_PASSWORD, "");
+							swpResyncUsername = landscape.getProperties2().getProperty(Activator.PROPERTIES_SW_RESYNC_USER, "");
+							swpResyncPassword = landscape.getProperties2().getProperty(Activator.PROPERTIES_SW_RESYNC_PASSWORD, "");		
+						}
+					}
+					
+					LandscapeConfig landscapeConfig = new LandscapeConfig();
+					landscapeConfig.setLandscape(ccfMasterLandscape);
+					landscapeConfig.setName(LandscapeConfig.TF_USERNAME);
+					landscapeConfig.setVal(teamForgeUsername);
+					createOrUpdateLandscapeConfig(ccfMasterClient, ccfMasterLandscape, landscapeAlreadyExists, landscapeConfig);
+					monitor.worked(1);
+					if (monitor.isCanceled()) {
+						canceled = true;
+						return;
+					}
+					landscapeConfig.setName(LandscapeConfig.TF_PASSWORD);
+					landscapeConfig.setVal(obfuscatePassword(teamForgePassword));
+					createOrUpdateLandscapeConfig(ccfMasterClient, ccfMasterLandscape, landscapeAlreadyExists, landscapeConfig);
+					monitor.worked(1);
+					if (monitor.isCanceled()) {
+						canceled = true;
+						return;
+					}
+					if (otherUsername != null) {
+						if (otherType.equals("SWP")) {
+							landscapeConfig.setName(LandscapeConfig.SWP_USERNAME);
+						}
+						else {
+							landscapeConfig.setName(LandscapeConfig.QC_USERNAME);
+						}
+						landscapeConfig.setVal(otherUsername);
+						createOrUpdateLandscapeConfig(ccfMasterClient, ccfMasterLandscape, landscapeAlreadyExists, landscapeConfig);
+					}
+					monitor.worked(1);
+					if (monitor.isCanceled()) {
+						canceled = true;
+						return;
+					}
+					if (otherPassword != null) {
+						if (otherType.equals("SWP")) {
+							landscapeConfig.setName(LandscapeConfig.SWP_PASSWORD);
+						}
+						else {
+							landscapeConfig.setName(LandscapeConfig.QC_PASSWORD);
+						}
+						landscapeConfig.setVal(obfuscatePassword(otherPassword));
+						createOrUpdateLandscapeConfig(ccfMasterClient, ccfMasterLandscape, landscapeAlreadyExists, landscapeConfig);
+					}
+					monitor.worked(1);
+					if (monitor.isCanceled()) {
+						canceled = true;
+						return;
+					}
+					if (swpResyncUsername != null) {
+						landscapeConfig.setName(LandscapeConfig.SWP_RESYNC_USERNAME);
+						landscapeConfig.setVal(swpResyncUsername);
+						createOrUpdateLandscapeConfig(ccfMasterClient, ccfMasterLandscape, landscapeAlreadyExists, landscapeConfig);
+					}
+					monitor.worked(1);
+					if (monitor.isCanceled()) {
+						canceled = true;
+						return;
+					}
+					if (swpResyncPassword != null) {
+						landscapeConfig.setName(LandscapeConfig.SWP_RESYNC_PASSWORD);
+						landscapeConfig.setVal(obfuscatePassword(swpResyncPassword));
+						createOrUpdateLandscapeConfig(ccfMasterClient, ccfMasterLandscape, landscapeAlreadyExists, landscapeConfig);
+					}
+					monitor.worked(1);
+					if (monitor.isCanceled()) {
+						canceled = true;
+						return;
+					}
+					migrationResults.add(new MigrationResult("Landscape " + ccfMasterLandscape.getDescription() + " properties set in CCF Master."));
 					
 					Direction forward = null;
 					Direction reverse = null;
@@ -324,53 +374,17 @@ public class MigrateLandscapeWizard extends Wizard {
 						monitor.subTask("Creating CCF Master directions");
 					}
 					
-					if (forward == null) {
-						DirectionConfig forwardConfig = new DirectionConfig();
+					boolean forwardAlreadyExists = forward != null;
+					if (forward == null) {						
 						forward = new Direction();
 						forward.setLandscape(ccfMasterLandscape);
 						forward.setDirections(Directions.FORWARD);
-						String teamForgeMaxAttachmentSize = null;
-						String otherMaxAttachmentSize = null;
 						if (landscape.getType1().equals("TF")) {
 							forward.setDescription(landscape.getType1() + landscape.getType2());
-							forwardConfig.setVal(landscape.getLogMessageTemplate1());
-							teamForgeMaxAttachmentSize = landscape.getProperties1().getProperty(Activator.PROPERTIES_SFEE_ATTACHMENT_SIZE, "10485760");
-							if (otherType.equals("SWP")) {
-								otherMaxAttachmentSize = landscape.getProperties2().getProperty(Activator.PROPERTIES_SW_ATTACHMENT_SIZE, "10485760");
-							}
-							else {
-								otherMaxAttachmentSize = landscape.getProperties2().getProperty(Activator.PROPERTIES_QC_ATTACHMENT_SIZE, "10485760");
-							}
 						} else {
 							forward.setDescription(landscape.getType2() + landscape.getType1());
-							forwardConfig.setVal(landscape.getLogMessageTemplate2());
-							teamForgeMaxAttachmentSize = landscape.getProperties2().getProperty(Activator.PROPERTIES_SFEE_ATTACHMENT_SIZE, "10485760");	
-							if (otherType.equals("SWP")) {
-								otherMaxAttachmentSize = landscape.getProperties1().getProperty(Activator.PROPERTIES_SW_ATTACHMENT_SIZE, "10485760");
-							}
-							else {
-								otherMaxAttachmentSize = landscape.getProperties1().getProperty(Activator.PROPERTIES_QC_ATTACHMENT_SIZE, "10485760");
-							}				
 						}
 						forward = ccfMasterClient.createDirection(forward);
-						forwardConfig.setDirection(forward);
-						forwardConfig.setName(DirectionConfig.LOG_MESSAGE_TEMPLATE);
-						ccfMasterClient.createDirectionConfig(forwardConfig);
-						if (teamForgeMaxAttachmentSize != null) {
-							forwardConfig.setName(DirectionConfig.TF_MAX_ATTACHMENT_SIZE);
-							forwardConfig.setVal(teamForgeMaxAttachmentSize);
-							ccfMasterClient.createDirectionConfig(forwardConfig);
-						}
-						if (otherMaxAttachmentSize != null) {
-							if (otherType.equals("SWP")) {
-								forwardConfig.setName(DirectionConfig.SWP_MAX_ATTACHMENT_SIZE);
-							}
-							else {
-								forwardConfig.setName(DirectionConfig.QC_MAX_ATTACHMENT_SIZE);
-							}
-							forwardConfig.setVal(otherMaxAttachmentSize);
-							ccfMasterClient.createDirectionConfig(forwardConfig);
-						}			
 						migrationResults.add(new MigrationResult("Direction " + forward.getDescription() + " (FORWARD) created in CCF Master."));
 					}
 					monitor.worked(1);
@@ -379,53 +393,74 @@ public class MigrateLandscapeWizard extends Wizard {
 						return;
 					}
 					
+					DirectionConfig forwardConfig = new DirectionConfig();
+					String teamForgeMaxAttachmentSize = null;
+					String otherMaxAttachmentSize = null;
+					if (landscape.getType1().equals("TF")) {
+						forwardConfig.setVal(landscape.getLogMessageTemplate1());
+						teamForgeMaxAttachmentSize = landscape.getProperties1().getProperty(Activator.PROPERTIES_SFEE_ATTACHMENT_SIZE, "10485760");
+						if (otherType.equals("SWP")) {
+							otherMaxAttachmentSize = landscape.getProperties2().getProperty(Activator.PROPERTIES_SW_ATTACHMENT_SIZE, "10485760");
+						}
+						else {
+							otherMaxAttachmentSize = landscape.getProperties2().getProperty(Activator.PROPERTIES_QC_ATTACHMENT_SIZE, "10485760");
+						}
+					} else {
+						forwardConfig.setVal(landscape.getLogMessageTemplate2());
+						teamForgeMaxAttachmentSize = landscape.getProperties2().getProperty(Activator.PROPERTIES_SFEE_ATTACHMENT_SIZE, "10485760");	
+						if (otherType.equals("SWP")) {
+							otherMaxAttachmentSize = landscape.getProperties1().getProperty(Activator.PROPERTIES_SW_ATTACHMENT_SIZE, "10485760");
+						}
+						else {
+							otherMaxAttachmentSize = landscape.getProperties1().getProperty(Activator.PROPERTIES_QC_ATTACHMENT_SIZE, "10485760");
+						}				
+					}	
+					forwardConfig.setDirection(forward);
+					forwardConfig.setName(DirectionConfig.LOG_MESSAGE_TEMPLATE);
+					createOrUpdateDirectionConfig(ccfMasterClient, forward, forwardAlreadyExists, forwardConfig);
+					monitor.worked(1);
+					if (monitor.isCanceled()) {
+						canceled = true;
+						return;
+					}
+					if (teamForgeMaxAttachmentSize != null) {
+						forwardConfig.setName(DirectionConfig.TF_MAX_ATTACHMENT_SIZE);
+						forwardConfig.setVal(teamForgeMaxAttachmentSize);
+						createOrUpdateDirectionConfig(ccfMasterClient, forward, forwardAlreadyExists, forwardConfig);
+					}
+					monitor.worked(1);
+					if (monitor.isCanceled()) {
+						canceled = true;
+						return;
+					}
+					if (otherMaxAttachmentSize != null) {
+						if (otherType.equals("SWP")) {
+							forwardConfig.setName(DirectionConfig.SWP_MAX_ATTACHMENT_SIZE);
+						}
+						else {
+							forwardConfig.setName(DirectionConfig.QC_MAX_ATTACHMENT_SIZE);
+						}
+						forwardConfig.setVal(otherMaxAttachmentSize);
+						createOrUpdateDirectionConfig(ccfMasterClient, forward, forwardAlreadyExists, forwardConfig);
+					}	
+					monitor.worked(1);
+					if (monitor.isCanceled()) {
+						canceled = true;
+						return;
+					}
+					migrationResults.add(new MigrationResult("Direction " + forward.getDescription() + " (FORWARD) properties set in CCF Master."));
+					
+					boolean reverseAlreadyExists = reverse != null;
 					if (reverse == null) {
-						DirectionConfig reverseConfig = new DirectionConfig();
 						reverse = new Direction();
 						reverse.setLandscape(ccfMasterLandscape);
 						reverse.setDirections(Directions.REVERSE);
-						String teamForgeMaxAttachmentSize = null;
-						String otherMaxAttachmentSize = null;
 						if (landscape.getType1().equals("TF")) {
 							reverse.setDescription(landscape.getType2() + landscape.getType1());
-							reverseConfig.setVal(landscape.getLogMessageTemplate2());
-							teamForgeMaxAttachmentSize = landscape.getProperties1().getProperty(Activator.PROPERTIES_SFEE_ATTACHMENT_SIZE, "10485760");
-							if (otherType.equals("SWP")) {
-								otherMaxAttachmentSize = landscape.getProperties2().getProperty(Activator.PROPERTIES_SW_ATTACHMENT_SIZE, "10485760");
-							}
-							else {
-								otherMaxAttachmentSize = landscape.getProperties2().getProperty(Activator.PROPERTIES_QC_ATTACHMENT_SIZE, "10485760");
-							}
 						} else {
 							reverse.setDescription(landscape.getType1() + landscape.getType2());
-							reverseConfig.setVal(landscape.getLogMessageTemplate1());
-							teamForgeMaxAttachmentSize = landscape.getProperties2().getProperty(Activator.PROPERTIES_SFEE_ATTACHMENT_SIZE, "10485760");
-							if (otherType.equals("SWP")) {
-								otherMaxAttachmentSize = landscape.getProperties1().getProperty(Activator.PROPERTIES_SW_ATTACHMENT_SIZE, "10485760");
-							}
-							else {
-								otherMaxAttachmentSize = landscape.getProperties1().getProperty(Activator.PROPERTIES_QC_ATTACHMENT_SIZE, "10485760");
-							}
 						}
 						reverse = ccfMasterClient.createDirection(reverse);
-						reverseConfig.setDirection(reverse);
-						reverseConfig.setName(DirectionConfig.LOG_MESSAGE_TEMPLATE);
-						ccfMasterClient.createDirectionConfig(reverseConfig);
-						if (teamForgeMaxAttachmentSize != null) {
-							reverseConfig.setName(DirectionConfig.TF_MAX_ATTACHMENT_SIZE);
-							reverseConfig.setVal(teamForgeMaxAttachmentSize);
-							ccfMasterClient.createDirectionConfig(reverseConfig);
-						}
-						if (otherMaxAttachmentSize != null) {
-							if (otherType.equals("SWP")) {
-								reverseConfig.setName(DirectionConfig.SWP_MAX_ATTACHMENT_SIZE);
-							}
-							else {
-								reverseConfig.setName(DirectionConfig.QC_MAX_ATTACHMENT_SIZE);
-							}
-							reverseConfig.setVal(otherMaxAttachmentSize);
-							ccfMasterClient.createDirectionConfig(reverseConfig);
-						}							
 						migrationResults.add(new MigrationResult("Direction " + reverse.getDescription() + " (REVERSE) created in CCF Master."));
 					}
 					monitor.worked(1);
@@ -433,6 +468,63 @@ public class MigrateLandscapeWizard extends Wizard {
 						canceled = true;
 						return;
 					}
+					
+					DirectionConfig reverseConfig = new DirectionConfig();
+					teamForgeMaxAttachmentSize = null;
+					otherMaxAttachmentSize = null;
+					if (landscape.getType1().equals("TF")) {
+						reverseConfig.setVal(landscape.getLogMessageTemplate2());
+						teamForgeMaxAttachmentSize = landscape.getProperties1().getProperty(Activator.PROPERTIES_SFEE_ATTACHMENT_SIZE, "10485760");
+						if (otherType.equals("SWP")) {
+							otherMaxAttachmentSize = landscape.getProperties2().getProperty(Activator.PROPERTIES_SW_ATTACHMENT_SIZE, "10485760");
+						}
+						else {
+							otherMaxAttachmentSize = landscape.getProperties2().getProperty(Activator.PROPERTIES_QC_ATTACHMENT_SIZE, "10485760");
+						}
+					} else {
+						reverseConfig.setVal(landscape.getLogMessageTemplate1());
+						teamForgeMaxAttachmentSize = landscape.getProperties2().getProperty(Activator.PROPERTIES_SFEE_ATTACHMENT_SIZE, "10485760");
+						if (otherType.equals("SWP")) {
+							otherMaxAttachmentSize = landscape.getProperties1().getProperty(Activator.PROPERTIES_SW_ATTACHMENT_SIZE, "10485760");
+						}
+						else {
+							otherMaxAttachmentSize = landscape.getProperties1().getProperty(Activator.PROPERTIES_QC_ATTACHMENT_SIZE, "10485760");
+						}
+					}
+					reverseConfig.setDirection(reverse);
+					reverseConfig.setName(DirectionConfig.LOG_MESSAGE_TEMPLATE);
+					createOrUpdateDirectionConfig(ccfMasterClient, reverse, reverseAlreadyExists, reverseConfig);
+					monitor.worked(1);
+					if (monitor.isCanceled()) {
+						canceled = true;
+						return;
+					}
+					if (teamForgeMaxAttachmentSize != null) {
+						reverseConfig.setName(DirectionConfig.TF_MAX_ATTACHMENT_SIZE);
+						reverseConfig.setVal(teamForgeMaxAttachmentSize);
+						createOrUpdateDirectionConfig(ccfMasterClient, reverse, reverseAlreadyExists, reverseConfig);
+					}
+					monitor.worked(1);
+					if (monitor.isCanceled()) {
+						canceled = true;
+						return;
+					}
+					if (otherMaxAttachmentSize != null) {
+						if (otherType.equals("SWP")) {
+							reverseConfig.setName(DirectionConfig.SWP_MAX_ATTACHMENT_SIZE);
+						}
+						else {
+							reverseConfig.setName(DirectionConfig.QC_MAX_ATTACHMENT_SIZE);
+						}
+						reverseConfig.setVal(otherMaxAttachmentSize);
+						createOrUpdateDirectionConfig(ccfMasterClient, reverse, reverseAlreadyExists, reverseConfig);
+					}	
+					monitor.worked(1);
+					if (monitor.isCanceled()) {
+						canceled = true;
+						return;
+					}
+					migrationResults.add(new MigrationResult("Direction " + reverse.getDescription() + " (REVERSE) properties set in CCF Master."));
 					
 					monitor.subTask("Retrieving CCF 1.x project mappings");
 					CcfDataProvider ccfDataProvider = new CcfDataProvider();
@@ -552,6 +644,10 @@ public class MigrateLandscapeWizard extends Wizard {
 						}
 					}
 					monitor.worked(1);
+					if (monitor.isCanceled()) {
+						canceled = true;
+						return;
+					}
 					
 					monitor.subTask("Creating CCF Master repository mappings");
 					List<String> repositoryMappingList = new ArrayList<String>();
@@ -597,6 +693,10 @@ public class MigrateLandscapeWizard extends Wizard {
 						}
 					}
 					monitor.worked(1);
+					if (monitor.isCanceled()) {
+						canceled = true;
+						return;
+					}
 					
 					monitor.subTask("Creating CCF Master repository mapping directions");
 					repositoryMappings = ccfMasterClient.getRepositoryMappings();
@@ -640,8 +740,11 @@ public class MigrateLandscapeWizard extends Wizard {
 						}
 						
 					}
-					
 					monitor.worked(1);
+					if (monitor.isCanceled()) {
+						canceled = true;
+						return;
+					}
 					
 					monitor.subTask("Creating CCF Master identity mappings");
 					int identityMappingCount = 0;
@@ -682,6 +785,10 @@ public class MigrateLandscapeWizard extends Wizard {
 						migrationResults.add(new MigrationResult(identityMappingCount + " identity mappings created in CCF Master"));
 					}
 					monitor.worked(1);
+					if (monitor.isCanceled()) {
+						canceled = true;
+						return;
+					}
 					
 					monitor.subTask("Creating CCF Master hospital entries");
 					int hospitalEntryCount = 0;
@@ -727,6 +834,10 @@ public class MigrateLandscapeWizard extends Wizard {
 						migrationResults.add(new MigrationResult(hospitalEntryCount + " hospitalEntries created in CCF Master"));
 					}
 					monitor.worked(1);
+					if (monitor.isCanceled()) {
+						canceled = true;
+						return;
+					}
 					
 				} catch (Exception e) {
 					exception = e;
@@ -912,5 +1023,104 @@ public class MigrateLandscapeWizard extends Wizard {
 	          break;	    	
 	    }
 	    settings.put("CCFMaster.user." + ccfMasterPage.getCcfMasterUrl(), ccfMasterPage.getCcfMasterUser());
+	}
+
+	private void createOrUpdateLandscapeConfig(CcfMasterClient ccfMasterClient, com.collabnet.ccf.api.model.Landscape landscape, boolean landscapeAlreadyExists, LandscapeConfig landscapeConfig) throws Exception {
+		if (landscapeAlreadyExists) {
+			LandscapeConfig updateConfig = getLandscapeConfig(landscape, landscapeConfig.getName());
+			if (updateConfig == null) {
+				ccfMasterClient.createLandscapeConfig(landscapeConfig);
+			} else {
+				updateConfig.setVal(landscapeConfig.getVal());
+				ccfMasterClient.updateLandscapeConfig(updateConfig);
+			}
+		} else {
+			ccfMasterClient.createLandscapeConfig(landscapeConfig);
+		}
+	}
+
+	private void createOrUpdateParticipantConfig(CcfMasterClient ccfMasterClient, Participant participant, boolean participantAlreadyExists, ParticipantConfig participantConfig) throws Exception {
+		if (participantAlreadyExists) {
+			ParticipantConfig updateConfig = getParticipantConfig(participant, participantConfig.getName());
+			if (updateConfig == null) {
+				ccfMasterClient.createParticipantConfig(participantConfig);
+			} else {
+				updateConfig.setVal(participantConfig.getVal());
+				ccfMasterClient.updateParticipantConfig(updateConfig);
+			}
+		} else {
+			ccfMasterClient.createParticipantConfig(participantConfig);
+		}
+	}
+
+	private void createOrUpdateDirectionConfig(CcfMasterClient ccfMasterClient, Direction direction, boolean directionAlreadyExists, DirectionConfig directionConfig) throws Exception {
+		if (directionAlreadyExists) {
+			DirectionConfig updateConfig = getDirectionConfig(direction, directionConfig.getName());
+			if (updateConfig == null) {
+				ccfMasterClient.createDirectionConfig(directionConfig);
+			} else {
+				updateConfig.setVal(directionConfig.getVal());
+				ccfMasterClient.updateDirectionConfig(updateConfig);
+			}
+		} else {
+			ccfMasterClient.createDirectionConfig(directionConfig);
+		}
+	}
+	
+	private ParticipantConfig[] getParticipantConfigs() throws Exception {
+		if (participantConfigs == null) {
+			participantConfigs = getCcfMasterClient().getParticipantConfigs();
+		}
+		return participantConfigs;
+	}
+	
+	private LandscapeConfig[] getLandscapeConfigs() throws Exception {
+		if (landscapeConfigs == null) {
+			landscapeConfigs = getCcfMasterClient().getLandscapeConfigs();
+		}
+		return landscapeConfigs;
+	}	
+	
+	private DirectionConfig[] getDirectionConfigs() throws Exception {
+		if (directionConfigs == null) {
+			directionConfigs = getCcfMasterClient().getDirectionConfigs();
+		}
+		return directionConfigs;
+	}
+	
+	private ParticipantConfig getParticipantConfig(Participant participant, String name) throws Exception {
+		ParticipantConfig participantConfig = null;
+		ParticipantConfig[] participantConfigs = getParticipantConfigs();
+		for (ParticipantConfig checkConfig : participantConfigs) {
+			if (checkConfig.getName().equals(name) && checkConfig.getParticipant().getId() == participant.getId()) {
+				participantConfig = checkConfig;
+				break;
+			}
+		}
+		return participantConfig;
+	}
+	
+	private LandscapeConfig getLandscapeConfig(com.collabnet.ccf.api.model.Landscape landscape, String name) throws Exception {
+		LandscapeConfig landscapeConfig = null;
+		LandscapeConfig[] landscapeConfigs = getLandscapeConfigs();
+		for (LandscapeConfig checkConfig : landscapeConfigs) {
+			if (checkConfig.getName().equals(name) && checkConfig.getLandscape().getId() == landscape.getId()) {
+				landscapeConfig = checkConfig;
+				break;
+			}
+		}
+		return landscapeConfig;
+	}
+	
+	private DirectionConfig getDirectionConfig(Direction direction, String name) throws Exception {
+		DirectionConfig directionConfig = null;
+		DirectionConfig[] directionConfigs = getDirectionConfigs();
+		for (DirectionConfig checkConfig : directionConfigs) {
+			if (checkConfig.getName().equals(name) && checkConfig.getDirection().getId() == direction.getId()) {
+				directionConfig = checkConfig;
+				break;
+			}
+		}
+		return directionConfig;
 	}
 }
