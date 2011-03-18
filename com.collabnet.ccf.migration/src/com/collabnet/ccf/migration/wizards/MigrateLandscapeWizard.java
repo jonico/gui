@@ -248,7 +248,7 @@ public class MigrateLandscapeWizard extends Wizard {
 						ccfMasterClient.createLandscapeConfig(landscapeConfig);
 						monitor.worked(1);
 						landscapeConfig.setName(LandscapeConfig.TF_PASSWORD);
-						landscapeConfig.setVal(teamForgePassword);
+						landscapeConfig.setVal(obfuscatePassword(teamForgePassword));
 						ccfMasterClient.createLandscapeConfig(landscapeConfig);
 						monitor.worked(1);
 						if (otherUsername != null) {
@@ -269,7 +269,7 @@ public class MigrateLandscapeWizard extends Wizard {
 							else {
 								landscapeConfig.setName(LandscapeConfig.QC_PASSWORD);
 							}
-							landscapeConfig.setVal(otherPassword);
+							landscapeConfig.setVal(obfuscatePassword(otherPassword));
 							ccfMasterClient.createLandscapeConfig(landscapeConfig);
 						}
 						monitor.worked(1);
@@ -280,7 +280,7 @@ public class MigrateLandscapeWizard extends Wizard {
 						}
 						if (swpResyncPassword != null) {
 							landscapeConfig.setName(LandscapeConfig.SWP_RESYNC_PASSWORD);
-							landscapeConfig.setVal(swpResyncPassword);
+							landscapeConfig.setVal(obfuscatePassword(swpResyncPassword));
 							ccfMasterClient.createLandscapeConfig(landscapeConfig);
 						}						
 						migrationResults.add(new MigrationResult("Landscape " + ccfMasterLandscape.getDescription() + " created in CCF Master."));
@@ -882,7 +882,18 @@ public class MigrateLandscapeWizard extends Wizard {
 			}
 		}
 		return null;
-	}	
+	}
+	
+	private String obfuscatePassword(String password) {
+		String obfuscatedPassword;
+		if (password != null && !password.startsWith(Activator.OBFUSCATED_PASSWORD_PREFIX)) {
+			obfuscatedPassword = Activator.OBFUSCATED_PASSWORD_PREFIX + Activator.encode(password);
+		}
+		else {
+			obfuscatedPassword = password;
+		}
+		return obfuscatedPassword;
+	}
 	
 	private void saveSelections() {
 	    List<String> urls = new ArrayList<String>();

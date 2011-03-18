@@ -908,7 +908,7 @@ public class Activator extends AbstractUIPlugin {
 		return file;
 	}
 	
-	private static String encode(String string) {
+	public static String encode(String string) {
 		if (string == null) {
 			return null;
 		}
