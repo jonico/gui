@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -39,8 +38,6 @@ import com.collabnet.ccf.model.Landscape;
 import com.collabnet.ccf.model.Patient;
 import com.collabnet.ccf.model.SynchronizationStatus;
 import com.collabnet.teamforge.api.main.ProjectDO;
-import com.collabnet.teamforge.api.pluggable.PluggableComponentDO;
-import com.collabnet.teamforge.api.pluggable.PluggableComponentParameterDO;
 import com.collabnet.teamforge.api.tracker.TrackerDO;
 
 public class MigrateLandscapeWizard extends Wizard {
@@ -90,7 +87,7 @@ public class MigrateLandscapeWizard extends Wizard {
 			public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 				String taskName = "Migrating landscape";
 				monitor.setTaskName(taskName);
-				monitor.beginTask(taskName, 30);	
+				monitor.beginTask(taskName, 29);	
 				CcfMasterClient ccfMasterClient = getCcfMasterClient();
 				try {					
 					teamForgeClient.getConnection().login();
@@ -582,65 +579,29 @@ public class MigrateLandscapeWizard extends Wizard {
 					monitor.worked(1);
 					if (monitor.isCanceled()) {
 						canceled = true;
-						return;
+						return; 
 					}
-					
-					Map<String, String> linkMap = new HashMap<String, String>();
-					
-					if (projectIds.size() > 0) {
-						monitor.subTask("Enabling integrated application for projects");
-						PluggableComponentDO integratedApplication = teamForgeClient.getConnection().getIntegratedAppClient(false).getIntegratedApplicationByName(landscape.getDescription());
-						String plugId = integratedApplication.getId();						
-						for (String projectId : projectIds) {
-							String linkId = null;
-							try {
-								linkId = teamForgeClient.getConnection().getIntegratedAppClient(false).getLinkPlugIdByPlugId(projectId, plugId);
-								if (linkId != null) {
-									migrationResults.add(new MigrationResult("Integrated application " + linkId + " already enabled for project " + projectId + "."));
-								}
-							} catch (Exception e) { 
-								// Ignore.  Throws exception if not already enabled. 
-							}
-							if (linkId == null) {
-								PluggableComponentParameterDO[] params = {};
-								teamForgeClient.getConnection().getIntegratedAppClient(false).enablePluggableComponent(projectId, plugId, params, "ccf");							
-								linkId = teamForgeClient.getConnection().getIntegratedAppClient(false).getLinkPlugIdByPlugId(projectId, plugId);
-								migrationResults.add(new MigrationResult("Integrated application " + linkId + " enabled for project " + projectId + "."));
-							}	
-							linkMap.put(projectId, linkId);
-							if (monitor.isCanceled()) {
-								canceled = true;
-								return;
-							}
-						}
-					}
-					monitor.worked(1);
-					
+
 					Map<String, ExternalApp> externalAppMap = new HashMap<String, ExternalApp>();
-					if (linkMap.size() > 0) {
-						monitor.subTask("Creating CCF Master external applications");
-						ExternalApp[] externalApps = ccfMasterClient.getExternalApps();
-						Set<String> projects = linkMap.keySet();
-						for (String project : projects) {
-							String linkId = linkMap.get(project);
-							ProjectDO projectDO = teamForgeClient.getConnection().getTeamForgeClient().getProjectData(project);
-							ExternalApp externalApp = new ExternalApp();
-							externalApp.setProjectId(projectDO.getPath());
-							externalApp.setLinkId(linkId);
-							externalApp.setLandscape(ccfMasterLandscape);
-							ExternalApp existingApp = getExternalApp(externalApp, externalApps);
-							if (existingApp != null) {
-								externalApp = existingApp;
-								migrationResults.add(new MigrationResult("External application " + externalApp.getLinkId() + " (" + project + ") already exists in CCF Master."));
-							} else {
-								externalApp = ccfMasterClient.createExternalApp(externalApp);
-								migrationResults.add(new MigrationResult("External application " + externalApp.getLinkId() + " (" + project + ") created in CCF Master."));
-							}
-							externalAppMap.put(project, externalApp);
-							if (monitor.isCanceled()) {
-								canceled = true;
-								return;
-							}
+					monitor.subTask("Creating CCF Master external applications");
+					ExternalApp[] externalApps = ccfMasterClient.getExternalApps();
+					for (String project : projectIds) {
+						ProjectDO projectDO = teamForgeClient.getConnection().getTeamForgeClient().getProjectData(project);
+						ExternalApp externalApp = new ExternalApp();
+						externalApp.setProjectId(projectDO.getPath());
+						externalApp.setLandscape(ccfMasterLandscape);
+						ExternalApp existingApp = getExternalApp(externalApp, externalApps);
+						if (existingApp != null) {
+							externalApp = existingApp;
+							migrationResults.add(new MigrationResult("External application " + externalApp.getLinkId() + " (" + project + ") already exists in CCF Master."));
+						} else {
+							externalApp = ccfMasterClient.createExternalApp(externalApp);
+							migrationResults.add(new MigrationResult("External application " + externalApp.getLinkId() + " (" + project + ") created in CCF Master."));
+						}
+						externalAppMap.put(project, externalApp);
+						if (monitor.isCanceled()) {
+							canceled = true;
+							return;
 						}
 					}
 					monitor.worked(1);
