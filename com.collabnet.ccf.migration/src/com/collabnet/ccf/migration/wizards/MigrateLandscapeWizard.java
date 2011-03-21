@@ -882,7 +882,6 @@ public class MigrateLandscapeWizard extends Wizard {
 		if (checkApp.getLandscape() != null) {
 			for (ExternalApp externalApp : existingApps) {
 				if (externalApp.getLandscape() != null && externalApp.getLandscape().getId() == checkApp.getLandscape().getId() &&
-						externalApp.getLinkId().equals(checkApp.getLinkId()) &&
 						externalApp.getProjectId().equals(checkApp.getProjectId())) {
 					return externalApp;
 				}
