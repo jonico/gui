@@ -344,7 +344,7 @@ public class MigrateLandscapeWizard extends Wizard {
 					Direction reverse = null;
 					if (landscapeAlreadyExists) {
 						monitor.subTask("Checking for existing CCF Master directions");
-						Direction[] directions = ccfMasterClient.getDirections();
+						Direction[] directions = ccfMasterClient.getDirections(ccfMasterLandscape, null);
 						for (Direction direction : directions) {
 							if (direction.getLandscape().getId() == ccfMasterLandscape.getId()) {
 								if (direction.getDirections().equals(Directions.FORWARD)) {
@@ -584,7 +584,7 @@ public class MigrateLandscapeWizard extends Wizard {
 
 					Map<String, ExternalApp> externalAppMap = new HashMap<String, ExternalApp>();
 					monitor.subTask("Creating CCF Master external applications");
-					ExternalApp[] externalApps = ccfMasterClient.getExternalApps();
+					ExternalApp[] externalApps = ccfMasterClient.getExternalApps(ccfMasterLandscape);
 					for (String project : projectIds) {
 						ProjectDO projectDO = teamForgeClient.getConnection().getTeamForgeClient().getProjectData(project);
 						ExternalApp externalApp = new ExternalApp();
@@ -660,8 +660,8 @@ public class MigrateLandscapeWizard extends Wizard {
 					}
 					
 					monitor.subTask("Creating CCF Master repository mapping directions");
-					repositoryMappings = ccfMasterClient.getRepositoryMappings();
-					RepositoryMappingDirection[] repositoryMappingDirections = ccfMasterClient.getRepositoryMappingDirections();
+					repositoryMappings = ccfMasterClient.getRepositoryMappings(ccfMasterLandscape);
+					RepositoryMappingDirection[] repositoryMappingDirections = ccfMasterClient.getRepositoryMappingDirections(ccfMasterLandscape);
 					if (monitor.isCanceled()) {
 						canceled = true;
 						return;
