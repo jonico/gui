@@ -711,6 +711,7 @@ public class MigrateLandscapeWizard extends Wizard {
 						}
 						
 					}
+					repositoryMappingDirections = ccfMasterClient.getRepositoryMappingDirections(ccfMasterLandscape);
 					monitor.worked(1);
 					if (monitor.isCanceled()) {
 						canceled = true;
