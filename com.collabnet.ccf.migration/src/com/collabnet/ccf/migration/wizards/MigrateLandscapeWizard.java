@@ -939,15 +939,18 @@ public class MigrateLandscapeWizard extends Wizard {
 	private RepositoryMappingDirection getRepositoryMappingDirection(Patient patient, RepositoryMappingDirection[] repositoryMappingDirections) {
 		String teamForgeRepositoryId;
 		String participantRepositoryId;
+		Directions directions;
 		if (patient.getTargetSystemKind().startsWith("TF")) {
 			teamForgeRepositoryId = patient.getTargetRepositoryId();
 			participantRepositoryId = patient.getSourceRepositoryId();
+			directions = Directions.REVERSE;
 		} else {
 			teamForgeRepositoryId = patient.getSourceRepositoryId();
 			participantRepositoryId = patient.getTargetRepositoryId();
+			directions = Directions.FORWARD;
 		}
 		for (RepositoryMappingDirection repositoryMappingDirection : repositoryMappingDirections) {
-			if (repositoryMappingDirection.getRepositoryMapping().getTeamForgeRepositoryId().equals(teamForgeRepositoryId) && repositoryMappingDirection.getRepositoryMapping().getParticipantRepositoryId().equals(participantRepositoryId)) {
+			if (repositoryMappingDirection.getDirection().equals(directions) && repositoryMappingDirection.getRepositoryMapping().getTeamForgeRepositoryId().equals(teamForgeRepositoryId) && repositoryMappingDirection.getRepositoryMapping().getParticipantRepositoryId().equals(participantRepositoryId)) {
 				return repositoryMappingDirection;
 			}
 		}
