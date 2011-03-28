@@ -25,6 +25,7 @@ import org.eclipse.jface.wizard.Wizard;
 
 import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.api.CcfMasterClient;
+import com.collabnet.ccf.api.model.ConflictResolutionPolicy;
 import com.collabnet.ccf.api.model.Direction;
 import com.collabnet.ccf.api.model.DirectionConfig;
 import com.collabnet.ccf.api.model.Directions;
@@ -695,7 +696,19 @@ public class MigrateLandscapeWizard extends Wizard {
 							repositoryMappingDirection.setLastSourceArtifactModificationDate(projectMapping.getSourceLastModificationTime());
 							repositoryMappingDirection.setLastSourceArtifactVersion(projectMapping.getSourceLastArtifactVersion());
 							repositoryMappingDirection.setLastSourceArtifactId(projectMapping.getSourceLastArtifactId());
-							repositoryMappingDirection.setConflictResolutionPolicy(projectMapping.getConflictResolutionPriority());
+							String conflictResolutionPolicy = projectMapping.getConflictResolutionPriority();
+							if (conflictResolutionPolicy.equals(ConflictResolutionPolicy.alwaysIgnore.toString())) {
+								repositoryMappingDirection.setConflictResolutionPolicy(ConflictResolutionPolicy.alwaysIgnore);
+							}
+							else if (conflictResolutionPolicy.equals(ConflictResolutionPolicy.quarantineArtifact.toString())) {
+								repositoryMappingDirection.setConflictResolutionPolicy(ConflictResolutionPolicy.quarantineArtifact);
+							}	
+							else if (conflictResolutionPolicy.equals(ConflictResolutionPolicy.alwaysOverrideAndIgnoreLocks.toString())) {
+								repositoryMappingDirection.setConflictResolutionPolicy(ConflictResolutionPolicy.alwaysOverrideAndIgnoreLocks);
+							}
+							else {
+								repositoryMappingDirection.setConflictResolutionPolicy(ConflictResolutionPolicy.alwaysOverride);
+							}
 							RepositoryMappingDirection checkRepositoryMappingDirection = getRepositoryMappinDirection(repositoryMappingDirection, repositoryMappingDirections);
 							if (checkRepositoryMappingDirection == null) {
 								repositoryMappingDirection = ccfMasterClient.createRepositoryMappingDirection(repositoryMappingDirection);
