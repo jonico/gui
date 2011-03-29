@@ -675,7 +675,7 @@ public class ProjectMappingWizard extends Wizard {
 		if (addSwpKey) getSoapClient().addTextField(pbiTrackerId, "SWP-Key", 30, 1, false, false, true, null);
 		if (addTeamSprint) {
 			String[] teamSprintValues = getTeamSprintValues();
-			getSoapClient().addSingleSelectField(pbiTrackerId, "Team/Sprint", false, false, false, teamSprintValues, null);
+			getSoapClient().addSingleSelectField(pbiTrackerId, "Team/Sprint", false, false, true, teamSprintValues, null);
 		}
 		if (addSprintStart) getSoapClient().addDateField(pbiTrackerId, "Sprint Start", false, false, true);
 		if (addSprintEnd) getSoapClient().addDateField(pbiTrackerId, "Sprint End", false, false, true);

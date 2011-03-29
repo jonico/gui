@@ -525,7 +525,7 @@ public class FixTrackersWizardPage extends WizardPage {
 								soapClient.deleteField(pbiTracker.getId(), teamSprintField.getId());
 							}
 							String[] teamSprintValues = getTeamSprintValues();
-							soapClient.addSingleSelectField(pbiTracker.getId(), "Team/Sprint", false, false, false, teamSprintValues, null);
+							soapClient.addSingleSelectField(pbiTracker.getId(), "Team/Sprint", false, false, true, teamSprintValues, null);
 						}
 						if (problem.getFieldName().equals("Sprint Start")) {
 							if (sprintStartExists) {
