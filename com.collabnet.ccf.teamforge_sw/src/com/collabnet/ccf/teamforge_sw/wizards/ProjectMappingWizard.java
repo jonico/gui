@@ -672,13 +672,13 @@ public class ProjectMappingWizard extends Wizard {
 		if (addBenefit) getSoapClient().addTextField(pbiTrackerId, "Benefit", 5, 1, false, false, false, null);
 		if (addPenalty) getSoapClient().addTextField(pbiTrackerId, "Penalty", 5, 1, false, false, false, null);
 		if (addBacklogEffort) getSoapClient().addTextField(pbiTrackerId, "Backlog Effort", 5, 1, false, false, false, null);
-		if (addSwpKey) getSoapClient().addTextField(pbiTrackerId, "SWP-Key", 30, 1, false, false, false, null);
+		if (addSwpKey) getSoapClient().addTextField(pbiTrackerId, "SWP-Key", 30, 1, false, false, true, null);
 		if (addTeamSprint) {
 			String[] teamSprintValues = getTeamSprintValues();
 			getSoapClient().addSingleSelectField(pbiTrackerId, "Team/Sprint", false, false, false, teamSprintValues, null);
 		}
-		if (addSprintStart) getSoapClient().addDateField(pbiTrackerId, "Sprint Start", false, false, false);
-		if (addSprintEnd) getSoapClient().addDateField(pbiTrackerId, "Sprint End", false, false, false);
+		if (addSprintStart) getSoapClient().addDateField(pbiTrackerId, "Sprint Start", false, false, true);
+		if (addSprintEnd) getSoapClient().addDateField(pbiTrackerId, "Sprint End", false, false, true);
 		
 		if (addTheme) {
 			String[] themeValues = getThemeValues();

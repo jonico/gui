@@ -518,7 +518,7 @@ public class FixTrackersWizardPage extends WizardPage {
 							if (swpKeyExists) {
 								soapClient.deleteField(pbiTracker.getId(), swpKeyField.getId());
 							}
-							soapClient.addTextField(pbiTracker.getId(), "SWP-Key", 30, 1, false, false, false, null);
+							soapClient.addTextField(pbiTracker.getId(), "SWP-Key", 30, 1, false, false, true, null);
 						}
 						if (problem.getFieldName().equals("Team/Sprint")) {
 							if (teamSprintExists) {
@@ -531,13 +531,13 @@ public class FixTrackersWizardPage extends WizardPage {
 							if (sprintStartExists) {
 								soapClient.deleteField(pbiTracker.getId(), sprintStartField.getId());
 							}
-							soapClient.addDateField(pbiTracker.getId(), "Sprint Start", false, false, false);
+							soapClient.addDateField(pbiTracker.getId(), "Sprint Start", false, false, true);
 						}
 						if (problem.getFieldName().equals("Sprint End")) {
 							if (sprintEndExists) {
 								soapClient.deleteField(pbiTracker.getId(), sprintEndField.getId());
 							}
-							soapClient.addDateField(pbiTracker.getId(), "Sprint End", false, false, false);
+							soapClient.addDateField(pbiTracker.getId(), "Sprint End", false, false, true);
 						}
 						if (problem.getFieldName().equals("Themes")) {
 							if (themeExists) {
