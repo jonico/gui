@@ -616,7 +616,13 @@ public class CcfDataProvider {
 		Filter[] orGroup2 = new Filter[group2Filters.size()];
 		group2Filters.toArray(orGroup2);
 		Filter[][] filters = { orGroup1, orGroup2 };
-		SynchronizationStatus[] statuses = getSynchronizationStatuses(landscape, projectMappings, filters);
+		SynchronizationStatus[] statuses;
+		if (landscape.getType1() == null) {
+			statuses = getSynchronizationStatuses(landscape, projectMappings, null);
+		}
+		else {
+			statuses = getSynchronizationStatuses(landscape, projectMappings, filters);
+		}
 		Arrays.sort(statuses);
 		return statuses;
 	}
