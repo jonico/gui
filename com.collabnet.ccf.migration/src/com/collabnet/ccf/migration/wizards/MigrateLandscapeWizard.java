@@ -882,7 +882,7 @@ public class MigrateLandscapeWizard extends Wizard {
 	}
 
 	private CcfMasterClient getCcfMasterClient() {
-		return CcfMasterClient.getClient(ccfMasterPage.getCcfMasterUrl(), ccfMasterPage.getCcfMasterUser(), ccfMasterPage.getCcfMasterPassword());
+		return CcfMasterClient.getClient(ccfMasterPage.getCcfMasterUrl(), null, ccfMasterPage.getCcfMasterUser(), ccfMasterPage.getCcfMasterPassword());
 	}
 	
 	private String getParticipantDescription(String type) {
