@@ -99,7 +99,6 @@ public class MigrateLandscapeWizard extends Wizard {
 				String taskName = "Migrating landscape";
 				monitor.setTaskName(taskName);
 				monitor.beginTask(taskName, 29);	
-				CcfMasterClient ccfMasterClient = getCcfMasterClient();
 				try {					
 					teamForgeClient.getConnection().login();
 					monitor.worked(1);
@@ -110,7 +109,7 @@ public class MigrateLandscapeWizard extends Wizard {
 					} else {
 						otherType = landscape.getType1();
 					}		
-					Participant[] participants = ccfMasterClient.getParticipants();
+					Participant[] participants = getCcfMasterClient(null).getParticipants();
 					Participant teamForgeParticipant = null;
 					Participant otherParticipant = null;
 					for (Participant participant : participants) {
@@ -141,7 +140,7 @@ public class MigrateLandscapeWizard extends Wizard {
 						} else {
 							teamForgeParticipant.setTimezone(landscape.getTimezone1());
 						}
-						teamForgeParticipant = ccfMasterClient.createParticipant(teamForgeParticipant);
+						teamForgeParticipant = getCcfMasterClient(null).createParticipant(teamForgeParticipant);
 						monitor.worked(1);
 						migrationResults.add(new MigrationResult("TeamForge participant created in CCF Master."));
 					}
@@ -159,7 +158,7 @@ public class MigrateLandscapeWizard extends Wizard {
 						teamForgeParticipantConfig.setVal(landscape.getUrl(1));
 					}
 					teamForgeParticipantConfig.setParticipant(teamForgeParticipant);
-					createOrUpdateParticipantConfig(ccfMasterClient,
+					createOrUpdateParticipantConfig(getCcfMasterClient(null),
 							teamForgeParticipant,
 							teamForgeParticipantAlreadyExists,
 							teamForgeParticipantConfig);
@@ -183,7 +182,7 @@ public class MigrateLandscapeWizard extends Wizard {
 						} else {
 							otherParticipant.setTimezone(landscape.getTimezone2());
 						}
-						otherParticipant = ccfMasterClient.createParticipant(otherParticipant);
+						otherParticipant = getCcfMasterClient(null).createParticipant(otherParticipant);
 						monitor.worked(1);
 						migrationResults.add(new MigrationResult(getParticipantDescription(otherType) + " participant created in CCF Master."));
 					}
@@ -206,7 +205,7 @@ public class MigrateLandscapeWizard extends Wizard {
 						otherParticipantConfig.setVal(landscape.getUrl(2));
 					}		
 					otherParticipantConfig.setParticipant(otherParticipant);
-					createOrUpdateParticipantConfig(ccfMasterClient,
+					createOrUpdateParticipantConfig(getCcfMasterClient(null),
 							otherParticipant,
 							otherParticipantAlreadyExists,
 							otherParticipantConfig);
@@ -218,7 +217,7 @@ public class MigrateLandscapeWizard extends Wizard {
 					}										
 					monitor.subTask("Checking for existing CCF Master landscape");
 					com.collabnet.ccf.api.model.Landscape ccfMasterLandscape = null;
-					com.collabnet.ccf.api.model.Landscape[] landscapes = ccfMasterClient.getLandscapes();
+					com.collabnet.ccf.api.model.Landscape[] landscapes = getCcfMasterClient(null).getLandscapes();
 					for (com.collabnet.ccf.api.model.Landscape landscape : landscapes) {
 						ccfMasterLandscape = landscape;
 						migrationResults.add(new MigrationResult("Landscape " + ccfMasterLandscape.getDescription() + " already exists in CCF Master."));
@@ -238,7 +237,7 @@ public class MigrateLandscapeWizard extends Wizard {
 						ccfMasterLandscape.setDescription(landscape.getDescription());
 						ccfMasterLandscape.setParticipant(otherParticipant);
 						ccfMasterLandscape.setTeamForge(teamForgeParticipant);
-						ccfMasterLandscape = ccfMasterClient.createLandscape(ccfMasterLandscape);												
+						ccfMasterLandscape = getCcfMasterClient(null).createLandscape(ccfMasterLandscape);												
 						migrationResults.add(new MigrationResult("Landscape " + ccfMasterLandscape.getDescription() + " created in CCF Master."));
 					}
 					monitor.worked(1);
@@ -285,7 +284,7 @@ public class MigrateLandscapeWizard extends Wizard {
 					landscapeConfig.setLandscape(ccfMasterLandscape);
 					landscapeConfig.setName(LandscapeConfig.TF_USERNAME);
 					landscapeConfig.setVal(teamForgeUsername);
-					createOrUpdateLandscapeConfig(ccfMasterClient, ccfMasterLandscape, landscapeAlreadyExists, landscapeConfig);
+					createOrUpdateLandscapeConfig(getCcfMasterClient(null), ccfMasterLandscape, landscapeAlreadyExists, landscapeConfig);
 					monitor.worked(1);
 					if (monitor.isCanceled()) {
 						canceled = true;
@@ -293,7 +292,7 @@ public class MigrateLandscapeWizard extends Wizard {
 					}
 					landscapeConfig.setName(LandscapeConfig.TF_PASSWORD);
 					landscapeConfig.setVal(obfuscatePassword(teamForgePassword));
-					createOrUpdateLandscapeConfig(ccfMasterClient, ccfMasterLandscape, landscapeAlreadyExists, landscapeConfig);
+					createOrUpdateLandscapeConfig(getCcfMasterClient(null), ccfMasterLandscape, landscapeAlreadyExists, landscapeConfig);
 					monitor.worked(1);
 					if (monitor.isCanceled()) {
 						canceled = true;
@@ -307,7 +306,7 @@ public class MigrateLandscapeWizard extends Wizard {
 							landscapeConfig.setName(LandscapeConfig.QC_USERNAME);
 						}
 						landscapeConfig.setVal(otherUsername);
-						createOrUpdateLandscapeConfig(ccfMasterClient, ccfMasterLandscape, landscapeAlreadyExists, landscapeConfig);
+						createOrUpdateLandscapeConfig(getCcfMasterClient(null), ccfMasterLandscape, landscapeAlreadyExists, landscapeConfig);
 					}
 					monitor.worked(1);
 					if (monitor.isCanceled()) {
@@ -322,7 +321,7 @@ public class MigrateLandscapeWizard extends Wizard {
 							landscapeConfig.setName(LandscapeConfig.QC_PASSWORD);
 						}
 						landscapeConfig.setVal(obfuscatePassword(otherPassword));
-						createOrUpdateLandscapeConfig(ccfMasterClient, ccfMasterLandscape, landscapeAlreadyExists, landscapeConfig);
+						createOrUpdateLandscapeConfig(getCcfMasterClient(null), ccfMasterLandscape, landscapeAlreadyExists, landscapeConfig);
 					}
 					monitor.worked(1);
 					if (monitor.isCanceled()) {
@@ -332,7 +331,7 @@ public class MigrateLandscapeWizard extends Wizard {
 					if (swpResyncUsername != null) {
 						landscapeConfig.setName(LandscapeConfig.SWP_RESYNC_USERNAME);
 						landscapeConfig.setVal(swpResyncUsername);
-						createOrUpdateLandscapeConfig(ccfMasterClient, ccfMasterLandscape, landscapeAlreadyExists, landscapeConfig);
+						createOrUpdateLandscapeConfig(getCcfMasterClient(null), ccfMasterLandscape, landscapeAlreadyExists, landscapeConfig);
 					}
 					monitor.worked(1);
 					if (monitor.isCanceled()) {
@@ -342,7 +341,7 @@ public class MigrateLandscapeWizard extends Wizard {
 					if (swpResyncPassword != null) {
 						landscapeConfig.setName(LandscapeConfig.SWP_RESYNC_PASSWORD);
 						landscapeConfig.setVal(obfuscatePassword(swpResyncPassword));
-						createOrUpdateLandscapeConfig(ccfMasterClient, ccfMasterLandscape, landscapeAlreadyExists, landscapeConfig);
+						createOrUpdateLandscapeConfig(getCcfMasterClient(null), ccfMasterLandscape, landscapeAlreadyExists, landscapeConfig);
 					}
 					monitor.worked(1);
 					if (monitor.isCanceled()) {
@@ -355,7 +354,7 @@ public class MigrateLandscapeWizard extends Wizard {
 					Direction reverse = null;
 					if (landscapeAlreadyExists) {
 						monitor.subTask("Checking for existing CCF Master directions");
-						Direction[] directions = ccfMasterClient.getDirections(ccfMasterLandscape, null);
+						Direction[] directions = getCcfMasterClient(null).getDirections(ccfMasterLandscape, null);
 						for (Direction direction : directions) {
 							if (direction.getLandscape().getId() == ccfMasterLandscape.getId()) {
 								if (direction.getDirections().equals(Directions.FORWARD)) {
@@ -392,7 +391,7 @@ public class MigrateLandscapeWizard extends Wizard {
 						} else {
 							forward.setDescription(landscape.getType2() + landscape.getType1());
 						}
-						forward = ccfMasterClient.createDirection(forward);
+						forward = getCcfMasterClient(null).createDirection(forward);
 						migrationResults.add(new MigrationResult("Direction " + forward.getDescription() + " (FORWARD) created in CCF Master."));
 					}
 					monitor.worked(1);
@@ -425,7 +424,7 @@ public class MigrateLandscapeWizard extends Wizard {
 					}	
 					forwardConfig.setDirection(forward);
 					forwardConfig.setName(DirectionConfig.LOG_MESSAGE_TEMPLATE);
-					createOrUpdateDirectionConfig(ccfMasterClient, forward, forwardAlreadyExists, forwardConfig);
+					createOrUpdateDirectionConfig(getCcfMasterClient(null), forward, forwardAlreadyExists, forwardConfig);
 					monitor.worked(1);
 					if (monitor.isCanceled()) {
 						canceled = true;
@@ -434,7 +433,7 @@ public class MigrateLandscapeWizard extends Wizard {
 					if (teamForgeMaxAttachmentSize != null) {
 						forwardConfig.setName(DirectionConfig.TF_MAX_ATTACHMENT_SIZE);
 						forwardConfig.setVal(teamForgeMaxAttachmentSize);
-						createOrUpdateDirectionConfig(ccfMasterClient, forward, forwardAlreadyExists, forwardConfig);
+						createOrUpdateDirectionConfig(getCcfMasterClient(null), forward, forwardAlreadyExists, forwardConfig);
 					}
 					monitor.worked(1);
 					if (monitor.isCanceled()) {
@@ -449,7 +448,7 @@ public class MigrateLandscapeWizard extends Wizard {
 							forwardConfig.setName(DirectionConfig.QC_MAX_ATTACHMENT_SIZE);
 						}
 						forwardConfig.setVal(otherMaxAttachmentSize);
-						createOrUpdateDirectionConfig(ccfMasterClient, forward, forwardAlreadyExists, forwardConfig);
+						createOrUpdateDirectionConfig(getCcfMasterClient(null), forward, forwardAlreadyExists, forwardConfig);
 					}	
 					monitor.worked(1);
 					if (monitor.isCanceled()) {
@@ -468,7 +467,7 @@ public class MigrateLandscapeWizard extends Wizard {
 						} else {
 							reverse.setDescription(landscape.getType1() + landscape.getType2());
 						}
-						reverse = ccfMasterClient.createDirection(reverse);
+						reverse = getCcfMasterClient(null).createDirection(reverse);
 						migrationResults.add(new MigrationResult("Direction " + reverse.getDescription() + " (REVERSE) created in CCF Master."));
 					}
 					monitor.worked(1);
@@ -501,7 +500,7 @@ public class MigrateLandscapeWizard extends Wizard {
 					}
 					reverseConfig.setDirection(reverse);
 					reverseConfig.setName(DirectionConfig.LOG_MESSAGE_TEMPLATE);
-					createOrUpdateDirectionConfig(ccfMasterClient, reverse, reverseAlreadyExists, reverseConfig);
+					createOrUpdateDirectionConfig(getCcfMasterClient(null), reverse, reverseAlreadyExists, reverseConfig);
 					monitor.worked(1);
 					if (monitor.isCanceled()) {
 						canceled = true;
@@ -510,7 +509,7 @@ public class MigrateLandscapeWizard extends Wizard {
 					if (teamForgeMaxAttachmentSize != null) {
 						reverseConfig.setName(DirectionConfig.TF_MAX_ATTACHMENT_SIZE);
 						reverseConfig.setVal(teamForgeMaxAttachmentSize);
-						createOrUpdateDirectionConfig(ccfMasterClient, reverse, reverseAlreadyExists, reverseConfig);
+						createOrUpdateDirectionConfig(getCcfMasterClient(null), reverse, reverseAlreadyExists, reverseConfig);
 					}
 					monitor.worked(1);
 					if (monitor.isCanceled()) {
@@ -525,7 +524,7 @@ public class MigrateLandscapeWizard extends Wizard {
 							reverseConfig.setName(DirectionConfig.QC_MAX_ATTACHMENT_SIZE);
 						}
 						reverseConfig.setVal(otherMaxAttachmentSize);
-						createOrUpdateDirectionConfig(ccfMasterClient, reverse, reverseAlreadyExists, reverseConfig);
+						createOrUpdateDirectionConfig(getCcfMasterClient(null), reverse, reverseAlreadyExists, reverseConfig);
 					}	
 					monitor.worked(1);
 					if (monitor.isCanceled()) {
@@ -595,7 +594,7 @@ public class MigrateLandscapeWizard extends Wizard {
 
 					Map<String, ExternalApp> externalAppMap = new HashMap<String, ExternalApp>();
 					monitor.subTask("Creating CCF Master external applications");
-					ExternalApp[] externalApps = ccfMasterClient.getExternalApps(ccfMasterLandscape);
+					ExternalApp[] externalApps = getCcfMasterClient(null).getExternalApps(ccfMasterLandscape);
 					for (String project : projectIds) {
 						ProjectDO projectDO = teamForgeClient.getConnection().getTeamForgeClient().getProjectData(project);
 						ExternalApp externalApp = new ExternalApp();
@@ -606,7 +605,7 @@ public class MigrateLandscapeWizard extends Wizard {
 							externalApp = existingApp;
 							migrationResults.add(new MigrationResult("External application " + externalApp.getLinkId() + " (" + project + ") already exists in CCF Master."));
 						} else {
-							externalApp = ccfMasterClient.createExternalApp(externalApp);
+							externalApp = getCcfMasterClient(null).createExternalApp(externalApp);
 							migrationResults.add(new MigrationResult("External application " + externalApp.getLinkId() + " (" + project + ") created in CCF Master."));
 						}
 						externalAppMap.put(project, externalApp);
@@ -620,10 +619,10 @@ public class MigrateLandscapeWizard extends Wizard {
 						canceled = true;
 						return;
 					}
-					
+
 					monitor.subTask("Creating CCF Master repository mappings");
 					List<String> repositoryMappingList = new ArrayList<String>();
-					RepositoryMapping[] repositoryMappings = ccfMasterClient.getRepositoryMappings();
+					RepositoryMapping[] repositoryMappings = getCcfMasterClient(null).getRepositoryMappings();
 					for (SynchronizationStatus projectMapping : projectMappings) {
 						String projectId = projectMappingMap.get(projectMapping);
 						if (projectId != null) {
@@ -648,7 +647,7 @@ public class MigrateLandscapeWizard extends Wizard {
 										repositoryMapping.setTeamForgeRepositoryId(teamForgeRepositoryId);
 										RepositoryMapping checkMapping = getRepositoryMapping(repositoryMapping, repositoryMappings);
 										if (checkMapping == null) {
-											repositoryMapping = ccfMasterClient.createRepositoryMapping(repositoryMapping);
+											repositoryMapping = getCcfMasterClient(externalApp.getLinkId()).createRepositoryMapping(repositoryMapping);
 											migrationResults.add(new MigrationResult("Repository mapping " + repositoryMapping.getDescription() + " created in CCF Master."));
 										} else {
 											repositoryMapping = checkMapping;
@@ -671,8 +670,8 @@ public class MigrateLandscapeWizard extends Wizard {
 					}
 					
 					monitor.subTask("Creating CCF Master repository mapping directions");
-					repositoryMappings = ccfMasterClient.getRepositoryMappings(ccfMasterLandscape);
-					RepositoryMappingDirection[] repositoryMappingDirections = ccfMasterClient.getRepositoryMappingDirections(ccfMasterLandscape);
+					repositoryMappings = getCcfMasterClient(null).getRepositoryMappings(ccfMasterLandscape);
+					RepositoryMappingDirection[] repositoryMappingDirections = getCcfMasterClient(null).getRepositoryMappingDirections(ccfMasterLandscape);
 					if (monitor.isCanceled()) {
 						canceled = true;
 						return;
@@ -711,7 +710,7 @@ public class MigrateLandscapeWizard extends Wizard {
 							}
 							RepositoryMappingDirection checkRepositoryMappingDirection = getRepositoryMappinDirection(repositoryMappingDirection, repositoryMappingDirections);
 							if (checkRepositoryMappingDirection == null) {
-								repositoryMappingDirection = ccfMasterClient.createRepositoryMappingDirection(repositoryMappingDirection);
+								repositoryMappingDirection = getCcfMasterClient(repositoryMappingDirection.getRepositoryMapping().getExternalApp().getLinkId()).createRepositoryMappingDirection(repositoryMappingDirection);
 								migrationResults.add(new MigrationResult("Repository mapping direction " + repositoryMappingDirection.getRepositoryMapping().getDescription() + " (" + repositoryMappingDirection.getDirection() + ") created in CCF Master."));
 							} else {
 								repositoryMappingDirection = checkRepositoryMappingDirection;
@@ -724,7 +723,7 @@ public class MigrateLandscapeWizard extends Wizard {
 						}
 						
 					}
-					repositoryMappingDirections = ccfMasterClient.getRepositoryMappingDirections(ccfMasterLandscape);
+					repositoryMappingDirections = getCcfMasterClient(null).getRepositoryMappingDirections(ccfMasterLandscape);
 					monitor.worked(1);
 					if (monitor.isCanceled()) {
 						canceled = true;
@@ -755,7 +754,7 @@ public class MigrateLandscapeWizard extends Wizard {
 							identityMapping.setTargetArtifactId(mapping.getTargetArtifactId());
 							identityMapping.setTargetArtifactVersion(mapping.getTargetArtifactVersion());
 							identityMapping.setTargetLastModificationTime(mapping.getTargetLastModificationTime());
-							ccfMasterClient.createIdentityMapping(identityMapping, mapping.getTargetSystemKind().startsWith("TF"));
+							getCcfMasterClient(identityMapping.getRepositoryMapping().getExternalApp().getLinkId()).createIdentityMapping(identityMapping, mapping.getTargetSystemKind().startsWith("TF"));
 							identityMappingCount++;
 							if (monitor.isCanceled()) {
 								if (identityMappingCount > 0) {
@@ -804,7 +803,7 @@ public class MigrateLandscapeWizard extends Wizard {
 							hospitalEntry.setTargetArtifactVersion(patient.getTargetArtifactVersion());
 							hospitalEntry.setTargetLastModificationTime(patient.getTargetLastModificationTime());
 							hospitalEntry.setTimestamp(patient.getTimeStamp());
-							ccfMasterClient.createHospitalEntry(hospitalEntry);
+							getCcfMasterClient(hospitalEntry.getRepositoryMappingDirection().getRepositoryMapping().getExternalApp().getLinkId()).createHospitalEntry(hospitalEntry);
 							hospitalEntryCount++;
 							if (monitor.isCanceled()) {
 								if (hospitalEntryCount > 0) {
@@ -881,8 +880,8 @@ public class MigrateLandscapeWizard extends Wizard {
 		return landscape;
 	}
 
-	private CcfMasterClient getCcfMasterClient() {
-		return CcfMasterClient.getClient(ccfMasterPage.getCcfMasterUrl(), null, ccfMasterPage.getCcfMasterUser(), ccfMasterPage.getCcfMasterPassword());
+	private CcfMasterClient getCcfMasterClient(String linkId) {
+		return CcfMasterClient.getClient(ccfMasterPage.getCcfMasterUrl(), linkId, ccfMasterPage.getCcfMasterUser(), ccfMasterPage.getCcfMasterPassword());
 	}
 	
 	private String getParticipantDescription(String type) {
@@ -1056,21 +1055,21 @@ public class MigrateLandscapeWizard extends Wizard {
 	
 	private ParticipantConfig[] getParticipantConfigs() throws Exception {
 		if (participantConfigs == null) {
-			participantConfigs = getCcfMasterClient().getParticipantConfigs();
+			participantConfigs = getCcfMasterClient(null).getParticipantConfigs();
 		}
 		return participantConfigs;
 	}
 	
 	private LandscapeConfig[] getLandscapeConfigs() throws Exception {
 		if (landscapeConfigs == null) {
-			landscapeConfigs = getCcfMasterClient().getLandscapeConfigs();
+			landscapeConfigs = getCcfMasterClient(null).getLandscapeConfigs();
 		}
 		return landscapeConfigs;
 	}	
 	
 	private DirectionConfig[] getDirectionConfigs() throws Exception {
 		if (directionConfigs == null) {
-			directionConfigs = getCcfMasterClient().getDirectionConfigs();
+			directionConfigs = getCcfMasterClient(null).getDirectionConfigs();
 		}
 		return directionConfigs;
 	}
