@@ -217,7 +217,7 @@ public class MigrateLandscapeWizard extends Wizard {
 					}										
 					monitor.subTask("Checking for existing CCF Master landscape");
 					com.collabnet.ccf.api.model.Landscape ccfMasterLandscape = null;
-					com.collabnet.ccf.api.model.Landscape[] landscapes = getCcfMasterClient(null).getLandscapes();
+					com.collabnet.ccf.api.model.Landscape[] landscapes = getCcfMasterClient(null).getLandscapes(true);
 					for (com.collabnet.ccf.api.model.Landscape landscape : landscapes) {
 						ccfMasterLandscape = landscape;
 						migrationResults.add(new MigrationResult("Landscape " + ccfMasterLandscape.getDescription() + " already exists in CCF Master."));
@@ -354,7 +354,7 @@ public class MigrateLandscapeWizard extends Wizard {
 					Direction reverse = null;
 					if (landscapeAlreadyExists) {
 						monitor.subTask("Checking for existing CCF Master directions");
-						Direction[] directions = getCcfMasterClient(null).getDirections(ccfMasterLandscape, null);
+						Direction[] directions = getCcfMasterClient(null).getDirections(ccfMasterLandscape, null, true);
 						for (Direction direction : directions) {
 							if (direction.getLandscape().getId() == ccfMasterLandscape.getId()) {
 								if (direction.getDirections().equals(Directions.FORWARD)) {
@@ -594,7 +594,7 @@ public class MigrateLandscapeWizard extends Wizard {
 
 					Map<String, ExternalApp> externalAppMap = new HashMap<String, ExternalApp>();
 					monitor.subTask("Creating CCF Master external applications");
-					ExternalApp[] externalApps = getCcfMasterClient(null).getExternalApps(ccfMasterLandscape);
+					ExternalApp[] externalApps = getCcfMasterClient(null).getExternalApps(ccfMasterLandscape, true);
 					for (String project : projectIds) {
 						ProjectDO projectDO = teamForgeClient.getConnection().getTeamForgeClient().getProjectData(project);
 						ExternalApp externalApp = new ExternalApp();
@@ -622,7 +622,7 @@ public class MigrateLandscapeWizard extends Wizard {
 
 					monitor.subTask("Creating CCF Master repository mappings");
 					List<String> repositoryMappingList = new ArrayList<String>();
-					RepositoryMapping[] repositoryMappings = getCcfMasterClient(null).getRepositoryMappings();
+					RepositoryMapping[] repositoryMappings = getCcfMasterClient(null).getRepositoryMappings(true);
 					for (SynchronizationStatus projectMapping : projectMappings) {
 						String projectId = projectMappingMap.get(projectMapping);
 						if (projectId != null) {
@@ -670,8 +670,8 @@ public class MigrateLandscapeWizard extends Wizard {
 					}
 					
 					monitor.subTask("Creating CCF Master repository mapping directions");
-					repositoryMappings = getCcfMasterClient(null).getRepositoryMappings(ccfMasterLandscape);
-					RepositoryMappingDirection[] repositoryMappingDirections = getCcfMasterClient(null).getRepositoryMappingDirections(ccfMasterLandscape);
+					repositoryMappings = getCcfMasterClient(null).getRepositoryMappings(ccfMasterLandscape, true);
+					RepositoryMappingDirection[] repositoryMappingDirections = getCcfMasterClient(null).getRepositoryMappingDirections(ccfMasterLandscape, true);
 					if (monitor.isCanceled()) {
 						canceled = true;
 						return;
@@ -723,7 +723,7 @@ public class MigrateLandscapeWizard extends Wizard {
 						}
 						
 					}
-					repositoryMappingDirections = getCcfMasterClient(null).getRepositoryMappingDirections(ccfMasterLandscape);
+					repositoryMappingDirections = getCcfMasterClient(null).getRepositoryMappingDirections(ccfMasterLandscape, true);
 					monitor.worked(1);
 					if (monitor.isCanceled()) {
 						canceled = true;
@@ -1055,21 +1055,21 @@ public class MigrateLandscapeWizard extends Wizard {
 	
 	private ParticipantConfig[] getParticipantConfigs() throws Exception {
 		if (participantConfigs == null) {
-			participantConfigs = getCcfMasterClient(null).getParticipantConfigs();
+			participantConfigs = getCcfMasterClient(null).getParticipantConfigs(true);
 		}
 		return participantConfigs;
 	}
 	
 	private LandscapeConfig[] getLandscapeConfigs() throws Exception {
 		if (landscapeConfigs == null) {
-			landscapeConfigs = getCcfMasterClient(null).getLandscapeConfigs();
+			landscapeConfigs = getCcfMasterClient(null).getLandscapeConfigs(true);
 		}
 		return landscapeConfigs;
 	}	
 	
 	private DirectionConfig[] getDirectionConfigs() throws Exception {
 		if (directionConfigs == null) {
-			directionConfigs = getCcfMasterClient(null).getDirectionConfigs();
+			directionConfigs = getCcfMasterClient(null).getDirectionConfigs(true);
 		}
 		return directionConfigs;
 	}
