@@ -39,6 +39,11 @@ public class ComHandle {
 
 	public static void tearDownCOM(){
 		if (comInitialized) {
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				// Ignore.
+			}
 			ComThread.Release();
 			comInitialized=false;
 		}
