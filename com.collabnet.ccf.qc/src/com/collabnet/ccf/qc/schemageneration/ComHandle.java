@@ -17,6 +17,9 @@
 
 package com.collabnet.ccf.qc.schemageneration;
 
+import org.eclipse.jface.preference.IPreferenceStore;
+
+import com.collabnet.ccf.qc.Activator;
 import com.jacob.com.ComThread;
 
 
@@ -29,6 +32,7 @@ import com.jacob.com.ComThread;
  */
 public class ComHandle {
 	private static boolean comInitialized=false;
+	private static IPreferenceStore store = Activator.getDefault().getPreferenceStore();
 	
 	public static void initCOM() {
 		if (!comInitialized) {
@@ -39,10 +43,12 @@ public class ComHandle {
 
 	public static void tearDownCOM(){
 		if (comInitialized) {
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				// Ignore.
+			if (!store.getBoolean(Activator.PREFERENCES_ADVANCED_PROJECT_MAPPING)) {
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					// Ignore.
+				}
 			}
 			ComThread.Release();
 			comInitialized=false;

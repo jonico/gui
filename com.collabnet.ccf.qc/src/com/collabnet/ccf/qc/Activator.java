@@ -12,6 +12,10 @@ import org.osgi.framework.BundleContext;
  * The activator class controls the plug-in life cycle
  */
 public class Activator extends AbstractUIPlugin {
+	
+	public static final String PREFERENCES_ADVANCED_PROJECT_MAPPING = "pref_advanced_project_mapping"; //$NON-NLS-1$
+	public static final boolean DEFAULT_ADVANCED_PROJECT_MAPPING = true;
+	
 	public static final String IMAGE_QC = "HPLogo.png"; //$NON-NLS-1$
 
 	// The plug-in ID

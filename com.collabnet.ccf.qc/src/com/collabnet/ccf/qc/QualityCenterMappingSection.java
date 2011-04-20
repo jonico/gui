@@ -37,6 +37,7 @@ public class QualityCenterMappingSection extends MappingSection {
 	private Button requirementTypeBrowseButton;
 	private Button defectsButton;
 	private Button requirementsButton;
+	private boolean advancedProjectMappingOptionsEnabled;
 	
 	private IDialogSettings settings = Activator.getDefault().getDialogSettings();
 	private static final String PREVIOUS_TYPE = "QualityCenterMappingSection.type";
@@ -63,7 +64,7 @@ public class QualityCenterMappingSection extends MappingSection {
 		return repositoryId.toString();
 	}
 	
-	public Composite getComposite(Composite parent, final Landscape landscape) {
+	public Composite getComposite(Composite parent, final Landscape landscape) {		
 		Group qcGroup = new Group(parent, SWT.NULL);
 		GridLayout qcLayout = new GridLayout();
 		qcLayout.numColumns = 3;
@@ -118,7 +119,7 @@ public class QualityCenterMappingSection extends MappingSection {
 				}
 			}			
 		});
-		
+
 		defectsButton = new Button(qcGroup, SWT.RADIO);
 		defectsButton.setText("Defects");
 		gd = new GridData();
@@ -204,7 +205,7 @@ public class QualityCenterMappingSection extends MappingSection {
 				}
 				requirementTypeLabel.setVisible(requirementsButton.getSelection());
 				requirementTypeText.setVisible(requirementsButton.getSelection());
-				requirementTypeBrowseButton.setVisible("win32".equals(SWT.getPlatform()) && requirementsButton.getSelection());
+				requirementTypeBrowseButton.setVisible("win32".equals(SWT.getPlatform()) && requirementsButton.getSelection() && advancedProjectMappingOptionsEnabled);
 				if (getProjectPage() != null) {
 					getProjectPage().setPageComplete();
 				}
@@ -212,7 +213,13 @@ public class QualityCenterMappingSection extends MappingSection {
 		};
 		
 		defectsButton.addSelectionListener(typeListener);
-		requirementsButton.addSelectionListener(typeListener);		
+		requirementsButton.addSelectionListener(typeListener);	
+		
+		advancedProjectMappingOptionsEnabled = com.collabnet.ccf.qc.Activator.getDefault().getPreferenceStore().getBoolean(com.collabnet.ccf.qc.Activator.PREFERENCES_ADVANCED_PROJECT_MAPPING);
+		if (!advancedProjectMappingOptionsEnabled) {
+			projectBrowseButton.setVisible(false);
+			requirementTypeBrowseButton.setVisible(false);
+		}
 		
 		return qcGroup;
 	}
@@ -254,6 +261,12 @@ public class QualityCenterMappingSection extends MappingSection {
 	public boolean validate(Landscape landscape) {
 		// Only validate on 32-bit windows, because the COM driver doesn't work on 64-bit windows.
 		if (landscape.getRole() == Landscape.ROLE_OPERATOR || !"win32".equals(SWT.getPlatform())) return true;
+		
+		// Only validate if "Enable advanced project mapping wizard options" preference is selected.
+		if (!advancedProjectMappingOptionsEnabled) {
+			return true;
+		}
+		
 		QCLayoutExtractor qcLayoutExtractor = new QCLayoutExtractor();
 		Properties properties;
 		if (landscape.getType2().equals("QT")) {

@@ -14,5 +14,20 @@
             id="com.collabnet.ccf.qc.QualityCenterCcfParticipant">
       </participant>               
    </extension>
+   
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer class="com.collabnet.ccf.qc.preferences.QualityCenterPreferenceInitializer"/>
+   </extension>   
+   
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            name="Quality Center Integration"
+            category="com.collabnet.ccf.preferences"
+            class="com.collabnet.ccf.qc.preferences.QualityCenterPreferencesPage"
+            id="com.collabnet.ccf.qc.preferences.QualityCenterPreferencesPage">
+      </page>
+   </extension>        
 
 </plugin>
