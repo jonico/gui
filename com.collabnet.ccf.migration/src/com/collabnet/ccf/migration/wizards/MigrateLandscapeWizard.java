@@ -30,6 +30,9 @@ import com.collabnet.ccf.api.model.Direction;
 import com.collabnet.ccf.api.model.DirectionConfig;
 import com.collabnet.ccf.api.model.Directions;
 import com.collabnet.ccf.api.model.ExternalApp;
+import com.collabnet.ccf.api.model.FieldMapping;
+import com.collabnet.ccf.api.model.FieldMappingKind;
+import com.collabnet.ccf.api.model.FieldMappingScope;
 import com.collabnet.ccf.api.model.HospitalEntry;
 import com.collabnet.ccf.api.model.LandscapeConfig;
 import com.collabnet.ccf.api.model.Participant;
@@ -711,18 +714,26 @@ public class MigrateLandscapeWizard extends Wizard {
 								repositoryMappingDirection = getCcfMasterClient(repositoryMappingDirection.getRepositoryMapping().getExternalApp().getLinkId()).createRepositoryMappingDirection(repositoryMappingDirection);
 								migrationResults.add(new MigrationResult("Repository mapping direction " + repositoryMappingDirection.getRepositoryMapping().getDescription() + " (" + repositoryMappingDirection.getDirection() + ") created in CCF Master."));
 								
-								// TODO Create field mapping
+								// TODO Create QC field mappings
 								
-//								if (projectMapping.getSourceRepositoryKind().contains("Template")) {
-//									FieldMapping fieldMapping = new FieldMapping();
-//									fieldMapping.setParent(repositoryMappingDirection);
-//									fieldMapping.setScope(FieldMappingScope.CCF_CORE);
-//									fieldMapping.setParam(projectMapping.getSourceRepositoryKind());
-//									fieldMapping.setKind(FieldMappingKind.MAPPING_RULES);
-//									fieldMapping = getCcfMasterClient(repositoryMappingDirection.getRepositoryMapping().getExternalApp().getLinkId()).createFieldMapping(fieldMapping);
-//									repositoryMappingDirection.setActiveFieldMapping(fieldMapping);
-//									repositoryMappingDirection = getCcfMasterClient(repositoryMappingDirection.getRepositoryMapping().getExternalApp().getLinkId()).updateRepositoryMappingDirection(checkRepositoryMappingDirection);
-//								}
+								if (projectMapping.getSourceRepositoryKind().contains("Template")) {
+									FieldMapping fieldMapping = new FieldMapping();
+									fieldMapping.setParent(repositoryMappingDirection);
+									fieldMapping.setScope(FieldMappingScope.CCF_CORE);
+									String param;
+									int index = projectMapping.getSourceRepositoryKind().indexOf(".xsl");
+									if (index == -1) {
+										param = projectMapping.getSourceRepositoryKind();
+									}
+									else {
+										param = projectMapping.getSourceRepositoryKind().substring(0, index);
+									}
+									fieldMapping.setParam(param);
+									fieldMapping.setKind(FieldMappingKind.CUSTOM_XSLT);
+									fieldMapping = getCcfMasterClient(repositoryMappingDirection.getRepositoryMapping().getExternalApp().getLinkId()).createFieldMapping(fieldMapping);
+									repositoryMappingDirection.setActiveFieldMapping(fieldMapping);
+									repositoryMappingDirection = getCcfMasterClient(repositoryMappingDirection.getRepositoryMapping().getExternalApp().getLinkId()).updateRepositoryMappingDirection(repositoryMappingDirection);
+								}
 								
 							} else {
 								repositoryMappingDirection = checkRepositoryMappingDirection;
