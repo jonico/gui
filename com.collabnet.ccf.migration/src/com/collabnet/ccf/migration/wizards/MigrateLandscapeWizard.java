@@ -220,7 +220,7 @@ public class MigrateLandscapeWizard extends Wizard {
 					com.collabnet.ccf.api.model.Landscape[] landscapes = getCcfMasterClient(null).getLandscapes(true);
 					for (com.collabnet.ccf.api.model.Landscape landscape : landscapes) {
 						ccfMasterLandscape = landscape;
-						migrationResults.add(new MigrationResult("Landscape " + ccfMasterLandscape.getDescription() + " already exists in CCF Master."));
+						migrationResults.add(new MigrationResult("Landscape " + ccfMasterLandscape.getName() + " already exists in CCF Master."));
 						break;
 					}
 					monitor.worked(1);
@@ -234,11 +234,11 @@ public class MigrateLandscapeWizard extends Wizard {
 					if (ccfMasterLandscape == null) {
 						monitor.subTask("Creating CCF Master landscape");
 						ccfMasterLandscape = new com.collabnet.ccf.api.model.Landscape();
-						ccfMasterLandscape.setDescription(landscape.getDescription());
+						ccfMasterLandscape.setName(landscape.getDescription());
 						ccfMasterLandscape.setParticipant(otherParticipant);
 						ccfMasterLandscape.setTeamForge(teamForgeParticipant);
 						ccfMasterLandscape = getCcfMasterClient(null).createLandscape(ccfMasterLandscape);												
-						migrationResults.add(new MigrationResult("Landscape " + ccfMasterLandscape.getDescription() + " created in CCF Master."));
+						migrationResults.add(new MigrationResult("Landscape " + ccfMasterLandscape.getName() + " created in CCF Master."));
 					}
 					monitor.worked(1);
 					if (monitor.isCanceled()) {
@@ -348,7 +348,7 @@ public class MigrateLandscapeWizard extends Wizard {
 						canceled = true;
 						return;
 					}
-					migrationResults.add(new MigrationResult("Landscape " + ccfMasterLandscape.getDescription() + " properties set in CCF Master."));
+					migrationResults.add(new MigrationResult("Landscape " + ccfMasterLandscape.getName() + " properties set in CCF Master."));
 					
 					Direction forward = null;
 					Direction reverse = null;
