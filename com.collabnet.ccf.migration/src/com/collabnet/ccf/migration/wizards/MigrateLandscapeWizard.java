@@ -598,7 +598,7 @@ public class MigrateLandscapeWizard extends Wizard {
 					for (String project : projectIds) {
 						ProjectDO projectDO = teamForgeClient.getConnection().getTeamForgeClient().getProjectData(project);
 						ExternalApp externalApp = new ExternalApp();
-						externalApp.setProjectId(projectDO.getPath());
+						externalApp.setProjectPath(projectDO.getPath());
 						externalApp.setLandscape(ccfMasterLandscape);
 						ExternalApp existingApp = getExternalApp(externalApp, externalApps);
 						if (existingApp != null) {
@@ -690,8 +690,6 @@ public class MigrateLandscapeWizard extends Wizard {
 							} else {
 								repositoryMappingDirection.setStatus(RepositoryMappingDirectionStatus.RUNNING);
 							}
-							repositoryMappingDirection.setSourceMappingInfo(projectMapping.getSourceRepositoryKind());
-							repositoryMappingDirection.setTargetMappingInfo(projectMapping.getTargetRepositoryKind());
 							repositoryMappingDirection.setLastSourceArtifactModificationDate(projectMapping.getSourceLastModificationTime());
 							repositoryMappingDirection.setLastSourceArtifactVersion(projectMapping.getSourceLastArtifactVersion());
 							repositoryMappingDirection.setLastSourceArtifactId(projectMapping.getSourceLastArtifactId());
@@ -712,6 +710,20 @@ public class MigrateLandscapeWizard extends Wizard {
 							if (checkRepositoryMappingDirection == null) {
 								repositoryMappingDirection = getCcfMasterClient(repositoryMappingDirection.getRepositoryMapping().getExternalApp().getLinkId()).createRepositoryMappingDirection(repositoryMappingDirection);
 								migrationResults.add(new MigrationResult("Repository mapping direction " + repositoryMappingDirection.getRepositoryMapping().getDescription() + " (" + repositoryMappingDirection.getDirection() + ") created in CCF Master."));
+								
+								// TODO Create field mapping
+								
+//								if (projectMapping.getSourceRepositoryKind().contains("Template")) {
+//									FieldMapping fieldMapping = new FieldMapping();
+//									fieldMapping.setParent(repositoryMappingDirection);
+//									fieldMapping.setScope(FieldMappingScope.CCF_CORE);
+//									fieldMapping.setParam(projectMapping.getSourceRepositoryKind());
+//									fieldMapping.setKind(FieldMappingKind.MAPPING_RULES);
+//									fieldMapping = getCcfMasterClient(repositoryMappingDirection.getRepositoryMapping().getExternalApp().getLinkId()).createFieldMapping(fieldMapping);
+//									repositoryMappingDirection.setActiveFieldMapping(fieldMapping);
+//									repositoryMappingDirection = getCcfMasterClient(repositoryMappingDirection.getRepositoryMapping().getExternalApp().getLinkId()).updateRepositoryMappingDirection(checkRepositoryMappingDirection);
+//								}
+								
 							} else {
 								repositoryMappingDirection = checkRepositoryMappingDirection;
 								migrationResults.add(new MigrationResult("Repository mapping direction " + repositoryMappingDirection.getRepositoryMapping().getDescription() + " (" + repositoryMappingDirection.getDirection() + ") already exists in CCF Master."));
@@ -905,7 +917,7 @@ public class MigrateLandscapeWizard extends Wizard {
 		if (checkApp.getLandscape() != null) {
 			for (ExternalApp externalApp : existingApps) {
 				if (externalApp.getLandscape() != null && externalApp.getLandscape().getId() == checkApp.getLandscape().getId() &&
-						externalApp.getProjectId().equals(checkApp.getProjectId())) {
+						externalApp.getProjectPath().equals(checkApp.getProjectPath())) {
 					return externalApp;
 				}
 			}
