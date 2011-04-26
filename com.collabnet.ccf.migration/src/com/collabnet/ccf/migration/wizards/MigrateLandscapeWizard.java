@@ -32,6 +32,8 @@ import com.collabnet.ccf.api.model.Directions;
 import com.collabnet.ccf.api.model.ExternalApp;
 import com.collabnet.ccf.api.model.FieldMapping;
 import com.collabnet.ccf.api.model.FieldMappingKind;
+import com.collabnet.ccf.api.model.FieldMappingRule;
+import com.collabnet.ccf.api.model.FieldMappingRuleType;
 import com.collabnet.ccf.api.model.FieldMappingScope;
 import com.collabnet.ccf.api.model.HospitalEntry;
 import com.collabnet.ccf.api.model.LandscapeConfig;
@@ -713,9 +715,6 @@ public class MigrateLandscapeWizard extends Wizard {
 							if (checkRepositoryMappingDirection == null) {
 								repositoryMappingDirection = getCcfMasterClient(repositoryMappingDirection.getRepositoryMapping().getExternalApp().getLinkId()).createRepositoryMappingDirection(repositoryMappingDirection);
 								migrationResults.add(new MigrationResult("Repository mapping direction " + repositoryMappingDirection.getRepositoryMapping().getDescription() + " (" + repositoryMappingDirection.getDirection() + ") created in CCF Master."));
-								
-								// TODO Create QC field mappings
-								
 								if (projectMapping.getSourceRepositoryKind().contains("Template")) {
 									FieldMapping fieldMapping = new FieldMapping();
 									fieldMapping.setParent(repositoryMappingDirection);
@@ -730,6 +729,31 @@ public class MigrateLandscapeWizard extends Wizard {
 									}
 									fieldMapping.setParam(param);
 									fieldMapping.setKind(FieldMappingKind.CUSTOM_XSLT);
+									fieldMapping = getCcfMasterClient(repositoryMappingDirection.getRepositoryMapping().getExternalApp().getLinkId()).createFieldMapping(fieldMapping);
+									repositoryMappingDirection.setActiveFieldMapping(fieldMapping);
+									repositoryMappingDirection = getCcfMasterClient(repositoryMappingDirection.getRepositoryMapping().getExternalApp().getLinkId()).updateRepositoryMappingDirection(repositoryMappingDirection);
+								}
+								// TODO Create MapForce field mappings
+								else if (projectMapping.getSourceRepositoryKind().contains(".xsl")) {
+									
+								}
+								else {
+									FieldMapping fieldMapping = new FieldMapping();
+									fieldMapping.setParent(repositoryMappingDirection);
+									fieldMapping.setScope(FieldMappingScope.REPOSITORY_MAPPING_DIRECTION);
+									fieldMapping.setKind(FieldMappingKind.CUSTOM_XSLT);
+									fieldMapping.setParam("param");
+									FieldMappingRule fieldMappingRule = new FieldMappingRule();
+									fieldMappingRule.setType(FieldMappingRuleType.CUSTOM_XSLT_DOCUMENT);
+									fieldMappingRule.setSource("source");
+									fieldMappingRule.setSourceIsTopLevelAttribute(Boolean.valueOf(false));
+									fieldMappingRule.setTarget("target");
+									fieldMappingRule.setTargetIsTopLevelAttribute(Boolean.valueOf(false));
+								// TODO Load from actual mapping file
+									fieldMappingRule.setXmlContent("<custom/>");
+									List<FieldMappingRule> fieldMappingRules = new ArrayList<FieldMappingRule>();
+									fieldMappingRules.add(fieldMappingRule);
+									fieldMapping.setRules(fieldMappingRules);
 									fieldMapping = getCcfMasterClient(repositoryMappingDirection.getRepositoryMapping().getExternalApp().getLinkId()).createFieldMapping(fieldMapping);
 									repositoryMappingDirection.setActiveFieldMapping(fieldMapping);
 									repositoryMappingDirection = getCcfMasterClient(repositoryMappingDirection.getRepositoryMapping().getExternalApp().getLinkId()).updateRepositoryMappingDirection(repositoryMappingDirection);
