@@ -269,64 +269,72 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 			});			
 		}
         
-		Section resyncSection = toolkit.createSection(composite, Section.TITLE_BAR | Section.TWISTIE | Section.EXPANDED);
-        td = new TableWrapData(TableWrapData.FILL_GRAB);
-        td.colspan = 4;
-        resyncSection.setLayoutData(td);
-        resyncSection.setText("Resync user");
-        Composite resyncSectionClient = toolkit.createComposite(resyncSection); 
-        GridLayout resyncLayout = new GridLayout();
-        resyncLayout.numColumns = 2;
-        resyncLayout.verticalSpacing = 10;
-        resyncSectionClient.setLayout(resyncLayout);
-        resyncSection.setClient(resyncSectionClient);
-        resyncSection.addExpansionListener(new ExpansionAdapter() {
-            public void expansionStateChanged(ExpansionEvent e) {
-                form.reflow(true);
-                if (e.getState()) getDialogSettings().put(RESYNC_SECTION_STATE, STATE_EXPANDED);
-                else getDialogSettings().put(RESYNC_SECTION_STATE, STATE_CONTRACTED);
-            }
-        }); 
-        
-        toolkit.createLabel(resyncSectionClient, "User:");
-        resyncUserText = toolkit.createText(resyncSectionClient, resyncUser);
-		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
-		resyncUserText.setLayoutData(gd);
-		if (type == PT) {
-	        toolkit.createLabel(resyncSectionClient, "Display name:");
-	        resyncDisplayNameText = toolkit.createText(resyncSectionClient, resyncDisplayName);
+		Section resyncSection = null;
+		Composite resyncSectionClient = null;
+		if (type == SW) {
+			resyncSection = toolkit.createSection(composite, Section.TITLE_BAR | Section.TWISTIE | Section.EXPANDED);
+	        td = new TableWrapData(TableWrapData.FILL_GRAB);
+	        td.colspan = 4;
+	        resyncSection.setLayoutData(td);
+	        resyncSection.setText("Resync user");
+	        resyncSectionClient = toolkit.createComposite(resyncSection); 
+	        GridLayout resyncLayout = new GridLayout();
+	        resyncLayout.numColumns = 2;
+	        resyncLayout.verticalSpacing = 10;
+	        resyncSectionClient.setLayout(resyncLayout);
+	        resyncSection.setClient(resyncSectionClient);
+	        resyncSection.addExpansionListener(new ExpansionAdapter() {
+	            public void expansionStateChanged(ExpansionEvent e) {
+	                form.reflow(true);
+	                if (e.getState()) getDialogSettings().put(RESYNC_SECTION_STATE, STATE_EXPANDED);
+	                else getDialogSettings().put(RESYNC_SECTION_STATE, STATE_CONTRACTED);
+	            }
+	        }); 
+	        
+	        toolkit.createLabel(resyncSectionClient, "User:");
+	        resyncUserText = toolkit.createText(resyncSectionClient, resyncUser);
 			gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
-			resyncDisplayNameText.setLayoutData(gd);			
-		}
-        toolkit.createLabel(resyncSectionClient, "Password:");
-        resyncPasswordText = toolkit.createText(resyncSectionClient, resyncPassword);
-		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
-		resyncPasswordText.setLayoutData(gd);
-		resyncPasswordText.setEchoChar('*'); 
-		
-		if (connectionTester != null) {
-			Button testButton = toolkit.createButton(resyncSectionClient, "Test Connection", SWT.PUSH);
-			gd = new GridData();
-			gd.horizontalSpan = 2;
-			gd.horizontalAlignment = GridData.HORIZONTAL_ALIGN_CENTER;
-			testButton.setLayoutData(gd);
-			testButton.addSelectionListener(new SelectionAdapter() {
-				public void widgetSelected(SelectionEvent se) {
-					testConnection(urlText.getText().trim(), resyncUserText.getText().trim(), resyncPasswordText.getText().trim());
-				}			
-			});			
+			resyncUserText.setLayoutData(gd);
+			if (type == PT) {
+		        toolkit.createLabel(resyncSectionClient, "Display name:");
+		        resyncDisplayNameText = toolkit.createText(resyncSectionClient, resyncDisplayName);
+				gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
+				resyncDisplayNameText.setLayoutData(gd);			
+			}
+	        toolkit.createLabel(resyncSectionClient, "Password:");
+	        resyncPasswordText = toolkit.createText(resyncSectionClient, resyncPassword);
+			gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
+			resyncPasswordText.setLayoutData(gd);
+			resyncPasswordText.setEchoChar('*'); 
+			
+			if (connectionTester != null) {
+				Button testButton = toolkit.createButton(resyncSectionClient, "Test Connection", SWT.PUSH);
+				gd = new GridData();
+				gd.horizontalSpan = 2;
+				gd.horizontalAlignment = GridData.HORIZONTAL_ALIGN_CENTER;
+				testButton.setLayoutData(gd);
+				testButton.addSelectionListener(new SelectionAdapter() {
+					public void widgetSelected(SelectionEvent se) {
+						testConnection(urlText.getText().trim(), resyncUserText.getText().trim(), resyncPasswordText.getText().trim());
+					}			
+				});			
+			}
 		}
 		
         toolkit.paintBordersFor(systemSectionClient);
         toolkit.paintBordersFor(credentialsSectionClient);
-        toolkit.paintBordersFor(resyncSectionClient);
+        if (resyncSectionClient != null) {
+        	toolkit.paintBordersFor(resyncSectionClient);
+        }
         
         String expansionState = getDialogSettings().get(SYSTEM_SECTION_STATE);
         systemSection.setExpanded(expansionState == null  || expansionState.equals(STATE_EXPANDED));
         expansionState = getDialogSettings().get(CREDENTIALS_SECTION_STATE);
         credentialsSection.setExpanded(expansionState == null  || expansionState.equals(STATE_EXPANDED));
-        expansionState = getDialogSettings().get(RESYNC_SECTION_STATE);
-        resyncSection.setExpanded(expansionState == null  || expansionState.equals(STATE_EXPANDED));
+        if (resyncSection != null) {
+	        expansionState = getDialogSettings().get(RESYNC_SECTION_STATE);
+	        resyncSection.setExpanded(expansionState == null  || expansionState.equals(STATE_EXPANDED));
+        }
         
         ModifyListener modifyListener = new ModifyListener() {
 			public void modifyText(ModifyEvent me) {
@@ -341,9 +349,12 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 		userText.addModifyListener(modifyListener);
 		if (displayNameText != null) displayNameText.addModifyListener(modifyListener);
 		passwordText.addModifyListener(modifyListener);
-		resyncUserText.addModifyListener(modifyListener);
-		if (resyncDisplayNameText != null) resyncDisplayNameText.addModifyListener(modifyListener);
-		resyncPasswordText.addModifyListener(modifyListener);
+		
+		if (resyncSection != null) {
+			resyncUserText.addModifyListener(modifyListener);
+			if (resyncDisplayNameText != null) resyncDisplayNameText.addModifyListener(modifyListener);
+			resyncPasswordText.addModifyListener(modifyListener);
+		}
 		
 		SelectionListener selectionListener = new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent se) {
@@ -367,9 +378,11 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 		userText.addFocusListener(focusListener);
 		if (displayNameText != null) displayNameText.addFocusListener(focusListener);
 		passwordText.addFocusListener(focusListener);
-		resyncUserText.addFocusListener(focusListener);
-		if (resyncDisplayNameText != null) resyncDisplayNameText.addFocusListener(focusListener);
-		resyncPasswordText.addFocusListener(focusListener);
+		if (resyncSection != null) {
+			resyncUserText.addFocusListener(focusListener);
+			if (resyncDisplayNameText != null) resyncDisplayNameText.addFocusListener(focusListener);
+			resyncPasswordText.addFocusListener(focusListener);
+		}
 		
 		urlText.setFocus();
 	}
@@ -468,7 +481,7 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 			timezone = timeZonesCombo.getText();
 		} catch (Exception e) {
 			Activator.handleError(e);
-		}		
+		}	
 	}
 
 	private void initializeCeeValues() {
@@ -476,9 +489,6 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 		user = properties.getProperty(Activator.PROPERTIES_CEE_USER, "");
 		displayName = properties.getProperty(Activator.PROPERTIES_CEE_DISPLAY_NAME, "");
 		password = Activator.decodePassword(properties.getProperty(Activator.PROPERTIES_CEE_PASSWORD, ""));	
-		resyncUser = properties.getProperty(Activator.PROPERTIES_CEE_RESYNC_USER, "");
-		resyncDisplayName = properties.getProperty(Activator.PROPERTIES_CEE_RESYNC_DISPLAY_NAME, "");
-		resyncPassword = Activator.decodePassword(properties.getProperty(Activator.PROPERTIES_CEE_RESYNC_PASSWORD, ""));
 		attachmentSize = properties.getProperty(Activator.PROPERTIES_CEE_ATTACHMENT_SIZE, "10485760");			
 	}
 	
@@ -486,17 +496,13 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 		url = properties.getProperty(Activator.PROPERTIES_QC_URL, "");
 		user = properties.getProperty(Activator.PROPERTIES_QC_USER, "");
 		password = Activator.decodePassword(properties.getProperty(Activator.PROPERTIES_QC_PASSWORD, ""));
-		resyncUser = properties.getProperty(Activator.PROPERTIES_QC_RESYNC_USER,"");
-		resyncPassword = Activator.decodePassword(properties.getProperty(Activator.PROPERTIES_QC_RESYNC_PASSWORD, ""));	
 		attachmentSize = properties.getProperty(Activator.PROPERTIES_QC_ATTACHMENT_SIZE, "10485760");
 	}
 	
 	private void initializeTeamForgeValues() {
 		url = properties.getProperty(Activator.PROPERTIES_SFEE_URL, "");
 		user = properties.getProperty(Activator.PROPERTIES_SFEE_USER, "");
-		password = Activator.decodePassword(properties.getProperty(Activator.PROPERTIES_SFEE_PASSWORD, ""));	
-		resyncUser = properties.getProperty(Activator.PROPERTIES_SFEE_RESYNC_USER, "");
-		resyncPassword = Activator.decodePassword(properties.getProperty(Activator.PROPERTIES_SFEE_RESYNC_PASSWORD, ""));	
+		password = Activator.decodePassword(properties.getProperty(Activator.PROPERTIES_SFEE_PASSWORD, ""));		
 		attachmentSize = properties.getProperty(Activator.PROPERTIES_SFEE_ATTACHMENT_SIZE, "10485760");	
 	}
 	
@@ -517,24 +523,20 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 		!userText.getText().trim().equals(user) ||
 		(displayNameText != null && !displayNameText.getText().trim().equals(displayName)) ||
 		!passwordText.getText().trim().equals(password) ||
-		!resyncUserText.getText().trim().equals(resyncUser) ||
+		(resyncUserText != null && !resyncUserText.getText().trim().equals(resyncUser)) ||
 		(resyncDisplayNameText != null && !resyncDisplayNameText.getText().trim().equals(resyncDisplayName)) ||
-		!resyncPasswordText.getText().trim().equals(resyncPassword);
+		(resyncPasswordText != null && !resyncPasswordText.getText().trim().equals(resyncPassword));
 	}
 	
 	private void setCeeProperties() throws Exception {
 		String password = properties.getProperty(Activator.PROPERTIES_CEE_PASSWORD);
 		boolean passwordPreviouslyEncoded = password != null && password.startsWith(Activator.OBFUSCATED_PASSWORD_PREFIX);
 		password = properties.getProperty(Activator.PROPERTIES_CEE_RESYNC_PASSWORD);
-		boolean resyncPasswordPreviouslyEncoded = password != null && password.startsWith(Activator.OBFUSCATED_PASSWORD_PREFIX);
 		
 		properties.setProperty(Activator.PROPERTIES_CEE_URL, urlText.getText().trim());
 		properties.setProperty(Activator.PROPERTIES_CEE_USER, userText.getText().trim());
 		properties.setProperty(Activator.PROPERTIES_CEE_DISPLAY_NAME, displayNameText.getText().trim());
 		properties.setProperty(Activator.PROPERTIES_CEE_PASSWORD, Activator.encodePassword(passwordText.getText().trim(), passwordPreviouslyEncoded));		
-		properties.setProperty(Activator.PROPERTIES_CEE_RESYNC_USER, resyncUserText.getText().trim());
-		properties.setProperty(Activator.PROPERTIES_CEE_RESYNC_DISPLAY_NAME, resyncDisplayNameText.getText().trim());
-		properties.setProperty(Activator.PROPERTIES_CEE_RESYNC_PASSWORD, Activator.encodePassword(resyncPasswordText.getText().trim(), resyncPasswordPreviouslyEncoded));
 		properties.setProperty(Activator.PROPERTIES_CEE_ATTACHMENT_SIZE, attachmentSizeText.getText().trim());		
 	}
 	
@@ -542,13 +544,10 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 		String password = properties.getProperty(Activator.PROPERTIES_QC_PASSWORD);
 		boolean passwordPreviouslyEncoded = password != null && password.startsWith(Activator.OBFUSCATED_PASSWORD_PREFIX);
 		password = properties.getProperty(Activator.PROPERTIES_QC_RESYNC_PASSWORD);
-		boolean resyncPasswordPreviouslyEncoded = password != null && password.startsWith(Activator.OBFUSCATED_PASSWORD_PREFIX);
 		
 		properties.setProperty(Activator.PROPERTIES_QC_URL, urlText.getText().trim());
 		properties.setProperty(Activator.PROPERTIES_QC_USER, userText.getText().trim());
 		properties.setProperty(Activator.PROPERTIES_QC_PASSWORD, Activator.encodePassword(passwordText.getText().trim(), passwordPreviouslyEncoded));		
-		properties.setProperty(Activator.PROPERTIES_QC_RESYNC_USER, resyncUserText.getText().trim());
-		properties.setProperty(Activator.PROPERTIES_QC_RESYNC_PASSWORD, Activator.encodePassword(resyncPasswordText.getText().trim(), resyncPasswordPreviouslyEncoded));
 		properties.setProperty(Activator.PROPERTIES_QC_ATTACHMENT_SIZE, attachmentSizeText.getText().trim());
 	}
 	
@@ -561,13 +560,10 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 		String password = properties.getProperty(Activator.PROPERTIES_SFEE_PASSWORD);
 		boolean passwordPreviouslyEncoded = password != null && password.startsWith(Activator.OBFUSCATED_PASSWORD_PREFIX);
 		password = properties.getProperty(Activator.PROPERTIES_SFEE_RESYNC_PASSWORD);
-		boolean resyncPasswordPreviouslyEncoded = password != null && password.startsWith(Activator.OBFUSCATED_PASSWORD_PREFIX);
-		
+
 		properties.setProperty(Activator.PROPERTIES_SFEE_URL, urlText.getText().trim());
 		properties.setProperty(Activator.PROPERTIES_SFEE_USER, userText.getText().trim());
 		properties.setProperty(Activator.PROPERTIES_SFEE_PASSWORD, Activator.encodePassword(passwordText.getText().trim(), passwordPreviouslyEncoded));		
-		properties.setProperty(Activator.PROPERTIES_SFEE_RESYNC_USER, resyncUserText.getText().trim());
-		properties.setProperty(Activator.PROPERTIES_SFEE_RESYNC_PASSWORD, Activator.encodePassword(resyncPasswordText.getText().trim(), resyncPasswordPreviouslyEncoded));
 		properties.setProperty(Activator.PROPERTIES_SFEE_ATTACHMENT_SIZE, attachmentSizeText.getText().trim());
 	}
 	
