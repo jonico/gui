@@ -10,6 +10,7 @@
  ******************************************************************************/
 package com.collabnet.ccf.migration.wizards;
 
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -749,8 +750,11 @@ public class MigrateLandscapeWizard extends Wizard {
 									fieldMappingRule.setSourceIsTopLevelAttribute(Boolean.valueOf(false));
 									fieldMappingRule.setTarget("target");
 									fieldMappingRule.setTargetIsTopLevelAttribute(Boolean.valueOf(false));
-								// TODO Load from actual mapping file
-									fieldMappingRule.setXmlContent("<custom/>");
+									File xslFile = projectMapping.getXslFile();
+									if (!xslFile.exists()) {
+										xslFile = projectMapping.getSampleXslFile();
+									}								
+									fieldMappingRule.setXmlContent(CcfMasterClient.readFile(xslFile));
 									List<FieldMappingRule> fieldMappingRules = new ArrayList<FieldMappingRule>();
 									fieldMappingRules.add(fieldMappingRule);
 									fieldMapping.setRules(fieldMappingRules);
