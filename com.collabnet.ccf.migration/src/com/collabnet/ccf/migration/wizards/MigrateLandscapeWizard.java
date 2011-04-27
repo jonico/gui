@@ -734,8 +734,11 @@ public class MigrateLandscapeWizard extends Wizard {
 									repositoryMappingDirection.setActiveFieldMapping(fieldMapping);
 									repositoryMappingDirection = getCcfMasterClient(repositoryMappingDirection.getRepositoryMapping().getExternalApp().getLinkId()).updateRepositoryMappingDirection(repositoryMappingDirection);
 								}
-								// TODO setXMmlContent
 								else if (projectMapping.getSourceRepositoryKind().contains(".xsl")) {
+									File preFile = projectMapping.getGenericArtifactToSourceRepositorySchemaFile();
+									File postFile = projectMapping.getTargetRepositorySchemaToGenericArtifactFile();
+									File mfdFile = projectMapping.getMappingFile(projectMapping.getMFDFileName());
+									File mainFile = projectMapping.getGraphicalXslFile();
 									FieldMapping fieldMapping = new FieldMapping();
 									fieldMapping.setParent(repositoryMappingDirection);
 									fieldMapping.setScope(FieldMappingScope.REPOSITORY_MAPPING_DIRECTION);
@@ -746,29 +749,49 @@ public class MigrateLandscapeWizard extends Wizard {
 									fieldMappingRulePre.setSource("source");
 									fieldMappingRulePre.setSourceIsTopLevelAttribute(Boolean.valueOf(false));
 									fieldMappingRulePre.setTarget("target");
-									fieldMappingRulePre.setTargetIsTopLevelAttribute(Boolean.valueOf(false));						
-									fieldMappingRulePre.setXmlContent("<pre></pre>");
+									fieldMappingRulePre.setTargetIsTopLevelAttribute(Boolean.valueOf(false));	
+									if (preFile.exists()) {
+										fieldMappingRulePre.setXmlContent(CcfMasterClient.readFile(preFile));
+									}
+									else {
+										fieldMappingRulePre.setXmlContent("<pre/>");
+									}
 									FieldMappingRule fieldMappingRuleMain = new FieldMappingRule();
 									fieldMappingRuleMain.setType(FieldMappingRuleType.MAPFORCE_MAIN);
 									fieldMappingRuleMain.setSource("source");
 									fieldMappingRuleMain.setSourceIsTopLevelAttribute(Boolean.valueOf(false));
 									fieldMappingRuleMain.setTarget("target");
-									fieldMappingRuleMain.setTargetIsTopLevelAttribute(Boolean.valueOf(false));						
-									fieldMappingRuleMain.setXmlContent("<main></main>");	
+									fieldMappingRuleMain.setTargetIsTopLevelAttribute(Boolean.valueOf(false));	
+									if (mainFile.exists()) {
+										fieldMappingRuleMain.setXmlContent(CcfMasterClient.readFile(mainFile));	
+									}
+									else {
+										fieldMappingRuleMain.setXmlContent("<main/>");	
+									}
 									FieldMappingRule fieldMappingRulePost = new FieldMappingRule();
 									fieldMappingRulePost.setType(FieldMappingRuleType.MAPFORCE_POST);
 									fieldMappingRulePost.setSource("source");
 									fieldMappingRulePost.setSourceIsTopLevelAttribute(Boolean.valueOf(false));
 									fieldMappingRulePost.setTarget("target");
-									fieldMappingRulePost.setTargetIsTopLevelAttribute(Boolean.valueOf(false));						
-									fieldMappingRulePost.setXmlContent("<post></post>");	
+									fieldMappingRulePost.setTargetIsTopLevelAttribute(Boolean.valueOf(false));	
+									if (postFile.exists()) {
+										fieldMappingRulePost.setXmlContent(CcfMasterClient.readFile(postFile));
+									}
+									else {
+										fieldMappingRulePost.setXmlContent("<post/>");
+									}
 									FieldMappingRule fieldMappingRuleMfd = new FieldMappingRule();
 									fieldMappingRuleMfd.setType(FieldMappingRuleType.MAPFORCE_MFD);
 									fieldMappingRuleMfd.setSource("source");
 									fieldMappingRuleMfd.setSourceIsTopLevelAttribute(Boolean.valueOf(false));
 									fieldMappingRuleMfd.setTarget("target");
-									fieldMappingRuleMfd.setTargetIsTopLevelAttribute(Boolean.valueOf(false));						
-									fieldMappingRuleMfd.setXmlContent("<mfd></mfd>");	
+									fieldMappingRuleMfd.setTargetIsTopLevelAttribute(Boolean.valueOf(false));
+									if (mfdFile.exists()) {
+										fieldMappingRuleMfd.setXmlContent(CcfMasterClient.readFile(mfdFile));	
+									}
+									else {
+										fieldMappingRuleMfd.setXmlContent("<mfd/>");
+									}
 									List<FieldMappingRule> fieldMappingRules = new ArrayList<FieldMappingRule>();
 									fieldMappingRules.add(fieldMappingRulePre);
 									fieldMappingRules.add(fieldMappingRuleMain);
