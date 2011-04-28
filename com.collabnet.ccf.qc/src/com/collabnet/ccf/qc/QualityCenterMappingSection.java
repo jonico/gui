@@ -37,6 +37,8 @@ public class QualityCenterMappingSection extends MappingSection {
 	private Button requirementTypeBrowseButton;
 	private Button defectsButton;
 	private Button requirementsButton;
+	private Label requirementsErrorLabel;
+	private Label requirementsErrorMessageLabel;
 	private boolean advancedProjectMappingOptionsEnabled;
 	
 	private IDialogSettings settings = Activator.getDefault().getDialogSettings();
@@ -170,6 +172,21 @@ public class QualityCenterMappingSection extends MappingSection {
 			}			
 		});
 		
+		Composite warningGroup = new Composite(qcGroup, SWT.NULL);
+		GridLayout warningLayout = new GridLayout();
+		warningLayout.numColumns = 2;
+		warningGroup.setLayout(warningLayout);
+		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
+		gd.horizontalSpan = 3;
+		warningGroup.setLayoutData(gd);	
+		
+		requirementsErrorLabel = new Label(warningGroup, SWT.NONE);
+		requirementsErrorLabel.setImage(Activator.getImage(Activator.IMAGE_ERROR));
+		requirementsErrorLabel.setVisible(false);
+		requirementsErrorMessageLabel = new Label(warningGroup, SWT.NONE);
+		requirementsErrorMessageLabel.setText("CCF cannot map requirement types containing \"-\" character");
+		requirementsErrorMessageLabel.setVisible(false);
+		
 		if (landscape.getRole() == Landscape.ROLE_OPERATOR) {
 			projectBrowseButton.setEnabled(false);
 			requirementTypeBrowseButton.setEnabled(false);
@@ -245,6 +262,14 @@ public class QualityCenterMappingSection extends MappingSection {
 	}
 
 	public boolean isPageComplete() {
+		if (requirementTypeText.isVisible() && requirementTypeText.getText().contains("-")) {
+			requirementsErrorLabel.setVisible(true);
+			requirementsErrorMessageLabel.setVisible(true);
+		}
+		else {
+			requirementsErrorLabel.setVisible(false);
+			requirementsErrorMessageLabel.setVisible(false);
+		}
 		if (domainText == null) {
 			return false;
 		}
@@ -252,8 +277,13 @@ public class QualityCenterMappingSection extends MappingSection {
 			projectText.getText().trim().length() == 0) {
 			return false;
 		}
-		if (requirementTypeText.isVisible() && requirementTypeText.getText().trim().length() == 0) {
-			return false;
+		if (requirementTypeText.isVisible()) {
+			if (requirementTypeText.getText().trim().length() == 0) {
+				return false;
+			}
+			if (requirementTypeText.getText().contains("-")) {
+				return false;
+			}
 		}
 		return true;
 	}
