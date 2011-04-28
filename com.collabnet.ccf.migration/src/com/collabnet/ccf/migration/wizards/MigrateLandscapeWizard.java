@@ -741,20 +741,19 @@ public class MigrateLandscapeWizard extends Wizard {
 									File postFile = projectMapping.getTargetRepositorySchemaToGenericArtifactFile();
 									File mfdFile = projectMapping.getMappingFile(projectMapping.getMFDFileName());
 									File mainFile = projectMapping.getGraphicalXslFile();
-//									File sourceRepositorySchemaFile = projectMapping.getSourceRepositorySchemaFile();
-//									File targetRepositorySchemaFile = projectMapping.getTargetRepositorySchemaFile();
+									File sourceRepositorySchemaFile = projectMapping.getSourceRepositorySchemaFile();
+									File targetRepositorySchemaFile = projectMapping.getTargetRepositorySchemaFile();
 									FieldMapping fieldMapping = new FieldMapping();
 									fieldMapping.setParent(repositoryMappingDirection);
 									fieldMapping.setScope(FieldMappingScope.REPOSITORY_MAPPING_DIRECTION);
 									fieldMapping.setKind(FieldMappingKind.MAPFORCE);	
-									fieldMapping.setParam("param");
-// TODO Uncomment these rules when I figure out why they do not parse.									
-//									if (sourceRepositorySchemaFile.exists()) {
-//										fieldMappingRules.add(getFieldMappingRule(FieldMappingRuleType.SOURCE_REPOSITORY_LAYOUT, sourceRepositorySchemaFile));
-//									}
-//									if (targetRepositorySchemaFile.exists()) {
-//										fieldMappingRules.add(getFieldMappingRule(FieldMappingRuleType.TARGET_REPOSITORY_LAYOUT, targetRepositorySchemaFile));
-//									}
+									fieldMapping.setParam("param");								
+									if (sourceRepositorySchemaFile.exists()) {
+										fieldMappingRules.add(getFieldMappingRule(FieldMappingRuleType.SOURCE_REPOSITORY_LAYOUT, sourceRepositorySchemaFile));
+									}
+									if (targetRepositorySchemaFile.exists()) {
+										fieldMappingRules.add(getFieldMappingRule(FieldMappingRuleType.TARGET_REPOSITORY_LAYOUT, targetRepositorySchemaFile));
+									}
 									if (preFile.exists()) {
 										fieldMappingRules.add(getFieldMappingRule(FieldMappingRuleType.MAPFORCE_PRE, preFile));
 									}
