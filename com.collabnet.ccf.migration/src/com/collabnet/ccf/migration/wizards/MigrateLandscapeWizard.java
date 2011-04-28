@@ -11,6 +11,7 @@
 package com.collabnet.ccf.migration.wizards;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -735,68 +736,36 @@ public class MigrateLandscapeWizard extends Wizard {
 									repositoryMappingDirection = getCcfMasterClient(repositoryMappingDirection.getRepositoryMapping().getExternalApp().getLinkId()).updateRepositoryMappingDirection(repositoryMappingDirection);
 								}
 								else if (projectMapping.getSourceRepositoryKind().contains(".xsl")) {
+									List<FieldMappingRule> fieldMappingRules = new ArrayList<FieldMappingRule>();
 									File preFile = projectMapping.getGenericArtifactToSourceRepositorySchemaFile();
 									File postFile = projectMapping.getTargetRepositorySchemaToGenericArtifactFile();
 									File mfdFile = projectMapping.getMappingFile(projectMapping.getMFDFileName());
 									File mainFile = projectMapping.getGraphicalXslFile();
+									File sourceRepositorySchemaFile = projectMapping.getSourceRepositorySchemaFile();
+									File targetRepositorySchemaFile = projectMapping.getTargetRepositorySchemaFile();
 									FieldMapping fieldMapping = new FieldMapping();
 									fieldMapping.setParent(repositoryMappingDirection);
 									fieldMapping.setScope(FieldMappingScope.REPOSITORY_MAPPING_DIRECTION);
 									fieldMapping.setKind(FieldMappingKind.MAPFORCE);	
 									fieldMapping.setParam("param");
-									FieldMappingRule fieldMappingRulePre = new FieldMappingRule();
-									fieldMappingRulePre.setType(FieldMappingRuleType.MAPFORCE_PRE);
-									fieldMappingRulePre.setSource("source");
-									fieldMappingRulePre.setSourceIsTopLevelAttribute(Boolean.valueOf(false));
-									fieldMappingRulePre.setTarget("target");
-									fieldMappingRulePre.setTargetIsTopLevelAttribute(Boolean.valueOf(false));	
+									if (sourceRepositorySchemaFile.exists()) {
+										fieldMappingRules.add(getFieldMappingRule(FieldMappingRuleType.SOURCE_REPOSITORY_LAYOUT, sourceRepositorySchemaFile));
+									}
+									if (targetRepositorySchemaFile.exists()) {
+										fieldMappingRules.add(getFieldMappingRule(FieldMappingRuleType.TARGET_REPOSITORY_LAYOUT, targetRepositorySchemaFile));
+									}
 									if (preFile.exists()) {
-										fieldMappingRulePre.setXmlContent(CcfMasterClient.readFile(preFile));
+										fieldMappingRules.add(getFieldMappingRule(FieldMappingRuleType.MAPFORCE_PRE, preFile));
 									}
-									else {
-										fieldMappingRulePre.setXmlContent("<pre/>");
-									}
-									FieldMappingRule fieldMappingRuleMain = new FieldMappingRule();
-									fieldMappingRuleMain.setType(FieldMappingRuleType.MAPFORCE_MAIN);
-									fieldMappingRuleMain.setSource("source");
-									fieldMappingRuleMain.setSourceIsTopLevelAttribute(Boolean.valueOf(false));
-									fieldMappingRuleMain.setTarget("target");
-									fieldMappingRuleMain.setTargetIsTopLevelAttribute(Boolean.valueOf(false));	
 									if (mainFile.exists()) {
-										fieldMappingRuleMain.setXmlContent(CcfMasterClient.readFile(mainFile));	
+										fieldMappingRules.add(getFieldMappingRule(FieldMappingRuleType.MAPFORCE_MAIN, mainFile));
 									}
-									else {
-										fieldMappingRuleMain.setXmlContent("<main/>");	
-									}
-									FieldMappingRule fieldMappingRulePost = new FieldMappingRule();
-									fieldMappingRulePost.setType(FieldMappingRuleType.MAPFORCE_POST);
-									fieldMappingRulePost.setSource("source");
-									fieldMappingRulePost.setSourceIsTopLevelAttribute(Boolean.valueOf(false));
-									fieldMappingRulePost.setTarget("target");
-									fieldMappingRulePost.setTargetIsTopLevelAttribute(Boolean.valueOf(false));	
 									if (postFile.exists()) {
-										fieldMappingRulePost.setXmlContent(CcfMasterClient.readFile(postFile));
+										fieldMappingRules.add(getFieldMappingRule(FieldMappingRuleType.MAPFORCE_POST, postFile));
 									}
-									else {
-										fieldMappingRulePost.setXmlContent("<post/>");
-									}
-									FieldMappingRule fieldMappingRuleMfd = new FieldMappingRule();
-									fieldMappingRuleMfd.setType(FieldMappingRuleType.MAPFORCE_MFD);
-									fieldMappingRuleMfd.setSource("source");
-									fieldMappingRuleMfd.setSourceIsTopLevelAttribute(Boolean.valueOf(false));
-									fieldMappingRuleMfd.setTarget("target");
-									fieldMappingRuleMfd.setTargetIsTopLevelAttribute(Boolean.valueOf(false));
 									if (mfdFile.exists()) {
-										fieldMappingRuleMfd.setXmlContent(CcfMasterClient.readFile(mfdFile));	
+										fieldMappingRules.add(getFieldMappingRule(FieldMappingRuleType.MAPFORCE_MFD, mfdFile));
 									}
-									else {
-										fieldMappingRuleMfd.setXmlContent("<mfd/>");
-									}
-									List<FieldMappingRule> fieldMappingRules = new ArrayList<FieldMappingRule>();
-									fieldMappingRules.add(fieldMappingRulePre);
-									fieldMappingRules.add(fieldMappingRuleMain);
-									fieldMappingRules.add(fieldMappingRulePost);
-									fieldMappingRules.add(fieldMappingRuleMfd);
 									fieldMapping.setRules(fieldMappingRules);
 									fieldMapping = getCcfMasterClient(repositoryMappingDirection.getRepositoryMapping().getExternalApp().getLinkId()).createFieldMapping(fieldMapping);
 									repositoryMappingDirection.setActiveFieldMapping(fieldMapping);
@@ -984,6 +953,17 @@ public class MigrateLandscapeWizard extends Wizard {
 		}
 		
 		return exception == null && !canceled;
+	}
+	
+	private FieldMappingRule getFieldMappingRule(FieldMappingRuleType fieldMappingRuleType, File file) throws IOException {
+		FieldMappingRule fieldMappingRule = new FieldMappingRule();
+		fieldMappingRule.setType(fieldMappingRuleType);
+		fieldMappingRule.setSource("source");
+		fieldMappingRule.setSourceIsTopLevelAttribute(Boolean.valueOf(false));
+		fieldMappingRule.setTarget("target");
+		fieldMappingRule.setTargetIsTopLevelAttribute(Boolean.valueOf(false));
+		fieldMappingRule.setXmlContent(CcfMasterClient.readFile(file));
+		return fieldMappingRule;
 	}
 	
 	@Override
