@@ -228,7 +228,7 @@ public class JmxConsoleProjectMappingsEditorPage extends JmxConsoleEditorPage {
 //							queueCount = monitor2.getNumberOfWaitingArtifacts(projectMapping.getSourceSystemId(), projectMapping.getSourceRepositoryId(), projectMapping.getTargetSystemId(), projectMapping.getTargetRepositoryId());
 //						}
 						
-						if (projectMapping.getTargetSystemKind().equals(getLandscape().getType1())) {
+						if (projectMapping.getSourceSystemKind().equals(getLandscape().getType1())) {
 							queueCount = monitor1.getNumberOfWaitingArtifacts(projectMapping.getSourceSystemId(), projectMapping.getSourceRepositoryId(), projectMapping.getTargetSystemId(), projectMapping.getTargetRepositoryId());
 						} else {
 							queueCount = monitor2.getNumberOfWaitingArtifacts(projectMapping.getSourceSystemId(), projectMapping.getSourceRepositoryId(), projectMapping.getTargetSystemId(), projectMapping.getTargetRepositoryId());
