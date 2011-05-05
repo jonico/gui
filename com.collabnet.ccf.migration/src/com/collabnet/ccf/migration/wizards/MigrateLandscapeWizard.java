@@ -139,9 +139,9 @@ public class MigrateLandscapeWizard extends Wizard {
 					if (teamForgeParticipant == null) {
 						monitor.subTask("Creating CCF Master TeamForge participant");						
 						teamForgeParticipant = new Participant();
-						teamForgeParticipant.setSystemId("TF");
+						teamForgeParticipant.setSystemId("TeamForge");
 						teamForgeParticipant.setDescription("TeamForge");
-						teamForgeParticipant.setSystemKind(teamForgeParticipant.getSystemId());
+						teamForgeParticipant.setSystemKind("TF");
 						if (landscape.getType2().equals("TF")) {
 							teamForgeParticipant.setTimezone(landscape.getTimezone2());
 						} else {
@@ -181,9 +181,14 @@ public class MigrateLandscapeWizard extends Wizard {
 						String otherDescription = getParticipantDescription(otherType);			
 						monitor.subTask("Creating CCF Master " + otherDescription + " participant");
 						otherParticipant = new Participant();
-						otherParticipant.setSystemId(otherType);
+						if (otherType.equals("QC")) {
+							otherParticipant.setSystemId("Quality Center");
+						}
+						else {
+							otherParticipant.setSystemId(otherType);
+						}
 						otherParticipant.setDescription(otherDescription);	
-						otherParticipant.setSystemKind(otherParticipant.getSystemId());
+						otherParticipant.setSystemKind(otherType);
 						if (landscape.getType2().equals("TF")) {
 							otherParticipant.setTimezone(landscape.getTimezone1());
 						} else {
