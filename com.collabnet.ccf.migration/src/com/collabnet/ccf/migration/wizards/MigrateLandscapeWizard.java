@@ -403,6 +403,7 @@ public class MigrateLandscapeWizard extends Wizard {
 						} else {
 							forward.setDescription(landscape.getType2() + landscape.getType1());
 						}
+						forward.setShouldStartAutomatically(Boolean.valueOf(false));
 						forward = getCcfMasterClient(null).createDirection(forward);
 						migrationResults.add(new MigrationResult("Direction " + forward.getDescription() + " (FORWARD) created in CCF Master."));
 					}
@@ -479,6 +480,7 @@ public class MigrateLandscapeWizard extends Wizard {
 						} else {
 							reverse.setDescription(landscape.getType1() + landscape.getType2());
 						}
+						reverse.setShouldStartAutomatically(Boolean.valueOf(false));
 						reverse = getCcfMasterClient(null).createDirection(reverse);
 						migrationResults.add(new MigrationResult("Direction " + reverse.getDescription() + " (REVERSE) created in CCF Master."));
 					}
