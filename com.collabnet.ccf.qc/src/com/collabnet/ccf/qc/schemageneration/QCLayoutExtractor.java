@@ -50,6 +50,7 @@ public class QCLayoutExtractor implements RepositoryLayoutExtractor {
 	static final String sfJoinRowKey = "SF_REFERENCE_ID_COLUMN";
 	static final String sfJoinRowDisplayName = "SF_REFERENCE_NAME_COLUMN";
 	static final String sfJoinParentTable = "SF_TABLE_NAME";
+	private static final int HIGHEST_KNOWN_QC_9_0_BUILD_NUMBER = 4434;
 
 	/**
 	 * Describe which columns in a child table are joined to which columns in a
@@ -286,7 +287,7 @@ public class QCLayoutExtractor implements RepositoryLayoutExtractor {
 	 */
 	static boolean isJoinedField(IConnection qcc, String tableName,
 			String fieldName) {
-		if ("9".equals(qcc.getMajorVersion()) && qcc.getMinorVersion().startsWith("0")) {
+		if ("9".equals(qcc.getMajorVersion()) && Integer.parseInt(qcc.getMinorVersion()) <= HIGHEST_KNOWN_QC_9_0_BUILD_NUMBER) {
 			return false;
 		}
 		boolean isRField = false;
