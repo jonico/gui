@@ -655,7 +655,17 @@ public class MigrateLandscapeWizard extends Wizard {
 								if (teamForgeRepositoryId != null) {
 									if (!repositoryMappingList.contains(projectId + teamForgeRepositoryId + participantRepositoryId)) {										
 										RepositoryMapping repositoryMapping = new RepositoryMapping();
-										repositoryMapping.setDescription(teamForgeRepositoryId + "/" + participantRepositoryId);
+										String description = null;
+										if (otherType.equals("SWP")) {
+											int index = participantRepositoryId.lastIndexOf("-");
+											if (index != -1) {
+												description = participantRepositoryId.substring(index + 1);
+											}
+										}
+										if (description == null) {
+											description = teamForgeRepositoryId + "/" + participantRepositoryId;
+										}
+										repositoryMapping.setDescription(description);
 										repositoryMapping.setExternalApp(externalApp);
 										repositoryMapping.setParticipantRepositoryId(participantRepositoryId);
 										repositoryMapping.setTeamForgeRepositoryId(teamForgeRepositoryId);
