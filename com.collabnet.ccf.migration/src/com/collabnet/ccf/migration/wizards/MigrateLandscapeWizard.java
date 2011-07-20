@@ -613,6 +613,7 @@ public class MigrateLandscapeWizard extends Wizard {
 						ProjectDO projectDO = teamForgeClient.getConnection().getTeamForgeClient().getProjectData(project);
 						ExternalApp externalApp = new ExternalApp();
 						externalApp.setProjectPath(projectDO.getPath());
+						externalApp.setProjectTitle(projectDO.getTitle());
 						externalApp.setLandscape(ccfMasterLandscape);
 						ExternalApp existingApp = getExternalApp(externalApp, externalApps);
 						if (existingApp != null) {
