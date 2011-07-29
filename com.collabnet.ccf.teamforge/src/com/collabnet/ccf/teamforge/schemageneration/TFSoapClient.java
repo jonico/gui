@@ -290,6 +290,10 @@ public class TFSoapClient {
 		return connection.supports54();
 	}
 	
+	public boolean supports60() {
+		return connection.supports60();
+	}
+	
 	public String login() throws RemoteException {
 		return connection.login();
 	}

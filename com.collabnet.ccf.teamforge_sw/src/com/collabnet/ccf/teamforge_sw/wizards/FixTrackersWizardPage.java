@@ -548,12 +548,12 @@ public class FixTrackersWizardPage extends WizardPage {
 						}
 						if (problem.getFieldName().equals("Status")) {
 							TrackerFieldValueDO[] oldValues = pbiStatusField.getFieldValues();
-							TrackerFieldValueDO open = new TrackerFieldValueDO(soapClient.supports50());
+							TrackerFieldValueDO open = new TrackerFieldValueDO(soapClient.supports60(), soapClient.supports50());
 							open.setIsDefault(true);
 							open.setValue("Open");
 							open.setValueClass("Open");
 							open.setId(getFieldId("Open", oldValues));
-							TrackerFieldValueDO done = new TrackerFieldValueDO(soapClient.supports50());
+							TrackerFieldValueDO done = new TrackerFieldValueDO(soapClient.supports60(), soapClient.supports50());
 							done.setIsDefault(false);
 							done.setValue("Done");
 							done.setValueClass("Open");
@@ -598,22 +598,22 @@ public class FixTrackersWizardPage extends WizardPage {
 						}
 						if (problem.getFieldName().equals("Status")) {
 							TrackerFieldValueDO[] oldValues = taskStatusField.getFieldValues();
-							TrackerFieldValueDO notStarted = new TrackerFieldValueDO(soapClient.supports50());
+							TrackerFieldValueDO notStarted = new TrackerFieldValueDO(soapClient.supports60(), soapClient.supports50());
 							notStarted.setIsDefault(true);
 							notStarted.setValue("Not Started");
 							notStarted.setValueClass("Open");
 							notStarted.setId(getFieldId("Not Started", oldValues));
-							TrackerFieldValueDO impeded = new TrackerFieldValueDO(soapClient.supports50());
+							TrackerFieldValueDO impeded = new TrackerFieldValueDO(soapClient.supports60(), soapClient.supports50());
 							impeded.setIsDefault(false);
 							impeded.setValue("Impeded");
 							impeded.setValueClass("Open");
 							impeded.setId(getFieldId("Impeded", oldValues));
-							TrackerFieldValueDO inProgress = new TrackerFieldValueDO(soapClient.supports50());
+							TrackerFieldValueDO inProgress = new TrackerFieldValueDO(soapClient.supports60(), soapClient.supports50());
 							inProgress.setIsDefault(false);
 							inProgress.setValue("In Progress");
 							inProgress.setValueClass("Open");
 							inProgress.setId(getFieldId("In Progress", oldValues));
-							TrackerFieldValueDO done = new TrackerFieldValueDO(soapClient.supports50());
+							TrackerFieldValueDO done = new TrackerFieldValueDO(soapClient.supports60(), soapClient.supports50());
 							done.setIsDefault(false);
 							done.setValue("Done");
 							done.setValueClass("Close");

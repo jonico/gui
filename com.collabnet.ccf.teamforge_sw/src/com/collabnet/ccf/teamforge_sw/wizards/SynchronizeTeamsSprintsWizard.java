@@ -48,7 +48,7 @@ public class SynchronizeTeamsSprintsWizard extends AbstractMappingWizard {
 					TrackerFieldDO teamsSprintsField = wizardPage.getTeamsSprintsField();		
 					List<TrackerFieldValueDO> updatedValuesList = new ArrayList<TrackerFieldValueDO>();
 					for (String productTeamSprint : productTeamSprints) {
-						TrackerFieldValueDO fieldValue = new TrackerFieldValueDO(getSoapClient().supports50());
+						TrackerFieldValueDO fieldValue = new TrackerFieldValueDO(getSoapClient().supports60(), getSoapClient().supports50());
 						fieldValue.setIsDefault(false);
 						fieldValue.setValue(productTeamSprint);
 						fieldValue.setId(wizardPage.getOldValuesMap().get(productTeamSprint));

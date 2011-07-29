@@ -57,7 +57,7 @@ public class SynchronizeThemesWizard extends AbstractMappingWizard {
 					TrackerFieldDO themesField = wizardPage.getThemesField();		
 					List<TrackerFieldValueDO> updatedValuesList = new ArrayList<TrackerFieldValueDO>();
 					for (Theme productTheme : productThemes) {
-						TrackerFieldValueDO fieldValue = new TrackerFieldValueDO(getSoapClient().supports50());
+						TrackerFieldValueDO fieldValue = new TrackerFieldValueDO(getSoapClient().supports60(), getSoapClient().supports50());
 						fieldValue.setIsDefault(false);
 						fieldValue.setValue(getValue(productTheme));
 						fieldValue.setId(wizardPage.getOldValuesMap().get(getValue(productTheme)));

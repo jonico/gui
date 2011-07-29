@@ -62,23 +62,22 @@ public class TFLayoutExtractor implements RepositoryLayoutExtractor {
 		if (priorityFieldValues == null) {
 			// we manually have to create the field info for the priority field
 			List<TrackerFieldValueDO> fieldValues = new ArrayList<TrackerFieldValueDO>();
-			TrackerFieldValueDO fieldValue = new TrackerFieldValueDO(soapClient
-					.supports50());
+			TrackerFieldValueDO fieldValue = new TrackerFieldValueDO(soapClient.supports60(), soapClient.supports50());
 			fieldValue.setValue("0");
 			fieldValues.add(fieldValue);
-			fieldValue = new TrackerFieldValueDO(soapClient.supports50());
+			fieldValue = new TrackerFieldValueDO(soapClient.supports60(), soapClient.supports50());
 			fieldValue.setValue("1");
 			fieldValues.add(fieldValue);
-			fieldValue = new TrackerFieldValueDO(soapClient.supports50());
+			fieldValue = new TrackerFieldValueDO(soapClient.supports60(), soapClient.supports50());
 			fieldValue.setValue("2");
 			fieldValues.add(fieldValue);
-			fieldValue = new TrackerFieldValueDO(soapClient.supports50());
+			fieldValue = new TrackerFieldValueDO(soapClient.supports60(), soapClient.supports50());
 			fieldValue.setValue("3");
 			fieldValues.add(fieldValue);
-			fieldValue = new TrackerFieldValueDO(soapClient.supports50());
+			fieldValue = new TrackerFieldValueDO(soapClient.supports60(), soapClient.supports50());
 			fieldValue.setValue("4");
 			fieldValues.add(fieldValue);
-			fieldValue = new TrackerFieldValueDO(soapClient.supports50());
+			fieldValue = new TrackerFieldValueDO(soapClient.supports60(), soapClient.supports50());
 			fieldValue.setValue("5");
 			fieldValues.add(fieldValue);
 			priorityFieldValues = fieldValues
