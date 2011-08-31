@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.dom4j.Document;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -55,6 +56,7 @@ import com.collabnet.ccf.model.IdentityMapping;
 import com.collabnet.ccf.model.Landscape;
 import com.collabnet.ccf.model.Patient;
 import com.collabnet.ccf.model.SynchronizationStatus;
+import com.collabnet.ccf.schemageneration.XSLTInitialMFDGeneratorScriptGenerator;
 import com.collabnet.teamforge.api.main.ProjectDO;
 import com.collabnet.teamforge.api.tracker.TrackerDO;
 
@@ -782,7 +784,11 @@ public class MigrateLandscapeWizard extends Wizard {
 										fieldMappingRules.add(getFieldMappingRule(FieldMappingRuleType.MAPFORCE_POST, postFile));
 									}
 									if (mfdFile.exists()) {
-										fieldMappingRules.add(getFieldMappingRule(FieldMappingRuleType.MAPFORCE_MFD, mfdFile));
+										XSLTInitialMFDGeneratorScriptGenerator generator = new XSLTInitialMFDGeneratorScriptGenerator();
+										Document mfdDocument = generator.generateCreateInitialMFDScript(mfdFile.getAbsolutePath(), projectMapping.getSourceRepositorySchemaFileName() + ".xsd", projectMapping.getTargetRepositorySchemaFileName() + ".xsd"); //$NON-NLS-1$ //$NON-NLS-2$
+										FieldMappingRule mfdFieldMappingRule = getFieldMappingRule(FieldMappingRuleType.MAPFORCE_MFD, mfdFile);
+										mfdFieldMappingRule.setXmlContent(mfdDocument.asXML());
+										fieldMappingRules.add(mfdFieldMappingRule);
 									}
 									fieldMapping.setRules(fieldMappingRules);
 									fieldMapping = getCcfMasterClient(repositoryMappingDirection.getRepositoryMapping().getExternalApp().getLinkId()).createFieldMapping(fieldMapping);
@@ -982,7 +988,9 @@ public class MigrateLandscapeWizard extends Wizard {
 		fieldMappingRule.setSourceIsTopLevelAttribute(Boolean.valueOf(false));
 		fieldMappingRule.setTarget("target");
 		fieldMappingRule.setTargetIsTopLevelAttribute(Boolean.valueOf(false));
-		fieldMappingRule.setXmlContent(CcfMasterClient.readFile(file));
+		if (!fieldMappingRuleType.equals(FieldMappingRuleType.MAPFORCE_MFD)) {
+			fieldMappingRule.setXmlContent(CcfMasterClient.readFile(file));
+		}
 		return fieldMappingRule;
 	}
 	
