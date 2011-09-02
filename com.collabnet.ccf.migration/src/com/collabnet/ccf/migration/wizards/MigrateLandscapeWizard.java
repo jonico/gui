@@ -939,7 +939,7 @@ public class MigrateLandscapeWizard extends Wizard {
 							}
 							if (monitor.isCanceled()) {
 								if (identityMappingCount > 0 || notCreatedCount > 0) {
-									migrationResults.add(new MigrationResult(getIdentityMappingMessage(notCreatedCount, identityMappingCount)));
+									migrationResults.add(new MigrationResult(getStatusMessage("identity mappings", notCreatedCount, identityMappingCount)));
 								}
 								canceled = true;
 								return;
@@ -947,7 +947,7 @@ public class MigrateLandscapeWizard extends Wizard {
 						}
 					}
 					if (identityMappingCount > 0 || notCreatedCount > 0) {
-						migrationResults.add(new MigrationResult(getIdentityMappingMessage(notCreatedCount, identityMappingCount)));
+						migrationResults.add(new MigrationResult(getStatusMessage("identity mappings", notCreatedCount, identityMappingCount)));
 					}
 					monitor.worked(1);
 					if (monitor.isCanceled()) {
@@ -955,51 +955,60 @@ public class MigrateLandscapeWizard extends Wizard {
 						return;
 					}
 					
+					List<String> hospitalList = new ArrayList<String>();
+					HospitalEntry[] existingHospitalEntries = getCcfMasterClient().getHospitalEntries(false);
+					for (HospitalEntry existingHospitalEntry : existingHospitalEntries) {
+						hospitalList.add(existingHospitalEntry.getSourceArtifactId());
+					}
+					
 					monitor.subTask("Creating CCF Master hospital entries:");
 					int hospitalEntryCount = 0;
+					notCreatedCount = 0;
 					Patient[] hospitalEntries = ccfDataProvider.getPatients(landscape, filter);
 					for (Patient patient : hospitalEntries) {
 						if (!patient.isFixed()) {
 							if (patient.getSourceSystemKind().startsWith("TF") || patient.getTargetSystemKind().startsWith("TF")) {
-								HospitalEntry hospitalEntry = new HospitalEntry();
-								hospitalEntry.setAdaptorName(patient.getAdaptorName());
-								hospitalEntry.setArtifactType(patient.getArtifactType());
-								hospitalEntry.setCauseExceptionClassName(patient.getCauseExceptionClassName());
-								hospitalEntry.setCauseExceptionMessage(patient.getCauseExceptionMessage());
-								hospitalEntry.setData(patient.getData());
-								hospitalEntry.setDataType(patient.getDataType());
-								hospitalEntry.setDescription("This hospital entry has been added by CCF GUI during migration");
-								hospitalEntry.setErrorCode(patient.getErrorCode());
-								hospitalEntry.setExceptionClassName(patient.getExceptionClassName());
-								hospitalEntry.setExceptionMessage(patient.getExceptionMessage());
-								hospitalEntry.setFixed(patient.isFixed());
-								hospitalEntry.setGenericArtifact(patient.getGenericArtifact());
-								hospitalEntry.setOriginatingComponent(patient.getOriginatingComponent());
-								hospitalEntry.setRepositoryMappingDirection(getRepositoryMappingDirection(patient, repositoryMappingDirections));
-								hospitalEntry.setReprocessed(patient.isReprocessed());
-								hospitalEntry.setSourceArtifactId(patient.getSourceArtifactId());
-								hospitalEntry.setSourceArtifactVersion(patient.getSourceArtifactVersion());
-								hospitalEntry.setSourceLastModificationTime(patient.getSourceLastModificationTime());
-								hospitalEntry.setStackTrace(patient.getStackTrace());
-								hospitalEntry.setTargetArtifactId(patient.getTargetArtifactId());
-								hospitalEntry.setTargetArtifactVersion(patient.getTargetArtifactVersion());
-								hospitalEntry.setTargetLastModificationTime(patient.getTargetLastModificationTime());
-								hospitalEntry.setTimestamp(patient.getTimeStamp());
-								getCcfMasterClient().createHospitalEntry(hospitalEntry);
-								hospitalEntryCount++;
-								monitor.subTask("Creating CCF Master hospital entries: " + hospitalEntryCount);
-								if (monitor.isCanceled()) {
-									if (hospitalEntryCount > 0) {
-										migrationResults.add(new MigrationResult(hospitalEntryCount + " hospitalEntries created in CCF Master"));
+								if (!hospitalList.contains(patient.getSourceArtifactId())) {
+									HospitalEntry hospitalEntry = new HospitalEntry();
+									hospitalEntry.setAdaptorName(patient.getAdaptorName());
+									hospitalEntry.setArtifactType(patient.getArtifactType());
+									hospitalEntry.setCauseExceptionClassName(patient.getCauseExceptionClassName());
+									hospitalEntry.setCauseExceptionMessage(patient.getCauseExceptionMessage());
+									hospitalEntry.setData(patient.getData());
+									hospitalEntry.setDataType(patient.getDataType());
+									hospitalEntry.setDescription("This hospital entry has been added by CCF GUI during migration");
+									hospitalEntry.setErrorCode(patient.getErrorCode());
+									hospitalEntry.setExceptionClassName(patient.getExceptionClassName());
+									hospitalEntry.setExceptionMessage(patient.getExceptionMessage());
+									hospitalEntry.setFixed(patient.isFixed());
+									hospitalEntry.setGenericArtifact(patient.getGenericArtifact());
+									hospitalEntry.setOriginatingComponent(patient.getOriginatingComponent());
+									hospitalEntry.setRepositoryMappingDirection(getRepositoryMappingDirection(patient, repositoryMappingDirections));
+									hospitalEntry.setReprocessed(patient.isReprocessed());
+									hospitalEntry.setSourceArtifactId(patient.getSourceArtifactId());
+									hospitalEntry.setSourceArtifactVersion(patient.getSourceArtifactVersion());
+									hospitalEntry.setSourceLastModificationTime(patient.getSourceLastModificationTime());
+									hospitalEntry.setStackTrace(patient.getStackTrace());
+									hospitalEntry.setTargetArtifactId(patient.getTargetArtifactId());
+									hospitalEntry.setTargetArtifactVersion(patient.getTargetArtifactVersion());
+									hospitalEntry.setTargetLastModificationTime(patient.getTargetLastModificationTime());
+									hospitalEntry.setTimestamp(patient.getTimeStamp());
+									getCcfMasterClient().createHospitalEntry(hospitalEntry);
+									hospitalEntryCount++;
+									monitor.subTask("Creating CCF Master hospital entries: " + hospitalEntryCount);
+									if (monitor.isCanceled()) {
+										if (hospitalEntryCount > 0 || notCreatedCount > 0) {
+											migrationResults.add(new MigrationResult(getStatusMessage("hospital entries", notCreatedCount, hospitalEntryCount)));
+										}
+										canceled = true;
+										return;
 									}
-									canceled = true;
-									return;
 								}
 							}
 						}
 					}
-					if (hospitalEntryCount > 0) {
-						migrationResults.add(new MigrationResult(hospitalEntryCount + " hospitalEntries created in CCF Master"));
+					if (hospitalEntryCount > 0 || notCreatedCount > 0) {
+						migrationResults.add(new MigrationResult(getStatusMessage("hospital entries", notCreatedCount, hospitalEntryCount)));
 					}
 					monitor.worked(1);
 					if (monitor.isCanceled()) {
@@ -1307,18 +1316,18 @@ public class MigrateLandscapeWizard extends Wizard {
 		return directionConfig;
 	}
 
-	private String getIdentityMappingMessage(int notCreatedCount, int identityMappingCount) {
-		StringBuffer identityMappingMessage = new StringBuffer();
-		if (identityMappingCount > 0) {
-			identityMappingMessage.append(identityMappingCount + " identity mappings created");
+	private String getStatusMessage(String entityType, int notCreatedCount, int createdCount) {
+		StringBuffer statusMessage = new StringBuffer();
+		if (createdCount > 0) {
+			statusMessage.append(createdCount + " " + entityType + " created");
 		}
 		if (notCreatedCount > 0) {
-			if (identityMappingCount > 0) {
-				identityMappingMessage.append(", ");
+			if (createdCount > 0) {
+				statusMessage.append(", ");
 			}
-			identityMappingMessage.append(notCreatedCount + " identity mappings not created");
+			statusMessage.append(notCreatedCount + " " + entityType + " not created");
 		}
-		identityMappingMessage.append(" in CCF Master");
-		return identityMappingMessage.toString();
+		statusMessage.append(" in CCF Master");
+		return statusMessage.toString();
 	}
 }
