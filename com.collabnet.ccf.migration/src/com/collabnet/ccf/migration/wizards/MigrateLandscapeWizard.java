@@ -123,11 +123,11 @@ public class MigrateLandscapeWizard extends Wizard {
 					Participant teamForgeParticipant = null;
 					Participant otherParticipant = null;
 					for (Participant participant : participants) {
-						if (participant.getSystemId().equals("TF")) {
+						if (participant.getSystemKind().equals("TF")) {
 							teamForgeParticipant = participant;
 							migrationResults.add(new MigrationResult("TeamForge participant already exists in CCF Master."));
 						}
-						else if (participant.getSystemId().equals(otherType)) {
+						else {
 							otherParticipant = participant;
 							migrationResults.add(new MigrationResult(getParticipantDescription(otherType) + " participant already exists in CCF Master."));
 						}
@@ -898,7 +898,7 @@ public class MigrateLandscapeWizard extends Wizard {
 								targetArtifactVersion = mapping.getSourceArtifactVersion();
 								targetLastModificationTime = mapping.getSourceLastModificationTime();								
 							}
-							if (!identityMappingList.contains(sourceArtifactId + targetArtifactId)) {
+							if (!identityMappingList.contains(sourceArtifactId)) {
 								com.collabnet.ccf.api.model.IdentityMapping identityMapping = new com.collabnet.ccf.api.model.IdentityMapping();
 								identityMapping.setArtifactType(mapping.getArtifactType());
 								identityMapping.setDepChildSourceArtifactId(childSourceArtifactId);
@@ -919,7 +919,7 @@ public class MigrateLandscapeWizard extends Wizard {
 								identityMapping.setTargetLastModificationTime(targetLastModificationTime);
 								getCcfMasterClient().createIdentityMapping(identityMapping);
 								identityMappingCount++;
-								identityMappingList.add(sourceArtifactId + targetArtifactId);
+								identityMappingList.add(sourceArtifactId);
 								monitor.subTask("Creating CCF Master identity mappings: " + identityMappingCount);
 							}
 							if (monitor.isCanceled()) {
