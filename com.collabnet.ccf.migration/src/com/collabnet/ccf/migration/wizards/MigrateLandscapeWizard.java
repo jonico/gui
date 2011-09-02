@@ -845,6 +845,10 @@ public class MigrateLandscapeWizard extends Wizard {
 					monitor.subTask("Creating CCF Master identity mappings:");
 					
 					List<String> identityMappingList = new ArrayList<String>();
+					com.collabnet.ccf.api.model.IdentityMapping[] existingIdentityMappings = getCcfMasterClient().getIdentityMappings();
+					for (com.collabnet.ccf.api.model.IdentityMapping existingIdentityMapping : existingIdentityMappings) {
+						identityMappingList.add(existingIdentityMapping.getSourceArtifactId());
+					}
 					
 					int identityMappingCount = 0;
 					Filter[] filter = new Filter[0];
