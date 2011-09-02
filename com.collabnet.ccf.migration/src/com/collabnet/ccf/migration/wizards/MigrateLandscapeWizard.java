@@ -111,6 +111,10 @@ public class MigrateLandscapeWizard extends Wizard {
 				monitor.beginTask(taskName, 29);	
 				try {					
 					teamForgeClient.getConnection().login();
+					if (!teamForgeClient.getConnection().supports54()) {
+						exception = new Exception("TeamForge 5.4 or higher is required to migrate landscape.");
+						return;
+					}
 					monitor.worked(1);
 					monitor.subTask("Checking for existing CCF Master participants");
 					String otherType;
