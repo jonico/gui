@@ -13,6 +13,7 @@ package com.collabnet.ccf.migration.wizards;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -609,7 +610,7 @@ public class MigrateLandscapeWizard extends Wizard {
 					}
 
 					Map<String, ExternalApp> externalAppMap = new HashMap<String, ExternalApp>();
-					monitor.subTask("Creating CCF Master external applications");
+					monitor.subTask("Creating CCF Master external applications:");
 					ExternalApp[] externalApps = getCcfMasterClient().getExternalApps(ccfMasterLandscape, true);
 					for (String project : projectIds) {
 						ProjectDO projectDO = teamForgeClient.getConnection().getTeamForgeClient().getProjectData(project);
@@ -622,6 +623,7 @@ public class MigrateLandscapeWizard extends Wizard {
 							externalApp = existingApp;
 							migrationResults.add(new MigrationResult("External application " + externalApp.getLinkId() + " (" + project + ") already exists in CCF Master."));
 						} else {
+							monitor.subTask("Creating CCF Master external applications: " + externalApp.getProjectTitle());
 							externalApp = getCcfMasterClient().createExternalApp(externalApp);
 							migrationResults.add(new MigrationResult("External application " + externalApp.getLinkId() + " (" + project + ") created in CCF Master."));
 						}
@@ -637,7 +639,7 @@ public class MigrateLandscapeWizard extends Wizard {
 						return;
 					}
 
-					monitor.subTask("Creating CCF Master repository mappings");
+					monitor.subTask("Creating CCF Master repository mappings:");
 					List<String> repositoryMappingList = new ArrayList<String>();
 					RepositoryMapping[] repositoryMappings = getCcfMasterClient().getRepositoryMappings(true);
 					for (SynchronizationStatus projectMapping : projectMappings) {
@@ -666,7 +668,7 @@ public class MigrateLandscapeWizard extends Wizard {
 											}
 										}
 										if (description == null) {
-											description = teamForgeRepositoryId + "/" + participantRepositoryId;
+											description = teamForgeRepositoryId + " " + "\u21D4" + " " + participantRepositoryId;
 										}
 										repositoryMapping.setDescription(description);
 										repositoryMapping.setExternalApp(externalApp);
@@ -674,6 +676,7 @@ public class MigrateLandscapeWizard extends Wizard {
 										repositoryMapping.setTeamForgeRepositoryId(teamForgeRepositoryId);
 										RepositoryMapping checkMapping = getRepositoryMapping(repositoryMapping, repositoryMappings);
 										if (checkMapping == null) {
+											monitor.subTask("Creating CCF Master repository mappings: " + repositoryMapping.getDescription());
 											repositoryMapping = getCcfMasterClient().createRepositoryMapping(repositoryMapping);
 											migrationResults.add(new MigrationResult("Repository mapping " + repositoryMapping.getDescription() + " created in CCF Master."));
 										} else {
@@ -696,7 +699,7 @@ public class MigrateLandscapeWizard extends Wizard {
 						return;
 					}
 					
-					monitor.subTask("Creating CCF Master repository mapping directions");
+					monitor.subTask("Creating CCF Master repository mapping directions:");
 					repositoryMappings = getCcfMasterClient().getRepositoryMappings(ccfMasterLandscape, true);
 					RepositoryMappingDirection[] repositoryMappingDirections = getCcfMasterClient().getRepositoryMappingDirections(ccfMasterLandscape, true);
 					if (monitor.isCanceled()) {
@@ -735,6 +738,7 @@ public class MigrateLandscapeWizard extends Wizard {
 							}
 							RepositoryMappingDirection checkRepositoryMappingDirection = getRepositoryMappinDirection(repositoryMappingDirection, repositoryMappingDirections);
 							if (checkRepositoryMappingDirection == null) {
+								monitor.subTask("Creating CCF Master repository mapping directions: " + repositoryMappingDirection.getRepositoryMapping().getDescription() + " (" + repositoryMappingDirection.getDirection() + ")");
 								repositoryMappingDirection = getCcfMasterClient().createRepositoryMappingDirection(repositoryMappingDirection);
 								migrationResults.add(new MigrationResult("Repository mapping direction " + repositoryMappingDirection.getRepositoryMapping().getDescription() + " (" + repositoryMappingDirection.getDirection() + ") created in CCF Master."));
 								if (projectMapping.getSourceRepositoryKind().contains("Template")) {
@@ -838,32 +842,86 @@ public class MigrateLandscapeWizard extends Wizard {
 						return;
 					}
 					
-					monitor.subTask("Creating CCF Master identity mappings");
+					monitor.subTask("Creating CCF Master identity mappings:");
+					
+					List<String> identityMappingList = new ArrayList<String>();
+					
 					int identityMappingCount = 0;
 					Filter[] filter = new Filter[0];
 					IdentityMapping[] identityMappings = ccfDataProvider.getIdentityMappings(landscape, filter);
 					for (IdentityMapping mapping : identityMappings) {
 						if (mapping.getSourceSystemKind().startsWith("TF") || mapping.getTargetSystemKind().startsWith("TF")) {
-							com.collabnet.ccf.api.model.IdentityMapping identityMapping = new com.collabnet.ccf.api.model.IdentityMapping();
-							identityMapping.setArtifactType(mapping.getArtifactType());
-							identityMapping.setDepChildSourceArtifactId(mapping.getChildSourceArtifactId());
-							identityMapping.setDepChildSourceRepositoryId(mapping.getChildSourceRepositoryId());
-							identityMapping.setDepChildTargetArtifactId(mapping.getChildTargetArtifactId());
-							identityMapping.setDepChildTargetRepositoryId(mapping.getChildTargetRepositoryId());
-							identityMapping.setDepParentSourceArtifactId(mapping.getParentSourceArtifactId());
-							identityMapping.setDepParentSourceRepositoryId(mapping.getParentSourceRepositoryId());
-							identityMapping.setDepParentTargetArtifactId(mapping.getParentTargetArtifactId());
-							identityMapping.setDepParentTargetRepositoryId(mapping.getParentTargetRepositoryId());
-							identityMapping.setDescription("This identity mapping has been added by CCF GUI during migration");
-							identityMapping.setRepositoryMapping(getRepositoryMapping(mapping, repositoryMappings));
-							identityMapping.setSourceArtifactId(mapping.getSourceArtifactId());
-							identityMapping.setSourceArtifactVersion(mapping.getSourceArtifactVersion());
-							identityMapping.setSourceLastModificationTime(mapping.getSourceLastModificationTime());
-							identityMapping.setTargetArtifactId(mapping.getTargetArtifactId());
-							identityMapping.setTargetArtifactVersion(mapping.getTargetArtifactVersion());
-							identityMapping.setTargetLastModificationTime(mapping.getTargetLastModificationTime());
-							getCcfMasterClient().createIdentityMapping(identityMapping, mapping.getTargetSystemKind().startsWith("TF"));
-							identityMappingCount++;
+							
+							String childSourceArtifactId;
+							String childSourceRepositoryId;
+							String childTargetArtifactId;
+							String childTargetRepositoryId;
+							String parentSourceArtifactId;
+							String parentSourceRepositoryId;
+							String parentTargetArtifactId;
+							String parentTargetRepositoryId;
+							String sourceArtifactId;
+							String sourceArtifactVersion;
+							Timestamp sourceLastModificationTime;
+							String targetArtifactId;
+							String targetArtifactVersion;
+							Timestamp targetLastModificationTime;
+							if (mapping.getSourceSystemKind().startsWith("TF")) {
+								childSourceArtifactId = mapping.getChildSourceArtifactId();
+								childSourceRepositoryId = mapping.getChildSourceRepositoryId();
+								childTargetArtifactId = mapping.getChildTargetRepositoryId();
+								childTargetRepositoryId = mapping.getChildTargetRepositoryId();
+								parentSourceArtifactId = mapping.getParentSourceArtifactId();
+								parentSourceRepositoryId = mapping.getParentSourceRepositoryId();
+								parentTargetArtifactId = mapping.getParentTargetArtifactId();
+								parentTargetRepositoryId = mapping.getParentTargetRepositoryId();
+								sourceArtifactId = mapping.getSourceArtifactId();
+								sourceArtifactVersion = mapping.getSourceArtifactVersion();
+								sourceLastModificationTime = mapping.getSourceLastModificationTime();
+								targetArtifactId = mapping.getTargetArtifactId();
+								targetArtifactVersion = mapping.getTargetArtifactVersion();
+								targetLastModificationTime = mapping.getTargetLastModificationTime();
+							}
+							else {
+								childSourceArtifactId = mapping.getChildTargetArtifactId();
+								childSourceRepositoryId = mapping.getChildTargetRepositoryId();
+								childTargetArtifactId = mapping.getChildSourceRepositoryId();
+								childTargetRepositoryId = mapping.getChildSourceRepositoryId();
+								parentSourceArtifactId = mapping.getParentTargetArtifactId();
+								parentSourceRepositoryId = mapping.getParentTargetRepositoryId();
+								parentTargetArtifactId = mapping.getParentSourceArtifactId();
+								parentTargetRepositoryId = mapping.getParentSourceRepositoryId();
+								sourceArtifactId = mapping.getTargetArtifactId();
+								sourceArtifactVersion = mapping.getTargetArtifactVersion();
+								sourceLastModificationTime = mapping.getTargetLastModificationTime();
+								targetArtifactId = mapping.getSourceArtifactId();
+								targetArtifactVersion = mapping.getSourceArtifactVersion();
+								targetLastModificationTime = mapping.getSourceLastModificationTime();								
+							}
+							if (!identityMappingList.contains(sourceArtifactId + targetArtifactId)) {
+								com.collabnet.ccf.api.model.IdentityMapping identityMapping = new com.collabnet.ccf.api.model.IdentityMapping();
+								identityMapping.setArtifactType(mapping.getArtifactType());
+								identityMapping.setDepChildSourceArtifactId(childSourceArtifactId);
+								identityMapping.setDepChildSourceRepositoryId(childSourceRepositoryId);
+								identityMapping.setDepChildTargetArtifactId(childTargetArtifactId);
+								identityMapping.setDepChildTargetRepositoryId(childTargetRepositoryId);
+								identityMapping.setDepParentSourceArtifactId(parentSourceArtifactId);
+								identityMapping.setDepParentSourceRepositoryId(parentSourceRepositoryId);
+								identityMapping.setDepParentTargetArtifactId(parentTargetArtifactId);
+								identityMapping.setDepParentTargetRepositoryId(parentTargetRepositoryId);
+								identityMapping.setDescription("This identity mapping has been added by CCF GUI during migration");
+								identityMapping.setRepositoryMapping(getRepositoryMapping(mapping, repositoryMappings));
+								identityMapping.setSourceArtifactId(sourceArtifactId);
+								identityMapping.setSourceArtifactVersion(sourceArtifactVersion);
+								identityMapping.setSourceLastModificationTime(sourceLastModificationTime);
+								identityMapping.setTargetArtifactId(targetArtifactId);
+								identityMapping.setTargetArtifactVersion(targetArtifactVersion);
+								identityMapping.setTargetLastModificationTime(targetLastModificationTime);
+								getCcfMasterClient().createIdentityMapping(identityMapping);
+								identityMappingCount++;
+								identityMappingList.add(sourceArtifactId + targetArtifactId);
+								monitor.subTask("Creating CCF Master identity mappings: " + identityMappingCount);
+							}
 							if (monitor.isCanceled()) {
 								if (identityMappingCount > 0) {
 									migrationResults.add(new MigrationResult(identityMappingCount + " identity mappings created in CCF Master"));
@@ -882,7 +940,7 @@ public class MigrateLandscapeWizard extends Wizard {
 						return;
 					}
 					
-					monitor.subTask("Creating CCF Master hospital entries");
+					monitor.subTask("Creating CCF Master hospital entries:");
 					int hospitalEntryCount = 0;
 					Patient[] hospitalEntries = ccfDataProvider.getPatients(landscape, filter);
 					for (Patient patient : hospitalEntries) {
@@ -914,6 +972,7 @@ public class MigrateLandscapeWizard extends Wizard {
 								hospitalEntry.setTimestamp(patient.getTimeStamp());
 								getCcfMasterClient().createHospitalEntry(hospitalEntry);
 								hospitalEntryCount++;
+								monitor.subTask("Creating CCF Master hospital entries: " + hospitalEntryCount);
 								if (monitor.isCanceled()) {
 									if (hospitalEntryCount > 0) {
 										migrationResults.add(new MigrationResult(hospitalEntryCount + " hospitalEntries created in CCF Master"));
