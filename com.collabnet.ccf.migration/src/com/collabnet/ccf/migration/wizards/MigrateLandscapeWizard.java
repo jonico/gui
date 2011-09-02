@@ -848,6 +848,8 @@ public class MigrateLandscapeWizard extends Wizard {
 					
 					monitor.subTask("Creating CCF Master identity mappings:");
 					
+					int notCreatedCount = 0;
+					
 					List<String> identityMappingList = new ArrayList<String>();
 					com.collabnet.ccf.api.model.IdentityMapping[] existingIdentityMappings = getCcfMasterClient().getIdentityMappings();
 					for (com.collabnet.ccf.api.model.IdentityMapping existingIdentityMapping : existingIdentityMappings) {
@@ -925,22 +927,27 @@ public class MigrateLandscapeWizard extends Wizard {
 								identityMapping.setTargetArtifactId(targetArtifactId);
 								identityMapping.setTargetArtifactVersion(targetArtifactVersion);
 								identityMapping.setTargetLastModificationTime(targetLastModificationTime);
-								getCcfMasterClient().createIdentityMapping(identityMapping);
-								identityMappingCount++;
+								try {
+									getCcfMasterClient().createIdentityMapping(identityMapping);
+									identityMappingCount++;
+								} catch (Exception e) {
+									migrationResults.add(new MigrationResult("Identity mapping " + mapping.getSourceArtifactId() + "\u21D4" + " " +  mapping.getTargetArtifactId() + " not migrated.", MigrationResult.ERROR, e));
+									notCreatedCount ++;
+								}
 								identityMappingList.add(sourceArtifactId);
 								monitor.subTask("Creating CCF Master identity mappings: " + identityMappingCount);
 							}
 							if (monitor.isCanceled()) {
-								if (identityMappingCount > 0) {
-									migrationResults.add(new MigrationResult(identityMappingCount + " identity mappings created in CCF Master"));
+								if (identityMappingCount > 0 || notCreatedCount > 0) {
+									migrationResults.add(new MigrationResult(getIdentityMappingMessage(notCreatedCount, identityMappingCount)));
 								}
 								canceled = true;
 								return;
 							}
 						}
 					}
-					if (identityMappingCount > 0) {
-						migrationResults.add(new MigrationResult(identityMappingCount + " identity mappings created in CCF Master"));
+					if (identityMappingCount > 0 || notCreatedCount > 0) {
+						migrationResults.add(new MigrationResult(getIdentityMappingMessage(notCreatedCount, identityMappingCount)));
 					}
 					monitor.worked(1);
 					if (monitor.isCanceled()) {
@@ -1298,5 +1305,20 @@ public class MigrateLandscapeWizard extends Wizard {
 			}
 		}
 		return directionConfig;
+	}
+
+	private String getIdentityMappingMessage(int notCreatedCount, int identityMappingCount) {
+		StringBuffer identityMappingMessage = new StringBuffer();
+		if (identityMappingCount > 0) {
+			identityMappingMessage.append(identityMappingCount + " identity mappings created");
+		}
+		if (notCreatedCount > 0) {
+			if (identityMappingCount > 0) {
+				identityMappingMessage.append(", ");
+			}
+			identityMappingMessage.append(notCreatedCount + " identity mappings not created");
+		}
+		identityMappingMessage.append(" in CCF Master");
+		return identityMappingMessage.toString();
 	}
 }
