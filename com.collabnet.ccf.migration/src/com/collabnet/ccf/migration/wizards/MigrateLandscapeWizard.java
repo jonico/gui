@@ -858,100 +858,129 @@ public class MigrateLandscapeWizard extends Wizard {
 					List<String> identityMappingList = new ArrayList<String>();
 					com.collabnet.ccf.api.model.IdentityMapping[] existingIdentityMappings = getCcfMasterClient().getIdentityMappings();
 					for (com.collabnet.ccf.api.model.IdentityMapping existingIdentityMapping : existingIdentityMappings) {
-						identityMappingList.add(existingIdentityMapping.getSourceArtifactId());
+						identityMappingList.add(existingIdentityMapping.getSourceArtifactId() + existingIdentityMapping.getArtifactType());
 					}
 					
 					int identityMappingCount = 0;
 					Filter[] filter = new Filter[0];
 					IdentityMapping[] identityMappings = ccfDataProvider.getIdentityMappings(landscape, filter);
+					
+					// First select source = TF, version != -1
 					for (IdentityMapping mapping : identityMappings) {
-						if (mapping.getSourceSystemKind().startsWith("TF") || mapping.getTargetSystemKind().startsWith("TF")) {
-							if (!mapping.getArtifactType().equals("attachment") || !mapping.getSourceSystemKind().startsWith("TF")) {
-								String childSourceArtifactId;
-								String childSourceRepositoryId;
-								String childTargetArtifactId;
-								String childTargetRepositoryId;
-								String parentSourceArtifactId;
-								String parentSourceRepositoryId;
-								String parentTargetArtifactId;
-								String parentTargetRepositoryId;
-								String sourceArtifactId;
-								String sourceArtifactVersion;
-								Timestamp sourceLastModificationTime;
-								String targetArtifactId;
-								String targetArtifactVersion;
-								Timestamp targetLastModificationTime;
-								if (mapping.getSourceSystemKind().startsWith("TF")) {
-									childSourceArtifactId = mapping.getChildSourceArtifactId();
-									childSourceRepositoryId = mapping.getChildSourceRepositoryId();
-									childTargetArtifactId = mapping.getChildTargetRepositoryId();
-									childTargetRepositoryId = mapping.getChildTargetRepositoryId();
-									parentSourceArtifactId = mapping.getParentSourceArtifactId();
-									parentSourceRepositoryId = mapping.getParentSourceRepositoryId();
-									parentTargetArtifactId = mapping.getParentTargetArtifactId();
-									parentTargetRepositoryId = mapping.getParentTargetRepositoryId();
-									sourceArtifactId = mapping.getSourceArtifactId();
-									sourceArtifactVersion = mapping.getSourceArtifactVersion();
-									sourceLastModificationTime = mapping.getSourceLastModificationTime();
-									targetArtifactId = mapping.getTargetArtifactId();
-									targetArtifactVersion = mapping.getTargetArtifactVersion();
-									targetLastModificationTime = mapping.getTargetLastModificationTime();
+						if (mapping.getSourceSystemKind().startsWith("TF")
+								&& !mapping.getArtifactType().equals("attachment")
+								&& !"-1".equals(mapping.getSourceArtifactVersion())
+								&& !"-1".equals(mapping.getTargetArtifactVersion())) {
+							com.collabnet.ccf.api.model.IdentityMapping identityMapping = getIdentityMapping(mapping);
+							if (!identityMappingList.contains(identityMapping.getSourceArtifactId() + identityMapping.getArtifactType())) {
+								identityMapping.setRepositoryMapping(getRepositoryMapping(mapping, repositoryMappings));
+								try {
+									getCcfMasterClient().createIdentityMapping(identityMapping);
+									identityMappingCount++;
+								} catch (Exception e) {
+									migrationResults.add(new MigrationResult("Identity mapping " + mapping.getSourceArtifactId() + "\u21D4" + " " +  mapping.getTargetArtifactId() + " not migrated.", MigrationResult.ERROR, e));
+									notCreatedCount ++;
 								}
-								else {
-									childSourceArtifactId = mapping.getChildTargetArtifactId();
-									childSourceRepositoryId = mapping.getChildTargetRepositoryId();
-									childTargetArtifactId = mapping.getChildSourceRepositoryId();
-									childTargetRepositoryId = mapping.getChildSourceRepositoryId();
-									parentSourceArtifactId = mapping.getParentTargetArtifactId();
-									parentSourceRepositoryId = mapping.getParentTargetRepositoryId();
-									parentTargetArtifactId = mapping.getParentSourceArtifactId();
-									parentTargetRepositoryId = mapping.getParentSourceRepositoryId();
-									sourceArtifactId = mapping.getTargetArtifactId();
-									sourceArtifactVersion = mapping.getTargetArtifactVersion();
-									sourceLastModificationTime = mapping.getTargetLastModificationTime();
-									targetArtifactId = mapping.getSourceArtifactId();
-									targetArtifactVersion = mapping.getSourceArtifactVersion();
-									targetLastModificationTime = mapping.getSourceLastModificationTime();								
+								identityMappingList.add(identityMapping.getSourceArtifactId() + identityMapping.getArtifactType());
+								monitor.subTask("Creating CCF Master identity mappings: " + identityMappingCount);
+							}
+							if (monitor.isCanceled()) {
+								if (identityMappingCount > 0 || notCreatedCount > 0) {
+									migrationResults.add(new MigrationResult(getStatusMessage("identity mappings", notCreatedCount, identityMappingCount)));
 								}
-								if (!identityMappingList.contains(sourceArtifactId)) {
-									com.collabnet.ccf.api.model.IdentityMapping identityMapping = new com.collabnet.ccf.api.model.IdentityMapping();
-									identityMapping.setArtifactType(mapping.getArtifactType());
-									identityMapping.setDepChildSourceArtifactId(childSourceArtifactId);
-									identityMapping.setDepChildSourceRepositoryId(childSourceRepositoryId);
-									identityMapping.setDepChildTargetArtifactId(childTargetArtifactId);
-									identityMapping.setDepChildTargetRepositoryId(childTargetRepositoryId);
-									identityMapping.setDepParentSourceArtifactId(parentSourceArtifactId);
-									identityMapping.setDepParentSourceRepositoryId(parentSourceRepositoryId);
-									identityMapping.setDepParentTargetArtifactId(parentTargetArtifactId);
-									identityMapping.setDepParentTargetRepositoryId(parentTargetRepositoryId);
-									identityMapping.setDescription("This identity mapping has been added by CCF GUI during migration");
-									identityMapping.setRepositoryMapping(getRepositoryMapping(mapping, repositoryMappings));
-									identityMapping.setSourceArtifactId(sourceArtifactId);
-									identityMapping.setSourceArtifactVersion(sourceArtifactVersion);
-									identityMapping.setSourceLastModificationTime(sourceLastModificationTime);
-									identityMapping.setTargetArtifactId(targetArtifactId);
-									identityMapping.setTargetArtifactVersion(targetArtifactVersion);
-									identityMapping.setTargetLastModificationTime(targetLastModificationTime);
-									try {
-										getCcfMasterClient().createIdentityMapping(identityMapping);
-										identityMappingCount++;
-									} catch (Exception e) {
-										migrationResults.add(new MigrationResult("Identity mapping " + mapping.getSourceArtifactId() + "\u21D4" + " " +  mapping.getTargetArtifactId() + " not migrated.", MigrationResult.ERROR, e));
-										notCreatedCount ++;
-									}
-									identityMappingList.add(sourceArtifactId);
-									monitor.subTask("Creating CCF Master identity mappings: " + identityMappingCount);
-								}
-								if (monitor.isCanceled()) {
-									if (identityMappingCount > 0 || notCreatedCount > 0) {
-										migrationResults.add(new MigrationResult(getStatusMessage("identity mappings", notCreatedCount, identityMappingCount)));
-									}
-									canceled = true;
-									return;
-								}
+								canceled = true;
+								return;
 							}
 						}
 					}
+
+					// Next, target = TF, version != -1 (and attachments)
+					for (IdentityMapping mapping : identityMappings) {
+						if (mapping.getTargetSystemKind().startsWith("TF")
+								&& (mapping.getArtifactType().equals("attachment") ||
+								(!"-1".equals(mapping.getSourceArtifactVersion())
+								&& !"-1".equals(mapping.getTargetArtifactVersion())))) {
+							com.collabnet.ccf.api.model.IdentityMapping identityMapping = getIdentityMapping(mapping);
+							if (!identityMappingList.contains(identityMapping.getSourceArtifactId() + identityMapping.getArtifactType())) {
+								identityMapping.setRepositoryMapping(getRepositoryMapping(mapping, repositoryMappings));
+								try {
+									getCcfMasterClient().createIdentityMapping(identityMapping);
+									identityMappingCount++;
+								} catch (Exception e) {
+									migrationResults.add(new MigrationResult("Identity mapping " + mapping.getSourceArtifactId() + "\u21D4" + " " +  mapping.getTargetArtifactId() + " not migrated.", MigrationResult.ERROR, e));
+									notCreatedCount ++;
+								}
+								identityMappingList.add(identityMapping.getSourceArtifactId() + identityMapping.getArtifactType());
+								monitor.subTask("Creating CCF Master identity mappings: " + identityMappingCount);
+							}
+							if (monitor.isCanceled()) {
+								if (identityMappingCount > 0 || notCreatedCount > 0) {
+									migrationResults.add(new MigrationResult(getStatusMessage("identity mappings", notCreatedCount, identityMappingCount)));
+								}
+								canceled = true;
+								return;
+							}
+						}
+					}
+
+					// Next source = TF, version = -1
+					for (IdentityMapping mapping : identityMappings) {
+						if (mapping.getSourceSystemKind().startsWith("TF")
+								&& !mapping.getArtifactType().equals("attachment")
+								&& ("-1".equals(mapping.getSourceArtifactVersion())
+								|| "-1".equals(mapping.getTargetArtifactVersion()))) {
+							com.collabnet.ccf.api.model.IdentityMapping identityMapping = getIdentityMapping(mapping);
+							if (!identityMappingList.contains(identityMapping.getSourceArtifactId() + identityMapping.getArtifactType())) {
+								identityMapping.setRepositoryMapping(getRepositoryMapping(mapping, repositoryMappings));
+								try {
+									getCcfMasterClient().createIdentityMapping(identityMapping);
+									identityMappingCount++;
+								} catch (Exception e) {
+									migrationResults.add(new MigrationResult("Identity mapping " + mapping.getSourceArtifactId() + "\u21D4" + " " +  mapping.getTargetArtifactId() + " not migrated.", MigrationResult.ERROR, e));
+									notCreatedCount ++;
+								}
+								identityMappingList.add(identityMapping.getSourceArtifactId() + identityMapping.getArtifactType());
+								monitor.subTask("Creating CCF Master identity mappings: " + identityMappingCount);
+							}
+							if (monitor.isCanceled()) {
+								if (identityMappingCount > 0 || notCreatedCount > 0) {
+									migrationResults.add(new MigrationResult(getStatusMessage("identity mappings", notCreatedCount, identityMappingCount)));
+								}
+								canceled = true;
+								return;
+							}
+						}
+					}
+
+					// Finally target = TF, version = -1
+					for (IdentityMapping mapping : identityMappings) {
+						if (mapping.getTargetSystemKind().startsWith("TF")
+								&& !mapping.getArtifactType().equals("attachment")
+								&& ("-1".equals(mapping.getSourceArtifactVersion())
+								|| "-1".equals(mapping.getTargetArtifactVersion()))) {
+							com.collabnet.ccf.api.model.IdentityMapping identityMapping = getIdentityMapping(mapping);
+							if (!identityMappingList.contains(identityMapping.getSourceArtifactId() + identityMapping.getArtifactType())) {
+								identityMapping.setRepositoryMapping(getRepositoryMapping(mapping, repositoryMappings));
+								try {
+									getCcfMasterClient().createIdentityMapping(identityMapping);
+									identityMappingCount++;
+								} catch (Exception e) {
+									migrationResults.add(new MigrationResult("Identity mapping " + mapping.getSourceArtifactId() + "\u21D4" + " " +  mapping.getTargetArtifactId() + " not migrated.", MigrationResult.ERROR, e));
+									notCreatedCount ++;
+								}
+								identityMappingList.add(identityMapping.getSourceArtifactId() + identityMapping.getArtifactType());
+								monitor.subTask("Creating CCF Master identity mappings: " + identityMappingCount);
+							}
+							if (monitor.isCanceled()) {
+								if (identityMappingCount > 0 || notCreatedCount > 0) {
+									migrationResults.add(new MigrationResult(getStatusMessage("identity mappings", notCreatedCount, identityMappingCount)));
+								}
+								canceled = true;
+								return;
+							}
+						}
+					}
+
 					if (identityMappingCount > 0 || notCreatedCount > 0) {
 						migrationResults.add(new MigrationResult(getStatusMessage("identity mappings", notCreatedCount, identityMappingCount)));
 					}
@@ -1069,6 +1098,73 @@ public class MigrateLandscapeWizard extends Wizard {
 		}
 		
 		return exception == null && !canceled;
+	}
+	
+	private com.collabnet.ccf.api.model.IdentityMapping getIdentityMapping(IdentityMapping mapping) {
+		String childSourceArtifactId;
+		String childSourceRepositoryId;
+		String childTargetArtifactId;
+		String childTargetRepositoryId;
+		String parentSourceArtifactId;
+		String parentSourceRepositoryId;
+		String parentTargetArtifactId;
+		String parentTargetRepositoryId;
+		String sourceArtifactId;
+		String sourceArtifactVersion;
+		Timestamp sourceLastModificationTime;
+		String targetArtifactId;
+		String targetArtifactVersion;
+		Timestamp targetLastModificationTime;
+		if (mapping.getSourceSystemKind().startsWith("TF")) {
+			childSourceArtifactId = mapping.getChildSourceArtifactId();
+			childSourceRepositoryId = mapping.getChildSourceRepositoryId();
+			childTargetArtifactId = mapping.getChildTargetRepositoryId();
+			childTargetRepositoryId = mapping.getChildTargetRepositoryId();
+			parentSourceArtifactId = mapping.getParentSourceArtifactId();
+			parentSourceRepositoryId = mapping.getParentSourceRepositoryId();
+			parentTargetArtifactId = mapping.getParentTargetArtifactId();
+			parentTargetRepositoryId = mapping.getParentTargetRepositoryId();
+			sourceArtifactId = mapping.getSourceArtifactId();
+			sourceArtifactVersion = mapping.getSourceArtifactVersion();
+			sourceLastModificationTime = mapping.getSourceLastModificationTime();
+			targetArtifactId = mapping.getTargetArtifactId();
+			targetArtifactVersion = mapping.getTargetArtifactVersion();
+			targetLastModificationTime = mapping.getTargetLastModificationTime();
+		}
+		else {
+			childSourceArtifactId = mapping.getChildTargetArtifactId();
+			childSourceRepositoryId = mapping.getChildTargetRepositoryId();
+			childTargetArtifactId = mapping.getChildSourceRepositoryId();
+			childTargetRepositoryId = mapping.getChildSourceRepositoryId();
+			parentSourceArtifactId = mapping.getParentTargetArtifactId();
+			parentSourceRepositoryId = mapping.getParentTargetRepositoryId();
+			parentTargetArtifactId = mapping.getParentSourceArtifactId();
+			parentTargetRepositoryId = mapping.getParentSourceRepositoryId();
+			sourceArtifactId = mapping.getTargetArtifactId();
+			sourceArtifactVersion = mapping.getTargetArtifactVersion();
+			sourceLastModificationTime = mapping.getTargetLastModificationTime();
+			targetArtifactId = mapping.getSourceArtifactId();
+			targetArtifactVersion = mapping.getSourceArtifactVersion();
+			targetLastModificationTime = mapping.getSourceLastModificationTime();								
+		}	
+		com.collabnet.ccf.api.model.IdentityMapping identityMapping = new com.collabnet.ccf.api.model.IdentityMapping();
+		identityMapping.setArtifactType(mapping.getArtifactType());
+		identityMapping.setDepChildSourceArtifactId(childSourceArtifactId);
+		identityMapping.setDepChildSourceRepositoryId(childSourceRepositoryId);
+		identityMapping.setDepChildTargetArtifactId(childTargetArtifactId);
+		identityMapping.setDepChildTargetRepositoryId(childTargetRepositoryId);
+		identityMapping.setDepParentSourceArtifactId(parentSourceArtifactId);
+		identityMapping.setDepParentSourceRepositoryId(parentSourceRepositoryId);
+		identityMapping.setDepParentTargetArtifactId(parentTargetArtifactId);
+		identityMapping.setDepParentTargetRepositoryId(parentTargetRepositoryId);
+		identityMapping.setDescription("This identity mapping has been added by CCF GUI during migration");
+		identityMapping.setSourceArtifactId(sourceArtifactId);
+		identityMapping.setSourceArtifactVersion(sourceArtifactVersion);
+		identityMapping.setSourceLastModificationTime(sourceLastModificationTime);
+		identityMapping.setTargetArtifactId(targetArtifactId);
+		identityMapping.setTargetArtifactVersion(targetArtifactVersion);
+		identityMapping.setTargetLastModificationTime(targetLastModificationTime);
+		return identityMapping;
 	}
 	
 	private FieldMappingRule getFieldMappingRule(FieldMappingRuleType fieldMappingRuleType, File file) throws IOException {
