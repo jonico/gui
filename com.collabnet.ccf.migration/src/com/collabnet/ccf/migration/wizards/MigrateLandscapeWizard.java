@@ -866,88 +866,89 @@ public class MigrateLandscapeWizard extends Wizard {
 					IdentityMapping[] identityMappings = ccfDataProvider.getIdentityMappings(landscape, filter);
 					for (IdentityMapping mapping : identityMappings) {
 						if (mapping.getSourceSystemKind().startsWith("TF") || mapping.getTargetSystemKind().startsWith("TF")) {
-							
-							String childSourceArtifactId;
-							String childSourceRepositoryId;
-							String childTargetArtifactId;
-							String childTargetRepositoryId;
-							String parentSourceArtifactId;
-							String parentSourceRepositoryId;
-							String parentTargetArtifactId;
-							String parentTargetRepositoryId;
-							String sourceArtifactId;
-							String sourceArtifactVersion;
-							Timestamp sourceLastModificationTime;
-							String targetArtifactId;
-							String targetArtifactVersion;
-							Timestamp targetLastModificationTime;
-							if (mapping.getSourceSystemKind().startsWith("TF")) {
-								childSourceArtifactId = mapping.getChildSourceArtifactId();
-								childSourceRepositoryId = mapping.getChildSourceRepositoryId();
-								childTargetArtifactId = mapping.getChildTargetRepositoryId();
-								childTargetRepositoryId = mapping.getChildTargetRepositoryId();
-								parentSourceArtifactId = mapping.getParentSourceArtifactId();
-								parentSourceRepositoryId = mapping.getParentSourceRepositoryId();
-								parentTargetArtifactId = mapping.getParentTargetArtifactId();
-								parentTargetRepositoryId = mapping.getParentTargetRepositoryId();
-								sourceArtifactId = mapping.getSourceArtifactId();
-								sourceArtifactVersion = mapping.getSourceArtifactVersion();
-								sourceLastModificationTime = mapping.getSourceLastModificationTime();
-								targetArtifactId = mapping.getTargetArtifactId();
-								targetArtifactVersion = mapping.getTargetArtifactVersion();
-								targetLastModificationTime = mapping.getTargetLastModificationTime();
-							}
-							else {
-								childSourceArtifactId = mapping.getChildTargetArtifactId();
-								childSourceRepositoryId = mapping.getChildTargetRepositoryId();
-								childTargetArtifactId = mapping.getChildSourceRepositoryId();
-								childTargetRepositoryId = mapping.getChildSourceRepositoryId();
-								parentSourceArtifactId = mapping.getParentTargetArtifactId();
-								parentSourceRepositoryId = mapping.getParentTargetRepositoryId();
-								parentTargetArtifactId = mapping.getParentSourceArtifactId();
-								parentTargetRepositoryId = mapping.getParentSourceRepositoryId();
-								sourceArtifactId = mapping.getTargetArtifactId();
-								sourceArtifactVersion = mapping.getTargetArtifactVersion();
-								sourceLastModificationTime = mapping.getTargetLastModificationTime();
-								targetArtifactId = mapping.getSourceArtifactId();
-								targetArtifactVersion = mapping.getSourceArtifactVersion();
-								targetLastModificationTime = mapping.getSourceLastModificationTime();								
-							}
-							if (!identityMappingList.contains(sourceArtifactId)) {
-								com.collabnet.ccf.api.model.IdentityMapping identityMapping = new com.collabnet.ccf.api.model.IdentityMapping();
-								identityMapping.setArtifactType(mapping.getArtifactType());
-								identityMapping.setDepChildSourceArtifactId(childSourceArtifactId);
-								identityMapping.setDepChildSourceRepositoryId(childSourceRepositoryId);
-								identityMapping.setDepChildTargetArtifactId(childTargetArtifactId);
-								identityMapping.setDepChildTargetRepositoryId(childTargetRepositoryId);
-								identityMapping.setDepParentSourceArtifactId(parentSourceArtifactId);
-								identityMapping.setDepParentSourceRepositoryId(parentSourceRepositoryId);
-								identityMapping.setDepParentTargetArtifactId(parentTargetArtifactId);
-								identityMapping.setDepParentTargetRepositoryId(parentTargetRepositoryId);
-								identityMapping.setDescription("This identity mapping has been added by CCF GUI during migration");
-								identityMapping.setRepositoryMapping(getRepositoryMapping(mapping, repositoryMappings));
-								identityMapping.setSourceArtifactId(sourceArtifactId);
-								identityMapping.setSourceArtifactVersion(sourceArtifactVersion);
-								identityMapping.setSourceLastModificationTime(sourceLastModificationTime);
-								identityMapping.setTargetArtifactId(targetArtifactId);
-								identityMapping.setTargetArtifactVersion(targetArtifactVersion);
-								identityMapping.setTargetLastModificationTime(targetLastModificationTime);
-								try {
-									getCcfMasterClient().createIdentityMapping(identityMapping);
-									identityMappingCount++;
-								} catch (Exception e) {
-									migrationResults.add(new MigrationResult("Identity mapping " + mapping.getSourceArtifactId() + "\u21D4" + " " +  mapping.getTargetArtifactId() + " not migrated.", MigrationResult.ERROR, e));
-									notCreatedCount ++;
+							if (!mapping.getArtifactType().equals("attachment") || !mapping.getSourceSystemKind().startsWith("TF")) {
+								String childSourceArtifactId;
+								String childSourceRepositoryId;
+								String childTargetArtifactId;
+								String childTargetRepositoryId;
+								String parentSourceArtifactId;
+								String parentSourceRepositoryId;
+								String parentTargetArtifactId;
+								String parentTargetRepositoryId;
+								String sourceArtifactId;
+								String sourceArtifactVersion;
+								Timestamp sourceLastModificationTime;
+								String targetArtifactId;
+								String targetArtifactVersion;
+								Timestamp targetLastModificationTime;
+								if (mapping.getSourceSystemKind().startsWith("TF")) {
+									childSourceArtifactId = mapping.getChildSourceArtifactId();
+									childSourceRepositoryId = mapping.getChildSourceRepositoryId();
+									childTargetArtifactId = mapping.getChildTargetRepositoryId();
+									childTargetRepositoryId = mapping.getChildTargetRepositoryId();
+									parentSourceArtifactId = mapping.getParentSourceArtifactId();
+									parentSourceRepositoryId = mapping.getParentSourceRepositoryId();
+									parentTargetArtifactId = mapping.getParentTargetArtifactId();
+									parentTargetRepositoryId = mapping.getParentTargetRepositoryId();
+									sourceArtifactId = mapping.getSourceArtifactId();
+									sourceArtifactVersion = mapping.getSourceArtifactVersion();
+									sourceLastModificationTime = mapping.getSourceLastModificationTime();
+									targetArtifactId = mapping.getTargetArtifactId();
+									targetArtifactVersion = mapping.getTargetArtifactVersion();
+									targetLastModificationTime = mapping.getTargetLastModificationTime();
 								}
-								identityMappingList.add(sourceArtifactId);
-								monitor.subTask("Creating CCF Master identity mappings: " + identityMappingCount);
-							}
-							if (monitor.isCanceled()) {
-								if (identityMappingCount > 0 || notCreatedCount > 0) {
-									migrationResults.add(new MigrationResult(getStatusMessage("identity mappings", notCreatedCount, identityMappingCount)));
+								else {
+									childSourceArtifactId = mapping.getChildTargetArtifactId();
+									childSourceRepositoryId = mapping.getChildTargetRepositoryId();
+									childTargetArtifactId = mapping.getChildSourceRepositoryId();
+									childTargetRepositoryId = mapping.getChildSourceRepositoryId();
+									parentSourceArtifactId = mapping.getParentTargetArtifactId();
+									parentSourceRepositoryId = mapping.getParentTargetRepositoryId();
+									parentTargetArtifactId = mapping.getParentSourceArtifactId();
+									parentTargetRepositoryId = mapping.getParentSourceRepositoryId();
+									sourceArtifactId = mapping.getTargetArtifactId();
+									sourceArtifactVersion = mapping.getTargetArtifactVersion();
+									sourceLastModificationTime = mapping.getTargetLastModificationTime();
+									targetArtifactId = mapping.getSourceArtifactId();
+									targetArtifactVersion = mapping.getSourceArtifactVersion();
+									targetLastModificationTime = mapping.getSourceLastModificationTime();								
 								}
-								canceled = true;
-								return;
+								if (!identityMappingList.contains(sourceArtifactId)) {
+									com.collabnet.ccf.api.model.IdentityMapping identityMapping = new com.collabnet.ccf.api.model.IdentityMapping();
+									identityMapping.setArtifactType(mapping.getArtifactType());
+									identityMapping.setDepChildSourceArtifactId(childSourceArtifactId);
+									identityMapping.setDepChildSourceRepositoryId(childSourceRepositoryId);
+									identityMapping.setDepChildTargetArtifactId(childTargetArtifactId);
+									identityMapping.setDepChildTargetRepositoryId(childTargetRepositoryId);
+									identityMapping.setDepParentSourceArtifactId(parentSourceArtifactId);
+									identityMapping.setDepParentSourceRepositoryId(parentSourceRepositoryId);
+									identityMapping.setDepParentTargetArtifactId(parentTargetArtifactId);
+									identityMapping.setDepParentTargetRepositoryId(parentTargetRepositoryId);
+									identityMapping.setDescription("This identity mapping has been added by CCF GUI during migration");
+									identityMapping.setRepositoryMapping(getRepositoryMapping(mapping, repositoryMappings));
+									identityMapping.setSourceArtifactId(sourceArtifactId);
+									identityMapping.setSourceArtifactVersion(sourceArtifactVersion);
+									identityMapping.setSourceLastModificationTime(sourceLastModificationTime);
+									identityMapping.setTargetArtifactId(targetArtifactId);
+									identityMapping.setTargetArtifactVersion(targetArtifactVersion);
+									identityMapping.setTargetLastModificationTime(targetLastModificationTime);
+									try {
+										getCcfMasterClient().createIdentityMapping(identityMapping);
+										identityMappingCount++;
+									} catch (Exception e) {
+										migrationResults.add(new MigrationResult("Identity mapping " + mapping.getSourceArtifactId() + "\u21D4" + " " +  mapping.getTargetArtifactId() + " not migrated.", MigrationResult.ERROR, e));
+										notCreatedCount ++;
+									}
+									identityMappingList.add(sourceArtifactId);
+									monitor.subTask("Creating CCF Master identity mappings: " + identityMappingCount);
+								}
+								if (monitor.isCanceled()) {
+									if (identityMappingCount > 0 || notCreatedCount > 0) {
+										migrationResults.add(new MigrationResult(getStatusMessage("identity mappings", notCreatedCount, identityMappingCount)));
+									}
+									canceled = true;
+									return;
+								}
 							}
 						}
 					}
@@ -1151,11 +1152,19 @@ public class MigrateLandscapeWizard extends Wizard {
 	}
 	
 	private RepositoryMapping getRepositoryMapping(IdentityMapping identityMapping, RepositoryMapping[] repositoryMappings) {
-		for (RepositoryMapping repositoryMapping : repositoryMappings) {
-			if (identityMapping.getSourceRepositoryId().equals(repositoryMapping.getTeamForgeRepositoryId()) || identityMapping.getSourceRepositoryId().equals(repositoryMapping.getParticipantRepositoryId())) {
-				if (identityMapping.getTargetRepositoryId().equals(repositoryMapping.getTeamForgeRepositoryId()) || identityMapping.getTargetRepositoryId().equals(repositoryMapping.getParticipantRepositoryId())) {
-					return repositoryMapping;
-				}
+		String teamForgeRepositoryId;
+		String participantRepositoryId;
+		if (identityMapping.getSourceSystemKind().startsWith("TF")) {
+			teamForgeRepositoryId = identityMapping.getSourceRepositoryId();
+			participantRepositoryId = identityMapping.getTargetRepositoryId();
+		}
+		else {
+			teamForgeRepositoryId = identityMapping.getTargetRepositoryId();
+			participantRepositoryId = identityMapping.getSourceRepositoryId();			
+		}
+		for (RepositoryMapping repositoryMapping : repositoryMappings) {			
+			if (repositoryMapping.getTeamForgeRepositoryId().equals(teamForgeRepositoryId) && repositoryMapping.getParticipantRepositoryId().equals(participantRepositoryId)) {
+				return repositoryMapping;
 			}
 		}
 		return null;
