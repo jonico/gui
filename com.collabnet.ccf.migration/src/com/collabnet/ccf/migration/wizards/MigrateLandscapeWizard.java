@@ -113,7 +113,7 @@ public class MigrateLandscapeWizard extends Wizard {
 			public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 				String taskName = "Migrating landscape";
 				monitor.setTaskName(taskName);
-				monitor.beginTask(taskName, 29);	
+				monitor.beginTask(taskName, 32);	
 				try {					
 					teamForgeClient.getConnection().login();
 					if (!teamForgeClient.getConnection().supports54()) {
@@ -1017,13 +1017,12 @@ public class MigrateLandscapeWizard extends Wizard {
 						if (hospitalEntryCount > 0 || notCreatedCount > 0) {
 							migrationResults.add(new MigrationResult(getStatusMessage("hospital entries", notCreatedCount, hospitalEntryCount)));
 						}
-						monitor.worked(1);
-						if (monitor.isCanceled()) {
-							canceled = true;
-							return;
-						}
 					}
-					
+					monitor.worked(1);
+					if (monitor.isCanceled()) {
+						canceled = true;
+						return;
+					}
 				} catch (Exception e) {
 					exception = e;
 					return;					
@@ -1034,7 +1033,7 @@ public class MigrateLandscapeWizard extends Wizard {
 		};
 		
 		try {
-			getContainer().run(true, false, runnable);
+			getContainer().run(true, true, runnable);
 		} catch (Exception e) {
 			Activator.handleError(e);
 			if (e.getMessage() != null && e.getMessage().contains("<html>")) {
