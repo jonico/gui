@@ -66,6 +66,9 @@ public class MigrateLandscapeWizard extends Wizard {
 	private boolean migrateHospitalEntries;
 	private MigrateLandscapeWizardCcfMasterPage ccfMasterPage;
 	private TeamForgeClient teamForgeClient;
+	private int createdCount;
+	private int notCreatedCount;
+	private int alreadyExistedCount;
 	
 	private List<MigrationResult> migrationResults;
 	private Exception exception;
@@ -853,15 +856,12 @@ public class MigrateLandscapeWizard extends Wizard {
 					
 					monitor.subTask("Creating CCF Master identity mappings:");
 					
-					int notCreatedCount = 0;
+					createdCount = 0;
+					notCreatedCount = 0;
+					alreadyExistedCount = 0;
 					
 					List<String> identityMappingList = new ArrayList<String>();
-					com.collabnet.ccf.api.model.IdentityMapping[] existingIdentityMappings = getCcfMasterClient().getIdentityMappings();
-					for (com.collabnet.ccf.api.model.IdentityMapping existingIdentityMapping : existingIdentityMappings) {
-						identityMappingList.add(existingIdentityMapping.getSourceArtifactId() + existingIdentityMapping.getArtifactType());
-					}
-					
-					int identityMappingCount = 0;
+
 					Filter[] filter = new Filter[0];
 					IdentityMapping[] identityMappings = ccfDataProvider.getIdentityMappings(landscape, filter);
 					
@@ -876,17 +876,16 @@ public class MigrateLandscapeWizard extends Wizard {
 								identityMapping.setRepositoryMapping(getRepositoryMapping(mapping, repositoryMappings));
 								try {
 									getCcfMasterClient().createIdentityMapping(identityMapping);
-									identityMappingCount++;
+									createdCount++;
 								} catch (Exception e) {
-									migrationResults.add(new MigrationResult("Identity mapping " + mapping.getSourceArtifactId() + "\u21D4" + " " +  mapping.getTargetArtifactId() + " not migrated.", MigrationResult.ERROR, e));
-									notCreatedCount ++;
+									handleIdentityMappingMigrationError(mapping, e);
 								}
 								identityMappingList.add(identityMapping.getSourceArtifactId() + identityMapping.getArtifactType());
-								monitor.subTask("Creating CCF Master identity mappings: " + identityMappingCount);
+								monitor.subTask("Creating CCF Master identity mappings: " + getStatusMessage(""));
 							}
 							if (monitor.isCanceled()) {
-								if (identityMappingCount > 0 || notCreatedCount > 0) {
-									migrationResults.add(new MigrationResult(getStatusMessage("identity mappings", notCreatedCount, identityMappingCount)));
+								if (createdCount > 0 || notCreatedCount > 0 || alreadyExistedCount > 0) {
+									migrationResults.add(new MigrationResult(getStatusMessage("identity mappings")));
 								}
 								canceled = true;
 								return;
@@ -905,17 +904,16 @@ public class MigrateLandscapeWizard extends Wizard {
 								identityMapping.setRepositoryMapping(getRepositoryMapping(mapping, repositoryMappings));
 								try {
 									getCcfMasterClient().createIdentityMapping(identityMapping);
-									identityMappingCount++;
+									createdCount++;
 								} catch (Exception e) {
-									migrationResults.add(new MigrationResult("Identity mapping " + mapping.getSourceArtifactId() + "\u21D4" + " " +  mapping.getTargetArtifactId() + " not migrated.", MigrationResult.ERROR, e));
-									notCreatedCount ++;
+									handleIdentityMappingMigrationError(mapping, e);
 								}
 								identityMappingList.add(identityMapping.getSourceArtifactId() + identityMapping.getArtifactType());
-								monitor.subTask("Creating CCF Master identity mappings: " + identityMappingCount);
+								monitor.subTask("Creating CCF Master identity mappings: " + getStatusMessage(""));
 							}
 							if (monitor.isCanceled()) {
-								if (identityMappingCount > 0 || notCreatedCount > 0) {
-									migrationResults.add(new MigrationResult(getStatusMessage("identity mappings", notCreatedCount, identityMappingCount)));
+								if (createdCount > 0 || notCreatedCount > 0 || alreadyExistedCount > 0) {
+									migrationResults.add(new MigrationResult(getStatusMessage("identity mappings")));
 								}
 								canceled = true;
 								return;
@@ -934,17 +932,16 @@ public class MigrateLandscapeWizard extends Wizard {
 								identityMapping.setRepositoryMapping(getRepositoryMapping(mapping, repositoryMappings));
 								try {
 									getCcfMasterClient().createIdentityMapping(identityMapping);
-									identityMappingCount++;
+									createdCount++;
 								} catch (Exception e) {
-									migrationResults.add(new MigrationResult("Identity mapping " + mapping.getSourceArtifactId() + "\u21D4" + " " +  mapping.getTargetArtifactId() + " not migrated.", MigrationResult.ERROR, e));
-									notCreatedCount ++;
+									handleIdentityMappingMigrationError(mapping, e);
 								}
 								identityMappingList.add(identityMapping.getSourceArtifactId() + identityMapping.getArtifactType());
-								monitor.subTask("Creating CCF Master identity mappings: " + identityMappingCount);
+								monitor.subTask("Creating CCF Master identity mappings: " + getStatusMessage(""));
 							}
 							if (monitor.isCanceled()) {
-								if (identityMappingCount > 0 || notCreatedCount > 0) {
-									migrationResults.add(new MigrationResult(getStatusMessage("identity mappings", notCreatedCount, identityMappingCount)));
+								if (createdCount > 0 || notCreatedCount > 0 || alreadyExistedCount > 0) {
+									migrationResults.add(new MigrationResult(getStatusMessage("identity mappings")));
 								}
 								canceled = true;
 								return;
@@ -963,17 +960,16 @@ public class MigrateLandscapeWizard extends Wizard {
 								identityMapping.setRepositoryMapping(getRepositoryMapping(mapping, repositoryMappings));
 								try {
 									getCcfMasterClient().createIdentityMapping(identityMapping);
-									identityMappingCount++;
+									createdCount++;
 								} catch (Exception e) {
-									migrationResults.add(new MigrationResult("Identity mapping " + mapping.getSourceArtifactId() + "\u21D4" + " " +  mapping.getTargetArtifactId() + " not migrated.", MigrationResult.ERROR, e));
-									notCreatedCount ++;
+									handleIdentityMappingMigrationError(mapping, e);
 								}
 								identityMappingList.add(identityMapping.getSourceArtifactId() + identityMapping.getArtifactType());
-								monitor.subTask("Creating CCF Master identity mappings: " + identityMappingCount);
+								monitor.subTask("Creating CCF Master identity mappings: " + getStatusMessage(""));
 							}
 							if (monitor.isCanceled()) {
-								if (identityMappingCount > 0 || notCreatedCount > 0) {
-									migrationResults.add(new MigrationResult(getStatusMessage("identity mappings", notCreatedCount, identityMappingCount)));
+								if (createdCount > 0 || notCreatedCount > 0 || alreadyExistedCount > 0) {
+									migrationResults.add(new MigrationResult(getStatusMessage("identity mappings")));
 								}
 								canceled = true;
 								return;
@@ -981,8 +977,8 @@ public class MigrateLandscapeWizard extends Wizard {
 						}
 					}
 
-					if (identityMappingCount > 0 || notCreatedCount > 0) {
-						migrationResults.add(new MigrationResult(getStatusMessage("identity mappings", notCreatedCount, identityMappingCount)));
+					if (createdCount > 0 || notCreatedCount > 0 || alreadyExistedCount > 0) {
+						migrationResults.add(new MigrationResult(getStatusMessage("identity mappings")));
 					}
 					monitor.worked(1);
 					if (monitor.isCanceled()) {
@@ -998,8 +994,9 @@ public class MigrateLandscapeWizard extends Wizard {
 						}
 						
 						monitor.subTask("Creating CCF Master hospital entries:");
-						int hospitalEntryCount = 0;
+						createdCount = 0;
 						notCreatedCount = 0;
+						alreadyExistedCount = 0;
 						Patient[] hospitalEntries = ccfDataProvider.getPatients(landscape, filter);
 						for (Patient patient : hospitalEntries) {
 							if (!patient.isFixed()) {
@@ -1030,11 +1027,11 @@ public class MigrateLandscapeWizard extends Wizard {
 										hospitalEntry.setTargetLastModificationTime(patient.getTargetLastModificationTime());
 										hospitalEntry.setTimestamp(patient.getTimeStamp());
 										getCcfMasterClient().createHospitalEntry(hospitalEntry);
-										hospitalEntryCount++;
-										monitor.subTask("Creating CCF Master hospital entries: " + hospitalEntryCount);
+										createdCount++;
+										monitor.subTask("Creating CCF Master hospital entries: " + createdCount);
 										if (monitor.isCanceled()) {
-											if (hospitalEntryCount > 0 || notCreatedCount > 0) {
-												migrationResults.add(new MigrationResult(getStatusMessage("hospital entries", notCreatedCount, hospitalEntryCount)));
+											if (createdCount > 0 || notCreatedCount > 0 || alreadyExistedCount > 0) {
+												migrationResults.add(new MigrationResult(getStatusMessage("hospital entries")));
 											}
 											canceled = true;
 											return;
@@ -1043,8 +1040,8 @@ public class MigrateLandscapeWizard extends Wizard {
 								}
 							}
 						}
-						if (hospitalEntryCount > 0 || notCreatedCount > 0) {
-							migrationResults.add(new MigrationResult(getStatusMessage("hospital entries", notCreatedCount, hospitalEntryCount)));
+						if (createdCount > 0 || notCreatedCount > 0 || alreadyExistedCount > 0) {
+							migrationResults.add(new MigrationResult(getStatusMessage("hospital entries")));
 						}
 					}
 					monitor.worked(1);
@@ -1427,7 +1424,7 @@ public class MigrateLandscapeWizard extends Wizard {
 		return directionConfig;
 	}
 
-	private String getStatusMessage(String entityType, int notCreatedCount, int createdCount) {
+	private String getStatusMessage(String entityType) {
 		StringBuffer statusMessage = new StringBuffer();
 		if (createdCount > 0) {
 			statusMessage.append(createdCount + " " + entityType + " created");
@@ -1438,7 +1435,25 @@ public class MigrateLandscapeWizard extends Wizard {
 			}
 			statusMessage.append(notCreatedCount + " " + entityType + " not created");
 		}
-		statusMessage.append(" in CCF Master");
+		if (alreadyExistedCount > 0) {
+			if (createdCount > 0 || notCreatedCount > 0) {
+				statusMessage.append(", ");
+			}
+			statusMessage.append(alreadyExistedCount + " " + entityType + " already existed");
+		}
+		if (entityType.length() > 0) {
+			statusMessage.append(" in CCF Master");
+		}
 		return statusMessage.toString();
+	}
+
+	private void handleIdentityMappingMigrationError(IdentityMapping mapping, Exception e) {
+		if (e.getMessage() != null && e.getMessage().contains("ConstraintViolationException")) {
+			alreadyExistedCount++;
+		}
+		else {
+			migrationResults.add(new MigrationResult("Identity mapping " + mapping.getSourceArtifactId() + "\u21D4" + " " +  mapping.getTargetArtifactId() + " not migrated.", MigrationResult.ERROR, e));
+			notCreatedCount++;
+		}
 	}
 }
