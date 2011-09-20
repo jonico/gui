@@ -757,15 +757,15 @@ public class MigrateLandscapeWizard extends Wizard {
 									FieldMapping fieldMapping = new FieldMapping();
 									fieldMapping.setParent(repositoryMappingDirection);
 									fieldMapping.setScope(FieldMappingScope.CCF_CORE);
-									String param;
+									String fieldMappingName;
 									int index = projectMapping.getSourceRepositoryKind().indexOf(".xsl");
 									if (index == -1) {
-										param = projectMapping.getSourceRepositoryKind();
+										fieldMappingName = projectMapping.getSourceRepositoryKind();
 									}
 									else {
-										param = projectMapping.getSourceRepositoryKind().substring(0, index);
+										fieldMappingName = projectMapping.getSourceRepositoryKind().substring(0, index);
 									}
-									fieldMapping.setParam(param);
+									fieldMapping.setName(fieldMappingName);
 									fieldMapping.setKind(FieldMappingKind.CUSTOM_XSLT);
 									fieldMapping = getCcfMasterClient().createFieldMapping(fieldMapping);
 									repositoryMappingDirection.setActiveFieldMapping(fieldMapping);
@@ -783,7 +783,7 @@ public class MigrateLandscapeWizard extends Wizard {
 									fieldMapping.setParent(repositoryMappingDirection);
 									fieldMapping.setScope(FieldMappingScope.REPOSITORY_MAPPING_DIRECTION);
 									fieldMapping.setKind(FieldMappingKind.MAPFORCE);	
-									fieldMapping.setParam("param");								
+									fieldMapping.setName(FieldMappingKind.MAPFORCE.toString());								
 									if (sourceRepositorySchemaFile.exists()) {
 										fieldMappingRules.add(getFieldMappingRule(FieldMappingRuleType.SOURCE_REPOSITORY_LAYOUT, sourceRepositorySchemaFile));
 									}
@@ -816,7 +816,7 @@ public class MigrateLandscapeWizard extends Wizard {
 									fieldMapping.setParent(repositoryMappingDirection);
 									fieldMapping.setScope(FieldMappingScope.REPOSITORY_MAPPING_DIRECTION);
 									fieldMapping.setKind(FieldMappingKind.CUSTOM_XSLT);
-									fieldMapping.setParam("param");
+									fieldMapping.setName(FieldMappingKind.CUSTOM_XSLT.toString());
 									FieldMappingRule fieldMappingRule = new FieldMappingRule();
 									fieldMappingRule.setType(FieldMappingRuleType.CUSTOM_XSLT_DOCUMENT);
 									fieldMappingRule.setSource("source");
