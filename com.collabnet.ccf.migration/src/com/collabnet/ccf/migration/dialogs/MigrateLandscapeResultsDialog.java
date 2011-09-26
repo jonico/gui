@@ -86,7 +86,6 @@ public class MigrateLandscapeResultsDialog extends CcfDialog {
 		tableViewer.setInput(this);
 		
 		tableViewer.addOpenListener(new IOpenListener() {			
-			@Override
 			public void open(OpenEvent event) {
 				IStructuredSelection selection = (IStructuredSelection)tableViewer.getSelection();
 				if (selection != null && selection.getFirstElement() instanceof MigrationResult) {
@@ -121,11 +120,8 @@ public class MigrateLandscapeResultsDialog extends CcfDialog {
 			super();
 			this.migrationResults = migrationResults;
 		}
-		@Override
 		public void dispose() {}
-		@Override
 		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {}
-		@Override
 		public Object[] getElements(Object inputElement) {
 			if (migrationResults == null) {
 				return new MigrationResult[0];
@@ -135,7 +131,6 @@ public class MigrateLandscapeResultsDialog extends CcfDialog {
 	}
 	
 	class MigrationResultsLabelProvider extends LabelProvider implements ITableLabelProvider {
-		@Override
 		public Image getColumnImage(Object element, int columnIndex) {
 			if (columnIndex == 0) {
 				if (((MigrationResult)element).getResultType() == MigrationResult.ERROR) {
@@ -144,7 +139,6 @@ public class MigrateLandscapeResultsDialog extends CcfDialog {
 			}
 			return null;
 		}
-		@Override
 		public String getColumnText(Object element, int columnIndex) {
 			return ((MigrationResult)element).getResultMessage();
 		}		

@@ -42,7 +42,6 @@ public class MigrateLandscapeWizardCcfMasterPage extends WizardPage {
 		setPageComplete(false);
 	}
 
-	@Override
 	public void createControl(Composite parent) {
 		setMessage("Select target CCF Master for migration");		
 		Composite outerContainer = new Composite(parent,SWT.NONE);
@@ -96,7 +95,6 @@ public class MigrateLandscapeWizardCcfMasterPage extends WizardPage {
 		ccfMasterPasswordText.setEchoChar('*');
 		
 		ModifyListener modifyListener = new ModifyListener() {			
-			@Override
 			public void modifyText(ModifyEvent e) {
 				if (e.getSource() == ccfMasterUrlCombo) {
 					url = ccfMasterUrlCombo.getText().trim();
