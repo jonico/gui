@@ -43,7 +43,7 @@ public class MigrateLandscapeWizardCcfMasterPage extends WizardPage {
 	}
 
 	public void createControl(Composite parent) {
-		setMessage("Select target CCF Master for migration");		
+		setMessage("Select target CCF Master for migration.");		
 		Composite outerContainer = new Composite(parent,SWT.NONE);
 		GridLayout layout = new GridLayout();
 		layout.numColumns = 2;

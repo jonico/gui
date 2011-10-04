@@ -13,6 +13,7 @@ package com.collabnet.ccf.migration.wizards;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.rmi.RemoteException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,7 +40,6 @@ import com.collabnet.ccf.api.model.FieldMappingKind;
 import com.collabnet.ccf.api.model.FieldMappingRule;
 import com.collabnet.ccf.api.model.FieldMappingRuleType;
 import com.collabnet.ccf.api.model.FieldMappingScope;
-import com.collabnet.ccf.api.model.HospitalEntry;
 import com.collabnet.ccf.api.model.LandscapeConfig;
 import com.collabnet.ccf.api.model.Participant;
 import com.collabnet.ccf.api.model.ParticipantConfig;
@@ -55,16 +55,22 @@ import com.collabnet.ccf.migration.dialogs.MigrateLandscapeResultsDialog;
 import com.collabnet.ccf.migration.webclient.TeamForgeClient;
 import com.collabnet.ccf.model.IdentityMapping;
 import com.collabnet.ccf.model.Landscape;
-import com.collabnet.ccf.model.Patient;
 import com.collabnet.ccf.model.SynchronizationStatus;
 import com.collabnet.ccf.schemageneration.XSLTInitialMFDGeneratorScriptGenerator;
 import com.collabnet.teamforge.api.main.ProjectDO;
 import com.collabnet.teamforge.api.tracker.TrackerDO;
 
 public class MigrateLandscapeWizard extends Wizard {
+	private CcfDataProvider ccfDataProvider;
+	private SynchronizationStatus[] projectMappings;
+	private Map<SynchronizationStatus, String> projectMappingMap; // Maps project mapping to project ID
+	private Map<String, ProjectDO> projectMap; // Maps project ID to project
+	private Map<String, TrackerDO> trackerMap; // Maps tracker ID to tracker
+	private List<String> projectIds;
+	
 	private Landscape landscape;
-	private boolean migrateHospitalEntries;
 	private MigrateLandscapeWizardCcfMasterPage ccfMasterPage;
+	private MigrateLandscapeWizardMappingSelectionPage mappingPage;
 	private TeamForgeClient teamForgeClient;
 	private int createdCount;
 	private int notCreatedCount;
@@ -81,13 +87,8 @@ public class MigrateLandscapeWizard extends Wizard {
 	private IDialogSettings settings = com.collabnet.ccf.migration.Activator.getDefault().getDialogSettings();
 	
 	public MigrateLandscapeWizard(Landscape landscape) {
-		this(landscape, false);
-	}
-
-	public MigrateLandscapeWizard(Landscape landscape, boolean migrateHospitalEntries) {
 		super();
-		this.landscape = landscape;
-		this.migrateHospitalEntries = migrateHospitalEntries;		
+		this.landscape = landscape;		
 		teamForgeClient = TeamForgeClient.getTeamForgeClient(landscape);
 	}
 	
@@ -97,6 +98,8 @@ public class MigrateLandscapeWizard extends Wizard {
 		setWindowTitle("Migrate Landscape to CCF 2.x");
 		ccfMasterPage = new MigrateLandscapeWizardCcfMasterPage();
 		addPage(ccfMasterPage);
+		mappingPage = new MigrateLandscapeWizardMappingSelectionPage();
+		addPage(mappingPage);
 	}	
 
 	@Override
@@ -560,59 +563,22 @@ public class MigrateLandscapeWizard extends Wizard {
 						return;
 					}
 					migrationResults.add(new MigrationResult("Direction " + reverse.getDescription() + " (REVERSE) properties set in CCF Master."));
-					
-					monitor.subTask("Retrieving CCF 1.x project mappings");
-					CcfDataProvider ccfDataProvider = new CcfDataProvider();
-					SynchronizationStatus[] projectMappings = ccfDataProvider.getSynchronizationStatuses(landscape, null);
+
+					projectMappings = mappingPage.getSelectedProjectMappings();
+					if (projectMappings == null) {
+						projectMappings = getProjectMappings(monitor);
+					}
+					else {
+						projectIds = mappingPage.getSelectedProjectIds();
+					}
 					monitor.worked(1);
 					if (monitor.isCanceled()) {
 						canceled = true;
 						return;
 					}
 					
-					monitor.subTask("Compiling TeamForge project list");
-					Map<SynchronizationStatus, String> projectMappingMap = new HashMap<SynchronizationStatus, String>();
-					List<String> projectIds = new ArrayList<String>();
-					for (SynchronizationStatus projectMapping : projectMappings) {
-						String repositoryId = null;
-						if (projectMapping.getSourceSystemKind().startsWith("TF")) {
-							repositoryId = projectMapping.getSourceRepositoryId();
-						}
-						else if (projectMapping.getTargetSystemKind().startsWith("TF")) {
-							repositoryId = projectMapping.getTargetRepositoryId();
-						}
-						if (repositoryId != null) {
-							String projectId = null;
-							if (repositoryId.startsWith("proj")) {
-								int index = repositoryId.indexOf("-");
-								if (index == -1) {
-									projectId = repositoryId;
-								} else {
-									projectId = repositoryId.substring(0, index);
-								}
-							}
-							else if (repositoryId.startsWith("tracker")) {
-								String trackerId = null;
-								int index = repositoryId.indexOf("-");
-								if (index == -1) {
-									trackerId = repositoryId;
-								} else {
-									trackerId = repositoryId.substring(0, index);
-								}
-								if (trackerId != null) {
-									TrackerDO tracker = teamForgeClient.getConnection().getTrackerClient().getTrackerData(trackerId);
-									if (tracker != null) {
-										projectId = tracker.getProjectId();
-									}
-								}
-							}
-							if (projectId != null) {
-								projectMappingMap.put(projectMapping, projectId);
-							}
-							if (projectId != null && !projectIds.contains(projectId)) {
-								projectIds.add(projectId);
-							}
-						}
+					if (projectMappingMap == null) {						
+						projectMappingMap = getProjectMappingMap(monitor);
 					}
 					monitor.worked(1);
 					if (monitor.isCanceled()) {
@@ -624,7 +590,7 @@ public class MigrateLandscapeWizard extends Wizard {
 					monitor.subTask("Creating CCF Master external applications:");
 					ExternalApp[] externalApps = getCcfMasterClient().getExternalApps(ccfMasterLandscape, true);
 					for (String project : projectIds) {
-						ProjectDO projectDO = teamForgeClient.getConnection().getTeamForgeClient().getProjectData(project);
+						ProjectDO projectDO = projectMap.get(project);
 						ExternalApp externalApp = new ExternalApp();
 						externalApp.setProjectPath(projectDO.getPath());
 						externalApp.setProjectTitle(projectDO.getTitle());
@@ -747,7 +713,7 @@ public class MigrateLandscapeWizard extends Wizard {
 							else {
 								repositoryMappingDirection.setConflictResolutionPolicy(ConflictResolutionPolicy.alwaysOverride);
 							}
-							RepositoryMappingDirection checkRepositoryMappingDirection = getRepositoryMappinDirection(repositoryMappingDirection, repositoryMappingDirections);
+							RepositoryMappingDirection checkRepositoryMappingDirection = getRepositoryMappingDirection(repositoryMappingDirection, repositoryMappingDirections);
 							if (checkRepositoryMappingDirection == null) {
 								monitor.subTask("Creating CCF Master repository mapping directions: " + repositoryMappingDirection.getRepositoryMapping().getDescription() + " (" + repositoryMappingDirection.getDirection() + ")");
 								repositoryMappingDirection = getCcfMasterClient().createRepositoryMappingDirection(repositoryMappingDirection);
@@ -859,189 +825,135 @@ public class MigrateLandscapeWizard extends Wizard {
 					notCreatedCount = 0;
 					alreadyExistedCount = 0;
 					
-					List<String> identityMappingList = new ArrayList<String>();
-
-					Filter[] filter = new Filter[0];
-					IdentityMapping[] identityMappings = ccfDataProvider.getIdentityMappings(landscape, filter);
+					for (RepositoryMapping repositoryMapping : mappingPage.getSelectedRepositoryMappings()) {
 					
-					// First select source = TF, version != -1
-					for (IdentityMapping mapping : identityMappings) {
-						if (mapping.getSourceSystemKind().startsWith("TF")
-								&& !mapping.getArtifactType().equals("attachment")
-								&& !"-1".equals(mapping.getSourceArtifactVersion())
-								&& !"-1".equals(mapping.getTargetArtifactVersion())) {
-							com.collabnet.ccf.api.model.IdentityMapping identityMapping = getIdentityMapping(mapping);
-							if (!identityMappingList.contains(identityMapping.getSourceArtifactId() + identityMapping.getArtifactType())) {
-								identityMapping.setRepositoryMapping(getRepositoryMapping(mapping, repositoryMappings));
-								try {
-									getCcfMasterClient().createIdentityMapping(identityMapping);
-									createdCount++;
-								} catch (Exception e) {
-									handleIdentityMappingMigrationError(mapping, e);
+						List<String> identityMappingList = new ArrayList<String>();
+
+						Filter forwardSourceRepositoryFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_SOURCE_REPOSITORY_ID, repositoryMapping.getTeamForgeRepositoryId(), true);
+						Filter forwardTargetRepositoryFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_TARGET_REPOSITORY_ID, repositoryMapping.getParticipantRepositoryId(), true);
+						Filter[] forwardFilter = { forwardSourceRepositoryFilter, forwardTargetRepositoryFilter };
+						Filter reverseSourceRepositoryFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_SOURCE_REPOSITORY_ID, repositoryMapping.getParticipantRepositoryId(), true);
+						Filter reverseTargetRepositoryFilter = new Filter(CcfDataProvider.IDENTITY_MAPPING_TARGET_REPOSITORY_ID, repositoryMapping.getTeamForgeRepositoryId(), true);
+						Filter[] reverseFilter = { reverseSourceRepositoryFilter, reverseTargetRepositoryFilter };						
+						Filter[][] filter = { forwardFilter, reverseFilter };
+						
+						IdentityMapping[] identityMappings = getCcfDataProvider().getIdentityMappings(landscape, filter);
+						
+						// First select source = TF, version != -1
+						for (IdentityMapping mapping : identityMappings) {
+							if (mapping.getSourceSystemKind().startsWith("TF")
+									&& !mapping.getArtifactType().equals("attachment")
+									&& !"-1".equals(mapping.getSourceArtifactVersion())
+									&& !"-1".equals(mapping.getTargetArtifactVersion())) {
+								com.collabnet.ccf.api.model.IdentityMapping identityMapping = getIdentityMapping(mapping);
+								if (!identityMappingList.contains(identityMapping.getSourceArtifactId() + identityMapping.getArtifactType())) {
+									identityMapping.setRepositoryMapping(getRepositoryMapping(mapping, repositoryMappings));
+									try {
+										getCcfMasterClient().createIdentityMapping(identityMapping);
+										createdCount++;
+									} catch (Exception e) {
+										handleIdentityMappingMigrationError(mapping, e);
+									}
+									identityMappingList.add(identityMapping.getSourceArtifactId() + identityMapping.getArtifactType());
+									monitor.subTask("Creating CCF Master identity mappings: " + getStatusMessage(""));
 								}
-								identityMappingList.add(identityMapping.getSourceArtifactId() + identityMapping.getArtifactType());
-								monitor.subTask("Creating CCF Master identity mappings: " + getStatusMessage(""));
-							}
-							if (monitor.isCanceled()) {
-								if (createdCount > 0 || notCreatedCount > 0 || alreadyExistedCount > 0) {
-									migrationResults.add(new MigrationResult(getStatusMessage("identity mappings")));
+								if (monitor.isCanceled()) {
+									if (createdCount > 0 || notCreatedCount > 0 || alreadyExistedCount > 0) {
+										migrationResults.add(new MigrationResult(getStatusMessage("identity mappings")));
+									}
+									canceled = true;
+									return;
 								}
-								canceled = true;
-								return;
 							}
 						}
-					}
-
-					// Next, target = TF, version != -1 (and attachments)
-					for (IdentityMapping mapping : identityMappings) {
-						if (mapping.getTargetSystemKind().startsWith("TF")
-								&& (mapping.getArtifactType().equals("attachment") ||
-								(!"-1".equals(mapping.getSourceArtifactVersion())
-								&& !"-1".equals(mapping.getTargetArtifactVersion())))) {
-							com.collabnet.ccf.api.model.IdentityMapping identityMapping = getIdentityMapping(mapping);
-							if (!identityMappingList.contains(identityMapping.getSourceArtifactId() + identityMapping.getArtifactType())) {
-								identityMapping.setRepositoryMapping(getRepositoryMapping(mapping, repositoryMappings));
-								try {
-									getCcfMasterClient().createIdentityMapping(identityMapping);
-									createdCount++;
-								} catch (Exception e) {
-									handleIdentityMappingMigrationError(mapping, e);
+	
+						// Next, target = TF, version != -1 (and attachments)
+						for (IdentityMapping mapping : identityMappings) {
+							if (mapping.getTargetSystemKind().startsWith("TF")
+									&& (mapping.getArtifactType().equals("attachment") ||
+									(!"-1".equals(mapping.getSourceArtifactVersion())
+									&& !"-1".equals(mapping.getTargetArtifactVersion())))) {
+								com.collabnet.ccf.api.model.IdentityMapping identityMapping = getIdentityMapping(mapping);
+								if (!identityMappingList.contains(identityMapping.getSourceArtifactId() + identityMapping.getArtifactType())) {
+									identityMapping.setRepositoryMapping(getRepositoryMapping(mapping, repositoryMappings));
+									try {
+										getCcfMasterClient().createIdentityMapping(identityMapping);
+										createdCount++;
+									} catch (Exception e) {
+										handleIdentityMappingMigrationError(mapping, e);
+									}
+									identityMappingList.add(identityMapping.getSourceArtifactId() + identityMapping.getArtifactType());
+									monitor.subTask("Creating CCF Master identity mappings: " + getStatusMessage(""));
 								}
-								identityMappingList.add(identityMapping.getSourceArtifactId() + identityMapping.getArtifactType());
-								monitor.subTask("Creating CCF Master identity mappings: " + getStatusMessage(""));
-							}
-							if (monitor.isCanceled()) {
-								if (createdCount > 0 || notCreatedCount > 0 || alreadyExistedCount > 0) {
-									migrationResults.add(new MigrationResult(getStatusMessage("identity mappings")));
+								if (monitor.isCanceled()) {
+									if (createdCount > 0 || notCreatedCount > 0 || alreadyExistedCount > 0) {
+										migrationResults.add(new MigrationResult(getStatusMessage("identity mappings")));
+									}
+									canceled = true;
+									return;
 								}
-								canceled = true;
-								return;
-							}
-						}
-					}
-
-					// Next source = TF, version = -1
-					for (IdentityMapping mapping : identityMappings) {
-						if (mapping.getSourceSystemKind().startsWith("TF")
-								&& !mapping.getArtifactType().equals("attachment")
-								&& ("-1".equals(mapping.getSourceArtifactVersion())
-								|| "-1".equals(mapping.getTargetArtifactVersion()))) {
-							com.collabnet.ccf.api.model.IdentityMapping identityMapping = getIdentityMapping(mapping);
-							if (!identityMappingList.contains(identityMapping.getSourceArtifactId() + identityMapping.getArtifactType())) {
-								identityMapping.setRepositoryMapping(getRepositoryMapping(mapping, repositoryMappings));
-								try {
-									getCcfMasterClient().createIdentityMapping(identityMapping);
-									createdCount++;
-								} catch (Exception e) {
-									handleIdentityMappingMigrationError(mapping, e);
-								}
-								identityMappingList.add(identityMapping.getSourceArtifactId() + identityMapping.getArtifactType());
-								monitor.subTask("Creating CCF Master identity mappings: " + getStatusMessage(""));
-							}
-							if (monitor.isCanceled()) {
-								if (createdCount > 0 || notCreatedCount > 0 || alreadyExistedCount > 0) {
-									migrationResults.add(new MigrationResult(getStatusMessage("identity mappings")));
-								}
-								canceled = true;
-								return;
 							}
 						}
-					}
-
-					// Finally target = TF, version = -1
-					for (IdentityMapping mapping : identityMappings) {
-						if (mapping.getTargetSystemKind().startsWith("TF")
-								&& !mapping.getArtifactType().equals("attachment")
-								&& ("-1".equals(mapping.getSourceArtifactVersion())
-								|| "-1".equals(mapping.getTargetArtifactVersion()))) {
-							com.collabnet.ccf.api.model.IdentityMapping identityMapping = getIdentityMapping(mapping);
-							if (!identityMappingList.contains(identityMapping.getSourceArtifactId() + identityMapping.getArtifactType())) {
-								identityMapping.setRepositoryMapping(getRepositoryMapping(mapping, repositoryMappings));
-								try {
-									getCcfMasterClient().createIdentityMapping(identityMapping);
-									createdCount++;
-								} catch (Exception e) {
-									handleIdentityMappingMigrationError(mapping, e);
+	
+						// Next source = TF, version = -1
+						for (IdentityMapping mapping : identityMappings) {
+							if (mapping.getSourceSystemKind().startsWith("TF")
+									&& !mapping.getArtifactType().equals("attachment")
+									&& ("-1".equals(mapping.getSourceArtifactVersion())
+									|| "-1".equals(mapping.getTargetArtifactVersion()))) {
+								com.collabnet.ccf.api.model.IdentityMapping identityMapping = getIdentityMapping(mapping);
+								if (!identityMappingList.contains(identityMapping.getSourceArtifactId() + identityMapping.getArtifactType())) {
+									identityMapping.setRepositoryMapping(getRepositoryMapping(mapping, repositoryMappings));
+									try {
+										getCcfMasterClient().createIdentityMapping(identityMapping);
+										createdCount++;
+									} catch (Exception e) {
+										handleIdentityMappingMigrationError(mapping, e);
+									}
+									identityMappingList.add(identityMapping.getSourceArtifactId() + identityMapping.getArtifactType());
+									monitor.subTask("Creating CCF Master identity mappings: " + getStatusMessage(""));
 								}
-								identityMappingList.add(identityMapping.getSourceArtifactId() + identityMapping.getArtifactType());
-								monitor.subTask("Creating CCF Master identity mappings: " + getStatusMessage(""));
+								if (monitor.isCanceled()) {
+									if (createdCount > 0 || notCreatedCount > 0 || alreadyExistedCount > 0) {
+										migrationResults.add(new MigrationResult(getStatusMessage("identity mappings")));
+									}
+									canceled = true;
+									return;
+								}
 							}
-							if (monitor.isCanceled()) {
-								if (createdCount > 0 || notCreatedCount > 0 || alreadyExistedCount > 0) {
-									migrationResults.add(new MigrationResult(getStatusMessage("identity mappings")));
+						}
+	
+						// Finally target = TF, version = -1
+						for (IdentityMapping mapping : identityMappings) {
+							if (mapping.getTargetSystemKind().startsWith("TF")
+									&& !mapping.getArtifactType().equals("attachment")
+									&& ("-1".equals(mapping.getSourceArtifactVersion())
+									|| "-1".equals(mapping.getTargetArtifactVersion()))) {
+								com.collabnet.ccf.api.model.IdentityMapping identityMapping = getIdentityMapping(mapping);
+								if (!identityMappingList.contains(identityMapping.getSourceArtifactId() + identityMapping.getArtifactType())) {
+									identityMapping.setRepositoryMapping(getRepositoryMapping(mapping, repositoryMappings));
+									try {
+										getCcfMasterClient().createIdentityMapping(identityMapping);
+										createdCount++;
+									} catch (Exception e) {
+										handleIdentityMappingMigrationError(mapping, e);
+									}
+									identityMappingList.add(identityMapping.getSourceArtifactId() + identityMapping.getArtifactType());
+									monitor.subTask("Creating CCF Master identity mappings: " + getStatusMessage(""));
 								}
-								canceled = true;
-								return;
+								if (monitor.isCanceled()) {
+									if (createdCount > 0 || notCreatedCount > 0 || alreadyExistedCount > 0) {
+										migrationResults.add(new MigrationResult(getStatusMessage("identity mappings")));
+									}
+									canceled = true;
+									return;
+								}
 							}
 						}
 					}
 
 					if (createdCount > 0 || notCreatedCount > 0 || alreadyExistedCount > 0) {
 						migrationResults.add(new MigrationResult(getStatusMessage("identity mappings")));
-					}
-					monitor.worked(1);
-					if (monitor.isCanceled()) {
-						canceled = true;
-						return;
-					}
-					
-					if (migrateHospitalEntries) {
-						List<String> hospitalList = new ArrayList<String>();
-						HospitalEntry[] existingHospitalEntries = getCcfMasterClient().getHospitalEntries(false);
-						for (HospitalEntry existingHospitalEntry : existingHospitalEntries) {
-							hospitalList.add(existingHospitalEntry.getSourceArtifactId());
-						}
-						
-						monitor.subTask("Creating CCF Master hospital entries:");
-						createdCount = 0;
-						notCreatedCount = 0;
-						alreadyExistedCount = 0;
-						Patient[] hospitalEntries = ccfDataProvider.getPatients(landscape, filter);
-						for (Patient patient : hospitalEntries) {
-							if (!patient.isFixed()) {
-								if (patient.getSourceSystemKind().startsWith("TF") || patient.getTargetSystemKind().startsWith("TF")) {
-									if (!hospitalList.contains(patient.getSourceArtifactId())) {
-										HospitalEntry hospitalEntry = new HospitalEntry();
-										hospitalEntry.setAdaptorName(patient.getAdaptorName());
-										hospitalEntry.setArtifactType(patient.getArtifactType());
-										hospitalEntry.setCauseExceptionClassName(patient.getCauseExceptionClassName());
-										hospitalEntry.setCauseExceptionMessage(patient.getCauseExceptionMessage());
-										hospitalEntry.setData(patient.getData());
-										hospitalEntry.setDataType(patient.getDataType());
-										hospitalEntry.setDescription("This hospital entry has been added by CCF GUI during migration");
-										hospitalEntry.setErrorCode(patient.getErrorCode());
-										hospitalEntry.setExceptionClassName(patient.getExceptionClassName());
-										hospitalEntry.setExceptionMessage(patient.getExceptionMessage());
-										hospitalEntry.setFixed(patient.isFixed());
-										hospitalEntry.setGenericArtifact(patient.getGenericArtifact());
-										hospitalEntry.setOriginatingComponent(patient.getOriginatingComponent());
-										hospitalEntry.setRepositoryMappingDirection(getRepositoryMappingDirection(patient, repositoryMappingDirections));
-										hospitalEntry.setReprocessed(patient.isReprocessed());
-										hospitalEntry.setSourceArtifactId(patient.getSourceArtifactId());
-										hospitalEntry.setSourceArtifactVersion(patient.getSourceArtifactVersion());
-										hospitalEntry.setSourceLastModificationTime(patient.getSourceLastModificationTime());
-										hospitalEntry.setStackTrace(patient.getStackTrace());
-										hospitalEntry.setTargetArtifactId(patient.getTargetArtifactId());
-										hospitalEntry.setTargetArtifactVersion(patient.getTargetArtifactVersion());
-										hospitalEntry.setTargetLastModificationTime(patient.getTargetLastModificationTime());
-										hospitalEntry.setTimestamp(patient.getTimeStamp());
-										getCcfMasterClient().createHospitalEntry(hospitalEntry);
-										createdCount++;
-										monitor.subTask("Creating CCF Master hospital entries: " + createdCount);
-										if (monitor.isCanceled()) {
-											if (createdCount > 0 || notCreatedCount > 0 || alreadyExistedCount > 0) {
-												migrationResults.add(new MigrationResult(getStatusMessage("hospital entries")));
-											}
-											canceled = true;
-											return;
-										}
-									}
-								}
-							}
-						}
-						if (createdCount > 0 || notCreatedCount > 0 || alreadyExistedCount > 0) {
-							migrationResults.add(new MigrationResult(getStatusMessage("hospital entries")));
-						}
 					}
 					monitor.worked(1);
 					if (monitor.isCanceled()) {
@@ -1096,6 +1008,65 @@ public class MigrateLandscapeWizard extends Wizard {
 		return exception == null && !canceled;
 	}
 	
+	public List<String> getProjectIds() {
+		return projectIds;
+	}
+
+	protected Map<SynchronizationStatus, String> getProjectMappingMap(IProgressMonitor monitor) throws RemoteException {
+		monitor.subTask("Compiling TeamForge project list");
+		projectMappingMap = new HashMap<SynchronizationStatus, String>();
+		projectIds = new ArrayList<String>();
+		projectMap = new HashMap<String, ProjectDO>();
+		trackerMap = new HashMap<String, TrackerDO>();
+		for (SynchronizationStatus projectMapping : projectMappings) {
+			String repositoryId = null;
+			if (projectMapping.getSourceSystemKind().startsWith("TF")) {
+				repositoryId = projectMapping.getSourceRepositoryId();
+			}
+			else if (projectMapping.getTargetSystemKind().startsWith("TF")) {
+				repositoryId = projectMapping.getTargetRepositoryId();
+			}
+			if (repositoryId != null) {
+				String projectId = null;
+				if (repositoryId.startsWith("proj")) {
+					int index = repositoryId.indexOf("-");
+					if (index == -1) {
+						projectId = repositoryId;
+					} else {
+						projectId = repositoryId.substring(0, index);
+					}
+				}
+				else if (repositoryId.startsWith("tracker")) {
+					String trackerId = null;
+					int index = repositoryId.indexOf("-");
+					if (index == -1) {
+						trackerId = repositoryId;
+					} else {
+						trackerId = repositoryId.substring(0, index);
+					}
+					if (trackerId != null) {
+						TrackerDO tracker = teamForgeClient.getConnection().getTrackerClient().getTrackerData(trackerId);
+						if (tracker != null) {
+							projectId = tracker.getProjectId();
+							trackerMap.put(tracker.getId(), tracker);
+						}
+					}
+				}
+				if (projectId != null) {
+					projectMappingMap.put(projectMapping, projectId);
+				}
+				if (projectId != null && !projectIds.contains(projectId)) {
+					ProjectDO projectDO = teamForgeClient.getConnection().getTeamForgeClient().getProjectData(projectId);
+					if (projectDO != null) {
+						projectIds.add(projectId);
+						projectMap.put(projectId, projectDO);
+					}
+				}
+			}
+		}
+		return projectMappingMap;
+	}
+
 	private com.collabnet.ccf.api.model.IdentityMapping getIdentityMapping(IdentityMapping mapping) {
 		String childSourceArtifactId;
 		String childSourceRepositoryId;
@@ -1184,11 +1155,65 @@ public class MigrateLandscapeWizard extends Wizard {
 	public Landscape getLandscape() {
 		return landscape;
 	}
-
-	private CcfMasterClient getCcfMasterClient() {
-		return CcfMasterClient.getClient(ccfMasterPage.getCcfMasterUrl(), null, ccfMasterPage.getCcfMasterUser(), ccfMasterPage.getCcfMasterPassword(), true);
+	
+	public SynchronizationStatus[] getProjectMappings(IProgressMonitor monitor) throws Exception {
+		if (projectMappings == null) {
+			monitor.subTask("Retrieving CCF 1.x project mappings");							
+			projectMappings = getUnmigratedProjectMappings(getCcfDataProvider().getSynchronizationStatuses(landscape, null));
+		}
+		return projectMappings;
 	}
 	
+	private SynchronizationStatus[] getUnmigratedProjectMappings(SynchronizationStatus[] projectMappings) {
+		RepositoryMappingDirection[] existingMappings = null;
+		try {
+			existingMappings = getCcfMasterClient().getRepositoryMappingDirections();
+		} catch (Exception e) {}
+		if (existingMappings == null || existingMappings.length == 0) {
+			return projectMappings;
+		}
+		List<SynchronizationStatus> unmigratedMappingList = new ArrayList<SynchronizationStatus>();
+		for (SynchronizationStatus projectMapping : projectMappings) {
+			if (!mappingExists(projectMapping, existingMappings)) {
+				unmigratedMappingList.add(projectMapping);
+			}
+		}
+		SynchronizationStatus[] unmigratedMappings = new SynchronizationStatus[unmigratedMappingList.size()];
+		unmigratedMappingList.toArray(unmigratedMappings);
+		return unmigratedMappings;
+	}
+	
+	private boolean mappingExists(SynchronizationStatus mapping, RepositoryMappingDirection[] existingMappings) {
+		for (RepositoryMappingDirection existingMapping : existingMappings) {
+			if (existingMapping.getDirection().equals(Directions.FORWARD) && mapping.getSourceRepositoryId().equals(existingMapping.getRepositoryMapping().getTeamForgeRepositoryId()) && mapping.getTargetRepositoryId().equals(existingMapping.getRepositoryMapping().getParticipantRepositoryId())) {
+				return true;
+			}
+			if (existingMapping.getDirection().equals(Directions.REVERSE) && mapping.getTargetRepositoryId().equals(existingMapping.getRepositoryMapping().getTeamForgeRepositoryId()) && mapping.getSourceRepositoryId().equals(existingMapping.getRepositoryMapping().getParticipantRepositoryId())) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public CcfDataProvider getCcfDataProvider() {
+		if (ccfDataProvider == null) {
+			ccfDataProvider = new CcfDataProvider();
+		}
+		return ccfDataProvider;
+	}
+	
+	public CcfMasterClient getCcfMasterClient() {
+		return CcfMasterClient.getClient(ccfMasterPage.getCcfMasterUrl(), null, ccfMasterPage.getCcfMasterUser(), ccfMasterPage.getCcfMasterPassword(), true);
+	}
+
+	public Map<String, ProjectDO> getProjectMap() {
+		return projectMap;
+	}
+
+	public Map<String, TrackerDO> getTrackerMap() {
+		return trackerMap;
+	}
+
 	private String getParticipantDescription(String type) {
 		String description;
 		if (type.equals("QC")) {
@@ -1260,29 +1285,8 @@ public class MigrateLandscapeWizard extends Wizard {
 		}
 		return null;
 	}
-	
-	private RepositoryMappingDirection getRepositoryMappingDirection(Patient patient, RepositoryMappingDirection[] repositoryMappingDirections) {
-		String teamForgeRepositoryId;
-		String participantRepositoryId;
-		Directions directions;
-		if (patient.getTargetSystemKind().startsWith("TF")) {
-			teamForgeRepositoryId = patient.getTargetRepositoryId();
-			participantRepositoryId = patient.getSourceRepositoryId();
-			directions = Directions.REVERSE;
-		} else {
-			teamForgeRepositoryId = patient.getSourceRepositoryId();
-			participantRepositoryId = patient.getTargetRepositoryId();
-			directions = Directions.FORWARD;
-		}
-		for (RepositoryMappingDirection repositoryMappingDirection : repositoryMappingDirections) {
-			if (repositoryMappingDirection.getDirection().equals(directions) && repositoryMappingDirection.getRepositoryMapping().getTeamForgeRepositoryId().equals(teamForgeRepositoryId) && repositoryMappingDirection.getRepositoryMapping().getParticipantRepositoryId().equals(participantRepositoryId)) {
-				return repositoryMappingDirection;
-			}
-		}
-		return null;
-	}		
-	
-	private RepositoryMappingDirection getRepositoryMappinDirection(RepositoryMappingDirection checkMappingDirection, RepositoryMappingDirection[] existingDirections) {
+
+	private RepositoryMappingDirection getRepositoryMappingDirection(RepositoryMappingDirection checkMappingDirection, RepositoryMappingDirection[] existingDirections) {
 		if (checkMappingDirection.getRepositoryMapping() != null) {
 			for (RepositoryMappingDirection repositoryMappingDirection: existingDirections) {
 				if (repositoryMappingDirection.getRepositoryMapping() != null && repositoryMappingDirection.getRepositoryMapping().getId() == checkMappingDirection.getRepositoryMapping().getId() &&
