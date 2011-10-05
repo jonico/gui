@@ -2,7 +2,7 @@
 <feature
       id="com.collabnet.ccf.teamforge.feature"
       label="TeamForge Connector for CCF"
-      version="1.5.0.6"
+      version="1.5.0.7"
       provider-name="CollabNet"
       plugin="com.collabnet.ccf.teamforge">
 
