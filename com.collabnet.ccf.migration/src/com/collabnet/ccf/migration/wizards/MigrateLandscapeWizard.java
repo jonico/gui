@@ -13,6 +13,7 @@ package com.collabnet.ccf.migration.wizards;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
 import java.rmi.RemoteException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -132,7 +133,8 @@ public class MigrateLandscapeWizard extends Wizard {
 						otherType = landscape.getType2();
 					} else {
 						otherType = landscape.getType1();
-					}		
+					}	
+
 					Participant[] participants = getCcfMasterClient().getParticipants();
 					Participant teamForgeParticipant = null;
 					Participant otherParticipant = null;
@@ -173,7 +175,7 @@ public class MigrateLandscapeWizard extends Wizard {
 						canceled = true;
 						return;
 					}
-					
+
 					ParticipantConfig teamForgeParticipantConfig = new ParticipantConfig();
 					teamForgeParticipantConfig.setName(ParticipantConfig.TF_URL);
 					if (landscape.getType2().equals("TF")) {
@@ -182,11 +184,17 @@ public class MigrateLandscapeWizard extends Wizard {
 						teamForgeParticipantConfig.setVal(landscape.getUrl(1));
 					}
 					teamForgeParticipantConfig.setParticipant(teamForgeParticipant);
-					createOrUpdateParticipantConfig(getCcfMasterClient(),
+					if (createOrUpdateParticipantConfig(getCcfMasterClient(),
 							teamForgeParticipant,
 							teamForgeParticipantAlreadyExists,
-							teamForgeParticipantConfig);
-					migrationResults.add(new MigrationResult("TeamForge participant properties set in CCF Master."));
+							teamForgeParticipantConfig)) {
+						migrationResults.add(new MigrationResult("TeamForge participant properties set in CCF Master."));
+					}
+					else {
+						String message = "CCF Master landscape already exists and refers to a different TeamForge site.";
+						migrationResults.add(new MigrationResult(message, MigrationResult.ERROR, new Exception(message)));
+						return;
+					}
 					monitor.worked(1);
 					if (monitor.isCanceled()) {
 						canceled = true;
@@ -234,11 +242,24 @@ public class MigrateLandscapeWizard extends Wizard {
 						otherParticipantConfig.setVal(landscape.getUrl(2));
 					}		
 					otherParticipantConfig.setParticipant(otherParticipant);
-					createOrUpdateParticipantConfig(getCcfMasterClient(),
+					if (createOrUpdateParticipantConfig(getCcfMasterClient(),
 							otherParticipant,
 							otherParticipantAlreadyExists,
-							otherParticipantConfig);
-					migrationResults.add(new MigrationResult(getParticipantDescription(otherType) + " participant properties set in CCF Master."));
+							otherParticipantConfig)) {
+						migrationResults.add(new MigrationResult(getParticipantDescription(otherType) + " participant properties set in CCF Master."));
+					}
+					else {
+						String participantDescription;
+						if (otherType.equals("SWP")) {
+							participantDescription = "ScrumWorks Pro";
+						}
+						else {
+							participantDescription = "Quality Center";
+						}
+						String message = "CCF Master landscape already exists and refers to a different " + participantDescription + " site.";
+						migrationResults.add(new MigrationResult(message, MigrationResult.ERROR, new Exception(message)));
+						return;
+					}
 					monitor.worked(1);
 					if (monitor.isCanceled()) {
 						canceled = true;
@@ -1342,18 +1363,24 @@ public class MigrateLandscapeWizard extends Wizard {
 		}
 	}
 
-	private void createOrUpdateParticipantConfig(CcfMasterClient ccfMasterClient, Participant participant, boolean participantAlreadyExists, ParticipantConfig participantConfig) throws Exception {
+	private boolean createOrUpdateParticipantConfig(CcfMasterClient ccfMasterClient, Participant participant, boolean participantAlreadyExists, ParticipantConfig participantConfig) throws Exception {
 		if (participantAlreadyExists) {
 			ParticipantConfig updateConfig = getParticipantConfig(participant, participantConfig.getName());
 			if (updateConfig == null) {
 				ccfMasterClient.createParticipantConfig(participantConfig);
 			} else {
+				URL currentUrl = new URL(updateConfig.getVal());
+				URL newUrl = new URL(participantConfig.getVal());
+				if (!currentUrl.getHost().equals(newUrl.getHost())) {
+					return false;
+				}
 				updateConfig.setVal(participantConfig.getVal());
 				ccfMasterClient.updateParticipantConfig(updateConfig);
 			}
 		} else {
 			ccfMasterClient.createParticipantConfig(participantConfig);
 		}
+		return true;
 	}
 
 	private void createOrUpdateDirectionConfig(CcfMasterClient ccfMasterClient, Direction direction, boolean directionAlreadyExists, DirectionConfig directionConfig) throws Exception {
