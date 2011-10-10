@@ -178,7 +178,6 @@ public class MigrateLandscapeWizardMappingSelectionPage extends WizardPage {
 	public void setVisible(boolean visible) {
 		setErrorMessage(null);
 		exception = null;
-		setPageComplete(true);
 		if (visible && projectMappings == null) {
 			IRunnableWithProgress runnable = new IRunnableWithProgress() {				
 				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
@@ -202,6 +201,12 @@ public class MigrateLandscapeWizardMappingSelectionPage extends WizardPage {
 				treeViewer.expandAll();
 				treeViewer.setAllChecked(true);
 				updateSelectedProjectMappings();
+				if (projectMappings == null || projectMappings.length == 0) {
+					setErrorMessage("There are no unmigrated project mappings to migrate.");
+				}
+				else {
+					setPageComplete(true);
+				}
 			}
 		};
 		if (exception != null) {

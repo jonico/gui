@@ -28,7 +28,12 @@ public class CcfDialog extends TrayDialog {
 		saveLocation();
 		super.okPressed();
 	}
-	
+
+	@Override
+	public boolean isHelpAvailable() {
+		return false;
+	}
+
 	public IDialogSettings getSettings() {
 		return settings;
 	}
