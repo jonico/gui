@@ -26,8 +26,10 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.IDialogSettings;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.wizard.Wizard;
+import org.eclipse.swt.widgets.Display;
 
 import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.api.CcfMasterClient;
@@ -80,6 +82,7 @@ public class MigrateLandscapeWizard extends Wizard {
 	private List<MigrationResult> migrationResults;
 	private Exception exception;
 	private boolean canceled;
+	private boolean showMigrationResults;
 	
 	private ParticipantConfig[] participantConfigs;
 	private LandscapeConfig[] landscapeConfigs;
@@ -114,13 +117,61 @@ public class MigrateLandscapeWizard extends Wizard {
 		migrationResults = new ArrayList<MigrationResult>();
 		exception = null;
 		canceled = false;
+		showMigrationResults = true;
 		
 		IRunnableWithProgress runnable = new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 				String taskName = "Migrating landscape";
 				monitor.setTaskName(taskName);
 				monitor.beginTask(taskName, 32);	
-				try {					
+				try {	
+					projectMappings = mappingPage.getSelectedProjectMappings();
+					if (projectMappings == null) {
+						projectMappings = getProjectMappings(monitor);
+					}
+					else {
+						projectIds = mappingPage.getSelectedProjectIds();
+					}
+					boolean resumedMappingSelected = false;
+					for (SynchronizationStatus projectMapping : projectMappings) {
+						if (!projectMapping.isPaused()) {
+							resumedMappingSelected = true;
+							break;
+						}
+					}
+					if (resumedMappingSelected) {
+						Display.getDefault().syncExec(new Runnable() {						
+							public void run() {
+								if (!MessageDialog.openConfirm(Display.getDefault().getActiveShell(), "Migrate Landscape to CCF 2.x", "Before migration starts, all selected CCF 1.x project mappings will be paused.  This is to prevent situation where CCF 1.x and CCF 2.x are trying to synchronize the same entities which might result in conflicts and duplicate artifacts. After the migration has been finished, please resume the repository mapping directions in CCF 2.x again and make sure that they are not resumed again in CCF 1.x. The reason this migrator does not automatically delete CCF 1.x project mappings after successful migration is that you should still have the chance to fall back to CCF 1.x if you are not satisfied with the migration result.\n\nPause selected CCF 1.x project mappings and continue with migration?")) {
+									canceled = true;
+									showMigrationResults = false;
+								}
+							}
+						});
+						if (canceled == true) {
+							return;
+						}
+						monitor.subTask("Pausing CCF 1.x project mappings");
+						for (SynchronizationStatus projectMapping : projectMappings) {
+							if (!projectMapping.isPaused()) {
+								getCcfDataProvider().pauseSynchronization(projectMapping);
+							}
+						}
+					}
+					monitor.worked(1);
+					if (monitor.isCanceled()) {
+						canceled = true;
+						return;
+					}
+					
+					if (projectMappingMap == null) {						
+						projectMappingMap = getProjectMappingMap(monitor);
+					}
+					monitor.worked(1);
+					if (monitor.isCanceled()) {
+						canceled = true;
+						return; 
+					}
 					teamForgeClient.getConnection().login();
 					if (!teamForgeClient.getConnection().supports54()) {
 						exception = new Exception("TeamForge 5.4 or higher is required to migrate landscape.");
@@ -585,28 +636,6 @@ public class MigrateLandscapeWizard extends Wizard {
 					}
 					migrationResults.add(new MigrationResult("Direction " + reverse.getDescription() + " (REVERSE) properties set in CCF Master."));
 
-					projectMappings = mappingPage.getSelectedProjectMappings();
-					if (projectMappings == null) {
-						projectMappings = getProjectMappings(monitor);
-					}
-					else {
-						projectIds = mappingPage.getSelectedProjectIds();
-					}
-					monitor.worked(1);
-					if (monitor.isCanceled()) {
-						canceled = true;
-						return;
-					}
-					
-					if (projectMappingMap == null) {						
-						projectMappingMap = getProjectMappingMap(monitor);
-					}
-					monitor.worked(1);
-					if (monitor.isCanceled()) {
-						canceled = true;
-						return; 
-					}
-
 					Map<String, ExternalApp> externalAppMap = new HashMap<String, ExternalApp>();
 					monitor.subTask("Creating CCF Master external applications:");
 					ExternalApp[] externalApps = getCcfMasterClient().getExternalApps(ccfMasterLandscape, true);
@@ -1015,15 +1044,17 @@ public class MigrateLandscapeWizard extends Wizard {
 			migrationResults.add(new MigrationResult(exception));
 		}
 		
-		if (canceled) {
-			migrationResults.add(new MigrationResult(new Exception("Migration canceled by user.")));
-		}
-		
-		MigrationResult[] migrationResultArray = new MigrationResult[migrationResults.size()];
-		migrationResults.toArray(migrationResultArray);
-		MigrateLandscapeResultsDialog dialog = new MigrateLandscapeResultsDialog(getShell(), migrationResultArray);
-		if (dialog.open() == MigrateLandscapeResultsDialog.CANCEL) {
-			return false;
+		if (showMigrationResults) {
+			if (canceled) {
+				migrationResults.add(new MigrationResult(new Exception("Migration canceled by user.")));
+			}
+			
+			MigrationResult[] migrationResultArray = new MigrationResult[migrationResults.size()];
+			migrationResults.toArray(migrationResultArray);
+			MigrateLandscapeResultsDialog dialog = new MigrateLandscapeResultsDialog(getShell(), migrationResultArray);
+			if (dialog.open() == MigrateLandscapeResultsDialog.CANCEL) {
+				return false;
+			}
 		}
 		
 		return exception == null && !canceled;
