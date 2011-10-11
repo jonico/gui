@@ -123,7 +123,8 @@ public class MigrateLandscapeWizard extends Wizard {
 			public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 				String taskName = "Migrating landscape";
 				monitor.setTaskName(taskName);
-				monitor.beginTask(taskName, 32);	
+				int taskCount = 25 + (mappingPage.getSelectedProjectMappings().length * 2) + mappingPage.getSelectedRepositoryMappings().length;
+				monitor.beginTask(taskName, taskCount);	
 				try {	
 					projectMappings = mappingPage.getSelectedProjectMappings();
 					if (projectMappings == null) {
@@ -167,11 +168,7 @@ public class MigrateLandscapeWizard extends Wizard {
 					if (projectMappingMap == null) {						
 						projectMappingMap = getProjectMappingMap(monitor);
 					}
-					monitor.worked(1);
-					if (monitor.isCanceled()) {
-						canceled = true;
-						return; 
-					}
+
 					teamForgeClient.getConnection().login();
 					if (!teamForgeClient.getConnection().supports54()) {
 						exception = new Exception("TeamForge 5.4 or higher is required to migrate landscape.");
@@ -218,7 +215,6 @@ public class MigrateLandscapeWizard extends Wizard {
 							teamForgeParticipant.setTimezone(landscape.getTimezone1());
 						}
 						teamForgeParticipant = getCcfMasterClient().createParticipant(teamForgeParticipant);
-						monitor.worked(1);
 						migrationResults.add(new MigrationResult("TeamForge participant created in CCF Master."));
 					}
 					monitor.worked(1);
@@ -271,7 +267,6 @@ public class MigrateLandscapeWizard extends Wizard {
 							otherParticipant.setTimezone(landscape.getTimezone2());
 						}
 						otherParticipant = getCcfMasterClient().createParticipant(otherParticipant);
-						monitor.worked(1);
 						migrationResults.add(new MigrationResult(getParticipantDescription(otherType) + " participant created in CCF Master."));
 					}
 					monitor.worked(1);
@@ -719,11 +714,11 @@ public class MigrateLandscapeWizard extends Wizard {
 								return;
 							}
 						}
-					}
-					monitor.worked(1);
-					if (monitor.isCanceled()) {
-						canceled = true;
-						return;
+						monitor.worked(1);
+						if (monitor.isCanceled()) {
+							canceled = true;
+							return;
+						}
 					}
 					
 					monitor.subTask("Creating CCF Master repository mapping directions:");
@@ -860,15 +855,14 @@ public class MigrateLandscapeWizard extends Wizard {
 								return;
 							}
 						}
-						
+						monitor.worked(1);
+						if (monitor.isCanceled()) {
+							canceled = true;
+							return;
+						}						
 					}
 					repositoryMappingDirections = getCcfMasterClient().getRepositoryMappingDirections(ccfMasterLandscape, true);
-					monitor.worked(1);
-					if (monitor.isCanceled()) {
-						canceled = true;
-						return;
-					}
-					
+				
 					monitor.subTask("Creating CCF Master identity mappings:");
 					
 					createdCount = 0;
@@ -1000,12 +994,12 @@ public class MigrateLandscapeWizard extends Wizard {
 								}
 							}
 						}
+						monitor.worked(1);
 					}
 
 					if (createdCount > 0 || notCreatedCount > 0 || alreadyExistedCount > 0) {
 						migrationResults.add(new MigrationResult(getStatusMessage("identity mappings")));
 					}
-					monitor.worked(1);
 					if (monitor.isCanceled()) {
 						canceled = true;
 						return;
