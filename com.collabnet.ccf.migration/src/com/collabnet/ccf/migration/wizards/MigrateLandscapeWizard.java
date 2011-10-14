@@ -61,6 +61,7 @@ import com.collabnet.ccf.model.Landscape;
 import com.collabnet.ccf.model.SynchronizationStatus;
 import com.collabnet.ccf.schemageneration.XSLTInitialMFDGeneratorScriptGenerator;
 import com.collabnet.teamforge.api.main.ProjectDO;
+import com.collabnet.teamforge.api.main.UserDO;
 import com.collabnet.teamforge.api.tracker.TrackerDO;
 
 public class MigrateLandscapeWizard extends Wizard {
@@ -174,6 +175,13 @@ public class MigrateLandscapeWizard extends Wizard {
 						exception = new Exception("TeamForge 5.4 or higher is required to migrate landscape.");
 						return;
 					}
+					
+					UserDO userDO = teamForgeClient.getConnection().getTeamForgeClient().getUserData(ccfMasterPage.getCcfMasterUser());
+					if (!userDO.getSuperUser()) {
+						exception = new Exception("TeamForge site admin privileges are required to migrate landscape.");
+						return;						
+					}
+					
 					monitor.worked(1);
 					monitor.subTask("Checking for existing CCF Master participants");
 					String otherType;
