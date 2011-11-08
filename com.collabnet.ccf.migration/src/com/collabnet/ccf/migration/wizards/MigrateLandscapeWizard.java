@@ -1257,7 +1257,7 @@ public class MigrateLandscapeWizard extends Wizard {
 	}
 	
 	public CcfMasterClient getCcfMasterClient() {
-		return CcfMasterClient.getClient(ccfMasterPage.getCcfMasterUrl(), null, ccfMasterPage.getCcfMasterUser(), ccfMasterPage.getCcfMasterPassword(), true);
+		return CcfMasterClient.getClient(com.collabnet.ccf.migration.Activator.getPlatformProxy(ccfMasterPage.getCcfMasterUrl()), ccfMasterPage.getCcfMasterUrl(), null, ccfMasterPage.getCcfMasterUser(), ccfMasterPage.getCcfMasterPassword(), true);
 	}
 
 	public Map<String, ProjectDO> getProjectMap() {

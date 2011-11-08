@@ -10,14 +10,21 @@
  ******************************************************************************/
 package com.collabnet.ccf.migration;
 
+import org.eclipse.core.net.proxy.IProxyData;
+import org.eclipse.core.net.proxy.IProxyService;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
+import org.osgi.util.tracker.ServiceTracker;
+
+import com.collabnet.ccf.api.Proxy;
 
 /**
  * The activator class controls the plug-in life cycle
  */
 public class Activator extends AbstractUIPlugin {
+	@SuppressWarnings("rawtypes")
+	private ServiceTracker proxyServiceTracker;
 
 	// The plug-in ID
 	public static final String PLUGIN_ID = "com.collabnet.ccf.migration"; //$NON-NLS-1$
@@ -41,9 +48,12 @@ public class Activator extends AbstractUIPlugin {
 	 * (non-Javadoc)
 	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext)
 	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
+		proxyServiceTracker = new ServiceTracker(getBundle().getBundleContext(), IProxyService.class.getName(), null);
+		proxyServiceTracker.open();	
 	}
 
 	/*
@@ -52,6 +62,7 @@ public class Activator extends AbstractUIPlugin {
 	 */
 	public void stop(BundleContext context) throws Exception {
 		plugin = null;
+		proxyServiceTracker.close();
 		super.stop(context);
 	}
 
@@ -63,6 +74,32 @@ public class Activator extends AbstractUIPlugin {
 	public static Activator getDefault() {
 		return plugin;
 	}
+	
+	public IProxyService getProxyService() {
+		IProxyService proxyService = null;
+		if (proxyServiceTracker != null) {
+			proxyService = (IProxyService)proxyServiceTracker.getService();
+		}
+		return proxyService;
+	}    	
+	
+	@SuppressWarnings("deprecation")
+	public static Proxy getPlatformProxy(String url) {
+		IProxyService service = getDefault().getProxyService();
+		if (service != null && service.isProxiesEnabled()) {
+			String host = Proxy.getDomain(url);
+			IProxyData data = null;
+			if (url.toLowerCase().startsWith("https://")) //$NON-NLS-1$
+				data = service.getProxyDataForHost(host, IProxyData.HTTPS_PROXY_TYPE);
+			else
+				data = service.getProxyDataForHost(host, IProxyData.HTTP_PROXY_TYPE);
+			if (data != null && data.getHost() != null) {
+				return new Proxy(data.getHost(), data.getPort(), data.isRequiresAuthentication(),
+						data.getUserId(), data.getPassword());
+			}
+		}
+		return null;
+	}	
 
 	@Override
 	protected void initializeImageRegistry(ImageRegistry reg) {
