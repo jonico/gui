@@ -819,7 +819,7 @@ public class MigrateLandscapeWizard extends Wizard {
 									}
 									if (mfdFile.exists()) {
 										XSLTInitialMFDGeneratorScriptGenerator generator = new XSLTInitialMFDGeneratorScriptGenerator();
-										Document mfdDocument = generator.generateCreateInitialMFDScript(mfdFile.getAbsolutePath(), projectMapping.getSourceRepositorySchemaFileName() + ".xsd", projectMapping.getTargetRepositorySchemaFileName() + ".xsd"); //$NON-NLS-1$ //$NON-NLS-2$
+										Document mfdDocument = generator.generateCreateInitialMFDScript(mfdFile.getAbsolutePath(), projectMapping.getSourceRepositorySchemaFileName(), projectMapping.getTargetRepositorySchemaFileName()); //$NON-NLS-1$ //$NON-NLS-2$
 										FieldMappingRule mfdFieldMappingRule = getFieldMappingRule(FieldMappingRuleType.MAPFORCE_MFD, mfdFile);
 										mfdFieldMappingRule.setXmlContent(mfdDocument.asXML());
 										fieldMappingRules.add(mfdFieldMappingRule);
