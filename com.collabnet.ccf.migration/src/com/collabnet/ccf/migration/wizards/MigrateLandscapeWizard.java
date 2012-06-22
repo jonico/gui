@@ -485,7 +485,6 @@ public class MigrateLandscapeWizard extends Wizard {
 						monitor.subTask("Creating CCF Master directions");
 					}
 					
-					boolean forwardAlreadyExists = forward != null;
 					if (forward == null) {						
 						forward = new Direction();
 						forward.setLandscape(ccfMasterLandscape);
@@ -529,7 +528,7 @@ public class MigrateLandscapeWizard extends Wizard {
 					}	
 					forwardConfig.setDirection(forward);
 					forwardConfig.setName(DirectionConfig.LOG_MESSAGE_TEMPLATE);
-					createOrUpdateDirectionConfig(getCcfMasterClient(), forward, forwardAlreadyExists, forwardConfig);
+					createOrUpdateDirectionConfig(getCcfMasterClient(), forward, forwardConfig);
 					monitor.worked(1);
 					if (monitor.isCanceled()) {
 						canceled = true;
@@ -538,23 +537,13 @@ public class MigrateLandscapeWizard extends Wizard {
 					if (teamForgeMaxAttachmentSize != null) {
 						forwardConfig.setName(DirectionConfig.TF_MAX_ATTACHMENT_SIZE);
 						forwardConfig.setVal(teamForgeMaxAttachmentSize);
-						createOrUpdateDirectionConfig(getCcfMasterClient(), forward, forwardAlreadyExists, forwardConfig);
+						createOrUpdateDirectionConfig(getCcfMasterClient(), forward, forwardConfig);
 					}
 					monitor.worked(1);
 					if (monitor.isCanceled()) {
 						canceled = true;
 						return;
 					}
-					if (otherMaxAttachmentSize != null) {
-						if (otherType.equals("SWP")) {
-							forwardConfig.setName(DirectionConfig.SWP_MAX_ATTACHMENT_SIZE);
-						}
-						else {
-							forwardConfig.setName(DirectionConfig.QC_MAX_ATTACHMENT_SIZE);
-						}
-						forwardConfig.setVal(otherMaxAttachmentSize);
-						createOrUpdateDirectionConfig(getCcfMasterClient(), forward, forwardAlreadyExists, forwardConfig);
-					}	
 					monitor.worked(1);
 					if (monitor.isCanceled()) {
 						canceled = true;
@@ -562,7 +551,6 @@ public class MigrateLandscapeWizard extends Wizard {
 					}
 					migrationResults.add(new MigrationResult("Direction " + forward.getDescription() + " (FORWARD) properties set in CCF Master."));
 					
-					boolean reverseAlreadyExists = reverse != null;
 					if (reverse == null) {
 						reverse = new Direction();
 						reverse.setLandscape(ccfMasterLandscape);
@@ -575,6 +563,10 @@ public class MigrateLandscapeWizard extends Wizard {
 						reverse.setShouldStartAutomatically(Boolean.valueOf(false));
 						reverse = getCcfMasterClient().createDirection(reverse);
 						migrationResults.add(new MigrationResult("Direction " + reverse.getDescription() + " (REVERSE) created in CCF Master."));
+						
+						// Null out existing direction configs because next time we check them we want them to be retrieved again since creating
+						// the reverse direction will have resulted in more configs being created automatically.
+						directionConfigs = null;
 					}
 					monitor.worked(1);
 					if (monitor.isCanceled()) {
@@ -606,16 +598,11 @@ public class MigrateLandscapeWizard extends Wizard {
 					}
 					reverseConfig.setDirection(reverse);
 					reverseConfig.setName(DirectionConfig.LOG_MESSAGE_TEMPLATE);
-					createOrUpdateDirectionConfig(getCcfMasterClient(), reverse, reverseAlreadyExists, reverseConfig);
+					createOrUpdateDirectionConfig(getCcfMasterClient(), reverse, reverseConfig);
 					monitor.worked(1);
 					if (monitor.isCanceled()) {
 						canceled = true;
 						return;
-					}
-					if (teamForgeMaxAttachmentSize != null) {
-						reverseConfig.setName(DirectionConfig.TF_MAX_ATTACHMENT_SIZE);
-						reverseConfig.setVal(teamForgeMaxAttachmentSize);
-						createOrUpdateDirectionConfig(getCcfMasterClient(), reverse, reverseAlreadyExists, reverseConfig);
 					}
 					monitor.worked(1);
 					if (monitor.isCanceled()) {
@@ -630,7 +617,7 @@ public class MigrateLandscapeWizard extends Wizard {
 							reverseConfig.setName(DirectionConfig.QC_MAX_ATTACHMENT_SIZE);
 						}
 						reverseConfig.setVal(otherMaxAttachmentSize);
-						createOrUpdateDirectionConfig(getCcfMasterClient(), reverse, reverseAlreadyExists, reverseConfig);
+						createOrUpdateDirectionConfig(getCcfMasterClient(), reverse, reverseConfig);
 					}	
 					monitor.worked(1);
 					if (monitor.isCanceled()) {
@@ -1416,17 +1403,13 @@ public class MigrateLandscapeWizard extends Wizard {
 		return true;
 	}
 
-	private void createOrUpdateDirectionConfig(CcfMasterClient ccfMasterClient, Direction direction, boolean directionAlreadyExists, DirectionConfig directionConfig) throws Exception {
-		if (directionAlreadyExists) {
-			DirectionConfig updateConfig = getDirectionConfig(direction, directionConfig.getName());
-			if (updateConfig == null) {
-				ccfMasterClient.createDirectionConfig(directionConfig);
-			} else {
-				updateConfig.setVal(directionConfig.getVal());
-				ccfMasterClient.updateDirectionConfig(updateConfig);
-			}
-		} else {
+	private void createOrUpdateDirectionConfig(CcfMasterClient ccfMasterClient, Direction direction, DirectionConfig directionConfig) throws Exception {
+		DirectionConfig updateConfig = getDirectionConfig(direction, directionConfig.getName());
+		if (updateConfig == null) {
 			ccfMasterClient.createDirectionConfig(directionConfig);
+		} else {
+			updateConfig.setVal(directionConfig.getVal());
+			ccfMasterClient.updateDirectionConfig(updateConfig);
 		}
 	}
 	
