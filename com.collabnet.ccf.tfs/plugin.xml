@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+
+   <extension
+         point="com.collabnet.ccf.ccfParticipants">
+      <participant
+            name="Team Foundation Server"
+            type="TFS"
+            repositoryKind="DEFECT"
+            class="com.collabnet.ccf.tfs.TFSCcfParticipant"
+            sequence="10"
+            propertyFile="tfs.properties"
+            id="com.collabnet.ccf.tfs.TFSCcfParticipant">
+      </participant>               
+   </extension>
+   
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer class="com.collabnet.ccf.tfs.preferences.TFSPreferenceInitializer"/>
+   </extension>   
+   
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            name="TFS Integration"
+            category="com.collabnet.ccf.preferences"
+            class="com.collabnet.ccf.tfs.preferences.TFSPreferencesPage"
+            id="com.collabnet.ccf.tfs.preferences.TFSPreferencesPage">
+      </page>
+   </extension>        
+
+</plugin>

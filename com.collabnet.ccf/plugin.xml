@@ -1,0 +1,505 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+
+   <extension-point id="ccfParticipants" name="CCF Participants" schema="schema/ccfParticipants.exsd"/>
+   
+   <extension-point id="mappingVisibilityCheckers" name="CCF Project Mapping Visibility Checkers" schema="schema/mappingVisibilityCheckers.exsd"/>
+   
+   <extension-point id="mappingChangeListeners" name="CCF Project Mapping Change Listeners" schema="schema/mappingChangeListeners.exsd"/>
+
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer class="com.collabnet.ccf.preferences.CcfPreferenceInitializer"/>
+   </extension>
+   
+   <extension
+         point="org.eclipse.ui.preferenceTransfer">
+       <transfer
+            icon="icons/landscape.gif"
+            name="CCF Landscapes"
+            id="com.collabnet.ccf.preferenceTransfer">
+            <mapping scope="instance">
+                <entry node="com.collabnet.ccf/ccfLandscapes">
+                </entry>
+            </mapping>
+            <description>
+             Export CCF Landscapes
+            </description>
+      </transfer> 
+       <transfer
+            icon="icons/roles.gif"
+            name="CCF Roles"
+            id="com.collabnet.ccf.preferenceTransfer.roles">
+            <mapping scope="instance">
+                <entry node="com.collabnet.ccf/ccfRoles">
+                </entry>
+            </mapping>
+            <description>
+             Export CCF Roles
+            </description>
+      </transfer>         
+   </extension> 
+
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="com.collabnet.ccf.preferences.CcfPreferencePage"
+            id="com.collabnet.ccf.preferences"
+            name="CollabNet Connector Framework"/>
+      <page
+            class="com.collabnet.ccf.preferences.HospitalPreferencePage"
+            id="com.collabnet.ccf.preferences.hospital"
+            category="com.collabnet.ccf.preferences"
+            name="Hospital"/>  
+      <page
+            class="com.collabnet.ccf.preferences.IdentityMappingPreferencePage"
+            id="com.collabnet.ccf.preferences.identityMapping"
+            category="com.collabnet.ccf.preferences"
+            name="Identity Mapping"/>  
+      <page
+            class="com.collabnet.ccf.preferences.FieldMappingsPreferencePage"
+            id="com.collabnet.ccf.preferences.fieldMappings"
+            category="com.collabnet.ccf.preferences"
+            name="Field Mappings"/>               
+      <page
+            class="com.collabnet.ccf.preferences.RolesPreferencePage"
+            id="com.collabnet.ccf.preferences.roles"
+            category="com.collabnet.ccf.preferences"
+            name="Roles"/>                                            
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            name="CollabNet"
+            id="com.collabnet.desktop">
+      </category>
+      <view
+            name="CCF Explorer"
+            icon="icons/ccfExplorer.gif"
+            category="com.collabnet.desktop"
+            class="com.collabnet.ccf.views.CcfExplorerView"
+            id="com.collabnet.ccf.views.CcfExplorerView">
+      </view>
+      <view
+            name="Hospital"
+            icon="icons/hospitalView.gif"
+            category="com.collabnet.desktop"
+            class="com.collabnet.ccf.views.HospitalView"
+            id="com.collabnet.ccf.views.HospitalView">
+      </view>
+      <view
+            name="Identity Mapping"
+            icon="icons/identityMappingView.gif"
+            category="com.collabnet.desktop"
+            class="com.collabnet.ccf.views.IdentityMappingView"
+            id="com.collabnet.ccf.views.IdentityMappingView">
+      </view> 
+      <view
+            name="Identity Mapping Consistency Checks"
+            icon="icons/consistency_check_view.gif"
+            category="com.collabnet.desktop"
+            class="com.collabnet.ccf.views.IdentityMappingConsistencyCheckView"
+            id="com.collabnet.ccf.views.IdentityMappingConsistencyCheckView">
+      </view>                       
+   </extension>
+   
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="com.collabnet.ccf.PerspectiveFactory"
+            icon="icons/ccfPerspective.gif"
+            id="com.collabnet.ccf.perspective"
+            name="CollabNet Connector Framework"/>
+   </extension>   
+   
+   <extension
+         point="org.eclipse.ui.popupMenus">                    
+      <objectContribution
+            objectClass="com.collabnet.ccf.model.Patient"
+            id="com.collabnet.ccf.model.Patient">   
+         <action
+               label="Copy to clipboard"
+               menubarPath="group.a"
+               class="com.collabnet.ccf.actions.CopyPatientToClipboardAction"
+               id="com.collabnet.ccf.actions.CopyPatientToClipboardAction">
+         </action>                           
+         <action
+               label="Examine quarantined artifact"
+               menubarPath="group.a"
+               class="com.collabnet.ccf.actions.ExaminePayloadAction"
+               id="com.collabnet.ccf.actions.ExaminePayloadAction">
+         </action> 
+         <action
+               label="View Details"
+               menubarPath="group.a"
+               class="com.collabnet.ccf.actions.HospitalEditAction"
+               id="com.collabnet.ccf.actions.HospitalEditAction">
+         </action>
+         <action
+               label="Reopen"
+               menubarPath="group.c"
+               class="com.collabnet.ccf.actions.ReopenAction"
+               id="com.collabnet.ccf.actions.ReopenAction">
+         </action>                       
+         <action
+               label="Mark as Fixed"
+               menubarPath="group.c"
+               class="com.collabnet.ccf.actions.MarkFixedAction"
+               id="com.collabnet.ccf.actions.MarkFixedAction">
+         </action>
+         <action
+               label="Cancel replay"
+               menubarPath="group.d"
+               class="com.collabnet.ccf.actions.CancelReplayHospitalAction"
+               id="com.collabnet.ccf.actions.CancelReplayHospitalAction">
+         </action>                          
+         <action
+               label="Replay"
+               menubarPath="group.d"
+               class="com.collabnet.ccf.actions.ReplayHospitalAction"
+               id="com.collabnet.ccf.actions.ReplayHospitalAction">
+         </action>                                 
+         <action
+               label="Delete"
+               menubarPath="group.e"
+               class="com.collabnet.ccf.actions.DeletePatientAction"
+               id="com.collabnet.ccf.actions.DeletePatientAction">
+         </action>                                                                         
+      </objectContribution>
+      
+      <objectContribution
+            objectClass="com.collabnet.ccf.model.InconsistentIdentityMapping"
+            id="com.collabnet.ccf.model.InconsistentIdentityMapping">                                                     
+         <action
+               label="Create reverse mapping"
+               menubarPath="group.c"
+               class="com.collabnet.ccf.actions.CreateReverseIdentityMappingAction"
+               id="com.collabnet.ccf.actions.CreateReverseIdentityMappingAction">
+         </action>                                                                         
+      </objectContribution>            
+      
+      <objectContribution
+            objectClass="com.collabnet.ccf.model.IdentityMapping"
+            id="com.collabnet.ccf.model.IdentityMapping">  
+         <action
+               label="Edit details"
+               menubarPath="group.a"
+               class="com.collabnet.ccf.actions.IdentityMappingEditAction"
+               id="com.collabnet.ccf.actions.IdentityMappingEditAction">
+         </action> 
+         <action
+               label="Show reverse mappings"
+               menubarPath="group.b"
+               enablesFor = "1"
+               class="com.collabnet.ccf.actions.ReverseIdentityMappingAction"
+               id="com.collabnet.ccf.actions.ReverseIdentityMappingAction">
+         </action>                                                                           
+         <action
+               label="Delete..."
+               menubarPath="group.c"
+               class="com.collabnet.ccf.actions.DeleteIdentityMappingAction"
+               id="com.collabnet.ccf.actions.DeleteIdentityMappingAction">
+         </action>                                                                         
+      </objectContribution> 
+      
+      <objectContribution
+            objectClass="com.collabnet.ccf.model.MappingGroup"
+            id="com.collabnet.ccf.model.MappingGroup">                   
+         <action
+               label="Show Hospital"
+               class="com.collabnet.ccf.actions.HospitalAction"
+               enablesFor="1"
+               menubarPath="group.a"
+               icon="icons/hospitalView.gif"
+               id="com.collabnet.ccf.actions.HospitalAction">
+         </action>
+      </objectContribution>           
+      
+      <objectContribution
+            objectClass="com.collabnet.ccf.model.Landscape"
+            id="com.collabnet.ccf.model.Landscape">                   
+         <action
+               label="Show Hospital"
+               class="com.collabnet.ccf.actions.HospitalAction"
+               enablesFor="1"
+               menubarPath="group.a"
+               icon="icons/hospitalView.gif"
+               id="com.collabnet.ccf.actions.HospitalAction">
+         </action>
+         <action
+               label="Check Identity Mapping consistency"
+               class="com.collabnet.ccf.actions.IdentityMappingConsistencyAction"
+               enablesFor="1"
+               menubarPath="group.b"
+               icon="icons/consistency_check_view.gif"
+               id="com.collabnet.ccf.actions.IdentityMappingConsistencyAction">
+         </action>                         
+         <action
+               label="Show Identity Mapping"
+               class="com.collabnet.ccf.actions.IdentityMappingAction"
+               enablesFor="1"
+               menubarPath="group.b"
+               icon="icons/identityMappingView.gif"
+               id="com.collabnet.ccf.actions.IdentityMappingAction">
+         </action>                                    
+         <action
+               label="Delete landscape"
+               class="com.collabnet.ccf.actions.DeleteLandscapeAction"
+               menubarPath="group.c"
+               id="com.collabnet.ccf.actions.DeleteLandscapeAction">
+         </action> 
+         <action
+               label="Edit landscape"
+               class="com.collabnet.ccf.actions.EditLandscapeAction"
+               menubarPath="group.c"
+               id="com.collabnet.ccf.actions.EditLandscapeAction">
+         </action>                                                                                    
+      </objectContribution>
+      
+      <objectContribution
+            objectClass="com.collabnet.ccf.model.AdministratorLandscape"
+            id="com.collabnet.ccf.model.AdministratorLandscape">                                                                   
+         <action
+               label="Edit CCF log settings"
+               class="com.collabnet.ccf.actions.EditLog4jAction"
+               menubarPath="group.d"
+               id="com.collabnet.ccf.actions.EditLog4jAction">
+         </action>                                                                                             
+      </objectContribution>      
+      
+      <objectContribution
+            objectClass="com.collabnet.ccf.model.ProjectMappings"
+            id="com.collabnet.ccf.model.ProjectMappings">
+         <action
+               label="Refresh"
+               class="com.collabnet.ccf.actions.RefreshAction"
+               icon="icons/refresh.gif"
+               menubarPath="group.b"
+               id="com.collabnet.ccf.actions.RefreshAction">
+         </action>                                                              
+      </objectContribution>
+      
+      <objectContribution
+            objectClass="com.collabnet.ccf.model.MappingGroup"
+            id="com.collabnet.ccf.model.MappingGroup">
+         <action
+               label="Refresh"
+               class="com.collabnet.ccf.actions.RefreshAction"
+               icon="icons/refresh.gif"
+               menubarPath="group.b"
+               id="com.collabnet.ccf.actions.RefreshAction">
+         </action>
+         <action
+               label="Resume synchronization"
+               class="com.collabnet.ccf.actions.ResumeSynchronizationAction"
+               menubarPath="group.c"
+               id="com.collabnet.ccf.actions.ResumeSynchronizationAction">
+         </action>          
+         <action
+               label="Pause synchronization"
+               class="com.collabnet.ccf.actions.PauseSynchronizationAction"
+               menubarPath="group.c"
+               id="com.collabnet.ccf.actions.PauseSynchronizationAction">
+         </action>                                             
+         <action
+               label="Delete project mappings"
+               class="com.collabnet.ccf.actions.DeleteSynchronizationStatusAction"
+               menubarPath="group.d"
+               id="com.collabnet.ccf.actions.DeleteSynchronizationStatusAction">
+         </action>                                                                       
+      </objectContribution>        
+      
+      <objectContribution
+            objectClass="com.collabnet.ccf.model.AdministratorProjectMappings"
+            id="com.collabnet.ccf.model.AdministratorProjectMappings">
+         <action
+               label="Project Mapping"
+               class="com.collabnet.ccf.actions.AddSynchronizationStatusAction"
+               menubarPath="group.add/New"
+               id="com.collabnet.ccf.actions.AddSynchronizationStatusAction">
+         </action>                                                   
+      </objectContribution>
+      
+      <objectContribution
+            objectClass="com.collabnet.ccf.model.AdministratorMappingGroup"
+            id="com.collabnet.ccf.model.AdministratorMappingGroup">
+         <action
+               label="Project Mapping"
+               class="com.collabnet.ccf.actions.AddSynchronizationStatusAction"
+               menubarPath="group.add/New"
+               id="com.collabnet.ccf.actions.AddSynchronizationStatusAction">
+         </action>                                                   
+      </objectContribution>        
+      
+      <objectContribution
+            objectClass="com.collabnet.ccf.model.Logs"
+            id="com.collabnet.ccf.model.Logs">
+         <action
+               label="Refresh"
+               class="com.collabnet.ccf.actions.RefreshAction"
+               icon="icons/refresh.gif"
+               menubarPath="group.b"
+               id="com.collabnet.ccf.actions.RefreshAction">
+         </action>                                                              
+      </objectContribution>       
+      
+      <objectContribution
+            objectClass="com.collabnet.ccf.model.SynchronizationStatus"
+            id="com.collabnet.ccf.model.SynchronizationStatus">
+         <action
+               label="Check Identity Mapping consistency"
+               class="com.collabnet.ccf.actions.IdentityMappingConsistencyAction"
+               enablesFor="1"
+               menubarPath="group.a"
+               icon="icons/consistency_check_view.gif"
+               id="com.collabnet.ccf.actions.IdentityMappingConsistencyAction">
+         </action>               
+         <action
+               label="Show Identity Mapping"
+               class="com.collabnet.ccf.actions.IdentityMappingAction"
+               enablesFor="1"
+               menubarPath="group.a"
+               icon="icons/identityMappingView.gif"
+               id="com.collabnet.ccf.actions.IdentityMappingAction">
+         </action>                  
+         <action
+               label="Show Hospital"
+               class="com.collabnet.ccf.actions.HospitalAction"
+               enablesFor="1"
+               menubarPath="group.a"
+               icon="icons/hospitalView.gif"
+               id="com.collabnet.ccf.actions.HospitalAction">
+         </action>                           
+         <action
+               label="Resume synchronization"
+               class="com.collabnet.ccf.actions.ResumeSynchronizationAction"
+               menubarPath="group.c"
+               id="com.collabnet.ccf.actions.ResumeSynchronizationAction">
+         </action>          
+         <action
+               label="Pause synchronization"
+               class="com.collabnet.ccf.actions.PauseSynchronizationAction"
+               menubarPath="group.c"
+               id="com.collabnet.ccf.actions.PauseSynchronizationAction">
+         </action>                                                                                                 
+      </objectContribution>
+      
+      <objectContribution
+            objectClass="com.collabnet.ccf.model.AdministratorSynchronizationStatus"
+            id="com.collabnet.ccf.model.AdministratorSynchronizationStatus">                      
+         <action
+               label="Delete identity mappings"
+               class="com.collabnet.ccf.actions.DeleteIdentityMappingsAction"
+               menubarPath="group.c"
+               id="com.collabnet.ccf.actions.DeleteIdentityMappingsAction">
+         </action>                           
+         <action
+               label="Reset synchronization status..."
+               class="com.collabnet.ccf.actions.ResetSynchronizationStatusAction"
+               menubarPath="group.c"
+               id="com.collabnet.ccf.actions.ResetSynchronizationStatusAction">
+         </action>
+         <action
+               label="Delete project mapping"
+               class="com.collabnet.ccf.actions.DeleteSynchronizationStatusAction"
+               menubarPath="group.d"
+               id="com.collabnet.ccf.actions.DeleteSynchronizationStatusAction">
+         </action>
+         <action
+               label="Change project mapping group..."
+               class="com.collabnet.ccf.actions.ChangeProjectMappingGroupAction"
+               menubarPath="group.d"
+               id="com.collabnet.ccf.actions.ChangeProjectMappingGroupAction">
+         </action>          
+         <action
+               label="Change project mapping..."
+               class="com.collabnet.ccf.actions.ChangeSynchronizationStatusAction"
+               menubarPath="group.d"
+               id="com.collabnet.ccf.actions.ChangeSynchronizationStatusAction">
+         </action>
+         <action
+               label="Create reverse mapping..."
+               class="com.collabnet.ccf.actions.ReverseSynchronizationStatusAction"
+               menubarPath="group.d"
+               id="com.collabnet.ccf.actions.ReverseSynchronizationStatusAction">
+         </action>                                                                                                                
+      </objectContribution>
+      
+      <objectContribution
+            objectClass="com.collabnet.ccf.model.AdministratorSynchronizationStatusWithEditableMappings"
+            id="com.collabnet.ccf.model.AdministratorSynchronizationStatusWithEditableMappings">
+         <action
+               label="Set default mapping template..."
+               class="com.collabnet.ccf.actions.DefaultMappingAction"
+               enablesFor="1"
+               menubarPath="group.b"
+               id="com.collabnet.ccf.actions.DefaultMappingAction">
+         </action>              
+         <action
+               label="Edit field mappings"
+               class="com.collabnet.ccf.actions.FieldMappingsWizardAction"
+               enablesFor="1"
+               menubarPath="group.b"
+               id="com.collabnet.ccf.actions.FieldMappingsWizardAction">
+         </action>                                                                                                                                                  
+      </objectContribution>                  
+      
+      <objectContribution
+            objectClass="com.collabnet.ccf.model.Log"
+            id="com.collabnet.ccf.model.log">  
+         <action
+               label="Open log"
+               class="com.collabnet.ccf.actions.EditLogAction"
+               menubarPath="group.a"
+               id="com.collabnet.ccf.actions.EditLogAction">
+         </action> 
+         <action
+               label="Delete log"
+               class="com.collabnet.ccf.actions.DeleteLogAction"
+               menubarPath="group.c"
+               id="com.collabnet.ccf.actions.DeleteLogAction">
+         </action>                                                                                                  
+      </objectContribution>                                        
+                         
+   </extension> 
+   
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            name="CCF Editor"
+            default="false"
+            icon="icons/landscape.gif"
+            extensions="ccf"
+            contributorClass="com.collabnet.ccf.editors.CcfActionBarContributor"
+            class="com.collabnet.ccf.editors.CcfEditor"
+            id="com.collabnet.ccf.editors.CcfEditor">
+      </editor> 
+      <editor
+            name="Hospital Editor"
+            default="false"
+            icon="icons/hospitalEntry.gif"
+            contributorClass="com.collabnet.ccf.editors.HospitalActionBarContributor"
+            class="com.collabnet.ccf.editors.HospitalEditor"
+            id="com.collabnet.ccf.editors.HospitalEditor">
+      </editor>
+      <editor
+            name="Identity Mapping Editor"
+            default="false"
+            icon="icons/identityMappingView.gif"
+            contributorClass="com.collabnet.ccf.editors.IdentityMappingActionBarContributor"
+            class="com.collabnet.ccf.editors.IdentityMappingEditor"
+            id="com.collabnet.ccf.editors.IdentityMappingEditor">
+      </editor>
+      <editor
+            name="JMX Console Editor"
+            default="false"
+            icon="icons/monitor.gif"
+            extensions="jmx"
+            class="com.collabnet.ccf.editors.JmxConsoleEditor"
+            id="com.collabnet.ccf.editors.JmxConsoleEditor">
+      </editor>                                       
+   </extension>
+
+</plugin>
