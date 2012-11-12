@@ -16,9 +16,33 @@
  **/
 package com.collabnet.ccf.tfs.schemageneration;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeSet;
 
+import com.atlassian.jira.rest.client.GetCreateIssueMetadataOptionsBuilder;
+import com.atlassian.jira.rest.client.JiraRestClient;
+import com.atlassian.jira.rest.client.NullProgressMonitor;
+import com.atlassian.jira.rest.client.domain.BasicComponent;
+import com.atlassian.jira.rest.client.domain.BasicPriority;
+import com.atlassian.jira.rest.client.domain.CimFieldInfo;
+import com.atlassian.jira.rest.client.domain.CimIssueType;
+import com.atlassian.jira.rest.client.domain.CimProject;
+import com.atlassian.jira.rest.client.domain.EntityHelper;
+import com.atlassian.jira.rest.client.internal.jersey.JerseyJiraRestClientFactory;
 import com.collabnet.ccf.core.GenericArtifact;
+import com.collabnet.ccf.core.GenericArtifact.ArtifactActionValue;
+import com.collabnet.ccf.core.GenericArtifact.ArtifactModeValue;
+import com.collabnet.ccf.core.GenericArtifact.ArtifactTypeValue;
+import com.collabnet.ccf.core.GenericArtifact.IncludesFieldMetaDataValue;
+import com.collabnet.ccf.core.GenericArtifactField;
+import com.collabnet.ccf.core.GenericArtifactField.FieldValueTypeValue;
 import com.collabnet.ccf.schemageneration.RepositoryLayoutExtractor;
 
 /**
@@ -31,6 +55,7 @@ import com.collabnet.ccf.schemageneration.RepositoryLayoutExtractor;
 public class TFSLayoutExtractor implements RepositoryLayoutExtractor {
 
 	public static final String PARAM_DELIMITER = "-";
+	static final NullProgressMonitor pm = new NullProgressMonitor();
 
 	private String serverUrl;
 	private String userName;
@@ -122,25 +147,104 @@ public class TFSLayoutExtractor implements RepositoryLayoutExtractor {
 	}
 	
 	public GenericArtifact getProjectSchema(String repositoryId) {
-		// TODO: See what is it for
-//		IConnection qcConnection = null;
-//		try {
-//			initCOM();
-//			qcConnection = createConnection(serverUrl, repositoryId, userName,
-//					password);
-//			if (isDefectRepository(repositoryId)) {
-//				return getSchemaFieldsForDefect(qcConnection);
-//			} else {
-//				String technicalReleaseId = extractTechnicalRequirementsType(repositoryId, qcConnection);
-//				return getSchemaFieldsForRequirement(qcConnection, technicalReleaseId);
-//			}
-//		} finally {
-//			if (qcConnection != null) {
-//				closeConnection(qcConnection);
-//			}
-//			tearDownCOM();
-//		}
-		return null;
+		String projectKey = JIRAMetaData.extractProjectKeyFromRepositoryId(repositoryId);
+		String issueTypeString = JIRAMetaData.extractIssueTypeFromRepositoryId(repositoryId);
+		GenericArtifact genericArtifact = new GenericArtifact();
+		genericArtifact.setArtifactAction(ArtifactActionValue.CREATE);
+		genericArtifact.setArtifactMode(ArtifactModeValue.COMPLETE);
+		genericArtifact.setArtifactType(ArtifactTypeValue.PLAINARTIFACT);
+		genericArtifact.setIncludesFieldMetaData(IncludesFieldMetaDataValue.TRUE);
+		JiraRestClient jiraRestClient = getJiraConnection();
+		if(jiraRestClient != null){
+			final Iterable<CimProject> metadataProjects = jiraRestClient.getIssueClient().getCreateIssueMetadata(
+					new GetCreateIssueMetadataOptionsBuilder().withProjectKeys(projectKey).withIssueTypeNames(issueTypeString).withExpandedIssueTypesFields().build(), pm);
+			final CimProject project = metadataProjects.iterator().next();
+			final CimIssueType createIssueType = EntityHelper.findEntityByName(project.getIssueTypes(), issueTypeString);
+			Iterator<Entry<String, CimFieldInfo>> fieldsit = createIssueType.getFields().entrySet().iterator();
+			while(fieldsit.hasNext()){
+				 Entry<String, CimFieldInfo> field = fieldsit.next();
+				CimFieldInfo fieldInfo = field.getValue();
+				createGenericArtifactField(fieldInfo, genericArtifact);
+				
+			}
+			//FIXME: Need to explore JIRA api to find status allowed values
+			Set<Object> statusAllowedValues = new HashSet<Object>();
+			statusAllowedValues.add("Open");
+			statusAllowedValues.add("Closed");
+			createGenericArtifactField("status", "status", FieldValueTypeValue.STRING.toString(), statusAllowedValues, genericArtifact);
+
+			//comments for jira for layout extractor
+			createGenericArtifactField("comment", "comment", FieldValueTypeValue.STRING.toString(), Collections.emptySet(), genericArtifact);
+		}
+		
+		return genericArtifact;
+	}
+	
+	private GenericArtifactField createGenericArtifactField(CimFieldInfo jiraFieldInfo,	GenericArtifact genericArtifact) {
+		return createGenericArtifactField(jiraFieldInfo.getId(),  jiraFieldInfo.getId(), jiraFieldInfo.getSchema().getType(),
+				jiraFieldInfo.getAllowedValues(), genericArtifact);
+	}
+	
+	private GenericArtifactField createGenericArtifactField(String fieldName,String alternativeFieldName,String type,Iterable<Object> allowedValues,GenericArtifact genericArtifact){
+		GenericArtifactField field = genericArtifact.addNewField(fieldName,	GenericArtifactField.VALUE_FIELD_TYPE_MANDATORY_FIELD);
+		field.setFieldAction(GenericArtifactField.FieldActionValue.REPLACE);
+		//FIXME : determine jira supported fieldvalue type
+		field.setFieldValueType(FieldValueTypeValue.STRING);
+		field.setFieldValueHasChanged(true);
+		field.setAlternativeFieldName(alternativeFieldName);
+		//FIXME: determine whether field supports null or not
+		field.setNullValueSupported("true");
+		field.setMinOccurs(0);
+		//FIXME: determine max occur value for field
+		field.setMaxOccurs(1);
+		field.setFieldValue(TFSLayoutExtractor.generateFieldDocumentation(fieldName, alternativeFieldName, type,
+				GenericArtifactField.VALUE_FIELD_TYPE_MANDATORY_FIELD, "true", allowedValues));
+		return field;
+	}
+
+	private static Object generateFieldDocumentation(String fieldName,
+			String alternativeFieldName, String fieldValueType,
+			String fieldType, String isNullValueSupported,Iterable<Object> allowedValues) {
+		StringBuffer documentation = new StringBuffer();
+		documentation.append(fieldName + " (" + fieldType + " / "
+				+ fieldValueType + ")\n");
+		if(allowedValues != null){
+			Iterator<Object> it = allowedValues.iterator();
+			Set<String> sortedValues = new TreeSet<String>();
+			while(it.hasNext()){
+				Object obj = it.next();
+				if(obj instanceof BasicPriority){
+					sortedValues.add(String.valueOf(((BasicPriority)obj).getId())); // setting priority ids
+				}else if(obj instanceof BasicComponent){
+					sortedValues.add(((BasicComponent)obj).getName());
+				}else if(obj instanceof String){
+					sortedValues.add(it.next().toString());
+				}
+				
+			}
+			if(!sortedValues.isEmpty()){
+				documentation.append(" Values: [");
+				for (String fieldValueOption : sortedValues) {
+					documentation.append(" '" + fieldValueOption + "',");
+				}
+				documentation.deleteCharAt(documentation.length() - 1);
+				documentation.append(" ]");
+			}
+		}
+		return documentation.toString();
+	}
+	
+	public JiraRestClient getJiraConnection(){
+		JiraRestClient restClient = null;
+		try {
+			URI jiraServerUri = new URI(serverUrl);
+	    	JerseyJiraRestClientFactory factory = new JerseyJiraRestClientFactory();
+	    	restClient= factory.createWithBasicHttpAuthentication(jiraServerUri, userName,password);
+		} catch (URISyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return restClient;
 	}
 	
 	public void validateTFSDomainAndProject(String collection, String project) {
