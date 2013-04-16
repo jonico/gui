@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="com.collabnet.ccf.qc.feature"
-      label="Quality Center Connector for CCF"
-      version="1.5.0.6"
+      id="com.collabnet.ccf.rqp.feature"
+      label="RequisitePro Connector for CCF"
+      version="1.0.0"
       provider-name="CollabNet"
-      plugin="com.collabnet.ccf.qc"
+      plugin="com.collabnet.ccf.rqp"
       os="win32">
 
    <description url="http://ccf.open.collab.net">
-      Quality Center Connector for CCF
+      RequisitePro Connector for CCF
    </description>
 
    <copyright url="http://ccf.open.collab.net/">
-      Copyright (c) 2010. CollabNet
+      Copyright (c) 2013. CollabNet
    </copyright>
 
    <license url="http://www.apache.org/licenses/LICENSE-2.0">
@@ -35,7 +35,7 @@
    </requires>
 
    <plugin
-         id="com.collabnet.ccf.qc"
+         id="com.collabnet.ccf.rqp"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
