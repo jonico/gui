@@ -77,6 +77,7 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 	public static final int TF = 1;
 	public static final int PT = 2;
 	public static final int SW = 3;
+	public static final int RQP = 5;
 	
 	public final static String SYSTEM_SECTION_STATE = "CcfSystemEditorPage.systemSectionExpanded";
 	public final static String CREDENTIALS_SECTION_STATE = "CcfSystemEditorPage.credentialsSectionExpanded";
@@ -144,7 +145,11 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 				ccfParticipant = Activator.getCcfParticipantForType("SWP");
 			} catch (Exception e1) {}
 			initializeSwValues();
-			break;					
+			break;
+		case RQP:
+			headerLabel.setText("RQP Properties");
+			initializeRQPValues();
+			break;
 		default:
 			break;
 		}
@@ -464,7 +469,19 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 					propertiesFile2 = new File(folder, "swp.properties");
 				}
 				initializeSwValues();
-				break;							
+				break;
+			case RQP:
+				setRQPProperties();
+				if (getLandscape().getConfigurationFolder1() != null) {
+					folder = new File(getLandscape().getConfigurationFolder1());
+					propertiesFile1 = new File(folder, "rqp.properties");
+				}			
+				if (getLandscape().getConfigurationFolder2() != null) {
+					folder = new File(getLandscape().getConfigurationFolder2());
+					propertiesFile2 = new File(folder, "rqp.properties");
+				}
+				initializeRQPValues();
+				break;
 			default:
 				break;
 			}
@@ -513,6 +530,13 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 		resyncUser = properties.getProperty(Activator.PROPERTIES_SW_RESYNC_USER, "");
 		resyncPassword = Activator.decodePassword(properties.getProperty(Activator.PROPERTIES_SW_RESYNC_PASSWORD, ""));	
 		attachmentSize = properties.getProperty(Activator.PROPERTIES_SW_ATTACHMENT_SIZE, "10485760");	
+	}
+	
+	private void initializeRQPValues() {
+		url = properties.getProperty(Activator.PROPERTIES_RQP_URL, "");
+		user = properties.getProperty(Activator.PROPERTIES_RQP_USER, "");
+		password = Activator.decodePassword(properties.getProperty(Activator.PROPERTIES_RQP_PASSWORD, ""));
+		attachmentSize = properties.getProperty(Activator.PROPERTIES_RQP_ATTACHMENT_SIZE, "10485760");
 	}
 	
 	public boolean isDirty() {
@@ -579,6 +603,18 @@ public class CcfSystemEditorPage extends CcfEditorPage {
 		properties.setProperty(Activator.PROPERTIES_SW_RESYNC_USER, resyncUserText.getText().trim());
 		properties.setProperty(Activator.PROPERTIES_SW_RESYNC_PASSWORD, Activator.encodePassword(resyncPasswordText.getText().trim(), resyncPasswordPreviouslyEncoded));
 		properties.setProperty(Activator.PROPERTIES_SW_ATTACHMENT_SIZE, attachmentSizeText.getText().trim());
+	}
+
+	
+	private void setRQPProperties() throws Exception {
+		String password = properties.getProperty(Activator.PROPERTIES_RQP_PASSWORD);
+		boolean passwordPreviouslyEncoded = password != null && password.startsWith(Activator.OBFUSCATED_PASSWORD_PREFIX);
+		password = properties.getProperty(Activator.PROPERTIES_RQP_RESYNC_PASSWORD);
+		
+		properties.setProperty(Activator.PROPERTIES_RQP_URL, urlText.getText().trim());
+		properties.setProperty(Activator.PROPERTIES_RQP_USER, userText.getText().trim());
+		properties.setProperty(Activator.PROPERTIES_RQP_PASSWORD, Activator.encodePassword(passwordText.getText().trim(), passwordPreviouslyEncoded));		
+		properties.setProperty(Activator.PROPERTIES_RQP_ATTACHMENT_SIZE, attachmentSizeText.getText().trim());
 	}
 
 }

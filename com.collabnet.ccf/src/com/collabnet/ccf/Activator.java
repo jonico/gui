@@ -175,6 +175,14 @@ public class Activator extends AbstractUIPlugin {
 	public static final String PROPERTIES_SW_RESYNC_PASSWORD = "swp.server.resync.password"; //$NON-NLS-1$
 	public static final String PROPERTIES_SW_ATTACHMENT_SIZE = "swp.max.attachmentsize.per.artifact"; //$NON-NLS-1$
 	
+	// RQP Properties
+	public static final String PROPERTIES_RQP_URL = "rqp.system.1.url"; //$NON-NLS-1$
+	public static final String PROPERTIES_RQP_USER = "rqp.system.1.username"; //$NON-NLS-1$
+	public static final String PROPERTIES_RQP_PASSWORD = "rqp.system.1.password"; //$NON-NLS-1$
+	public static final String PROPERTIES_RQP_RESYNC_USER = "rqp.system.1.resync.username"; //$NON-NLS-1$
+	public static final String PROPERTIES_RQP_RESYNC_PASSWORD = "rqp.system.1.resync.password"; //$NON-NLS-1$
+	public static final String PROPERTIES_RQP_ATTACHMENT_SIZE = "rqp.max.attachmentsize.per.artifact"; //$NON-NLS-1$	
+	
 	// Default database
 	public static final String DATABASE_DEFAULT_DESCRIPTION = "Default"; //$NON-NLS-1$
 	public static final String DATABASE_DEFAULT_DRIVER = "org.hsqldb.jdbcDriver"; //$NON-NLS-1$
