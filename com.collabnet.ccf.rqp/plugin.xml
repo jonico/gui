@@ -5,28 +5,28 @@
    <extension
          point="com.collabnet.ccf.ccfParticipants">
       <participant
-            name="Quality Center"
-            type="QC"
+            name="RequisitePro"
+            type="RQP"
             repositoryKind="DEFECT"
-            class="com.collabnet.ccf.qc.QualityCenterCcfParticipant"
+            class="com.collabnet.ccf.rqp.RequisiteProCcfParticipant"
             sequence="10"
-            propertyFile="qc.properties"
-            id="com.collabnet.ccf.qc.QualityCenterCcfParticipant">
+            propertyFile="rqp.properties"
+            id="com.collabnet.ccf.rqp.RequisiteProCcfParticipant">
       </participant>               
    </extension>
    
    <extension
          point="org.eclipse.core.runtime.preferences">
-      <initializer class="com.collabnet.ccf.qc.preferences.QualityCenterPreferenceInitializer"/>
+      <initializer class="com.collabnet.ccf.rqp.preferences.RequisiteProPreferenceInitializer"/>
    </extension>   
    
    <extension
          point="org.eclipse.ui.preferencePages">
       <page
-            name="Quality Center Integration"
+            name="RequisitePro Integration"
             category="com.collabnet.ccf.preferences"
-            class="com.collabnet.ccf.qc.preferences.QualityCenterPreferencesPage"
-            id="com.collabnet.ccf.qc.preferences.QualityCenterPreferencesPage">
+            class="com.collabnet.ccf.rqp.preferences.RequisiteProPreferencesPage"
+            id="com.collabnet.ccf.rqp.preferences.RequisiteProPreferencesPage">
       </page>
    </extension>        
 

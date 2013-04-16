@@ -1,4 +1,4 @@
-package com.collabnet.ccf.qc;
+package com.collabnet.ccf.rqp;
 
 import java.util.Hashtable;
 
@@ -16,10 +16,10 @@ public class Activator extends AbstractUIPlugin {
 	public static final String PREFERENCES_ADVANCED_PROJECT_MAPPING = "pref_advanced_project_mapping"; //$NON-NLS-1$
 	public static final boolean DEFAULT_ADVANCED_PROJECT_MAPPING = true;
 	
-	public static final String IMAGE_QC = "HPLogo.png"; //$NON-NLS-1$
+	public static final String IMAGE_RQP = "RequisitePro.png"; //$NON-NLS-1$
 
 	// The plug-in ID
-	public static final String PLUGIN_ID = "com.collabnet.ccf.qc";
+	public static final String PLUGIN_ID = "com.collabnet.ccf.rqp";
 
 	// The shared instance
 	private static Activator plugin;
@@ -32,19 +32,11 @@ public class Activator extends AbstractUIPlugin {
 	public Activator() {
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext)
-	 */
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext)
-	 */
 	public void stop(BundleContext context) throws Exception {
 		plugin = null;
 		super.stop(context);
@@ -83,12 +75,12 @@ public class Activator extends AbstractUIPlugin {
 	
 	private void initializeImages() {
 		imageDescriptors = new Hashtable<String, ImageDescriptor>(40);
-		createImageDescriptor(IMAGE_QC);
+		createImageDescriptor(IMAGE_RQP);
 	}
 	
 	protected void initializeImageRegistry(ImageRegistry reg) {
 		super.initializeImageRegistry(reg);
-		reg.put(IMAGE_QC, getImageDescriptor(IMAGE_QC));
+		reg.put(IMAGE_RQP, getImageDescriptor(IMAGE_RQP));
 	}
 
 }

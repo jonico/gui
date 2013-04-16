@@ -1,4 +1,4 @@
-package com.collabnet.ccf.qc.preferences;
+package com.collabnet.ccf.rqp.preferences;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferencePage;
@@ -12,22 +12,22 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
-import com.collabnet.ccf.qc.Activator;
+import com.collabnet.ccf.rqp.Activator;
 
-public class QualityCenterPreferencesPage extends PreferencePage implements IWorkbenchPreferencePage {
+public class RequisiteProPreferencesPage extends PreferencePage implements IWorkbenchPreferencePage {
 	private Button advancedProjectMappingButton;
 	
 	IPreferenceStore store = Activator.getDefault().getPreferenceStore();
 
-	public QualityCenterPreferencesPage() {
+	public RequisiteProPreferencesPage() {
 		super();
 	}
 
-	public QualityCenterPreferencesPage(String title) {
+	public RequisiteProPreferencesPage(String title) {
 		super(title);
 	}
 
-	public QualityCenterPreferencesPage(String title, ImageDescriptor image) {
+	public RequisiteProPreferencesPage(String title, ImageDescriptor image) {
 		super(title, image);
 	}
 

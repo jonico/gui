@@ -1,10 +1,8 @@
-package com.collabnet.ccf.qc.dialogs;
+package com.collabnet.ccf.rqp.dialogs;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 import org.eclipse.core.runtime.IStatus;
@@ -17,7 +15,6 @@ import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
-import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
@@ -35,48 +32,38 @@ import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.dialogs.CcfDialog;
 import com.collabnet.ccf.dialogs.ExceptionDetailsErrorDialog;
 import com.collabnet.ccf.model.Landscape;
-import com.collabnet.ccf.qc.schemageneration.QCLayoutExtractor;
+import com.collabnet.ccf.rqp.schemageneration.RQPLayoutExtractor;
 
-public class DomainProjectSelectionDialog extends CcfDialog {
+public class ProjectPackageSelectionDialog extends CcfDialog {
+	
 	private Landscape landscape;
 	private int type;
 	private String title;
-	private QCLayoutExtractor qcLayoutExtractor;
-	private List<Domain> domains = new ArrayList<DomainProjectSelectionDialog.Domain>();
-	private List<Project> domainProjects;
-	private Map<String, List<Project>> projectMap = new HashMap<String, List<Project>>();
+	private RQPLayoutExtractor rqpLayoutExtractor;
+	private List<RQPPackage> rqp_packages = new ArrayList<ProjectPackageSelectionDialog.RQPPackage>();
 	
 	private TreeViewer treeViewer;
 	private Button okButton;
 	
-	private String domain;
 	private String project;
+	private String rqp_package;
 	
-	private Domain previouslySelectedDomain;
 	private Project previouslySelectedProject;
+	private RQPPackage previouslySelectedPackage;
 	
-	public static final int BROWSER_TYPE_DOMAIN = 0;
 	public static final int BROWSER_TYPE_PROJECT = 1;
 
-	public DomainProjectSelectionDialog(Shell shell, Landscape landscape, String domain, String project, int type) {
-		super(shell, "DomainProjectSelectionDialog");
+	public ProjectPackageSelectionDialog(Shell shell, Landscape landscape, String project, String rqp_package, int type) {
+		super(shell, "ProjectPackageSelectionDialog");
 		this.landscape = landscape;
-		this.domain = domain;
 		this.project = project;
+		this.rqp_package = rqp_package;
 		this.type = type;
 	}
 	
 	protected Control createDialogArea(Composite parent) {
-		getDomains();
-		
-		switch (type) {
-		case BROWSER_TYPE_DOMAIN:
-			title = "Select Domain";
-			break;
-		default:
-			title = "Select Project";
-			break;
-		}		
+		getPackages();
+		title = "Select Project";
 		getShell().setText(title);
 		
 		Composite composite = new Composite(parent, SWT.NULL);
@@ -86,8 +73,8 @@ public class DomainProjectSelectionDialog extends CcfDialog {
 		composite.setLayoutData(new GridData(GridData.FILL_BOTH));
 		
 		treeViewer = new TreeViewer(composite);
-		treeViewer.setLabelProvider(new DomainProjectLabelProvider());
-		treeViewer.setContentProvider(new DomainProjectSelectionContentProvider());
+		treeViewer.setLabelProvider(new ProjectPackageLabelProvider());
+		treeViewer.setContentProvider(new ProjectPackageSelectionContentProvider());
 		treeViewer.setUseHashlookup(true);
 		GridData layoutData = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL | GridData.FILL_VERTICAL | GridData.GRAB_VERTICAL);
 		layoutData.heightHint = 300;
@@ -109,17 +96,17 @@ public class DomainProjectSelectionDialog extends CcfDialog {
             }
         });  
         
-        if (previouslySelectedDomain != null) {
+        if (previouslySelectedProject != null) {
         	if (type == BROWSER_TYPE_PROJECT) {
-        		treeViewer.expandToLevel(previouslySelectedDomain, TreeViewer.ALL_LEVELS);
-        		treeViewer.reveal(previouslySelectedDomain);
+        		treeViewer.expandToLevel(previouslySelectedProject, TreeViewer.ALL_LEVELS);
+        		treeViewer.reveal(previouslySelectedProject);
         	} else {
-        		treeViewer.setSelection(getSelection(previouslySelectedDomain));
+        		treeViewer.setSelection(getSelection(previouslySelectedProject));
         	}
         }
         
-        if (type == BROWSER_TYPE_PROJECT && previouslySelectedProject != null) {
-        	treeViewer.setSelection(getSelection(previouslySelectedProject));
+        if (type == BROWSER_TYPE_PROJECT && previouslySelectedPackage != null) {
+        	treeViewer.setSelection(getSelection(previouslySelectedPackage));
         }
  
 		return composite;
@@ -158,10 +145,7 @@ public class DomainProjectSelectionDialog extends CcfDialog {
         Button button = super.createButton(parent, id, label, defaultButton);
 		if (id == IDialogConstants.OK_ID) {
 			okButton = button;
-			if (type == BROWSER_TYPE_DOMAIN && previouslySelectedDomain == null) {
-				okButton.setEnabled(false);
-			}
-			if (type == BROWSER_TYPE_PROJECT && previouslySelectedProject == null) {
+			if (type == BROWSER_TYPE_PROJECT && previouslySelectedPackage == null) {
 				okButton.setEnabled(false);
 			}
 		}
@@ -171,61 +155,55 @@ public class DomainProjectSelectionDialog extends CcfDialog {
 	protected void okPressed() {
 		IStructuredSelection selection = (IStructuredSelection)treeViewer.getSelection();
 		Object firstSelection = selection.getFirstElement();
-		if (firstSelection instanceof Domain) {
-			Domain selectedDomain = (Domain)firstSelection;
-			domain = selectedDomain.toString();
-		}
-		if (firstSelection instanceof Project) {
-			Project selectedProject = (Project)firstSelection;
-			domain = selectedProject.getDomain();
-			project = selectedProject.toString();
+		if (firstSelection instanceof RQPPackage) {
+			RQPPackage selectedPackage = (RQPPackage)firstSelection;
+			rqp_package = selectedPackage.toString();
 		}
 		super.okPressed();
 	}
 	
 	private boolean canFinish() {
 		IStructuredSelection selection = (IStructuredSelection)treeViewer.getSelection();
-		if (selection.isEmpty()) return false;
-		Object firstSelection = selection.getFirstElement();
-		if (type == BROWSER_TYPE_PROJECT) return (firstSelection instanceof Project);
-		else return (!(firstSelection instanceof Project));
+		return !selection.isEmpty();
 	}
 	
-	public String getDomain() {
-		return domain;
-	}
-
 	public String getProject() {
 		return project;
 	}
 
-	private void getDomains() {
+	public String getPackage() {
+		return rqp_package;
+	}
+
+	private void getPackages() {
 		BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
 			public void run() {
 				try {
-					qcLayoutExtractor = new QCLayoutExtractor();
+					rqpLayoutExtractor = new RQPLayoutExtractor();
 					Properties properties;
 					if (landscape.getType2().equals("QT")) {
 						properties = landscape.getProperties2();
 					} else {
 						properties = landscape.getProperties1();
 					}
-					String url = properties.getProperty(Activator.PROPERTIES_QC_URL, "");
-					String user = properties.getProperty(Activator.PROPERTIES_QC_USER, "");
+					String url = properties.getProperty(Activator.PROPERTIES_RQP_URL, "");
+					String user = properties.getProperty(Activator.PROPERTIES_RQP_USER, "");
 					String password = Activator.decodePassword(properties.getProperty(
-							Activator.PROPERTIES_QC_PASSWORD, ""));
-					qcLayoutExtractor.setServerUrl(url);
-					qcLayoutExtractor.setUserName(user);
-					qcLayoutExtractor.setPassword(password);
-					List<String> domainList = qcLayoutExtractor.getDomains();
-					domains = new ArrayList<DomainProjectSelectionDialog.Domain>();
-					for (String qcDomain : domainList) {
-						Domain addDomain = new Domain(qcDomain);
-						if (domain != null && domain.equals(qcDomain)) {
-							previouslySelectedDomain = addDomain;
+							Activator.PROPERTIES_RQP_PASSWORD, ""));
+					rqpLayoutExtractor.setServerUrl(url);
+					rqpLayoutExtractor.setUserName(user);
+					rqpLayoutExtractor.setPassword(password);
+					List<String> packages = rqpLayoutExtractor.getPackages(project);
+					rqp_packages = new ArrayList<ProjectPackageSelectionDialog.RQPPackage>();
+					
+					for (String currentPackage : packages) {
+						RQPPackage packageToAdd = new RQPPackage(currentPackage);
+						if (project != null && project.equals(currentPackage)) {
+							previouslySelectedPackage = packageToAdd;
 						}
-						domains.add(addDomain);
+						rqp_packages.add(packageToAdd);
 					}
+					
 				} catch (Exception e) {
 					Activator.handleError(e);
 					ExceptionDetailsErrorDialog.openError(getShell(), "Select Project", e.getMessage(), new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getLocalizedMessage(), e));
@@ -234,36 +212,7 @@ public class DomainProjectSelectionDialog extends CcfDialog {
 		});		
 	}
 	
-	private List<Project> getProjects(final String domain) {
-		domainProjects = projectMap.get(domain);
-		if (domainProjects == null) {
-			BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
-				public void run() {
-					try {
-						List<String> projectList = qcLayoutExtractor.getProjects(domain);
-						if (projectList != null) {
-							domainProjects = new ArrayList<DomainProjectSelectionDialog.Project>();
-							for (String qcProject : projectList) {
-								Project addProject = new Project(domain, qcProject);
-								if (previouslySelectedDomain != null && domain.equals(previouslySelectedDomain.toString()) && project != null && project.equals(qcProject)) {
-									previouslySelectedProject = addProject;
-								}
-								domainProjects.add(addProject);
-							}
-							projectMap.put(domain, domainProjects);
-						}
-					} catch (Exception e) {
-						Activator.handleError(e);
-						ExceptionDetailsErrorDialog.openError(getShell(), "Select Project", e.getMessage(), new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getLocalizedMessage(), e));
-					}
-				}			
-			});		
-		}
-		return domainProjects;
-	}
-	
-	class DomainProjectSelectionLabelProvider extends LabelProvider {
-		// TODO icons?
+	class ProjectPackageSelectionLabelProvider extends LabelProvider {
 		public Image getImage(Object element) {
 			return null;
 		}
@@ -272,17 +221,10 @@ public class DomainProjectSelectionDialog extends CcfDialog {
 		}
 	}	
 	
-	class DomainProjectSelectionContentProvider extends WorkbenchContentProvider {
+	class ProjectPackageSelectionContentProvider extends WorkbenchContentProvider {
 		public Object[] getChildren(Object element) {
-			if (element instanceof DomainProjectSelectionDialog) {
-				return domains.toArray();
-			}
-			if (element instanceof Domain) {
-				Domain domain = (Domain)element;
-				domainProjects = getProjects(domain.toString());
-				if (domainProjects != null) {
-					return domainProjects.toArray();
-				}
+			if (element instanceof ProjectPackageSelectionDialog) {
+				return rqp_packages.toArray();
 			}
 			return new Object[0];
 		}
@@ -290,17 +232,14 @@ public class DomainProjectSelectionDialog extends CcfDialog {
 			return getChildren(element);
 		}
 		public boolean hasChildren(Object element) {
-			if (element instanceof Domain) {
-				return type == BROWSER_TYPE_PROJECT;
-			}
 			return false;
 		}
 	}
 	
-	class Domain {
+	class RQPPackage {
 		private String name;
 		
-		public Domain(String name) {
+		public RQPPackage(String name) {
 			this.name = name;
 		}
 
@@ -311,16 +250,10 @@ public class DomainProjectSelectionDialog extends CcfDialog {
 	}
 	
 	class Project {
-		private String domain;
 		private String name;
 		
-		public Project(String domain, String name) {
-			this.domain = domain;
+		public Project(String name) {
 			this.name = name;
-		}
-
-		public String getDomain() {
-			return domain;
 		}
 
 		public String toString() {
@@ -329,7 +262,7 @@ public class DomainProjectSelectionDialog extends CcfDialog {
 		
 	}
 	
-	class DomainProjectLabelProvider extends LabelProvider {
+	class ProjectPackageLabelProvider extends LabelProvider {
 		
 	}
 

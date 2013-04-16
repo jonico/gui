@@ -1,4 +1,4 @@
-package com.collabnet.ccf.qc.schemageneration;
+package com.collabnet.ccf.rqp.schemageneration;
 
 import javax.xml.transform.TransformerException;
 
@@ -17,13 +17,13 @@ public class TestSchemaAndXSLTFileGenerators {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		QCLayoutExtractor qcLayoutExtractor = new QCLayoutExtractor();
-		qcLayoutExtractor.setUserName("alex_qc");
-		qcLayoutExtractor.setPassword("");
-		qcLayoutExtractor.setServerUrl("http://10.2.1.114:8080/qcbin/");
+		RQPLayoutExtractor rqpLayoutExtractor = new RQPLayoutExtractor();
+		rqpLayoutExtractor.setUserName("alex_qc");
+		rqpLayoutExtractor.setPassword("");
+		rqpLayoutExtractor.setServerUrl("http://10.2.1.114:8080/qcbin/");
 
 		CCFSchemaAndXSLTFileGenerator generator = new CCFXSLTSchemaAndXSLTFileGenerator(".");
-		outputSchemaAndXSLTFiles(qcLayoutExtractor, "QC2CSFE-FeatureRequests",
+		outputSchemaAndXSLTFiles(rqpLayoutExtractor, "QC2CSFE-FeatureRequests",
 				generator);
 	}
 

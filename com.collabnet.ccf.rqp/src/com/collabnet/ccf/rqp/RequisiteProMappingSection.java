@@ -1,4 +1,4 @@
-package com.collabnet.ccf.qc;
+package com.collabnet.ccf.rqp;
 
 import java.util.Properties;
 
@@ -24,13 +24,14 @@ import com.collabnet.ccf.IMappingSection;
 import com.collabnet.ccf.MappingSection;
 import com.collabnet.ccf.model.Landscape;
 import com.collabnet.ccf.model.SynchronizationStatus;
-import com.collabnet.ccf.qc.dialogs.DomainProjectSelectionDialog;
-import com.collabnet.ccf.qc.dialogs.RequirementTypeSelectionDialog;
-import com.collabnet.ccf.qc.schemageneration.QCLayoutExtractor;
+import com.collabnet.ccf.rqp.dialogs.ProjectPackageSelectionDialog;
+import com.collabnet.ccf.rqp.dialogs.RequirementTypeSelectionDialog;
+import com.collabnet.ccf.rqp.schemageneration.RQPLayoutExtractor;
 
-public class QualityCenterMappingSection extends MappingSection {
-	private Text domainText;
+public class RequisiteProMappingSection extends MappingSection {
+	
 	private Text projectText;
+	private Text packageText;
 	private Button projectBrowseButton;
 	private Label requirementTypeLabel;
 	private Text requirementTypeText;
@@ -42,9 +43,9 @@ public class QualityCenterMappingSection extends MappingSection {
 	private boolean advancedProjectMappingOptionsEnabled;
 	
 	private IDialogSettings settings = Activator.getDefault().getDialogSettings();
-	private static final String PREVIOUS_TYPE = "QualityCenterMappingSection.type";
-	public static final String PREVIOUS_DOMAIN = "QualityCenterMappingSection.previousDomain.";
-	public static final String PREVIOUS_DOMAIN_COUNT = "QualityCenterMappingSection.previousDomainCount";
+	private static final String PREVIOUS_TYPE = "RequisiteProMappingSection.type";
+	public static final String PREVIOUS_DOMAIN = "RequisiteProMappingSection.previousDomain.";
+	public static final String PREVIOUS_DOMAIN_COUNT = "RequisiteProMappingSection.previousDomainCount";
 	private static final int TYPE_DEFECTS = 0;
 	private static final int TYPE_REQUIREMENTS = 1;
 	
@@ -59,7 +60,7 @@ public class QualityCenterMappingSection extends MappingSection {
 	}
 	
 	private String getRepositoryId() {
-		StringBuffer repositoryId = new StringBuffer(domainText.getText().trim() + "-" + projectText.getText().trim());
+		StringBuffer repositoryId = new StringBuffer(projectText.getText().trim() + "-" + packageText.getText().trim());
 		if (requirementsButton.getSelection()) {
 			repositoryId.append("-" + requirementTypeText.getText().trim());
 		}
@@ -67,54 +68,54 @@ public class QualityCenterMappingSection extends MappingSection {
 	}
 	
 	public Composite getComposite(Composite parent, final Landscape landscape) {		
-		Group qcGroup = new Group(parent, SWT.NULL);
-		GridLayout qcLayout = new GridLayout();
-		qcLayout.numColumns = 3;
-		qcGroup.setLayout(qcLayout);
+		Group rqpGroup = new Group(parent, SWT.NULL);
+		GridLayout rqpLayout = new GridLayout();
+		rqpLayout.numColumns = 3;
+		rqpGroup.setLayout(rqpLayout);
 		GridData gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
-		qcGroup.setLayoutData(gd);	
+		rqpGroup.setLayoutData(gd);	
 		
-		if (landscape.getType1().equals("QC") && landscape.getType2().equals("QC")) {
+		if (landscape.getType1().equals("RQP") && landscape.getType2().equals("RQP")) {
 			if (landscape.getRole() == Landscape.ROLE_ADMINISTRATOR) {
 				String url;
 				if (getSystemNumber() == 1) {
-					url = landscape.getProperties1().getProperty(QualityCenterCcfParticipant.PROPERTIES_QC_URL);
+					url = landscape.getProperties1().getProperty(RequisiteProCcfParticipant.PROPERTIES_RQP_URL);
 				} else {
-					url = landscape.getProperties2().getProperty(QualityCenterCcfParticipant.PROPERTIES_QC_URL);
+					url = landscape.getProperties2().getProperty(RequisiteProCcfParticipant.PROPERTIES_RQP_URL);
 				}
-				qcGroup.setText("Quality Center (" + url + "):");
+				rqpGroup.setText("RequisitePro (" + url + "):");
 			} else {
-				qcGroup.setText("Quality Center " + getSystemNumber());
+				rqpGroup.setText("RequisitePro " + getSystemNumber());
 			}
 		} else {
-			qcGroup.setText("Quality Center:");
+			rqpGroup.setText("RequisitePro:");
 		}		
 		
-		Label domainLabel = new Label(qcGroup, SWT.NONE);
-		domainLabel.setText("Domain:");
-
-		domainText = new Text(qcGroup, SWT.BORDER);
-		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
-		domainText.setLayoutData(gd);	
-		
-		new Label(qcGroup, SWT.NONE);
-
-		Label projectLabel = new Label(qcGroup, SWT.NONE);
+		Label projectLabel = new Label(rqpGroup, SWT.NONE);
 		projectLabel.setText("Project:");
-	
-		projectText = new Text(qcGroup, SWT.BORDER);
+
+		projectText = new Text(rqpGroup, SWT.BORDER);
 		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
 		projectText.setLayoutData(gd);	
 		
-		projectBrowseButton = new Button(qcGroup, SWT.PUSH);
+		new Label(rqpGroup, SWT.NONE);
+
+		Label packageLabel = new Label(rqpGroup, SWT.NONE);
+		packageLabel.setText("Package:");
+	
+		packageText = new Text(rqpGroup, SWT.BORDER);
+		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
+		packageText.setLayoutData(gd);	
+		
+		projectBrowseButton = new Button(rqpGroup, SWT.PUSH);
 		projectBrowseButton.setText("Browse...");
 		projectBrowseButton.setVisible("win32".equals(SWT.getPlatform()));
 		projectBrowseButton.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent arg0) {
-				DomainProjectSelectionDialog dialog = new DomainProjectSelectionDialog(Display.getDefault().getActiveShell(), landscape, domainText.getText(), projectText.getText(), DomainProjectSelectionDialog.BROWSER_TYPE_PROJECT);
-				if (dialog.open() == DomainProjectSelectionDialog.OK) {
-					domainText.setText(dialog.getDomain());
+				ProjectPackageSelectionDialog dialog = new ProjectPackageSelectionDialog(Display.getDefault().getActiveShell(), landscape, projectText.getText(), packageText.getText(), ProjectPackageSelectionDialog.BROWSER_TYPE_PROJECT);
+				if (dialog.open() == ProjectPackageSelectionDialog.OK) {
 					projectText.setText(dialog.getProject());
+					packageText.setText(dialog.getPackage());
 					if (getProjectPage() != null) {
 						getProjectPage().setPageComplete();
 					}
@@ -122,22 +123,22 @@ public class QualityCenterMappingSection extends MappingSection {
 			}			
 		});
 
-		defectsButton = new Button(qcGroup, SWT.RADIO);
+		defectsButton = new Button(rqpGroup, SWT.RADIO);
 		defectsButton.setText("Defects");
 		gd = new GridData();
 		gd.horizontalSpan = 3;
 		defectsButton.setLayoutData(gd);
-		requirementsButton = new Button(qcGroup, SWT.RADIO);
+		requirementsButton = new Button(rqpGroup, SWT.RADIO);
 		requirementsButton.setText("Requirements");
 		gd = new GridData();
 		gd.horizontalSpan = 3;
 		requirementsButton.setLayoutData(gd);
 	
-		int qcType;
+		int rqpType;
 		try {
-			qcType = settings.getInt(PREVIOUS_TYPE);
-		} catch (Exception e) { qcType = TYPE_DEFECTS; }
-		switch (qcType) {
+			rqpType = settings.getInt(PREVIOUS_TYPE);
+		} catch (Exception e) { rqpType = TYPE_DEFECTS; }
+		switch (rqpType) {
 		case TYPE_REQUIREMENTS:
 			requirementsButton.setSelection(true);
 			break;
@@ -146,23 +147,23 @@ public class QualityCenterMappingSection extends MappingSection {
 			break;
 		}		
 	
-		requirementTypeLabel = new Label(qcGroup, SWT.NONE);
+		requirementTypeLabel = new Label(rqpGroup, SWT.NONE);
 		requirementTypeLabel.setText("Requirement type:");
 		requirementTypeLabel.setVisible(requirementsButton.getSelection());
-		requirementTypeText = new Text(qcGroup, SWT.BORDER);
+		requirementTypeText = new Text(rqpGroup, SWT.BORDER);
 		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
 		requirementTypeText.setLayoutData(gd);	
 		requirementTypeText.setVisible(requirementsButton.getSelection());
-		requirementTypeBrowseButton = new Button(qcGroup, SWT.PUSH);
+		requirementTypeBrowseButton = new Button(rqpGroup, SWT.PUSH);
 		requirementTypeBrowseButton.setText("Browse...");
 		requirementTypeBrowseButton.setVisible("win32".equals(SWT.getPlatform()) && requirementsButton.getSelection());
 		requirementTypeBrowseButton.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent arg0) {
 				if (!validate(landscape)) {
-					MessageDialog.openError(Display.getDefault().getActiveShell(), "Select Requirement Type", "Invalid Quality Center Domain/Project entered.");
+					MessageDialog.openError(Display.getDefault().getActiveShell(), "Select Requirement Type", "Invalid RequisitePro Domain/Project entered.");
 					return;
 				}
-				RequirementTypeSelectionDialog dialog = new RequirementTypeSelectionDialog(Display.getDefault().getActiveShell(), landscape, domainText.getText().trim(), projectText.getText().trim());
+				RequirementTypeSelectionDialog dialog = new RequirementTypeSelectionDialog(Display.getDefault().getActiveShell(), landscape, projectText.getText().trim());
 				if (dialog.open() == RequirementTypeSelectionDialog.OK) {
 					requirementTypeText.setText(dialog.getType());
 					if (getProjectPage() != null) {
@@ -172,7 +173,7 @@ public class QualityCenterMappingSection extends MappingSection {
 			}			
 		});
 		
-		Composite warningGroup = new Composite(qcGroup, SWT.NULL);
+		Composite warningGroup = new Composite(rqpGroup, SWT.NULL);
 		GridLayout warningLayout = new GridLayout();
 		warningLayout.numColumns = 2;
 		warningGroup.setLayout(warningLayout);
@@ -200,11 +201,11 @@ public class QualityCenterMappingSection extends MappingSection {
 			}			
 		};
 		
+		packageText.addModifyListener(modifyListener);
 		projectText.addModifyListener(modifyListener);
-		domainText.addModifyListener(modifyListener);
 		requirementTypeText.addModifyListener(modifyListener);
 		
-		domainText.addSelectionListener(new SelectionAdapter() {
+		projectText.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent se) {
 				if (getProjectPage() != null) {
 					getProjectPage().setPageComplete();
@@ -232,18 +233,18 @@ public class QualityCenterMappingSection extends MappingSection {
 		defectsButton.addSelectionListener(typeListener);
 		requirementsButton.addSelectionListener(typeListener);	
 		
-		advancedProjectMappingOptionsEnabled = com.collabnet.ccf.qc.Activator.getDefault().getPreferenceStore().getBoolean(com.collabnet.ccf.qc.Activator.PREFERENCES_ADVANCED_PROJECT_MAPPING);
+		advancedProjectMappingOptionsEnabled = com.collabnet.ccf.rqp.Activator.getDefault().getPreferenceStore().getBoolean(com.collabnet.ccf.rqp.Activator.PREFERENCES_ADVANCED_PROJECT_MAPPING);
 		if (!advancedProjectMappingOptionsEnabled) {
 			projectBrowseButton.setVisible(false);
 			requirementTypeBrowseButton.setVisible(false);
 		}
 		
-		return qcGroup;
+		return rqpGroup;
 	}
 
 	public void initializeComposite(SynchronizationStatus projectMapping, int type) {
-		domainText.setText(getDomain(projectMapping, type));
 		projectText.setText(getProject(projectMapping, type));
+		packageText.setText(getPackage(projectMapping, type));
 		String requirementType = getRequirementType(projectMapping, type);
 		if (requirementType != null) {
 			requirementTypeLabel.setVisible(true);
@@ -270,11 +271,11 @@ public class QualityCenterMappingSection extends MappingSection {
 			requirementsErrorLabel.setVisible(false);
 			requirementsErrorMessageLabel.setVisible(false);
 		}
-		if (domainText == null) {
+		if (projectText == null) {
 			return false;
 		}
-		if (domainText.getText().trim().length() == 0 ||
-			projectText.getText().trim().length() == 0) {
+		if (projectText.getText().trim().length() == 0 ||
+			packageText.getText().trim().length() == 0) {
 			return false;
 		}
 		if (requirementTypeText.isVisible()) {
@@ -297,46 +298,34 @@ public class QualityCenterMappingSection extends MappingSection {
 			return true;
 		}
 		
-		QCLayoutExtractor qcLayoutExtractor = new QCLayoutExtractor();
+		RQPLayoutExtractor rqpLayoutExtractor = new RQPLayoutExtractor();
 		Properties properties;
 		if (landscape.getType2().equals("QT")) {
 			properties = landscape.getProperties2();
 		} else {
 			properties = landscape.getProperties1();
 		}
-		String url = properties.getProperty(Activator.PROPERTIES_QC_URL, "");
-		String user = properties.getProperty(Activator.PROPERTIES_QC_USER, "");
+		String url = properties.getProperty(Activator.PROPERTIES_RQP_URL, "");
+		String user = properties.getProperty(Activator.PROPERTIES_RQP_USER, "");
 		String password = Activator.decodePassword(properties.getProperty(
-				Activator.PROPERTIES_QC_PASSWORD, ""));
-		qcLayoutExtractor.setServerUrl(url);
-		qcLayoutExtractor.setUserName(user);
-		qcLayoutExtractor.setPassword(password);
+				Activator.PROPERTIES_RQP_PASSWORD, ""));
+		rqpLayoutExtractor.setServerUrl(url);
+		rqpLayoutExtractor.setUserName(user);
+		rqpLayoutExtractor.setPassword(password);
 		
 		boolean validDomainAndProject;
 		try {
-			qcLayoutExtractor.validateQCDomainAndProject(domainText.getText().trim(), projectText.getText().trim());
+			rqpLayoutExtractor.validateRQPProjectAndPackage(projectText.getText().trim());
 			validDomainAndProject = true;
 		} catch (Exception e) {
 			validDomainAndProject = false;
 		}
 		if (!validDomainAndProject) {
-			if (!showValidationQuestionDialog("Could not validate the supplied Quality Center Domain/Project.  Continue anyway?")) {
+			if (!showValidationQuestionDialog("Could not validate the supplied RequisitePro Domain/Project.  Continue anyway?")) {
 				return false;
 			}
 		}
 		return true;
-	}
-	
-	private String getDomain(SynchronizationStatus projectMapping, int type) {
-		String repositoryId;
-		if (type == IMappingSection.TYPE_SOURCE) {
-			repositoryId = projectMapping.getSourceRepositoryId();
-		} else {
-			repositoryId = projectMapping.getTargetRepositoryId();
-		}
-		int index = repositoryId.indexOf("-");
-		if (index == -1) return "";
-		else return repositoryId.substring(0, index);
 	}
 	
 	private String getProject(SynchronizationStatus projectMapping, int type) {
@@ -348,13 +337,25 @@ public class QualityCenterMappingSection extends MappingSection {
 		}
 		int index = repositoryId.indexOf("-");
 		if (index == -1) return "";
+		else return repositoryId.substring(0, index);
+	}
+	
+	private String getPackage(SynchronizationStatus projectMapping, int type) {
+		String repositoryId;
+		if (type == IMappingSection.TYPE_SOURCE) {
+			repositoryId = projectMapping.getSourceRepositoryId();
+		} else {
+			repositoryId = projectMapping.getTargetRepositoryId();
+		}
+		int index = repositoryId.indexOf("-");
+		if (index == -1) return "";
 		else {
-			String project = repositoryId = repositoryId.substring(index + 1);
-			index = project.indexOf("-");
+			String rqp_package = repositoryId = repositoryId.substring(index + 1);
+			index = rqp_package.indexOf("-");
 			if (index != -1) {
-				project = project.substring(0, index);
+				rqp_package = rqp_package.substring(0, index);
 			}
-			return project;
+			return rqp_package;
 		}
 	}
 	

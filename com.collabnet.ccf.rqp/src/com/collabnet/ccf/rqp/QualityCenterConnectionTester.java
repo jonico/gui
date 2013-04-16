@@ -1,4 +1,4 @@
-package com.collabnet.ccf.qc;
+package com.collabnet.ccf.rqp;
 
 import com.collabnet.ccf.IConnectionTester;
 

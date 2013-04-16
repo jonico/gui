@@ -1,4 +1,4 @@
-package com.collabnet.ccf.qc.dialogs;
+package com.collabnet.ccf.rqp.dialogs;
 
 import java.util.Properties;
 
@@ -25,11 +25,11 @@ import com.collabnet.ccf.Activator;
 import com.collabnet.ccf.dialogs.CcfDialog;
 import com.collabnet.ccf.dialogs.ExceptionDetailsErrorDialog;
 import com.collabnet.ccf.model.Landscape;
-import com.collabnet.ccf.qc.schemageneration.QCLayoutExtractor;
+import com.collabnet.ccf.rqp.schemageneration.RQPLayoutExtractor;
 
 public class RequirementTypeSelectionDialog extends CcfDialog {
+	
 	private Landscape landscape;
-	private String domain;
 	private String project;
 	private List typeList;
 	private String selectedType;
@@ -37,10 +37,9 @@ public class RequirementTypeSelectionDialog extends CcfDialog {
 	
 	private Button okButton;
 
-	public RequirementTypeSelectionDialog(Shell shell, Landscape landscape, String domain, String project) {
+	public RequirementTypeSelectionDialog(Shell shell, Landscape landscape, String project) {
 		super(shell, "RequirementTypeSelectionDialog");
 		this.landscape = landscape;
-		this.domain = domain;
 		this.project = project;
 	}
 	
@@ -108,21 +107,21 @@ public class RequirementTypeSelectionDialog extends CcfDialog {
 		BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
 			public void run() {
 				try {
-					QCLayoutExtractor qcLayoutExtractor = new QCLayoutExtractor();
+					RQPLayoutExtractor rqpLayoutExtractor = new RQPLayoutExtractor();
 					Properties properties;
 					if (landscape.getType2().equals("QT")) {
 						properties = landscape.getProperties2();
 					} else {
 						properties = landscape.getProperties1();
 					}
-					String url = properties.getProperty(Activator.PROPERTIES_QC_URL, "");
-					String user = properties.getProperty(Activator.PROPERTIES_QC_USER, "");
+					String url = properties.getProperty(Activator.PROPERTIES_RQP_URL, "");
+					String user = properties.getProperty(Activator.PROPERTIES_RQP_USER, "");
 					String password = Activator.decodePassword(properties.getProperty(
-							Activator.PROPERTIES_QC_PASSWORD, ""));
-					qcLayoutExtractor.setServerUrl(url);
-					qcLayoutExtractor.setUserName(user);
-					qcLayoutExtractor.setPassword(password);
-					types = qcLayoutExtractor.getRequirementTypes(domain, project);
+							Activator.PROPERTIES_RQP_PASSWORD, ""));
+					rqpLayoutExtractor.setServerUrl(url);
+					rqpLayoutExtractor.setUserName(user);
+					rqpLayoutExtractor.setPassword(password);
+					types = rqpLayoutExtractor.getRequirementNames(project);
 				} catch (Exception e) {
 					Activator.handleError(e);
 					ExceptionDetailsErrorDialog.openError(getShell(), "Select Requirement Type", e.getMessage(), new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getLocalizedMessage(), e));
